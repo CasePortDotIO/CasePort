@@ -1,13 +1,13 @@
 /**
  * Local Schema Markup Generator
- * 
+ *
  * Generates enhanced LocalBusiness schema with:
  * - Geographic coordinates (latitude/longitude)
  * - Contact information
  * - Business hours
  * - Service area
  * - Aggregate ratings
- * 
+ *
  * Used for GEO/AEO optimization on city pages
  */
 
@@ -37,7 +37,10 @@ const cityCoordinates: Record<string, { lat: number; lng: number }> = {
   orlando: { lat: 28.5421, lng: -81.3723 },
 };
 
-export function generateLocalBusinessSchema(market: Market, baseUrl: string = "https://caseportmp-ktqqzjyn.manus.space") {
+export function generateLocalBusinessSchema(
+  market: Market,
+  baseUrl: string = "https://caseportmp-ktqqzjyn.manus.space"
+) {
   const coords = cityCoordinates[market.id] || { lat: 0, lng: 0 };
 
   return {
@@ -47,7 +50,7 @@ export function generateLocalBusinessSchema(market: Market, baseUrl: string = "h
     name: `CasePort — ${market.metro} Personal Injury Lead Market`,
     description: `Exclusive personal injury leads in ${market.metro}, ${market.state}. MII Score: ${market.mii}. ${market.casesAcquiredYearly} cases acquired yearly. Pre-funded wallet. 15-minute response time.`,
     url: `${baseUrl}/markets/${market.id}`,
-    
+
     // Geographic information
     areaServed: {
       "@type": "City",
@@ -60,7 +63,7 @@ export function generateLocalBusinessSchema(market: Market, baseUrl: string = "h
       latitude: coords.lat,
       longitude: coords.lng,
     },
-    
+
     // Contact information
     contactPoint: {
       "@type": "ContactPoint",
@@ -70,15 +73,23 @@ export function generateLocalBusinessSchema(market: Market, baseUrl: string = "h
       availableLanguage: "en",
       areaServed: market.metro,
     },
-    
+
     // Business hours (virtual, 24/7 availability)
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
       opens: "00:00",
       closes: "23:59",
     },
-    
+
     // Ratings and reviews
     aggregateRating: {
       "@type": "AggregateRating",
@@ -88,7 +99,7 @@ export function generateLocalBusinessSchema(market: Market, baseUrl: string = "h
       ratingCount: market.casesAcquiredYearly.toString(),
       reviewCount: "847",
     },
-    
+
     // Service offerings
     service: [
       {
@@ -109,7 +120,7 @@ export function generateLocalBusinessSchema(market: Market, baseUrl: string = "h
         areaServed: market.metro,
       },
     ],
-    
+
     // Offers
     offers: {
       "@type": "Offer",
@@ -119,14 +130,15 @@ export function generateLocalBusinessSchema(market: Market, baseUrl: string = "h
       availability: "https://schema.org/InStock",
       availabilityStarts: market.activatedDate,
     },
-    
+
     // Organization information
     organization: {
       "@type": "Organization",
       name: "CasePort",
       url: baseUrl,
       logo: `${baseUrl}/logo.png`,
-      description: "Exclusive personal injury lead market infrastructure. 46 markets. 3 firms each. No exceptions.",
+      description:
+        "Exclusive personal injury lead market infrastructure. 46 markets. 3 firms each. No exceptions.",
     },
   };
 }
@@ -134,21 +146,25 @@ export function generateLocalBusinessSchema(market: Market, baseUrl: string = "h
 /**
  * Generate Organization schema with all city service areas
  */
-export function generateOrganizationSchema(markets: Market[], baseUrl: string = "https://caseportmp-ktqqzjyn.manus.space") {
+export function generateOrganizationSchema(
+  markets: Market[],
+  baseUrl: string = "https://caseportmp-ktqqzjyn.manus.space"
+) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "CasePort",
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
-    description: "Exclusive personal injury lead market infrastructure. 46 markets. 3 firms each. No exceptions.",
+    description:
+      "Exclusive personal injury lead market infrastructure. 46 markets. 3 firms each. No exceptions.",
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "Sales",
       telephone: "+1-XXX-XXX-XXXX",
       email: "access@caseport.io",
     },
-    areaServed: markets.map((m) => ({
+    areaServed: markets.map(m => ({
       "@type": "City",
       name: m.metro,
       addressRegion: m.state,
