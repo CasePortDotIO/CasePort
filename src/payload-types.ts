@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    markets: Market;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    markets: MarketsSelect<false> | MarketsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -163,6 +165,74 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "markets".
+ */
+export interface Market {
+  id: string;
+  metro: string;
+  /**
+   * URL-friendly name. Used in /markets/[slug]
+   */
+  slug: string;
+  state: string;
+  status: 'active' | 'limited' | 'capped' | 'evaluation';
+  mii: number;
+  casesAcquiredYearly: number;
+  partnersActive: number;
+  maxPartners: number;
+  /**
+   * Current number of firms on the waitlist for this market.
+   */
+  waitlistPosition?: number | null;
+  population: string;
+  monthlySearchVolume: string;
+  responseTime: string;
+  activatedDate: string;
+  avgSettlement: string;
+  avgCaseValue: string;
+  heroHeadline: string;
+  heroSubline: string;
+  testimonial?: {
+    quote?: string | null;
+    author?: string | null;
+  };
+  whyThisMarket?:
+    | {
+        title: string;
+        desc: string;
+        id?: string | null;
+      }[]
+    | null;
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Hidden semantic blocks for Answer Engine Optimization. Will be rendered seamlessly.
+   */
+  aeoContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -192,6 +262,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'markets';
+        value: string | Market;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -274,6 +348,52 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "markets_select".
+ */
+export interface MarketsSelect<T extends boolean = true> {
+  metro?: T;
+  slug?: T;
+  state?: T;
+  status?: T;
+  mii?: T;
+  casesAcquiredYearly?: T;
+  partnersActive?: T;
+  maxPartners?: T;
+  waitlistPosition?: T;
+  population?: T;
+  monthlySearchVolume?: T;
+  responseTime?: T;
+  activatedDate?: T;
+  avgSettlement?: T;
+  avgCaseValue?: T;
+  heroHeadline?: T;
+  heroSubline?: T;
+  testimonial?:
+    | T
+    | {
+        quote?: T;
+        author?: T;
+      };
+  whyThisMarket?:
+    | T
+    | {
+        title?: T;
+        desc?: T;
+        id?: T;
+      };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  aeoContent?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

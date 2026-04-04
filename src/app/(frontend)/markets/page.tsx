@@ -40,7 +40,7 @@ import StickyCTABar from '@/components/StickyCTABar'
 import UnlistedMarketForm from '@/components/UnlistedMarketForm'
 import VideoTestimonialSection from '@/components/VideoTestimonialSection'
 import { analytics } from '@/lib/analytics'
-import { markets, type Market, type MarketStatus } from '@/lib/marketData'
+import { type Market, type MarketStatus } from '@/lib/marketData'
 import { AnimatePresence, motion, useInView } from 'framer-motion'
 import {
   ArrowRight,
@@ -88,24 +88,39 @@ function useCountUp(end: number, duration: number = 2000, startOnView: boolean =
 }
 
 export default function MarketPage() {
+  const [markets, setMarkets] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRegion, setSelectedRegion] = useState<string>('All')
   const [selectedStatus, setSelectedStatus] = useState<MarketStatus | 'all'>('all')
-  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)     
   const [showRegionDropdown, setShowRegionDropdown] = useState(false)
   const [showExitIntent, setShowExitIntent] = useState(false)
-  const [hoveredMarket, setHoveredMarket] = useState<Market | null>(null)
+  const [hoveredMarket, setHoveredMarket] = useState<Market | null>(null)       
   const exitIntentShown = useRef(false)
+
+  useEffect(() => {
+    fetch('/api/markets?limit=100')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.docs) setMarkets(data.docs)
+        setIsLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
+        setIsLoading(false)
+      })
+  }, [])
 
   const stats = useMemo(
     () => ({
       total: markets.length,
       active: markets.filter((m) => m.status === 'active').length,
       capped: markets.filter((m) => m.status === 'capped').length,
-      evaluation: markets.filter((m) => m.status === 'evaluation').length,
-      totalCases: markets.reduce((sum, m) => sum + m.casesAcquiredYearly, 0),
+      evaluation: markets.filter((m) => m.status === 'evaluation').length,      
+      totalCases: markets.reduce((sum, m) => sum + (m.casesAcquiredYearly || 0), 0),   
     }),
-    [],
+    [markets]
   )
 
   // Filter markets
@@ -121,10 +136,10 @@ export default function MarketPage() {
         selectedStatus === 'all' || m.status === (selectedStatus as MarketStatus)
       return matchesSearch && matchesRegion && matchesStatus
     })
-  }, [searchQuery, selectedRegion, selectedStatus])
+  }, [searchQuery, selectedRegion, selectedStatus, markets])
 
   // Get unique regions
-  const regions = useMemo(() => Array.from(new Set(markets.map((m) => m.region))) as string[], [])
+  const regions = useMemo(() => Array.from(new Set(markets.map((m) => m.region))) as string[], [markets])
 
   // Sort: limited first, then active, then capped, then evaluation
   const sortedMarkets = useMemo(() => {
@@ -141,7 +156,7 @@ export default function MarketPage() {
     })
   }, [filteredMarkets])
 
-  const noResults = sortedMarkets.length === 0 && searchQuery !== ''
+  const noResults = !isLoading && sortedMarkets.length === 0 && searchQuery !== ''
   const hasUnlistedMarket = searchQuery !== '' && noResults
 
   // Exit-intent handler
@@ -174,7 +189,7 @@ export default function MarketPage() {
   const totalCounter = useCountUp(stats.total)
   const cappedCounter = useCountUp(stats.capped)
   const statesCounter = useCountUp(Array.from(new Set(markets.map((m) => m.state))).length)
-  const partnersCounter = useCountUp(markets.reduce((sum, m) => sum + m.partnersActive, 0))
+  const partnersCounter = useCountUp(markets.reduce((sum, m) => sum + (m.partnersActive || 0), 0))
 
   // ============================================
   // SCHEMA.ORG JSON-LD — Comprehensive AEO/GEO
@@ -361,7 +376,7 @@ export default function MarketPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="glass-panel inline-flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-2.5 mb-8 overflow-hidden rounded-2xl"
+              className="bg-white/[0.03] border border-white/[0.08] inline-flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-2.5 mb-8 overflow-hidden rounded-2xl"
               role="status"
               aria-label={`System status: ${stats.total} markets active, ${stats.capped} capped, ${stats.evaluation} in review`}
             >
@@ -454,12 +469,8 @@ export default function MarketPage() {
                 ].map((stat, i) => (
                   <div
                     key={stat.label}
-                    className="glass-panel p-5 rounded-2xl"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '12px',
-                    }}
+                    className="bg-white/[0.03] border border-white/[0.08] p-5 rounded-2xl"
+                    
                   >
                     <span
                       className="system-label text-[#6B7280] block mb-2"
@@ -618,7 +629,16 @@ export default function MarketPage() {
             </div>
 
             {/* Market Grid */}
-            {noResults ? (
+            {isLoading ? (
+              <div className="text-center py-20">
+                <motion.div
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <p className="text-[18px] text-[#B0B8C4] mb-6">Loading markets...</p>
+                </motion.div>
+              </div>
+            ) : noResults ? (
               <div className="text-center py-20">
                 <p className="text-[18px] text-[#B0B8C4] mb-6">
                   No markets found for "{searchQuery}".
@@ -651,13 +671,10 @@ export default function MarketPage() {
         {/* ============================================ */}
         {/* SECTION 4: GEOGRAPHY — Reinforce Value */}
         {/* ============================================ */}
-        <section
-          className="relative py-20 sm:py-28"
-          style={{ backgroundColor: 'oklch(0.06 0.01 250)' }}
-        >
+                <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-6xl">
             <div className="text-center mb-16">
-              <span className="system-label block mb-4" style={{ color: 'oklch(0.6 0.015 250)' }}>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4">
                 MARKET STRUCTURE
               </span>
               <h2
@@ -706,7 +723,7 @@ export default function MarketPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-50px' }}
                   transition={{ duration: 0.6, delay: i * 0.1 }}
-                  className="glass-panel p-6 rounded-2xl"
+                  className="bg-white/[0.03] border border-white/[0.08] p-6 rounded-2xl"
                 >
                   <div
                     className="w-10 h-10 rounded-[10px] flex items-center justify-center mb-5"
@@ -719,16 +736,10 @@ export default function MarketPage() {
                     {item.description}
                   </p>
                   <div className="pt-4 border-t border-white/[0.08]">
-                    <span
-                      className="text-[24px] font-bold"
-                      style={{ color: 'oklch(0.78 0.13 195)' }}
-                    >
+                    <span className="text-[24px] font-bold text-[#22D3EE]">
                       {item.stat}
                     </span>
-                    <span
-                      className="system-label text-[#6B7280] block mt-1"
-                      style={{ fontSize: '11px' }}
-                    >
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280] block mt-1">
                       {item.statLabel}
                     </span>
                   </div>
@@ -741,10 +752,10 @@ export default function MarketPage() {
         {/* ============================================ */}
         {/* SECTION 5: 3-FIRM CAP MODEL */}
         {/* ============================================ */}
-        <section className="relative py-20 sm:py-28">
+        <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-5xl">
             <div className="text-center mb-16">
-              <span className="system-label block mb-4" style={{ color: 'oklch(0.6 0.015 250)' }}>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4" >
                 MARKET CAPACITY
               </span>
               <h2
@@ -815,12 +826,8 @@ export default function MarketPage() {
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="glass-panel p-8 rounded-2xl"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '12px',
-                }}
+                className="bg-white/[0.03] border border-white/[0.08] p-8 rounded-2xl"
+                
               >
                 <img
                   src={DATA_VIZ}
@@ -836,12 +843,10 @@ export default function MarketPage() {
         {/* SECTION 6: MII BREAKDOWN */}
         {/* ============================================ */}
         <section
-          className="relative py-20 sm:py-28"
-          style={{ backgroundColor: 'oklch(0.06 0.01 250)' }}
-        >
+          className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-5xl">
             <div className="text-center mb-16">
-              <span className="system-label block mb-4" style={{ color: 'oklch(0.6 0.015 250)' }}>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4" >
                 PROPRIETARY SCORING
               </span>
               <h2
@@ -885,12 +890,8 @@ export default function MarketPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="glass-panel p-6 rounded-2xl"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '12px',
-                  }}
+                  className="bg-white/[0.03] border border-white/[0.08] p-6 rounded-2xl"
+                  
                 >
                   <div className="flex items-start gap-4">
                     <div
@@ -913,10 +914,10 @@ export default function MarketPage() {
         {/* ============================================ */}
         {/* SECTION 7: FAQ — Reduce Friction */}
         {/* ============================================ */}
-        <section className="relative py-20 sm:py-28">
+        <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-3xl">
             <div className="text-center mb-16">
-              <span className="system-label block mb-4" style={{ color: 'oklch(0.6 0.015 250)' }}>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4" >
                 COMMON QUESTIONS
               </span>
               <h2
@@ -960,12 +961,8 @@ export default function MarketPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.05 }}
-                  className="glass-panel group rounded-2xl"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '12px',
-                  }}
+                  className="bg-white/[0.03] border border-white/[0.08] group rounded-2xl"
+                  
                 >
                   <summary className="px-6 py-4 cursor-pointer flex items-center justify-between text-[#F1F3F5] font-bold text-[15px] hover:text-[#22D3EE] transition-colors">
                     {item.q}
@@ -984,16 +981,14 @@ export default function MarketPage() {
         {/* SECTION 8: FINAL CTA — Action Trigger */}
         {/* ============================================ */}
         <section
-          className="relative py-20 sm:py-28"
-          style={{ backgroundColor: 'oklch(0.06 0.01 250)' }}
-        >
+          className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-3xl text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <span className="system-label block mb-6" style={{ color: 'oklch(0.6 0.015 250)' }}>
+              <span className="system-label block mb-6" >
                 NEXT STEP
               </span>
               <h2

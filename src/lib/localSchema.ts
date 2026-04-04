@@ -37,16 +37,16 @@ const cityCoordinates: Record<string, { lat: number; lng: number }> = {
   orlando: { lat: 28.5421, lng: -81.3723 },
 };
 
-export function generateLocalBusinessSchema(market: Market, baseUrl: string = "https://caseportmp-ktqqzjyn.manus.space") {
-  const coords = cityCoordinates[market.id] || { lat: 0, lng: 0 };
+export function generateLocalBusinessSchema(market: any, baseUrl: string = "https://caseportmp-ktqqzjyn.manus.space") {
+  const coords = cityCoordinates[market.slug || (market.slug || market.id)] || { lat: 0, lng: 0 };
 
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `${baseUrl}/markets/${market.id}`,
+    "@id": `${baseUrl}/markets/${(market.slug || market.id)}`,
     name: `CasePort — ${market.metro} Personal Injury Lead Market`,
     description: `Exclusive personal injury leads in ${market.metro}, ${market.state}. MII Score: ${market.mii}. ${market.casesAcquiredYearly} cases acquired yearly. Pre-funded wallet. 15-minute response time.`,
-    url: `${baseUrl}/markets/${market.id}`,
+    url: `${baseUrl}/markets/${(market.slug || market.id)}`,
     
     // Geographic information
     areaServed: {
@@ -163,7 +163,7 @@ export function generateOrganizationSchema(markets: Market[], baseUrl: string = 
 /**
  * Generate FAQPage schema for city pages
  */
-export function generateFAQSchema(market: Market) {
+export function generateFAQSchema(market: any) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",

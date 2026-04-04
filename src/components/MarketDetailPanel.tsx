@@ -73,29 +73,11 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 100 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed right-0 top-0 bottom-0 w-full max-w-[480px] z-50 overflow-y-auto"
-        style={{
-          background: "oklch(0.06 0.01 250)",
-          borderLeft: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
+        className="fixed right-0 top-0 bottom-0 w-full max-w-[480px] z-[100] overflow-y-auto bg-[#030608] border-l border-white/[0.08]">
         {/* Header */}
-        <div
-          className="sticky top-0 z-10 px-6 py-4 flex items-center justify-between"
-          style={{
-            background: "oklch(0.06 0.01 250 / 0.95)",
-            backdropFilter: "blur(20px)",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <span className="system-label" style={{ color: "oklch(0.6 0.015 250)" }}>Market Intelligence</span>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-[10px] hover:bg-white/[0.05] transition-colors text-[#6B7280] hover:text-[#F1F3F5]"
-            aria-label="Close panel"
-          >
-            <X size={18} />
-          </button>
+        <div className="sticky top-0 z-10 px-6 py-4 flex items-center justify-between bg-[#030608]/95 backdrop-blur-xl border-b border-white/[0.08]">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Market Intelligence</span>
+          <button onClick={onClose} className="p-2 rounded-[10px] hover:bg-white/[0.05] transition-colors text-[#6B7280] hover:text-[#F1F3F5]" aria-label="Close panel"><X size={18} /></button>
         </div>
 
         <div className="px-6 py-8">
@@ -128,7 +110,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
           </div>
 
           {/* MII Score — Large */}
-          <div className="glass-panel p-6 mb-6 rounded-2xl">
+          <div className="bg-white/[0.03] border border-white/[0.08] p-6 mb-6 rounded-2xl">
             <div className="flex items-center justify-between mb-4">
               <span className="system-label" style={{ color: "oklch(0.6 0.015 250)" }}>Market Intelligence Index</span>
               <TrendingUp size={16} className="text-[#22D3EE]" />
@@ -155,7 +137,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
 
           {/* Key Metrics */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="glass-panel p-4 rounded-2xl">
+            <div className="bg-white/[0.03] border border-white/[0.08] p-4 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
                 <Search size={14} className="text-[#22D3EE]" />
                 <span className="system-label text-[#6B7280]" style={{ fontSize: "9px" }}>Monthly Searches</span>
@@ -164,7 +146,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
                 {market.monthlySearchVolume}
               </span>
             </div>
-            <div className="glass-panel p-4 rounded-2xl">
+            <div className="bg-white/[0.03] border border-white/[0.08] p-4 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
                 <DollarSign size={14} className="text-[#F59E0B]" />
                 <span className="system-label text-[#6B7280]" style={{ fontSize: "9px" }}>Avg. Case Value</span>
@@ -173,7 +155,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
                 {market.avgCaseValue}
               </span>
             </div>
-            <div className="glass-panel p-4 rounded-2xl">
+            <div className="bg-white/[0.03] border border-white/[0.08] p-4 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
                 <Users size={14} className="text-[#10B981]" />
                 <span className="system-label text-[#6B7280]" style={{ fontSize: "9px" }}>Metro Population</span>
@@ -182,7 +164,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
                 {market.population}
               </span>
             </div>
-            <div className="glass-panel p-4 rounded-2xl">
+            <div className="bg-white/[0.03] border border-white/[0.08] p-4 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-3.5 h-3.5 rounded-full border-2" style={{ borderColor: color }} />
                 <span className="system-label text-[#6B7280]" style={{ fontSize: "9px" }}>Partner Slots</span>
@@ -197,7 +179,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
           </div>
 
           {/* Slots Visualization */}
-          <div className="glass-panel p-5 mb-6 rounded-2xl">
+          <div className="bg-white/[0.03] border border-white/[0.08] p-5 mb-6 rounded-2xl">
             <span className="system-label block mb-4" style={{ color: "oklch(0.6 0.015 250)" }}>Port Capacity</span>
             <div className="flex gap-3">
               {Array.from({ length: market.maxPartners }).map((_, i) => (
@@ -238,7 +220,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
 
           {/* View Full Market Page Link */}
           <Link
-            href={`/markets/${market.id}`}
+            href={`/markets/${market.slug || market.id}`}
             className="w-full px-4 py-3 rounded-[12px] border border-[#22D3EE]/30 bg-[#22D3EE]/5 text-[#22D3EE] text-[13px] font-medium flex items-center justify-center gap-2 hover:bg-[#22D3EE]/10 transition-colors mb-4"
           >
             View Market Details
