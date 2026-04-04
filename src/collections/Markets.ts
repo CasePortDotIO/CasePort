@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig } from 'payload'
 
 export const Markets: CollectionConfig = {
   slug: 'markets',
@@ -22,9 +22,9 @@ export const Markets: CollectionConfig = {
           data.partnersActive >= data.maxPartners &&
           data.status !== 'evaluation'
         ) {
-          data.status = 'capped';
+          data.status = 'capped'
         }
-        return data;
+        return data
       },
     ],
   },
@@ -262,7 +262,8 @@ export const Markets: CollectionConfig = {
               label: 'Answer Engine Content (Hidden)',
               type: 'richText',
               admin: {
-                description: 'Hidden semantic blocks for Answer Engine Optimization. Will be rendered seamlessly.',
+                description:
+                  'Hidden semantic blocks for Answer Engine Optimization. Will be rendered seamlessly.',
               },
             },
           ],
@@ -271,4 +272,4 @@ export const Markets: CollectionConfig = {
     },
   ],
   timestamps: true,
-};
+}

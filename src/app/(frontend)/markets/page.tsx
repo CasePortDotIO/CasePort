@@ -93,20 +93,20 @@ export default function MarketPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRegion, setSelectedRegion] = useState<string>('All')
   const [selectedStatus, setSelectedStatus] = useState<MarketStatus | 'all'>('all')
-  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)     
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
   const [showRegionDropdown, setShowRegionDropdown] = useState(false)
   const [showExitIntent, setShowExitIntent] = useState(false)
-  const [hoveredMarket, setHoveredMarket] = useState<Market | null>(null)       
+  const [hoveredMarket, setHoveredMarket] = useState<Market | null>(null)
   const exitIntentShown = useRef(false)
 
   useEffect(() => {
     fetch('/api/markets?limit=100')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data?.docs) setMarkets(data.docs)
         setIsLoading(false)
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err)
         setIsLoading(false)
       })
@@ -117,10 +117,10 @@ export default function MarketPage() {
       total: markets.length,
       active: markets.filter((m) => m.status === 'active').length,
       capped: markets.filter((m) => m.status === 'capped').length,
-      evaluation: markets.filter((m) => m.status === 'evaluation').length,      
-      totalCases: markets.reduce((sum, m) => sum + (m.casesAcquiredYearly || 0), 0),   
+      evaluation: markets.filter((m) => m.status === 'evaluation').length,
+      totalCases: markets.reduce((sum, m) => sum + (m.casesAcquiredYearly || 0), 0),
     }),
-    [markets]
+    [markets],
   )
 
   // Filter markets
@@ -139,7 +139,10 @@ export default function MarketPage() {
   }, [searchQuery, selectedRegion, selectedStatus, markets])
 
   // Get unique regions
-  const regions = useMemo(() => Array.from(new Set(markets.map((m) => m.region))) as string[], [markets])
+  const regions = useMemo(
+    () => Array.from(new Set(markets.map((m) => m.region))) as string[],
+    [markets],
+  )
 
   // Sort: limited first, then active, then capped, then evaluation
   const sortedMarkets = useMemo(() => {
@@ -431,12 +434,14 @@ export default function MarketPage() {
                   style={{ letterSpacing: '-2.4px', color: '#F1F3F5' }}
                 >
                   The Infrastructure Behind Your Next{' '}
-                  <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">Signed Case.
+                  <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">
+                    Signed Case.
                   </span>
                 </h1>
                 <p className="text-[18px] text-[#B0B8C4] mb-8 leading-relaxed max-w-[500px]">
                   46 markets. 3 firms each.{' '}
-                  <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">No exceptions.
+                  <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">
+                    No exceptions.
                   </span>
                 </p>
                 <p className="text-[15px] text-[#B0B8C4] mb-10 leading-relaxed max-w-[520px]">
@@ -470,7 +475,6 @@ export default function MarketPage() {
                   <div
                     key={stat.label}
                     className="bg-white/[0.03] border border-white/[0.08] p-5 rounded-2xl"
-                    
                   >
                     <span
                       className="system-label text-[#6B7280] block mb-2"
@@ -671,7 +675,7 @@ export default function MarketPage() {
         {/* ============================================ */}
         {/* SECTION 4: GEOGRAPHY — Reinforce Value */}
         {/* ============================================ */}
-                <section className="relative py-20 sm:py-28 bg-[#030608]">
+        <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-6xl">
             <div className="text-center mb-16">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4">
@@ -736,9 +740,7 @@ export default function MarketPage() {
                     {item.description}
                   </p>
                   <div className="pt-4 border-t border-white/[0.08]">
-                    <span className="text-[24px] font-bold text-[#22D3EE]">
-                      {item.stat}
-                    </span>
+                    <span className="text-[24px] font-bold text-[#22D3EE]">{item.stat}</span>
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280] block mt-1">
                       {item.statLabel}
                     </span>
@@ -755,7 +757,7 @@ export default function MarketPage() {
         <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-5xl">
             <div className="text-center mb-16">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4" >
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4">
                 MARKET CAPACITY
               </span>
               <h2
@@ -827,7 +829,6 @@ export default function MarketPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 className="bg-white/[0.03] border border-white/[0.08] p-8 rounded-2xl"
-                
               >
                 <img
                   src={DATA_VIZ}
@@ -842,11 +843,10 @@ export default function MarketPage() {
         {/* ============================================ */}
         {/* SECTION 6: MII BREAKDOWN */}
         {/* ============================================ */}
-        <section
-          className="relative py-20 sm:py-28 bg-[#030608]">
+        <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-5xl">
             <div className="text-center mb-16">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4" >
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4">
                 PROPRIETARY SCORING
               </span>
               <h2
@@ -891,7 +891,6 @@ export default function MarketPage() {
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
                   className="bg-white/[0.03] border border-white/[0.08] p-6 rounded-2xl"
-                  
                 >
                   <div className="flex items-start gap-4">
                     <div
@@ -917,7 +916,7 @@ export default function MarketPage() {
         <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-3xl">
             <div className="text-center mb-16">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4" >
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-white/50 block mb-4">
                 COMMON QUESTIONS
               </span>
               <h2
@@ -962,7 +961,6 @@ export default function MarketPage() {
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.05 }}
                   className="bg-white/[0.03] border border-white/[0.08] group rounded-2xl"
-                  
                 >
                   <summary className="px-6 py-4 cursor-pointer flex items-center justify-between text-[#F1F3F5] font-bold text-[15px] hover:text-[#22D3EE] transition-colors">
                     {item.q}
@@ -980,23 +978,21 @@ export default function MarketPage() {
         {/* ============================================ */}
         {/* SECTION 8: FINAL CTA — Action Trigger */}
         {/* ============================================ */}
-        <section
-          className="relative py-20 sm:py-28 bg-[#030608]">
+        <section className="relative py-20 sm:py-28 bg-[#030608]">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8 max-w-3xl text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <span className="system-label block mb-6" >
-                NEXT STEP
-              </span>
+              <span className="system-label block mb-6">NEXT STEP</span>
               <h2
                 className="text-[32px] sm:text-[40px] font-bold text-[#F1F3F5] mb-6 leading-tight"
                 style={{ letterSpacing: '-1.2px' }}
               >
                 Your market will not stay open forever.{' '}
-                <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">And we are not saying that to rush you.
+                <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">
+                  And we are not saying that to rush you.
                 </span>
               </h2>
               <p className="text-[16px] text-[#B0B8C4] mb-10 max-w-[600px] mx-auto leading-relaxed">

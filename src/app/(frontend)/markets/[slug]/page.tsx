@@ -24,16 +24,16 @@ export default function CityMarketPage() {
 
   useEffect(() => {
     if (!cityId) return
-    
+
     fetch(`/api/markets?where[slug][equals]=${cityId}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.docs && data.docs.length > 0) {
           setMarket(data.docs[0])
         }
         setIsLoading(false)
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err)
         setIsLoading(false)
       })
@@ -60,7 +60,10 @@ export default function CityMarketPage() {
           <p className="text-[#B0B8C4] mb-8">
             This market doesn't exist yet. Check the markets list.
           </p>
-          <Button onClick={() => router.push('/markets')} className="bg-[#00B4D8] text-black hover:bg-[#5BB6C9]">
+          <Button
+            onClick={() => router.push('/markets')}
+            className="bg-[#00B4D8] text-black hover:bg-[#5BB6C9]"
+          >
             Back to Markets
           </Button>
         </div>
@@ -85,10 +88,15 @@ export default function CityMarketPage() {
 
   // Use backend data or dynamic defaults
   const headline = market.heroHeadline || `${market.metro || 'Metro'}'s Personal Injury Market`
-  const subline = market.heroSubline || `Exclusive market access. ${(market.casesAcquiredYearly || 0).toLocaleString()} cases acquired yearly. MII Score: ${market.mii || 0}.`
+  const subline =
+    market.heroSubline ||
+    `Exclusive market access. ${(market.casesAcquiredYearly || 0).toLocaleString()} cases acquired yearly. MII Score: ${market.mii || 0}.`
 
   const defaultWhyThisMarket = [
-    { title: 'Consistent Case Flow', desc: `${market.metro || 'Metro'} is a key market in the CasePort network. Average settlement: ${market.avgSettlement || '$0'}.` },
+    {
+      title: 'Consistent Case Flow',
+      desc: `${market.metro || 'Metro'} is a key market in the CasePort network. Average settlement: ${market.avgSettlement || '$0'}.`,
+    },
     {
       title: 'Qualified Partners Only',
       desc: `${market.maxPartners || 3} firms maximum. No dilution. No competition.`,
@@ -103,7 +111,10 @@ export default function CityMarketPage() {
     },
   ]
 
-  const whyThisMarket = (market.whyThisMarket && market.whyThisMarket.length > 0) ? market.whyThisMarket : defaultWhyThisMarket
+  const whyThisMarket =
+    market.whyThisMarket && market.whyThisMarket.length > 0
+      ? market.whyThisMarket
+      : defaultWhyThisMarket
 
   const defaultFaqs = [
     {
@@ -116,11 +127,13 @@ export default function CityMarketPage() {
     },
     {
       question: 'How quickly will I receive leads?',
-      answer: 'Qualified leads are delivered within 15 minutes of your market activation. All leads are pre-qualified based on your contract definition.',
+      answer:
+        'Qualified leads are delivered within 15 minutes of your market activation. All leads are pre-qualified based on your contract definition.',
     },
     {
       question: "What if a lead doesn't meet my contract definition?",
-      answer: "You're not charged. The pre-funded wallet model means you only pay for leads that meet your mutually agreed contract definition. Full transparency.",
+      answer:
+        "You're not charged. The pre-funded wallet model means you only pay for leads that meet your mutually agreed contract definition. Full transparency.",
     },
     {
       question: `Is ${market.metro} a good market for my firm?`,
@@ -128,11 +141,12 @@ export default function CityMarketPage() {
     },
     {
       question: 'What happens when the market caps?',
-      answer: 'Once all partner slots are filled, the market closes to new applications. You can join the waitlist for priority access if a slot opens.',
+      answer:
+        'Once all partner slots are filled, the market closes to new applications. You can join the waitlist for priority access if a slot opens.',
     },
   ]
 
-  const faqs = (market.faqs && market.faqs.length > 0) ? market.faqs : defaultFaqs
+  const faqs = market.faqs && market.faqs.length > 0 ? market.faqs : defaultFaqs
 
   return (
     <div className="min-h-screen bg-[#030608] selection:bg-[#00B4D8]/30">
@@ -171,7 +185,11 @@ export default function CityMarketPage() {
             <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08]">
               <div
                 className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: statusColor[market.status as keyof typeof statusColor] || statusColor.evaluation }}
+                style={{
+                  backgroundColor:
+                    statusColor[market.status as keyof typeof statusColor] ||
+                    statusColor.evaluation,
+                }}
               />
               <span className="text-[12px] font-bold text-[#F1F3F5] tracking-widest uppercase">
                 {statusLabel[market.status as keyof typeof statusLabel] || market.status}
@@ -278,7 +296,9 @@ export default function CityMarketPage() {
                 <li className="flex justify-between items-center">
                   <span className="text-[#B0B8C4] text-sm">Market Activated:</span>
                   <span className="text-[#F1F3F5] font-semibold text-sm">
-                    {market.activatedDate ? new Date(market.activatedDate).toLocaleDateString() : 'Pending'}
+                    {market.activatedDate
+                      ? new Date(market.activatedDate).toLocaleDateString()
+                      : 'Pending'}
                   </span>
                 </li>
               </ul>
