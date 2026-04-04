@@ -1,20 +1,25 @@
-"use client";
+'use client'
 
-import { useParams, useRouter } from "next/navigation";
-import { markets } from "@/lib/marketData";
-import { ArrowRight, MapPin, TrendingUp, Users, Briefcase, CheckCircle } from "lucide-react";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import Footer from '@/components/Footer'
+import Navbar from '@/components/Navbar'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
+import { Button } from '@/components/ui/button'
+import { markets } from '@/lib/marketData'
+import { motion } from 'framer-motion'
+import { ArrowRight, Briefcase, CheckCircle, MapPin, TrendingUp, Users } from 'lucide-react'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 
 export default function CityMarketPage() {
-  const params = useParams();
-  const router = useRouter();
-  const cityId = typeof params?.slug === 'string' ? params.slug.toLowerCase() : '';
-  const market = markets.find((m) => m.id === cityId);
+  const params = useParams()
+  const router = useRouter()
+  const cityId = typeof params?.slug === 'string' ? params.slug.toLowerCase() : ''
+  const market = markets.find((m) => m.id === cityId)
 
   if (!market) {
     return (
@@ -22,55 +27,63 @@ export default function CityMarketPage() {
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-[32px] font-bold text-[#F1F3F5] mb-4">Market Not Found</h1>
-          <p className="text-[#B0B8C4] mb-8">This market doesn't exist yet. Check the markets list.</p>
-          <Button variant="gradient" onClick={() => router.push("/markets")}>
+          <p className="text-[#B0B8C4] mb-8">
+            This market doesn't exist yet. Check the markets list.
+          </p>
+          <Button variant="gradient" onClick={() => router.push('/markets')}>
             Back to Markets
           </Button>
         </div>
         <Footer />
       </div>
-    );
+    )
   }
 
   const statusColor = {
-    active: "#10B981",
-    limited: "#F59E0B",
-    capped: "#6B7280",
-    evaluation: "#8B5CF6",
-  };
+    active: '#10B981',
+    limited: '#F59E0B',
+    capped: '#6B7280',
+    evaluation: '#8B5CF6',
+  }
 
   const statusLabel = {
-    active: "Open",
-    limited: "Limited",
-    capped: "Capped",
-    evaluation: "In Review",
-  };
+    active: 'Open',
+    limited: 'Limited',
+    capped: 'Capped',
+    evaluation: 'In Review',
+  }
 
   // City-specific copy variations
   const cityInsights: Record<string, { headline: string; subline: string; insight: string }> = {
     houston: {
       headline: "Houston's Personal Injury Market",
-      subline: "The energy capital's legal market is booming. 847 cases acquired yearly. Territorial control. No dilution.",
-      insight: "Houston's population growth (2.3M+) drives consistent PI case volume. Average settlement: $285K-$420K.",
+      subline:
+        "The energy capital's legal market is booming. 847 cases acquired yearly. Territorial control. No dilution.",
+      insight:
+        "Houston's population growth (2.3M+) drives consistent PI case volume. Average settlement: $285K-$420K.",
     },
-    "los-angeles": {
-      headline: "Los Angeles Personal Injury Market",
-      subline: "America's second-largest market. 1,240 cases acquired yearly. Premium case values. Exclusive access.",
-      insight: "LA's diverse population and high cost of living drive premium settlement values ($320K-$580K avg).",
+    'los-angeles': {
+      headline: 'Los Angeles Personal Injury Market',
+      subline:
+        "America's second-largest market. 1,240 cases acquired yearly. Premium case values. Exclusive access.",
+      insight:
+        "LA's diverse population and high cost of living drive premium settlement values ($320K-$580K avg).",
     },
     chicago: {
       headline: "Chicago's Personal Injury Market",
-      subline: "The Midwest's legal hub. 923 cases acquired yearly. Strong conversion rates. Institutional partners.",
-      insight: "Chicago's established legal infrastructure supports consistent, high-quality PI case flow.",
+      subline:
+        "The Midwest's legal hub. 923 cases acquired yearly. Strong conversion rates. Institutional partners.",
+      insight:
+        "Chicago's established legal infrastructure supports consistent, high-quality PI case flow.",
     },
     default: {
       headline: `${market.metro}'s Personal Injury Market`,
       subline: `Exclusive market access. ${market.casesAcquiredYearly.toLocaleString()} cases acquired yearly. MII Score: ${market.mii}.`,
       insight: `${market.metro} is a key market in the CasePort network. Average settlement: ${market.avgSettlement}.`,
     },
-  };
+  }
 
-  const cityData = cityInsights[cityId] || cityInsights.default;
+  const cityData = cityInsights[cityId] || cityInsights.default
 
   return (
     <div className="min-h-screen bg-[#030608] selection:bg-[#00B4D8]/30">
@@ -81,12 +94,24 @@ export default function CityMarketPage() {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #22D3EE 0%, transparent 50%)" }} />
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 20% 50%, #22D3EE 0%, transparent 50%)',
+          }}
+        />
         <div className="container max-w-4xl relative z-10 mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 mb-8 text-[14px]">
-              <Link href="/markets" className="text-[#6B7280] hover:text-[#B0B8C4] transition-colors">
+              <Link
+                href="/markets"
+                className="text-[#6B7280] hover:text-[#B0B8C4] transition-colors"
+              >
                 Markets
               </Link>
               <span className="text-[#6B7280]">/</span>
@@ -95,7 +120,10 @@ export default function CityMarketPage() {
 
             {/* Status Badge */}
             <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.08]">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: statusColor[market.status as keyof typeof statusColor] }} />
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: statusColor[market.status as keyof typeof statusColor] }}
+              />
               <span className="text-[12px] font-bold text-[#F1F3F5] tracking-widest uppercase">
                 {statusLabel[market.status as keyof typeof statusLabel]}
               </span>
@@ -116,7 +144,12 @@ export default function CityMarketPage() {
             </p>
 
             {/* CTA */}
-            <Button variant="gradient" size="lg" className="rounded-full shadow-lg shadow-[#00B4D8]/20" onClick={() => router.push("/markets")}>
+            <Button
+              variant="gradient"
+              size="lg"
+              className="rounded-full shadow-lg shadow-[#00B4D8]/20"
+              onClick={() => router.push('/markets')}
+            >
               Request Access <ArrowRight size={16} className="ml-2" />
             </Button>
           </motion.div>
@@ -128,10 +161,18 @@ export default function CityMarketPage() {
         <div className="container max-w-4xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "MII Score", value: market.mii, icon: TrendingUp },
-              { label: "Cases/Year", value: market.casesAcquiredYearly.toLocaleString(), icon: Briefcase },
-              { label: "Active Partners", value: `${market.partnersActive}/${market.maxPartners}`, icon: Users },
-              { label: "Avg Settlement", value: market.avgSettlement, icon: MapPin },
+              { label: 'MII Score', value: market.mii, icon: TrendingUp },
+              {
+                label: 'Cases/Year',
+                value: market.casesAcquiredYearly.toLocaleString(),
+                icon: Briefcase,
+              },
+              {
+                label: 'Active Partners',
+                value: `${market.partnersActive}/${market.maxPartners}`,
+                icon: Users,
+              },
+              { label: 'Avg Settlement', value: market.avgSettlement, icon: MapPin },
             ].map((metric, idx) => (
               <motion.div
                 key={idx}
@@ -157,7 +198,9 @@ export default function CityMarketPage() {
       {/* Market Details */}
       <section className="py-16 sm:py-20">
         <div className="container max-w-4xl mx-auto px-4">
-          <h2 className="text-[28px] font-bold text-[#F1F3F5] mb-8 tracking-tight">Market Overview</h2>
+          <h2 className="text-[28px] font-bold text-[#F1F3F5] mb-8 tracking-tight">
+            Market Overview
+          </h2>
           <div className="grid md:grid-cols-2 gap-8">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -173,15 +216,21 @@ export default function CityMarketPage() {
                 </li>
                 <li className="flex justify-between items-center pb-3 border-b border-white/[0.04]">
                   <span className="text-[#B0B8C4] text-sm">Monthly Search Volume:</span>
-                  <span className="text-[#F1F3F5] font-semibold text-sm">{market.monthlySearchVolume}</span>
+                  <span className="text-[#F1F3F5] font-semibold text-sm">
+                    {market.monthlySearchVolume}
+                  </span>
                 </li>
                 <li className="flex justify-between items-center pb-3 border-b border-white/[0.04]">
                   <span className="text-[#B0B8C4] text-sm">Response Time:</span>
-                  <span className="text-[#F1F3F5] font-semibold text-sm">{market.responseTime}</span>
+                  <span className="text-[#F1F3F5] font-semibold text-sm">
+                    {market.responseTime}
+                  </span>
                 </li>
                 <li className="flex justify-between items-center">
                   <span className="text-[#B0B8C4] text-sm">Market Activated:</span>
-                  <span className="text-[#F1F3F5] font-semibold text-sm">{new Date(market.activatedDate).toLocaleDateString()}</span>
+                  <span className="text-[#F1F3F5] font-semibold text-sm">
+                    {new Date(market.activatedDate).toLocaleDateString()}
+                  </span>
                 </li>
               </ul>
             </motion.div>
@@ -193,12 +242,21 @@ export default function CityMarketPage() {
               className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-8 flex flex-col justify-center"
             >
               <h3 className="text-[16px] font-bold text-[#F1F3F5] mb-4">Case Value Range</h3>
-              <p className="text-[32px] font-bold bg-gradient-to-r from-[#00B4D8] to-[#5BB6C9] bg-clip-text text-transparent mb-4">{market.avgCaseValue}</p>
-              <p className="text-[#B0B8C4] text-sm leading-relaxed mb-6">Average settlement range for personal injury cases evaluated in the {market.metro} sector.</p>
+              <p className="text-[32px] font-bold bg-gradient-to-r from-[#00B4D8] to-[#5BB6C9] bg-clip-text text-transparent mb-4">
+                {market.avgCaseValue}
+              </p>
+              <p className="text-[#B0B8C4] text-sm leading-relaxed mb-6">
+                Average settlement range for personal injury cases evaluated in the {market.metro}{' '}
+                sector.
+              </p>
               {market.testimonial && (
                 <div className="mt-auto pt-6 border-t border-white/[0.06]">
-                  <p className="text-[14px] text-[#B0B8C4] italic mb-3 leading-relaxed">"{market.testimonial.quote}"</p>
-                  <p className="text-[12px] font-bold text-[#F1F3F5]">— {market.testimonial.author}</p>
+                  <p className="text-[14px] text-[#B0B8C4] italic mb-3 leading-relaxed">
+                    "{market.testimonial.quote}"
+                  </p>
+                  <p className="text-[12px] font-bold text-[#F1F3F5]">
+                    — {market.testimonial.author}
+                  </p>
                 </div>
               )}
             </motion.div>
@@ -209,13 +267,24 @@ export default function CityMarketPage() {
       {/* Why This Market Section */}
       <section className="py-16 sm:py-20 bg-white/[0.01]">
         <div className="container max-w-4xl mx-auto px-4">
-          <h2 className="text-[28px] font-bold text-[#F1F3F5] mb-8 tracking-tight">Why {market.metro}?</h2>
+          <h2 className="text-[28px] font-bold text-[#F1F3F5] mb-8 tracking-tight">
+            Why {market.metro}?
+          </h2>
           <div className="space-y-4">
             {[
-              { title: "Consistent Case Flow", desc: cityData.insight },
-              { title: "Qualified Partners Only", desc: `${market.maxPartners} firms maximum. No dilution. No competition.` },
-              { title: "Pre-Funded Wallet Model", desc: "Only pay for qualified leads. Money stays in your wallet until delivery." },
-              { title: "15-Minute Response Time", desc: "Access to leads within 15 minutes of qualification. Speed = conversion." },
+              { title: 'Consistent Case Flow', desc: cityData.insight },
+              {
+                title: 'Qualified Partners Only',
+                desc: `${market.maxPartners} firms maximum. No dilution. No competition.`,
+              },
+              {
+                title: 'Pre-Funded Wallet Model',
+                desc: 'Only pay for qualified leads. Money stays in your wallet until delivery.',
+              },
+              {
+                title: '15-Minute Response Time',
+                desc: 'Access to leads within 15 minutes of qualification. Speed = conversion.',
+              },
             ].map((item, idx) => (
               <motion.div
                 key={idx}
@@ -239,7 +308,9 @@ export default function CityMarketPage() {
       {/* City-Specific FAQ */}
       <section className="py-16 sm:py-20">
         <div className="container max-w-4xl mx-auto px-4">
-          <h2 className="text-[28px] font-bold text-[#F1F3F5] mb-8 tracking-tight">Frequently Asked Questions</h2>
+          <h2 className="text-[28px] font-bold text-[#F1F3F5] mb-8 tracking-tight">
+            Frequently Asked Questions
+          </h2>
           <Accordion type="single" collapsible className="space-y-3">
             {[
               {
@@ -251,8 +322,8 @@ export default function CityMarketPage() {
                 a: `Currently ${market.partnersActive} of ${market.maxPartners} partner slots are active. The market is capped at ${market.maxPartners} firms to maintain lead quality.`,
               },
               {
-                q: "How quickly will I receive leads?",
-                a: "Qualified leads are delivered within 15 minutes of your market activation. All leads are pre-qualified based on your contract definition.",
+                q: 'How quickly will I receive leads?',
+                a: 'Qualified leads are delivered within 15 minutes of your market activation. All leads are pre-qualified based on your contract definition.',
               },
               {
                 q: "What if a lead doesn't meet my contract definition?",
@@ -263,11 +334,15 @@ export default function CityMarketPage() {
                 a: `${market.metro} has ${market.casesAcquiredYearly.toLocaleString()} cases acquired yearly with an MII score of ${market.mii}. Request a strategy call to determine fit.`,
               },
               {
-                q: "What happens when the market caps?",
-                a: "Once all partner slots are filled, the market closes to new applications. You can join the waitlist for priority access if a slot opens.",
+                q: 'What happens when the market caps?',
+                a: 'Once all partner slots are filled, the market closes to new applications. You can join the waitlist for priority access if a slot opens.',
               },
             ].map((item, idx) => (
-              <AccordionItem key={idx} value={`item-${idx}`} className="bg-white/[0.03] border border-white/[0.08] rounded-2xl px-6 py-2 overflow-hidden hover:bg-white/[0.04] transition-colors data-[state=open]:bg-white/[0.05]">
+              <AccordionItem
+                key={idx}
+                value={`item-${idx}`}
+                className="bg-white/[0.03] border border-white/[0.08] rounded-2xl px-6 py-2 overflow-hidden hover:bg-white/[0.04] transition-colors data-[state=open]:bg-white/[0.05]"
+              >
                 <AccordionTrigger className="text-[15px] font-bold text-[#F1F3F5] hover:text-[#00B4D8] hover:no-underline transition-colors py-4">
                   {item.q}
                 </AccordionTrigger>
@@ -287,12 +362,16 @@ export default function CityMarketPage() {
             Ready to Access {market.metro}?
           </h2>
           <p className="text-[16px] text-[#B0B8C4] mb-8">
-            {market.status === "capped" 
-              ? `This market is at capacity. Join the waitlist (Position #${market.waitlistPosition}).` 
-              : `${market.partnersActive === 0 ? "All slots available." : `${market.maxPartners - market.partnersActive} slot${market.maxPartners - market.partnersActive === 1 ? "" : "s"} remaining.`}`
-            }
+            {market.status === 'capped'
+              ? `This market is at capacity. Join the waitlist (Position #${market.waitlistPosition}).`
+              : `${market.partnersActive === 0 ? 'All slots available.' : `${market.maxPartners - market.partnersActive} slot${market.maxPartners - market.partnersActive === 1 ? '' : 's'} remaining.`}`}
           </p>
-          <Button variant="gradient" size="lg" className="rounded-full shadow-lg shadow-[#00B4D8]/20" onClick={() => router.push("/markets")}>
+          <Button
+            variant="gradient"
+            size="lg"
+            className="rounded-full shadow-lg shadow-[#00B4D8]/20"
+            onClick={() => router.push('/markets')}
+          >
             Request Access <ArrowRight size={16} className="ml-2" />
           </Button>
         </div>
@@ -300,5 +379,5 @@ export default function CityMarketPage() {
 
       <Footer />
     </div>
-  );
+  )
 }

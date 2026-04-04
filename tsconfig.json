@@ -31,5 +31,12 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-"exclude": ["node_modules", "HomePage", "ForLawFirm", "caseport-market-page", "insights", "Caseport Home Landing Page"] 
+  "exclude": [
+    "node_modules",
+    "HomePage",
+    "ForLawFirm",
+    "caseport-market-page",
+    "insights",
+    "Caseport Home Landing Page"
+  ]
 }

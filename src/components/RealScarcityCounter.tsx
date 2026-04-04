@@ -1,79 +1,90 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
 interface RealScarcityCounterProps {
-  market?: string;
-  onSlotsChange?: (available: number) => void;
+  market?: string
+  onSlotsChange?: (available: number) => void
 }
 
-export function RealScarcityCounter({ market = "default", onSlotsChange }: RealScarcityCounterProps) {
-  const [timeLeft, setTimeLeft] = useState({ days: 1, hours: 23, minutes: 59, seconds: 45 });
-  const [slotsAvailable, setSlotsAvailable] = useState(3);
-  const [isLoading, setIsLoading] = useState(true);
+export function RealScarcityCounter({
+  market = 'default',
+  onSlotsChange,
+}: RealScarcityCounterProps) {
+  const [timeLeft, setTimeLeft] = useState({ days: 1, hours: 23, minutes: 59, seconds: 45 })
+  const [slotsAvailable, setSlotsAvailable] = useState(3)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Fetch available slots from database
   // MOCKED for static Next.js port
-  const [slotsData, setSlotsData] = useState<{ available: number } | null>(null);
-  const [slotsLoading, setSlotsLoading] = useState(true);
+  const [slotsData, setSlotsData] = useState<{ available: number } | null>(null)
+  const [slotsLoading, setSlotsLoading] = useState(true)
 
   useEffect(() => {
-    let active = true;
-    setSlotsLoading(true);
+    let active = true
+    setSlotsLoading(true)
     setTimeout(() => {
       if (active) {
         // generate a pseudo-random available count based on market string length
-        const fakeAvailable = (market.length % 3) + 1; 
-        setSlotsData({ available: fakeAvailable });
-        setSlotsLoading(false);
+        const fakeAvailable = (market.length % 3) + 1
+        setSlotsData({ available: fakeAvailable })
+        setSlotsLoading(false)
       }
-    }, 500);
-    return () => { active = false; };
-  }, [market]);
+    }, 500)
+    return () => {
+      active = false
+    }
+  }, [market])
 
   useEffect(() => {
     if (slotsData) {
-      setSlotsAvailable(slotsData.available);
-      onSlotsChange?.(slotsData.available);
-      setIsLoading(false);
+      setSlotsAvailable(slotsData.available)
+      onSlotsChange?.(slotsData.available)
+      setIsLoading(false)
     }
-  }, [slotsData, onSlotsChange]);
+  }, [slotsData, onSlotsChange])
 
   // Update countdown timer every second
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
-        let { days, hours, minutes, seconds } = prev;
-        
+        let { days, hours, minutes, seconds } = prev
+
         if (seconds > 0) {
-          seconds--;
+          seconds--
         } else if (minutes > 0) {
-          minutes--;
-          seconds = 59;
+          minutes--
+          seconds = 59
         } else if (hours > 0) {
-          hours--;
-          minutes = 59;
-          seconds = 59;
+          hours--
+          minutes = 59
+          seconds = 59
         } else if (days > 0) {
-          days--;
-          hours = 23;
-          minutes = 59;
-          seconds = 59;
+          days--
+          hours = 23
+          minutes = 59
+          seconds = 59
         } else {
           // Reset to 7 days when countdown reaches 0
-          days = 7;
-          hours = 0;
-          minutes = 0;
-          seconds = 0;
+          days = 7
+          hours = 0
+          minutes = 0
+          seconds = 0
         }
-        
-        return { days, hours, minutes, seconds };
-      });
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+        return { days, hours, minutes, seconds }
+      })
+    }, 1000)
 
-  const progressPercent = ((timeLeft.days * 24 * 60 * 60 + timeLeft.hours * 60 * 60 + timeLeft.minutes * 60 + timeLeft.seconds) / (7 * 24 * 60 * 60)) * 100;
-  const slotsPercentage = (slotsAvailable / 3) * 100;
+    return () => clearInterval(interval)
+  }, [])
+
+  const progressPercent =
+    ((timeLeft.days * 24 * 60 * 60 +
+      timeLeft.hours * 60 * 60 +
+      timeLeft.minutes * 60 +
+      timeLeft.seconds) /
+      (7 * 24 * 60 * 60)) *
+    100
+  const slotsPercentage = (slotsAvailable / 3) * 100
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -81,7 +92,9 @@ export function RealScarcityCounter({ market = "default", onSlotsChange }: RealS
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-block px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/50 mb-4">
-            <span className="text-xs font-semibold text-cyan-400 tracking-wider">LIMITED AVAILABILITY</span>
+            <span className="text-xs font-semibold text-cyan-400 tracking-wider">
+              LIMITED AVAILABILITY
+            </span>
           </div>
           <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
             Secure Your Market Access Before This Offer Closes
@@ -91,10 +104,10 @@ export function RealScarcityCounter({ market = "default", onSlotsChange }: RealS
         {/* Countdown Timer */}
         <div className="grid grid-cols-4 gap-3 md:gap-4 mb-8">
           {[
-            { value: String(timeLeft.days).padStart(2, "0"), label: "DAYS" },
-            { value: String(timeLeft.hours).padStart(2, "0"), label: "HOURS" },
-            { value: String(timeLeft.minutes).padStart(2, "0"), label: "MINUTES" },
-            { value: String(timeLeft.seconds).padStart(2, "0"), label: "SECONDS" },
+            { value: String(timeLeft.days).padStart(2, '0'), label: 'DAYS' },
+            { value: String(timeLeft.hours).padStart(2, '0'), label: 'HOURS' },
+            { value: String(timeLeft.minutes).padStart(2, '0'), label: 'MINUTES' },
+            { value: String(timeLeft.seconds).padStart(2, '0'), label: 'SECONDS' },
           ].map((item, idx) => (
             <div key={idx} className="text-center">
               <div className="relative">
@@ -120,7 +133,9 @@ export function RealScarcityCounter({ market = "default", onSlotsChange }: RealS
           ) : (
             <>
               <div className="text-sm text-gray-300 mb-2">
-                Only <span className="font-bold text-yellow-400">{slotsAvailable}</span> slot{slotsAvailable !== 1 ? "s" : ""} available for this market. First-come, first-served.
+                Only <span className="font-bold text-yellow-400">{slotsAvailable}</span> slot
+                {slotsAvailable !== 1 ? 's' : ''} available for this market. First-come,
+                first-served.
               </div>
               {/* Slots Progress Bar */}
               <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden mb-2">
@@ -129,17 +144,18 @@ export function RealScarcityCounter({ market = "default", onSlotsChange }: RealS
                   style={{ width: `${slotsPercentage}%` }}
                 />
               </div>
-              <div className="text-xs text-gray-400">
-                {3 - slotsAvailable} claimed this week
-              </div>
+              <div className="text-xs text-gray-400">{3 - slotsAvailable} claimed this week</div>
             </>
           )}
         </div>
 
         {/* CTA Button */}
         <div className="flex justify-center mb-6">
-          <button className="px-8 py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed" disabled={slotsAvailable === 0}>
-            {slotsAvailable === 0 ? "Slots Full - Check Back Next Week" : "Claim Your Slot Now"}
+          <button
+            className="px-8 py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={slotsAvailable === 0}
+          >
+            {slotsAvailable === 0 ? 'Slots Full - Check Back Next Week' : 'Claim Your Slot Now'}
           </button>
         </div>
 
@@ -153,9 +169,10 @@ export function RealScarcityCounter({ market = "default", onSlotsChange }: RealS
 
         {/* Time Remaining Text */}
         <div className="text-center mt-4 text-xs text-gray-400">
-          {timeLeft.days}d {String(timeLeft.hours).padStart(2, "0")}h {String(timeLeft.minutes).padStart(2, "0")}m remaining
+          {timeLeft.days}d {String(timeLeft.hours).padStart(2, '0')}h{' '}
+          {String(timeLeft.minutes).padStart(2, '0')}m remaining
         </div>
       </div>
     </div>
-  );
+  )
 }
