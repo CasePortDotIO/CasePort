@@ -13,14 +13,22 @@
  * - Geist for body text
  */
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Users, Briefcase } from "lucide-react";
-import { getTopMarketsByMII, getMarketsWithTestimonials } from "@/lib/marketData";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
-export default function SocialProofSection() {
-  const topMarkets = getTopMarketsByMII(5);
-  const testimonialsAvailable = getMarketsWithTestimonials();
+export default function SocialProofSection({ markets = [] }: { markets?: any[] }) {
+  const topMarkets = useMemo(() => {
+    // Basic sorting by MII (descending)
+    return [...markets]
+      .sort((a, b) => (b.mii || 0) - (a.mii || 0))
+      .slice(0, 5);
+  }, [markets]);
+
+  const testimonialsAvailable = useMemo(() => {
+    return markets.filter(m => m.testimonial && m.testimonial.quote);
+  }, [markets]);
+
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
 
   useEffect(() => {
@@ -108,43 +116,47 @@ export default function SocialProofSection() {
         </div>
 
         {/* Testimonial Carousel */}
-        {currentTestimonial && (
-          <motion.div
-            key={currentTestimonialIndex}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.5 }}
-            className="glass-panel p-8 text-center rounded-2xl"
-            style={{
-              background: "rgba(255, 255, 255, 0.04)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: "12px",
-            }}
-          >
-            <p className="text-[18px] text-[#F1F3F5] leading-relaxed mb-6 italic">
-              "{currentTestimonial.quote}"
-            </p>
-            <div>
-              <p className="text-[14px] font-bold text-[#F1F3F5]">{currentTestimonial.author}</p>
-              <p className="text-[12px] text-[#6B7280]">{currentTestimonial.firm}</p>
-            </div>
-            {/* Carousel Indicator */}
-            <div className="flex items-center justify-center gap-1.5 mt-6">
-              {testimonialsAvailable.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentTestimonialIndex(idx)}
-                  className="w-2 h-2 rounded-full transition-all"
-                  style={{
-                    backgroundColor: idx === currentTestimonialIndex ? "#22D3EE" : "rgba(255,255,255,0.2)",
-                  }}
-                  aria-label={`Go to testimonial ${idx + 1}`}
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
+        <AnimatePresence mode="wait">
+          {currentTestimonial && (
+            <motion.div
+              key={currentTestimonialIndex}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.5 }}
+              className="glass-panel p-8 text-center rounded-2xl"
+              style={{
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: "12px",
+              }}
+            >
+              <p className="text-[18px] text-[#F1F3F5] leading-relaxed mb-6 italic">
+                "{currentTestimonial.quote}"
+              </p>
+              <div>
+                <p className="text-[14px] font-bold text-[#F1F3F5]">{currentTestimonial.author}</p>
+                {currentTestimonial.firm && (
+                  <p className="text-[12px] text-[#6B7280]">{currentTestimonial.firm}</p>
+                )}
+              </div>
+              {/* Carousel Indicator */}
+              <div className="flex items-center justify-center gap-1.5 mt-6">
+                {testimonialsAvailable.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentTestimonialIndex(idx)}
+                    className="w-2 h-2 rounded-full transition-all"
+                    style={{
+                      backgroundColor: idx === currentTestimonialIndex ? "#22D3EE" : "rgba(255,255,255,0.2)",
+                    }}
+                    aria-label={`Go to testimonial ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

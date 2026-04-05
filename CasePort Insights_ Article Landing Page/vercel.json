@@ -1,0 +1,22 @@
+{
+  "buildCommand": "pnpm build",
+  "outputDirectory": "dist/public",
+  "framework": "vite",
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/:path((?!assets|robots\\.txt|sitemap\\.xml|favicon\\.ico|__manus__).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

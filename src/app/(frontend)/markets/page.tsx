@@ -69,9 +69,14 @@ function useCountUp(end: number, duration: number = 2000, startOnView: boolean =
   const ref = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
   const hasStarted = useRef(false)
+  const previousEnd = useRef(end)
 
   useEffect(() => {
-    if (!startOnView || !isInView || hasStarted.current) return
+    if (end > 0 && String(end) !== String(previousEnd.current)) {
+      hasStarted.current = false
+      previousEnd.current = end
+    }
+    if (!startOnView || !isInView || hasStarted.current || end === 0) return
     hasStarted.current = true
     const startTime = performance.now()
     const animate = (currentTime: number) => {
@@ -89,6 +94,7 @@ function useCountUp(end: number, duration: number = 2000, startOnView: boolean =
 
 export default function MarketPage() {
   const [markets, setMarkets] = useState<any[]>([])
+  const [pageFaqs, setPageFaqs] = useState<{ question: string; answer: string }[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRegion, setSelectedRegion] = useState<string>('All')
@@ -110,7 +116,49 @@ export default function MarketPage() {
         console.error(err)
         setIsLoading(false)
       })
+
+    fetch('/api/globals/markets-page')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.faqs) setPageFaqs(data.faqs)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
   }, [])
+
+  const dynamicFaqs = useMemo(() => {
+    if (pageFaqs && pageFaqs.length > 0) {
+      return pageFaqs.map((faq) => ({ q: faq.question, a: faq.answer }))
+    }
+
+    return [
+      {
+        q: 'What markets does CasePort serve for personal injury leads?',
+        a: `CasePort serves ${markets.length || 46} metropolitan areas across the United States. Each market is capped at 3 partner firms.`,
+      },
+      {
+        q: 'How does the 3-firm market cap actually work?',
+        a: 'Each CasePort market is limited to exactly 3 partner firms. This is not artificial scarcity — it is a structural requirement. When a market reaches 3 firms, it is capped and new firms are placed on a waitlist.',
+      },
+      {
+        q: 'What is the Market Intelligence Index?',
+        a: 'The MII is a proprietary scoring system (0–100) that combines search intent volume, competition density, average case settlement values, and population growth trajectory. Higher MII scores indicate more attractive markets.',
+      },
+      {
+        q: 'Can I operate in multiple CasePort markets?',
+        a: 'Yes. Multi-market access is available for firms with the capacity to handle case flow across multiple territories. Each market requires a separate partner slot.',
+      },
+      {
+        q: 'How do I request access for a market not yet listed?',
+        a: 'Submit a priority access request at www.caseport.io/request-access. Markets are evaluated based on demand density, average case values, population size, and infrastructure readiness.',
+      },
+      {
+        q: 'How is CasePort different from other PI lead generation companies?',
+        a: 'CasePort differs in three ways: (1) Market Cap — each metro is limited to 3 firms; (2) Dedicated Infrastructure — market-specific demand capture; (3) Pre-Funded Wallet — no manual invoicing.',
+      },
+    ]
+  }, [markets, pageFaqs])
 
   const stats = useMemo(
     () => ({
@@ -128,10 +176,10 @@ export default function MarketPage() {
     return markets.filter((m) => {
       const matchesSearch =
         searchQuery === '' ||
-        m.metro.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.stateCode.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesRegion = selectedRegion === 'All' || m.region === selectedRegion
+        (m.metro || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.state || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.stateCode || '').toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesRegion = selectedRegion === 'All' || (m.region || 'National') === selectedRegion
       const matchesStatus =
         selectedStatus === 'all' || m.status === (selectedStatus as MarketStatus)
       return matchesSearch && matchesRegion && matchesStatus
@@ -146,16 +194,18 @@ export default function MarketPage() {
 
   // Sort: limited first, then active, then capped, then evaluation
   const sortedMarkets = useMemo(() => {
-    const statusOrder: Record<MarketStatus, number> = {
+    const statusOrder: Record<string, number> = {
       limited: 0,
       active: 1,
       capped: 2,
       evaluation: 3,
     }
     return [...filteredMarkets].sort((a, b) => {
-      const statusDiff = statusOrder[a.status] - statusOrder[b.status]
+      const valA = statusOrder[a.status] ?? 99
+      const valB = statusOrder[b.status] ?? 99
+      const statusDiff = valA - valB
       if (statusDiff !== 0) return statusDiff
-      return b.mii - a.mii
+      return (b.mii || 0) - (a.mii || 0)
     })
   }, [filteredMarkets])
 
@@ -262,72 +312,14 @@ export default function MarketPage() {
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'What markets does CasePort serve for personal injury leads?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'CasePort serves 46 metropolitan areas across the United States, including Los Angeles, New York City, Houston, Miami, Chicago, Philadelphia, Atlanta, and Dallas–Fort Worth. Each market is capped at 3 partner firms to ensure territorial control and case flow quality.',
-        },
+    mainEntity: dynamicFaqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
       },
-      {
-        '@type': 'Question',
-        name: 'How does the 3-firm market cap actually work?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Each CasePort market is limited to exactly 3 partner firms. This is not artificial scarcity — it is a structural requirement for the system to function. When a market reaches 3 firms, it is capped and new firms are placed on a waitlist. When a partner leaves, the next firm on the waitlist is activated.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'What is the Market Intelligence Index?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'The Market Intelligence Index (MII) is a proprietary scoring system (0–100) that combines search intent volume, competition density, average case settlement values, and population growth trajectory. Higher MII scores indicate more attractive markets with greater case acquisition potential.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Can I operate in multiple CasePort markets?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Yes. Multi-market access is available for firms with the capacity to handle case flow across multiple territories. Each market requires a separate partner slot and is subject to the same 3-firm cap.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'How do I request access for a market not yet listed?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'If your metropolitan area is not currently in the CasePort network, you can submit a priority access request at www.caseport.io/request-access. Markets are evaluated based on demand density, average case values, population size, and infrastructure readiness.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'How is CasePort different from other personal injury lead generation companies?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'CasePort differs from traditional PI lead generation in three structural ways: (1) Market Cap — each metro area is limited to 3 partner firms; (2) Dedicated Infrastructure — CasePort deploys market-specific demand capture systems; (3) Pre-Funded Wallet — no manual invoicing, funds are only deducted upon delivery of a qualified case opportunity.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: "What does it cost to access CasePort's case acquisition infrastructure?",
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'CasePort operates on a pre-funded wallet model with no manual invoicing. Pricing varies by market based on case values, competition density, and demand volume. Contact access@caseport.io or apply at www.caseport.io/request-access for market-specific pricing.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'What happens if a partner leaves a capped market?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'When a partner leaves a capped market, the next firm on the waitlist is automatically activated. This ensures the market remains at exactly 3 firms and maintains the structural integrity of the system.',
-        },
-      },
-    ],
+    })),
   }
 
   return (
@@ -439,15 +431,15 @@ export default function MarketPage() {
                   </span>
                 </h1>
                 <p className="text-[18px] text-[#B0B8C4] mb-8 leading-relaxed max-w-[500px]">
-                  46 markets. 3 firms each.{' '}
+                  {stats.total || 46} markets. 3 firms each.{' '}
                   <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">
                     No exceptions.
                   </span>
                 </p>
                 <p className="text-[15px] text-[#B0B8C4] mb-10 leading-relaxed max-w-[520px]">
                   Every metro area in the CasePort network is capped at three partner firms. Not
-                  artificial scarcity — a structural requirement. The math is simple: 46 markets, 3
-                  firms each, and the strongest firms fill first.
+                  artificial scarcity — a structural requirement. The math is simple:{' '}
+                  {stats.total || 46} markets, 3 firms each, and the strongest firms fill first.
                 </p>
                 <button
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
@@ -496,7 +488,7 @@ export default function MarketPage() {
         {/* ============================================ */}
         {/* SECTION 2: SOCIAL PROOF — Trust Amplification */}
         {/* ============================================ */}
-        <SocialProofSection />
+        <SocialProofSection markets={markets} />
 
         {/* ============================================ */}
         {/* SECTION 3: THE ACCESS GRID */}
@@ -928,32 +920,7 @@ export default function MarketPage() {
             </div>
 
             <div className="space-y-4">
-              {[
-                {
-                  q: 'What markets does CasePort serve for personal injury leads?',
-                  a: 'CasePort serves 46 metropolitan areas across the United States, including Los Angeles, New York City, Houston, Miami, Chicago, Philadelphia, Atlanta, and Dallas–Fort Worth. Each market is capped at 3 partner firms.',
-                },
-                {
-                  q: 'How does the 3-firm market cap actually work?',
-                  a: 'Each CasePort market is limited to exactly 3 partner firms. This is not artificial scarcity — it is a structural requirement. When a market reaches 3 firms, it is capped and new firms are placed on a waitlist.',
-                },
-                {
-                  q: 'What is the Market Intelligence Index?',
-                  a: 'The MII is a proprietary scoring system (0–100) that combines search intent volume, competition density, average case settlement values, and population growth trajectory. Higher MII scores indicate more attractive markets.',
-                },
-                {
-                  q: 'Can I operate in multiple CasePort markets?',
-                  a: 'Yes. Multi-market access is available for firms with the capacity to handle case flow across multiple territories. Each market requires a separate partner slot.',
-                },
-                {
-                  q: 'How do I request access for a market not yet listed?',
-                  a: 'Submit a priority access request at www.caseport.io/request-access. Markets are evaluated based on demand density, average case values, population size, and infrastructure readiness.',
-                },
-                {
-                  q: 'How is CasePort different from other PI lead generation companies?',
-                  a: 'CasePort differs in three ways: (1) Market Cap — each metro is limited to 3 firms; (2) Dedicated Infrastructure — market-specific demand capture; (3) Pre-Funded Wallet — no manual invoicing.',
-                },
-              ].map((item, idx) => (
+              {dynamicFaqs.map((item, idx) => (
                 <motion.details
                   key={idx}
                   initial={{ opacity: 0, y: 8 }}
@@ -996,8 +963,8 @@ export default function MarketPage() {
                 </span>
               </h2>
               <p className="text-[16px] text-[#B0B8C4] mb-10 max-w-[600px] mx-auto leading-relaxed">
-                5 markets are already at capacity. 8 more have only one slot remaining. The math is
-                simple: 46 markets, 3 firms each, and the strongest firms fill first.
+                {stats.capped} markets are already at capacity. The math is The math is simple: 46
+                markets, 3 firms each, and the strongest firms fill first.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button

@@ -1,0 +1,220 @@
+www.CasePort.io: World-Class B2C Intake Form Architecture
+
+This document outlines the precise architecture for the www.CasePort.io B2C intake form, designed for aggressive lead qualification, maximum conversion, and absolute ABA compliance. Each element is crafted to project an institutional, "top 1 percent" image, leveraging hypnotic copywriting and a minimalist, Apple-style user experience.
+
+
+
+
+Core Philosophy: The Case Merit Evaluation System
+
+We are not offering a mere "form"; we are providing access to a Case Merit Evaluation System. This positions www.CasePort.io as a sophisticated gatekeeper, attracting only the most serious claimants and filtering for the highest-value personal injury cases. The entire process is designed to feel exclusive, efficient, and technologically advanced.
+
+
+
+
+The Intake Sequence: One Question, One Screen, One Goal
+
+Each question is presented on a separate screen, minimizing cognitive load and creating a sense of progress. The design will feature generous white space, Geist Sans typography, and subtle glassmorphism elements to enhance perceived value and readability. The copywriting is direct, authoritative, and avoids any language that could be perceived as pushy or desperate.
+
+Global Disclaimers (Always Visible - Footer or Persistent Sidebar)
+
+These disclaimers are crucial for ABA compliance and must be persistently visible, ideally in a subtle footer or a non-intrusive sidebar element on every screen of the intake process.
+
+•
+Lead Generator Disclosure: "www.CasePort.io is a case acquisition system. We are not a law firm or a referral service. We do not recommend or endorse any specific attorney."
+
+•
+No Attorney-Client Relationship: "Submission of this evaluation does not create an attorney-client relationship. Your information will be routed to partner firms based on objective system criteria."
+
+•
+No Guaranteed Outcomes: "System categorization is for administrative purposes only and does not guarantee a specific legal outcome or settlement."
+
+
+
+
+The Questions (Screen-by-Screen)
+
+Screen 1: The Hook (Problem & Authority)
+
+Headline: "The Aftermath of an Accident Demands Precision."
+
+Body Copy: "Insurance companies thrive on chaos. Our system brings order to your claim, ensuring your case receives the meticulous evaluation it deserves. Begin your confidential Case Merit Evaluation now."
+
+Question: "What is the date of the incident?"
+
+•
+Input Type: Date Picker
+
+•
+Strategic Intent: Immediate filter for Statute of Limitations. If expired, the system politely declines with a resource link (Lead Recycling). This is a hard stop for unqualified leads.
+
+•
+Copywriting Note: The language is authoritative, focusing on "precision" and "order," setting the tone for a serious, high-value process.
+
+Screen 2: Geographic Qualification (Amplify & Filter)
+
+Headline: "Jurisdictional Eligibility: Ensuring Localized Expertise."
+
+Body Copy: "To connect you with firms best equipped for your specific jurisdiction, we require your incident location. This ensures your case is handled by attorneys with deep local insight."
+
+Question: "In which State and County did the incident occur?"
+
+•
+Input Type: Dropdown for State, Text input for County (with auto-suggest)
+
+•
+Strategic Intent: Ensures the case falls within our "Market-Capped" priority states and allows for precise routing.
+
+•
+Copywriting Note: "Localized Expertise" and "deep local insight" reinforce the value proposition, subtly implying a higher level of service.
+
+Screen 3: Liability Assessment (Aggressive Filter & Disclaimer)
+
+Headline: "Liability Assessment: A Critical Data Point for System Routing."
+
+Body Copy: "Understanding the circumstances of the incident is vital for accurate case categorization. Your candid response allows our system to route your evaluation appropriately."
+
+Question: "Were you at fault for the accident?"
+
+•
+Input Type: Radio Buttons: "Yes," "No," "Unsure/Partial Fault"
+
+•
+Strategic Intent: Aggressive filter. We primarily route "No" or "Unsure/Partial Fault" (depending on state laws) to maintain >25% conversion. "Yes" leads to a polite decline and lead recycling.
+
+•
+Disclaimer (Inline, smaller text below question): "This is a preliminary data point for system routing and does not constitute a legal opinion on liability."
+
+•
+Copywriting Note: "Critical Data Point" and "accurate case categorization" elevate the question's importance, preparing the user for a high-stakes process.
+
+Screen 4: Injury Severity (Value & Filtering)
+
+Headline: "Medical Treatment Categories: Quantifying Impact."
+
+Body Copy: "The nature and extent of your medical treatment are key indicators of your case's potential. Please select the option that best describes your experience."
+
+Question: "Which of the following best describes your medical treatment related to this incident?"
+
+•
+Input Type: Checkboxes: "Hospitalized (overnight stay)," "Surgery required," "Ongoing Physical Therapy/Rehabilitation," "Emergency Room Visit Only," "No Medical Treatment Sought."
+
+•
+Strategic Intent: Filters out "No Medical Treatment Sought" immediately. Prioritizes cases with significant medical intervention.
+
+•
+Disclaimer (Inline, smaller text below question): "Treatment status is used for administrative categorization only and does not imply case value."
+
+•
+Copywriting Note: "Quantifying Impact" and "key indicators" frame this as a data-driven assessment, aligning with the institutional brand.
+
+Screen 5: Insurance Status (Logistical Data)
+
+Headline: "Recovery Source Identification: Understanding the Pathways."
+
+Body Copy: "Identifying the responsible parties' insurance status is a fundamental step in any personal injury claim. This information helps us understand potential recovery pathways."
+
+Question: "Did the other party involved in the incident have insurance?"
+
+•
+Input Type: Radio Buttons: "Yes," "No," "Unsure"
+
+•
+Strategic Intent: Identifies the recovery source. Uninsured/Underinsured cases are flagged for specific firm types or lead recycling if no suitable firm is available.
+
+•
+Copywriting Note: "Fundamental step" and "recovery pathways" maintain the professional, process-oriented tone.
+
+Screen 6: Legal Representation (ABA Compliance - Hard Stop)
+
+Headline: "Current Representation Status: A Critical Ethical Inquiry."
+
+Body Copy: "To ensure strict adherence to legal ethics and professional conduct, we must confirm your current legal representation status."
+
+Question: "Are you currently represented by an attorney for this incident?"
+
+•
+Input Type: Radio Buttons: "Yes," "No"
+
+•
+Strategic Intent: ABA Compliance (Rule 7.3). If "Yes," the flow terminates immediately with a polite, compliant message: "Thank you for your submission. Our system indicates you are currently represented. We wish you the best with your claim." This prevents any appearance of improper solicitation.
+
+•
+Copywriting Note: "Strict adherence to legal ethics" reinforces our commitment to compliance, building trust.
+
+Screen 7: Documentation Commitment (Psychological Preparation)
+
+Headline: "Expediting Your Evaluation: Your Commitment to Clarity."
+
+Body Copy: "A comprehensive case evaluation requires complete and accurate documentation. Your readiness to provide necessary records significantly expedites the process and enhances your case's visibility to elite counsel."
+
+Question: "Are you prepared to provide all necessary documentation to expedite your Case Merit Evaluation?"
+
+•
+Input Type: Radio Buttons: "Yes, I understand and am ready," "No, I prefer not to at this time."
+
+•
+Strategic Intent: Psychologically prepares them for the medical record upload. This is a soft filter; a "No" does not immediately disqualify but routes them to a lower priority or a different track.
+
+•
+Copywriting Note: "Expedites the process" and "enhances your case's visibility to elite counsel" create a clear value proposition for providing documentation.
+
+Screen 8: Medical Record Upload (Data Moat & "Wow" Effect)
+
+Headline: "Secure Document Integration: Building Your Case Merit File."
+
+Body Copy: "This is where your Case Merit File truly takes shape. Securely upload your medical records, police reports, and other relevant documents. Our system utilizes bank-level encryption to protect your sensitive information."
+
+Question: "Upload your medical records and supporting documents."
+
+•
+Input Type: File Upload (Drag & Drop, or Click to Upload). Allow multiple files, common formats (PDF, JPG, PNG).
+
+•
+Strategic Intent: The ultimate "Data Moat." Transforms a lead into a "case-ready file." Filters out non-serious claimants. Increases lead score significantly.
+
+•
+The "Later" Option: Include a prominent "I will upload later" button. This allows completion of the form but flags the lead as lower priority until documents are provided.
+
+•
+Compliance & Trust Signals: Display a "HIPAA Compliant" badge and "Bank-Level Encryption" icon prominently.
+
+•
+Post-Upload "Wow" Effect: After upload, show a progress bar: "Scanning & Analyzing Case Merit..." This creates a sense of high-tech precision and value.
+
+•
+Disclaimer (Inline, smaller text below upload area): "By uploading, you authorize www.CasePort.io and its partner firms to access and review these documents for case merit evaluation purposes. This does not constitute legal advice or create an attorney-client relationship."
+
+•
+Copywriting Note: "Secure Document Integration," "Bank-Level Encryption," and "Case Merit File" reinforce the institutional, high-tech, and secure nature of the process.
+
+Screen 9: Contact Information (Final Step & CTA)
+
+Headline: "Finalizing Your Case Merit Evaluation."
+
+Body Copy: "To complete your evaluation and receive updates on your case's status, please provide your contact details. Our system will notify you once your merit file has been reviewed."
+
+Question: "Please provide your contact information."
+
+•
+Input Type: Name (First, Last), Email, Phone Number (with validation).
+
+•
+Strategic Intent: Collect essential contact details for follow-up. This is placed after significant qualification to ensure we only collect contact info from serious leads.
+
+•
+CTA Button: "Secure My Case Merit File" (Not "Submit").
+
+•
+Copywriting Note: "Finalizing Your Case Merit Evaluation" and "receive updates" maintain the high-value perception. The CTA is powerful and action-oriented.
+
+
+
+
+Conclusion: Precision, Compliance, and Conversion
+
+This meticulously designed B2C intake form for www.CasePort.io is more than a data collection tool; it is a strategic asset. By combining aggressive filtering, ABA-compliant disclaimers, and a world-class user experience, we ensure that every lead entering the system is of the highest quality, maximizing conversion rates and solidifying our position as the premier case acquisition system in the legal industry. This is how we achieve precise and excellent magical execution, driving towards our $1M/month profit goal.
+
+
+
+

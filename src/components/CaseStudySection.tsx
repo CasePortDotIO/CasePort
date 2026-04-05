@@ -1,3 +1,4 @@
+import Link from 'next/link';
 /**
  * CaseStudySection — Real/realistic case study showing ROI proof
  * 

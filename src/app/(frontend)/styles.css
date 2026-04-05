@@ -61,3 +61,28 @@
     padding-right: 2rem;
   }
 }
+
+@theme inline {
+  --color-cp-navy: oklch(0.13 0.02 260);
+  --color-cp-cyan: oklch(0.78 0.15 195);
+  --color-cp-gold: oklch(0.75 0.16 75);
+  --color-cp-green: oklch(0.65 0.17 160);
+  --color-cp-purple: oklch(0.55 0.2 290);
+  --color-cp-text-primary: oklch(0.97 0.003 250);
+  --color-cp-text-secondary: oklch(0.82 0.01 250);
+  --color-cp-text-muted: oklch(0.60 0.012 250);
+  --color-cp-glass-border: oklch(1 0 0 / 6%);
+  --color-cp-glass-bg: oklch(1 0 0 / 3%);
+}
+
+@layer utilities {
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

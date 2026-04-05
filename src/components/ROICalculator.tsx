@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useScrollReveal, fadeUp, scaleIn } from "@/hooks/useAnimations";

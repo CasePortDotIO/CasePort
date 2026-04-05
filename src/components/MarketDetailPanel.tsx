@@ -54,7 +54,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
       ? 'Request Priority Access'
       : 'Request Access for This Market'
 
-  const ctaHref = `https://www.caseport.io/request-access?market=${encodeURIComponent(market.metro)}&state=${market.stateCode}`
+  const ctaHref = `/request-access?market=${encodeURIComponent(market.metro)}&state=${market.stateCode}`
 
   return (
     <>
@@ -255,7 +255,7 @@ export default function MarketDetailPanel({ market, onClose }: MarketDetailPanel
 
           {/* View Full Market Page Link */}
           <Link
-            href={`/markets/${market.slug || market.id}`}
+            href={`/markets/${(market as any).slug || market.id}`}
             className="w-full px-4 py-3 rounded-[12px] border border-[#22D3EE]/30 bg-[#22D3EE]/5 text-[#22D3EE] text-[13px] font-medium flex items-center justify-center gap-2 hover:bg-[#22D3EE]/10 transition-colors mb-4"
           >
             View Market Details

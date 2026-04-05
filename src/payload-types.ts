@@ -70,6 +70,8 @@ export interface Config {
     users: User;
     media: Media;
     markets: Market;
+    applications: Application;
+    waitlists: Waitlist;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +82,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     markets: MarketsSelect<false> | MarketsSelect<true>;
+    applications: ApplicationsSelect<false> | ApplicationsSelect<true>;
+    waitlists: WaitlistsSelect<false> | WaitlistsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -89,8 +93,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'markets-page': MarketsPage;
+  };
+  globalsSelect: {
+    'markets-page': MarketsPageSelect<false> | MarketsPageSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -233,6 +241,47 @@ export interface Market {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "applications".
+ */
+export interface Application {
+  id: string;
+  firmName: string;
+  fullName: string;
+  title: string;
+  workEmail: string;
+  phone: string;
+  website: string;
+  linkedIn?: string | null;
+  leadScore: number;
+  leadTier: 'platinum' | 'gold' | 'silver' | 'disqualified';
+  status: 'pending' | 'approved' | 'rejected' | 'waitlisted';
+  answers:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waitlists".
+ */
+export interface Waitlist {
+  id: string;
+  email: string;
+  firmName?: string | null;
+  hardStopReason?: string | null;
+  referralEmail?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -266,6 +315,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'markets';
         value: string | Market;
+      } | null)
+    | ({
+        relationTo: 'applications';
+        value: string | Application;
+      } | null)
+    | ({
+        relationTo: 'waitlists';
+        value: string | Waitlist;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -397,6 +454,37 @@ export interface MarketsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "applications_select".
+ */
+export interface ApplicationsSelect<T extends boolean = true> {
+  firmName?: T;
+  fullName?: T;
+  title?: T;
+  workEmail?: T;
+  phone?: T;
+  website?: T;
+  linkedIn?: T;
+  leadScore?: T;
+  leadTier?: T;
+  status?: T;
+  answers?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waitlists_select".
+ */
+export interface WaitlistsSelect<T extends boolean = true> {
+  email?: T;
+  firmName?: T;
+  hardStopReason?: T;
+  referralEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -434,6 +522,41 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "markets-page".
+ */
+export interface MarketsPage {
+  id: string;
+  /**
+   * These FAQs will appear at the bottom of the main Markets hub page.
+   */
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "markets-page_select".
+ */
+export interface MarketsPageSelect<T extends boolean = true> {
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

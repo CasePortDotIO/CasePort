@@ -1,0 +1,210 @@
+DESIGN DIRECTION: MAXIMUM PERCEIVED VALUE
+
+This page must feel more expensive than a normal legal intake page.
+
+The visual goal is:
+premium accident triage with serious infrastructure underneath
+
+NOT:
+generic legal lead generation
+NOT:
+a white SaaS wrapper
+NOT:
+a billboard-lawyer funnel
+NOT:
+a hospital-looking intake page
+
+BACKGROUND WRAPPER DIRECTION
+Do NOT use a pure white full-page wrapper.
+Do NOT keep the entire page black from top to bottom either.
+
+Use this cadence:
+- dark premium hero
+- warm ivory / soft stone wrapper through the middle of the page
+- white or soft-white only inside elevated cards, answer chips, form inputs, FAQ panels, and small supporting surfaces
+- dark premium final CTA section
+- dark premium confirmation screen
+
+This creates:
+- emotional relief for injured users
+- stronger readability
+- more visual cadence
+- higher perceived value
+- better alignment with the homepage brand family
+
+COLOR SYSTEM
+Primary shell:
+deep navy-charcoal radial gradient
+
+Light wrapper:
+warm ivory / soft stone / light sand
+NOT bright white
+
+Accent:
+subtle warm gold / champagne / soft bronze
+used sparingly for progress, highlights, dividers, active states
+
+Card surfaces:
+soft white or off-white
+with elegant borders and soft depth
+
+TEXTURE / MATERIAL FEEL
+The page should feel layered and tactile.
+Use:
+- glassmorphism only where tasteful
+- soft shadows
+- edge lighting
+- subtle glow
+- premium blur surfaces
+- large rounded containers
+- clean dividers
+- no flat template feel
+
+SECTION CADENCE
+Alternate section energy with intention:
+- Hero: dark, immersive, premium
+- Emergency strip: lighter but crisp and high-contrast
+- How CasePort Helps: warm light wrapper
+- Accident types: warm light wrapper with elevated premium cards
+- What to Do After an Accident: editorial premium light section
+- Secure Case Check preview: darker inset panel inside lighter wrapper so it feels productized
+- Documents section: warm light wrapper
+- Trust and reassurance: lighter premium architecture
+- FAQ: soft elevated accordion panels
+- Final CTA: dark again
+- Confirmation screen: dark again
+
+This is important:
+the injured page should breathe more than the law-firm page.
+The law-firm side can stay more command-center.
+The injured side should still feel premium, but safer, softer, and easier.
+
+HERO DIRECTION
+The hero should be one of the highest perceived-value sections on the site.
+
+Requirements:
+- dark premium shell
+- strong CasePort wordmark
+- calm sticky phone CTA
+- refined right-side secure intake visual
+- no fake dashboards
+- no cheesy icons
+- no stock-photo lawyer visuals
+
+Hero should feel like:
+“guided secure intake is already in motion”
+
+Use:
+- elegant layered form preview
+- one sample step visible
+- premium chips / progress / answer cards
+- subtle activity cue
+- soft glow and glass depth
+- strong whitespace
+- very controlled motion
+
+PHONE CTA TREATMENT
+Keep the sticky phone functionality because it helps trust.
+
+But make it feel expensive:
+- label: Call Now
+- optional support line: Questions? Speak with us
+- no loud vanity-number billboard feel
+- no cheap floating button look
+- make it feel like concierge support, not sales pressure
+
+FORM PREVIEW SECTION
+This must be one of the standout sections.
+
+Do:
+- make it feel like a real product
+- elegant partially filled progress bar
+- visible phases:
+  Accident
+  Treatment
+  Fit
+  Documents
+  Contact
+- show one real question with answer chips
+- make completion feel easy and safe
+
+Do NOT:
+- show “0%”
+- show placeholder blocks
+- make it feel like a wireframe
+
+TRUST / REASSURANCE ARCHITECTURE
+Trust should feel integrated, not pasted on.
+
+Use:
+- calm reassurance cards
+- premium spacing
+- subtle iconography
+- restrained hierarchy
+- no fake badges
+- no loud compliance stickers
+- no gimmicky security chest-thumping
+
+The trust feeling should come from:
+- clarity
+- restraint
+- polish
+- structure
+- thoughtful microcopy
+
+TYPOGRAPHY
+- strong headline hierarchy
+- bold but elegant
+- generous line spacing
+- body copy should feel breathable
+- no cramped sections
+- no narrow columns that feel boxed in
+- every paragraph should scan easily under stress
+
+MOTION
+Use restrained motion only.
+- smooth section transitions
+- subtle hover states
+- premium progress movement
+- gentle pulse only where it helps
+- no flashy animation
+- no busy effects
+
+INJURED-PERSON LENS
+Put yourself in the shoes of someone hurt, stressed, and uncertain.
+
+The design should reduce:
+- overwhelm
+- fear
+- friction
+- visual noise
+
+The design should increase:
+- calm
+- trust
+- clarity
+- sense of progress
+- willingness to complete the form
+
+CONFIRMATION SCREEN DIRECTION
+The confirmation screen should feel like active triage is in motion.
+
+Use:
+- dark premium background
+- elegant countdown timer
+- subtle pulse / processing state
+- calm reassurance
+- clear next-step checklist
+- emotionally reassuring tone
+
+It should NOT feel like:
+a dead thank-you page
+
+FINAL QUALITY BAR
+When finished, the injured page should feel:
+- calmer than generic injury funnels
+- more premium than most legal websites
+- easier to complete than typical intake flows
+- clearly part of the CasePort brand family
+- visually richer and more expensive than a plain black or plain white page
+- built to maximize perceived value at every touchpoint

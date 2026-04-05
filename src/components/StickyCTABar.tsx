@@ -1,3 +1,4 @@
+import Link from 'next/link';
 /**
  * StickyCTABar — Persistent conversion point at bottom of viewport
  * 

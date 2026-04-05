@@ -1,0 +1,225 @@
+POLISH PASS ONLY. DO NOT REWRITE THE PAGE FROM SCRATCH.
+
+You are refining the current CasePort injured page so it matches the excellence standard of the approved homepage.
+
+IMPORTANT
+The current injured page now has the right structure and much of the right copy. Keep the existing section order, headline architecture, and overall conversion sequence.
+This pass is about elevation, not reinvention.
+
+THE STANDARD TO MATCH
+Use the homepage as the benchmark for what “excellent” means:
+- dark, premium, controlled hero
+- system-grade visual authority
+- elegant productized interface feel
+- layered depth, not flat sections
+- quiet luxury, not generic legal lead gen
+- subtle motion and refined spacing
+- strong contrast and typography hierarchy
+- every section should feel intentional and expensive
+
+HOMEPAGE QUALITIES TO ECHO
+- “The Case Flow Engine” style productization
+- “Private View” / controlled system feel
+- status-layer design language
+- premium glass / depth / subtle glow
+- alternating section cadence that creates rhythm
+- system labels, restrained visual punctuation, not clutter
+- calm authority, not hype
+
+GLOBAL DESIGN INSTRUCTIONS
+- Keep the current injured page copy structure mostly intact
+- Upgrade the visual system so the page feels like a claimant-facing extension of the homepage
+- No cheesy legal visuals
+- No stock-photo lawyer energy
+- No loud reds or ambulance aesthetics
+- Keep the premium dark + warm ivory + deep navy palette family from the homepage
+- Increase visual rhythm, depth, and section-to-section contrast
+- Add refined linework, glass panels, quiet shadows, and elegant edge lighting where appropriate
+- Use more premium spacing and less template-like card repetition
+- Every section should feel designed, not dropped in
+
+MOST IMPORTANT GOAL
+Make the injured page feel like:
+“secure accident triage powered by serious infrastructure”
+
+NOT:
+“generic legal lead gen page with good copy”
+
+HEADER REFINEMENT
+Keep:
+- CasePort wordmark
+- sticky phone functionality
+
+Change:
+- remove the billboard-lawyer feel of “1-800-CASE-NOW” as the main visual emphasis
+- keep the number callable, but present it more elegantly
+- the phone CTA should feel like a premium support action, not a loud ad
+- use calmer text such as “Call Now” or “Questions? Call”
+- refine header spacing, typography, hover states, and sticky behavior so it feels luxurious
+
+HERO POLISH
+Keep the current hero copy framework:
+Eyebrow:
+Injured in a car or truck accident?
+Headline:
+Start with the right next step.
+Subheadline:
+Tell us what happened in a short Secure Case Check. If your situation fits, we may help connect you with an independent attorney in your area.
+
+But elevate the hero visually:
+- create a premium right-side visual or integrated hero panel that feels like secure triage infrastructure
+- not an illustration, not cheesy icons, not fake dashboards
+- think claimant-safe, calm, structured interface preview
+- the hero should feel like “guided secure intake” with quiet intelligence
+- add subtle motion or glow only if tasteful
+- the CTA group should feel premium and deliberate
+- the trust microcopy below CTA should be cleaner, tighter, and better spaced
+
+EMERGENCY / EXPECTATION STRIP
+Keep the content but make it more elegant:
+- use a slim high-contrast strip
+- refined iconography
+- better alignment and scan rhythm
+- make it feel integrated into the page, not like an alert banner
+
+“A SIMPLER WAY TO MOVE FORWARD” SECTION
+Keep the 3-card structure and copy logic.
+Upgrade:
+- make the cards feel more premium and distinct
+- better icon treatment
+- more refined hierarchy
+- slight stagger or rhythm so it does not feel like standard feature cards
+- maintain calm authority
+
+ACCIDENT TYPES SECTION
+Keep the current accident-type list.
+Upgrade:
+- make cards more tactile and premium
+- reduce generic service-grid feel
+- add subtle visual differentiation for each card
+- keep the wedge tight around auto/truck-related claimant situations
+
+“WHAT TO DO AFTER AN ACCIDENT” SECTION
+Keep this section. It is strategically strong.
+Upgrade:
+- turn it into a visually richer premium checklist or guided step layout
+- increase usefulness feel
+- give it stronger editorial polish
+- keep it clear and answer-engine friendly
+
+SECURE CASE CHECK PREVIEW
+This is one of the most important sections to fix.
+
+CURRENT PROBLEM:
+It still feels too literal and flat, especially with “Progress 0%”.
+
+REBUILD THIS SECTION AS A BEAUTIFUL PRODUCT PREVIEW:
+- remove “Progress 0%”
+- show a polished partial progress state instead
+- make it look like a real premium multi-step form, not placeholder text
+- use the 5 visible phases:
+  Accident
+  Treatment
+  Fit
+  Documents
+  Contact
+- show a more elegant progress bar
+- show one or two example answer chips / tap cards so it feels alive
+- make this section feel like an actual product experience
+- this should be one of the standout sections on the page
+- the user should immediately feel “this will be easy to complete”
+
+DOCUMENTS SECTION
+Keep the copy logic.
+Upgrade:
+- make the cards or examples more premium
+- reduce flat repetition
+- visually signal that documents strengthen the file
+- this section should feel trust-building and serious, not bureaucratic
+
+TRUST AND REASSURANCE SECTION
+Keep the overall section, but fix the wording and treatment.
+
+IMPORTANT COPY CHANGE:
+Replace:
+“We connect you with vetted legal professionals.”
+
+With something safer and more on-brand such as:
+“If your request fits this path, the next step may be a connection with an independent attorney.”
+
+Keep trust ideas like:
+- Secure form
+- Private file handling
+- Independent attorneys
+- No upfront payment to begin
+
+But visually:
+- make this section feel calmer and more premium
+- less like generic trust badges
+- more like integrated reassurance architecture
+
+FAQ SECTION
+Keep the current FAQ topics and direct-answer format.
+Upgrade:
+- make the accordion feel more premium
+- stronger spacing
+- better open/close animation
+- more polished typography hierarchy
+- keep it excellent for SEO / AEO / GEO / voice search
+
+FINAL CTA SECTION
+Keep the structure and copy direction.
+Upgrade:
+- make it feel like a premium closing moment
+- stronger emotional finish
+- deeper visual atmosphere
+- slightly richer CTA styling
+- add one short calming support line such as:
+“You do not need every detail to begin.”
+
+FOOTER
+Keep the current footer structure and disclaimer logic.
+Upgrade:
+- better spacing
+- more premium hierarchy
+- align it visually with homepage footer quality
+- keep it restrained and credible
+
+MICRO-INTERACTIONS
+Across the page:
+- improve hover states
+- improve card animation restraint
+- improve section transitions
+- add subtle motion that feels expensive, not flashy
+- use motion only to support clarity and polish
+
+TYPOGRAPHY + SPACING
+- increase typography sophistication
+- stronger headline rhythm
+- improve paragraph width and scanability
+- more luxurious vertical spacing
+- avoid cramped card stacks
+- section transitions should breathe
+
+FINAL QUALITY BAR
+When finished, the injured page should feel:
+- clearly part of the same brand family as the homepage
+- calmer and more refined than generic injury funnels
+- more productized
+- more expensive
+- more distinct
+- more “CasePort”
+- worthy of being called excellent by the same standard as the homepage
+
+DO NOT:
+- change the whole page into a different concept
+- reintroduce hypey legal-lead-gen language
+- use fake proof or generic urgency tropes
+- make the page louder
+- flatten the premium visual cadence
+
+DO:
+- preserve the good copy architecture already in place
+- elevate visual authority
+- productize the form preview
+- make the entire page feel like premium accident triage backed by serious infrastructure

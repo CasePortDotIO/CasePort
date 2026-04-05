@@ -1,0 +1,22 @@
+# Article Template — 10/10 Improvements
+
+- [ ] 1. Update author to Martha Kechicha
+- [ ] 2. Mid-article inline CTA after section 3
+- [ ] 3. Rewrite final CTA with Dan Lok energy
+- [ ] 4. Remove "Back to Insights" button — subtle text link only
+- [ ] 5. Add "value at risk" callout card in executive summary area
+- [ ] 6. Increase all whitespace to 120-160px between major sections
+- [ ] 7. Add dynamic meta description per article (document.title + meta)
+- [ ] 8. Add article-specific OG tags (og:image, article:published_time)
+- [ ] 9. Add geo meta tags to article template
+- [ ] 10. Add HowTo schema for procedural section
+- [ ] 11. Shorten FAQ answers to ~29 words for voice search
+- [ ] 12. Add about/mentions schema properties
+- [ ] 13. Wrap key takeaways in semantic <ul>
+- [ ] 14. Add pull quote with dramatic styling
+- [ ] 15. Add subscriber count to sidebar subscribe widget
+- [ ] 16. Rewrite all CTA copy in Dan Lok voice
+- [ ] 17. Add "Cite This Research" block with copy button
+- [ ] 18. Add linkable data callout cards with anchor IDs
+- [ ] 19. Add outbound authority links in article body
+- [ ] 20. Add "Share this stat" micro-buttons on key data points

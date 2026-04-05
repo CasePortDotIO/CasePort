@@ -1,0 +1,411 @@
+Answer:
+If your request appears to fit this path, the next step may be a connection with an independent attorney.
+
+7. Can I still continue if I do not have documents yet?
+Answer:
+Yes. Documents can help strengthen your file, but you can still begin without them.
+
+8. What if I already have a lawyer?
+Answer:
+If you are already represented for this accident, we may not be able to continue this request.
+
+Design notes:
+- premium accordion
+- smooth restrained animation
+- direct-answer format
+- strong readability
+
+SECTION 10: FINAL CTA
+Goal:
+Close calmly and clearly.
+
+Headline:
+Start with the right next step
+
+Body:
+Complete the Secure Case Check to tell us what happened. If your request appears to fit this path, the next step may be a connection with an independent attorney.
+
+Primary CTA:
+Start Secure Case Check
+
+Secondary CTA:
+Call Now
+
+Microcopy:
+Secure. Private. Takes about 2 minutes.
+
+Design notes:
+- premium dark closing section
+- richer atmosphere
+- emotional but calm finish
+- add one support line:
+  You do not need every detail to begin.
+
+SECTION 11: FOOTER
+Footer line:
+CasePort helps injured people take the next step after an accident.
+
+Footer links:
+- Privacy Policy
+- Terms
+- Disclaimer
+- Contact
+- For Law Firms
+- Insights
+
+Required disclaimer:
+CasePort is not a law firm and does not provide legal advice. Independent attorneys are responsible for their own services. Submitting information does not create an attorney-client relationship.
+
+NOW BUILD THE APPROVED MULTI-STEP FORM
+
+FORM EXPERIENCE RULES
+This must feel like a guided check-in, not a long application.
+
+Use:
+- one main question per screen
+- mostly tap-based answers
+- large tap cards
+- minimal typing
+- elegant progress bar
+- very easy mobile completion
+- back button always visible
+- first half of form extremely low-friction
+- short helper text only
+- no long paragraphs
+- no admin-heavy feel
+
+VISIBLE PHASES
+Accident → Treatment → Fit → Documents → Contact
+
+TOP LABEL ABOVE PROGRESS BAR
+Secure Case Check
+Takes about 2 minutes
+
+PERSISTENT MICROCOPY
+Secure and private. No obligation.
+
+APPROVED FORM COPY
+
+PHASE 1: ACCIDENT
+
+SCREEN 1
+Headline:
+Let’s start with the accident date.
+
+Body:
+This helps us understand timing and next-step options.
+
+Field:
+Date picker
+
+Microcopy:
+Choose the closest date you know.
+
+Button:
+Continue
+
+SCREEN 2
+Headline:
+Where did the accident happen?
+
+Body:
+We use location to check availability in your area.
+
+Fields:
+- State dropdown
+- County or city optional
+
+Microcopy:
+Enter where the accident happened, not where you live now.
+
+Button:
+Continue
+
+SCREEN 3
+Headline:
+What kind of accident was it?
+
+Options:
+- Car accident
+- Truck accident
+- Motorcycle accident
+- Pedestrian accident
+- Rideshare accident
+- Other
+
+Microcopy:
+Choose the option that is closest.
+
+Behavior:
+Auto-advance after tap.
+
+SCREEN 4
+Headline:
+What was your role?
+
+Options:
+- Driver
+- Passenger
+- Pedestrian
+- Cyclist
+- Motorcyclist
+- Family member helping someone else
+- Other
+
+Microcopy:
+This helps us understand the situation more clearly.
+
+Behavior:
+Auto-advance after tap.
+
+PHASE 2: TREATMENT
+
+SCREEN 5
+Headline:
+Did you receive medical care related to the accident?
+
+Options:
+- Stayed overnight in the hospital
+- Had surgery
+- Ongoing treatment or physical therapy
+- ER or urgent care visit
+- Saw a doctor
+- No medical treatment
+
+Microcopy:
+Choose the option that best fits so far.
+
+Behavior:
+Tap cards, easy mobile selection.
+
+SCREEN 6
+Headline:
+What do you know about fault?
+
+Options:
+- The other party was mostly at fault
+- Fault may be shared or unclear
+- I am not sure yet
+- I believe I was mostly at fault
+
+Microcopy:
+This is for routing only, not a legal opinion.
+
+Button:
+Continue
+
+SCREEN 7
+Headline:
+Do you know whether the other party had insurance?
+
+Options:
+- Yes
+- No
+- Not sure
+
+Microcopy:
+If you do not know, that is okay.
+
+Behavior:
+Auto-advance after tap.
+
+PHASE 3: FIT
+
+SCREEN 8
+Headline:
+Do you already have a lawyer for this accident?
+
+Options:
+- Yes
+- No
+
+Microcopy:
+Please answer based on your current situation today.
+
+If Yes hard stop:
+Headline:
+We may not be able to continue this request.
+
+Body:
+Because you already have legal representation for this accident, this path may not be available.
+
+Support line:
+We wish you the best with your matter.
+
+Behavior:
+Calm, restrained, compliant.
+
+SCREEN 9
+Headline:
+How would you prefer to be contacted if your request moves forward?
+
+Options:
+- Phone call
+- Text message
+- Email
+
+Microcopy:
+Choose the option you are most likely to respond to.
+
+Behavior:
+Tap-based.
+
+SCREEN 10
+Headline:
+Can you talk safely right now?
+
+Options:
+- Yes
+- Not right now
+- Text is better
+
+Microcopy:
+This helps us follow up the right way.
+
+PHASE 4: DOCUMENTS
+
+SCREEN 11
+Headline:
+Do you have documents you can share?
+
+Body:
+Documents can help us understand your situation more clearly and may help your request move forward faster.
+
+Options:
+- Upload documents now
+- Send me a secure upload link
+- I do not have documents yet
+
+Microcopy:
+Examples include photos, crash reports, medical paperwork, or insurance letters.
+
+SCREEN 12
+Only show if they choose upload now.
+
+Headline:
+Upload your documents securely.
+
+Body:
+Add anything you already have available.
+
+Upload area:
+Drag and drop or click to upload
+
+Accepted file types:
+PDF, JPG, PNG
+
+Trust microcopy:
+- Secure upload
+- Private file handling
+- Multiple files accepted
+
+Post-upload message:
+Files received. Your case file is now more complete.
+
+Supporting microcopy:
+By uploading files, you authorize CasePort to review them for routing and administrative purposes. This does not create an attorney-client relationship and does not constitute legal advice.
+
+PHASE 5: CONTACT
+
+SCREEN 13
+Headline:
+Where should we send updates?
+
+Body:
+To complete your Secure Case Check, please share the best way to reach you if your request may be a fit for the next step.
+
+Fields:
+- First name
+- Last name
+- Phone number
+- Email
+
+Microcopy:
+Use the phone number you are most likely to answer.
+
+CTA:
+Complete Secure Case Check
+
+Supporting legal microcopy:
+By continuing, you agree to the Privacy Policy and Terms. Submitting information does not create an attorney-client relationship.
+
+CONFIRMATION SCREEN
+IMPORTANT:
+This page must feel reassuring, active, and premium.
+The user should feel that something is happening now.
+Do not make it feel like a dead-end thank-you page.
+
+Preferred version (safer and more believable):
+Headline:
+Your Secure Case Check was received.
+
+Body:
+Thank you. We are reviewing your information now. If your request fits this path and a participating firm is available, the next step may happen quickly.
+
+Countdown block:
+Keep your phone nearby
+Possible next step window: 5:00 countdown timer
+
+Supporting text:
+Please stay close to your phone and avoid silencing unknown numbers for the next few minutes.
+
+Checklist:
+- Keep your phone nearby
+- Save any photos, reports, or insurance messages
+- Hold onto accident-related paperwork
+- Write down what you remember while it is still fresh
+
+Supporting line:
+Availability can depend on location, case type, and other factors.
+
+Optional stronger version ONLY if operations can truly support it consistently:
+Headline:
+You may be connected with a participating firm within the next 5 minutes.
+
+Body:
+Please keep your phone nearby while the system processes your request.
+
+Design direction for confirmation screen:
+- premium dark success state
+- elegant countdown timer
+- subtle pulse / activity cue
+- not cheesy
+- feels like active triage is in motion
+- should emotionally reassure the injured user
+- should reduce abandonment in the first few minutes after submission
+
+MICRO-INTERACTION NOTES
+- use smooth transitions between steps
+- subtle hover/tap responses
+- elegant progress movement
+- calm error states
+- mobile keyboard optimization on the contact screen
+- auto-advance on simple selection screens when appropriate
+
+SEO / AEO / GEO / VOICE SEARCH NOTES
+Naturally position the page for:
+- car accident lawyer near me
+- truck accident lawyer near me
+- what to do after a car accident
+- do I need a lawyer after a car accident
+- what if I was partly at fault
+- should I talk to the insurance company
+- what happens after a crash
+
+Do this naturally through:
+- headings
+- body copy
+- FAQ
+- semantic structure
+Do not make the page feel stuffed or article-like.
+
+FINAL QUALITY BAR
+When finished, this page should feel:
+- calmer than generic injury funnels
+- more premium than the current injured page
+- clearly part of the CasePort homepage family
+- easy enough for a hurt person to complete
+- safe, guided, and believable
+- useful enough for answer engines
+- emotionally reassuring after submission
+- world-class in spacing, rhythm, and perceived value

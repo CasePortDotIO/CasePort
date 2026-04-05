@@ -1,3 +1,4 @@
+import Link from 'next/link';
 /**
  * ComparisonTable — CasePort vs Traditional Lead Gen (AGGRESSIVE REDESIGN)
  * 
