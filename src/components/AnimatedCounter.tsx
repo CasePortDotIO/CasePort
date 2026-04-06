@@ -1,53 +1,51 @@
-import { useInView, animate } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { animate, useInView } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 
 interface AnimatedCounterProps {
-  target: number;
-  prefix?: string;
-  suffix?: string;
-  duration?: number;
-  decimals?: number;
-  className?: string;
+  target: number
+  prefix?: string
+  suffix?: string
+  duration?: number
+  decimals?: number
+  className?: string
 }
 
 export default function AnimatedCounter({
   target,
-  prefix = "",
-  suffix = "",
+  prefix = '',
+  suffix = '',
   duration = 2,
   decimals = 0,
-  className = "",
+  className = '',
 }: AnimatedCounterProps) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: false, amount: 0.5 });
-  const [hasRevealed, setHasRevealed] = useState(false);
-  const [display, setDisplay] = useState("0");
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: false, amount: 0.5 })
+  const [hasRevealed, setHasRevealed] = useState(false)
+  const [display, setDisplay] = useState('0')
 
   useEffect(() => {
     if (inView && !hasRevealed) {
-      setHasRevealed(true);
+      setHasRevealed(true)
     }
-  }, [inView, hasRevealed]);
+  }, [inView, hasRevealed])
 
   useEffect(() => {
-    if (!hasRevealed) return;
+    if (!hasRevealed) return
     const controls = animate(0, target, {
       duration,
-      ease: "easeOut",
+      ease: 'easeOut',
       onUpdate(value) {
-        setDisplay(
-          decimals > 0
-            ? value.toFixed(decimals)
-            : Math.round(value).toLocaleString()
-        );
+        setDisplay(decimals > 0 ? value.toFixed(decimals) : Math.round(value).toLocaleString())
       },
-    });
-    return () => controls.stop();
-  }, [hasRevealed, target, duration, decimals]);
+    })
+    return () => controls.stop()
+  }, [hasRevealed, target, duration, decimals])
 
   return (
     <span ref={ref} className={className}>
-      {prefix}{display}{suffix}
+      {prefix}
+      {display}
+      {suffix}
     </span>
-  );
+  )
 }

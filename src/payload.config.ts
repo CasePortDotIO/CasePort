@@ -6,13 +6,13 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Applications } from './collections/Applications'
+import { Articles } from './collections/Articles'
+import { Authors } from './collections/Authors'
+import { Categories } from './collections/Categories'
 import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 import { Waitlists } from './collections/Waitlists'
-import { Categories } from './collections/Categories'
-import { Authors } from './collections/Authors'
-import { Articles } from './collections/Articles'
 
 import { MarketsPage } from './globals/MarketsPage'
 

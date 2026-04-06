@@ -22,7 +22,14 @@ import Footer from '@/components/insights/Footer'
 import Navbar from '@/components/insights/Navbar'
 import StructuredData from '@/components/insights/StructuredData'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
-import { categories, signals, topicClusters, type Category } from '@/lib/articles'
+import {
+  articles,
+  categories,
+  signals,
+  topicClusters,
+  type Article,
+  type Category,
+} from '@/lib/articles'
 import {
   ArrowRight,
   ArrowUp,
@@ -43,7 +50,6 @@ import {
   X,
   Zap,
 } from 'lucide-react'
-import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 // ─── Asset URLs ───
@@ -199,13 +205,13 @@ function Breadcrumbs() {
         itemType="https://schema.org/BreadcrumbList"
       >
         <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
-          <Link
-            href="/"
+          <a
+            href="https://www.caseport.io"
             itemProp="item"
             className="text-cp-text-muted hover:text-cp-cyan transition-colors"
           >
             <span itemProp="name">Home</span>
-          </Link>
+          </a>
           <meta itemProp="position" content="1" />
         </li>
         <ChevronRight size={12} className="text-cp-text-muted/40" />
@@ -221,8 +227,8 @@ function Breadcrumbs() {
 }
 
 // ─── SOCIAL PROOF / STATS BAR with Count-Up ───
-function StatsBar({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
-  const articleCount = useCountUp(fetchedArticles.length || 0, 1800)
+function StatsBar() {
+  const articles = useCountUp(42, 1800)
   const clusters = useCountUp(6, 1200)
   const subscribers = useCountUp(2400, 2200)
 
@@ -230,12 +236,12 @@ function StatsBar({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
     <Reveal>
       <div className="container relative z-10 mt-20">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          <div ref={articleCount.ref} className="stat-card">
+          <div ref={articles.ref} className="stat-card">
             <div className="stat-icon">
               <FileText size={18} />
             </div>
             <div>
-              <div className="stat-number">{articleCount.count}+</div>
+              <div className="stat-number">{articles.count}+</div>
               <div className="stat-label">Articles Published</div>
             </div>
           </div>
@@ -273,7 +279,7 @@ function StatsBar({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── HERO SECTION ───
-function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+function HeroSection() {
   return (
     <section className="relative min-h-[100vh] flex flex-col overflow-hidden">
       {/* Background */}
@@ -337,7 +343,7 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
       </div>
 
       {/* Stats Bar at bottom of hero */}
-      <StatsBar fetchedArticles={fetchedArticles} />
+      <StatsBar />
 
       {/* Bottom spacer */}
       <div className="h-16 lg:h-24 relative z-10" />
@@ -346,9 +352,9 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── FEATURED ARTICLE SECTION ───
-function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
-  const featured = fetchedArticles[0]
-  const latestThree = fetchedArticles.slice(1, 4)
+function FeaturedSection() {
+  const featured = articles[0]
+  const latestThree = articles.slice(1, 4)
 
   return (
     <section className="relative py-32 lg:py-44">
@@ -373,7 +379,7 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                 {/* Image */}
                 <div className="relative h-[300px] lg:h-[360px] overflow-hidden">
                   <img
-                    src={featured?.heroImage?.url || FEATURED_IMG}
+                    src={FEATURED_IMG}
                     alt="Case intake data flow visualization"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
@@ -396,10 +402,7 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                 <div className="p-10 lg:p-12 flex-1 flex flex-col">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="text-[14px] text-cp-text-muted" itemProp="author">
-                      By{' '}
-                      {typeof featured?.author === 'object'
-                        ? featured?.author?.name
-                        : featured?.author || 'Editorial Team'}
+                      By {featured.author}
                     </span>
                     <span className="text-cp-text-muted/40">&middot;</span>
                     <span className="text-[14px] text-cp-text-muted flex items-center gap-1.5">
@@ -431,7 +434,7 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                   </p>
 
                   <div className="mt-8 flex flex-wrap gap-4">
-                    {featured?.tags?.map((tag: string) => (
+                    {featured.tags.map((tag) => (
                       <span
                         key={tag}
                         className="flex items-center gap-2 text-[13px] text-cp-text-muted"
@@ -456,20 +459,18 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 
             {/* Sidebar Articles with Thumbnails */}
             <div className="lg:col-span-5 flex flex-col gap-6">
-              {(latestThree || []).map((article: any, i: number) => (
+              {latestThree.map((article, i) => (
                 <Reveal key={article.id} delay={i * 0.1}>
                   <article itemScope itemType="https://schema.org/BlogPosting">
                     <a
                       href={`/insights/${article.slug}`}
                       className="glass-panel overflow-hidden flex group hover:border-white/[0.12] transition-all duration-300 block"
-                      style={{
-                        borderLeft: `3px solid ${getCategoryColor(typeof (typeof article.category === 'object' ? article.category?.title : article.category) === 'object' ? (typeof article.category === 'object' ? article.category?.title : article.category)?.title : typeof article.category === 'object' ? article.category?.title : article.category)}`,
-                      }}
+                      style={{ borderLeft: `3px solid ${getCategoryColor(article.category)}` }}
                     >
                       {/* Thumbnail */}
                       <div className="w-[120px] lg:w-[140px] shrink-0 overflow-hidden">
                         <img
-                          src={article?.heroImage?.url}
+                          src={article.thumbnail}
                           alt=""
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           loading="lazy"
@@ -482,24 +483,9 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                         <div className="flex items-center justify-between mb-2.5">
                           <span
                             className="system-label text-[10px]"
-                            style={{
-                              color: getCategoryColor(
-                                typeof (typeof article.category === 'object'
-                                  ? article.category?.title
-                                  : article.category) === 'object'
-                                  ? (typeof article.category === 'object'
-                                      ? article.category?.title
-                                      : article.category
-                                    )?.title
-                                  : typeof article.category === 'object'
-                                    ? article.category?.title
-                                    : article.category,
-                              ),
-                            }}
+                            style={{ color: getCategoryColor(article.category) }}
                           >
-                            {typeof article.category === 'object'
-                              ? article.category?.title
-                              : article.category}
+                            {article.category}
                           </span>
                           <span className="text-[11px] text-cp-text-muted font-mono">
                             <time itemProp="datePublished">{article.date}</time>
@@ -540,14 +526,14 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── EDITORIAL GRID SECTION (with Search Bar) ───
-function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+function EditorialGrid() {
   const [activeCategory, setActiveCategory] = useState<'All' | Category>('All')
   const [searchQuery, setSearchQuery] = useState('')
 
   const filtered = useMemo(() => {
-    let result = fetchedArticles || []
+    let result = articles
     if (activeCategory !== 'All') {
-      result = result.filter((a: any) => a.category === activeCategory)
+      result = result.filter((a) => a.category === activeCategory)
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
@@ -555,7 +541,7 @@ function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
         (a) =>
           a.title.toLowerCase().includes(q) ||
           a.excerpt.toLowerCase().includes(q) ||
-          (a.tags || []).some((t: string) => t.toLowerCase().includes(q)) ||
+          a.tags.some((t) => t.toLowerCase().includes(q)) ||
           a.category.toLowerCase().includes(q),
       )
     }
@@ -648,7 +634,7 @@ function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 
         {/* Article Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 lg:gap-8">
-          {filtered.map((article: any, i: number) => (
+          {filtered.map((article, i) => (
             <Reveal key={article.id} delay={i * 0.06}>
               <ArticleCard article={article} />
             </Reveal>
@@ -687,20 +673,18 @@ function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── ARTICLE CARD (with thumbnail, rich hover, semantic markup) ───
-function ArticleCard({ article }: { article: any }) {
+function ArticleCard({ article }: { article: Article }) {
   return (
     <article itemScope itemType="https://schema.org/BlogPosting">
       <a
         href={`/insights/${article.slug}`}
         className="article-card glass-panel overflow-hidden flex flex-col group h-full block"
-        style={{
-          borderLeft: `3px solid ${getCategoryColor(typeof (typeof article.category === 'object' ? article.category?.title : article.category) === 'object' ? (typeof article.category === 'object' ? article.category?.title : article.category)?.title : typeof article.category === 'object' ? article.category?.title : article.category)}`,
-        }}
+        style={{ borderLeft: `3px solid ${getCategoryColor(article.category)}` }}
       >
         {/* Thumbnail */}
         <div className="relative h-[180px] overflow-hidden">
           <img
-            src={article?.heroImage?.url}
+            src={article.thumbnail}
             alt=""
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             loading="lazy"
@@ -731,23 +715,10 @@ function ArticleCard({ article }: { article: any }) {
           <div className="flex items-center justify-between mb-5">
             <span
               className="system-label text-[10px]"
-              style={{
-                color: getCategoryColor(
-                  typeof (typeof article.category === 'object'
-                    ? article.category?.title
-                    : article.category) === 'object'
-                    ? (typeof article.category === 'object'
-                        ? article.category?.title
-                        : article.category
-                      )?.title
-                    : typeof article.category === 'object'
-                      ? article.category?.title
-                      : article.category,
-                ),
-              }}
+              style={{ color: getCategoryColor(article.category) }}
               itemProp="articleSection"
             >
-              {typeof article.category === 'object' ? article.category?.title : article.category}
+              {article.category}
             </span>
           </div>
 
@@ -1076,9 +1047,9 @@ function FinalCTA() {
               acquisition outcomes.
             </p>
             <div className="mt-12 flex flex-wrap justify-center gap-5">
-              <Link href="/" className="cta-gradient flex items-center gap-2.5">
+              <a href="https://www.caseport.io" className="cta-gradient flex items-center gap-2.5">
                 Learn About CasePort <ArrowRight size={16} />
-              </Link>
+              </a>
               <a
                 href="mailto:access@caseport.io"
                 className="cta-secondary flex items-center gap-2.5"
@@ -1094,7 +1065,7 @@ function FinalCTA() {
 }
 
 // ─── MAIN PAGE ───
-export default function InsightsClient({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+export default function InsightsPage() {
   return (
     <>
       <StructuredData />
@@ -1102,9 +1073,9 @@ export default function InsightsClient({ fetchedArticles = [] }: { fetchedArticl
       <main className="bg-[#0A0E17] min-h-screen overflow-x-hidden">
         <ReadingProgressBar />
         <Navbar />
-        <HeroSection fetchedArticles={fetchedArticles} />
-        <FeaturedSection fetchedArticles={fetchedArticles} />
-        <EditorialGrid fetchedArticles={fetchedArticles} />
+        <HeroSection />
+        <FeaturedSection />
+        <EditorialGrid />
         <NewsletterSection />
         <TopicClusters />
         <EditorialPhilosophy />

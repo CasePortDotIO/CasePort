@@ -108,7 +108,8 @@ export const Articles: CollectionConfig = {
       type: 'array',
       label: 'Hidden AEO/SEO Answers',
       admin: {
-        description: 'Structured answers to feed directly to AI search engines (ChatGPT, Google AI Overview). Hidden from visual reading view.',
+        description:
+          'Structured answers to feed directly to AI search engines (ChatGPT, Google AI Overview). Hidden from visual reading view.',
       },
       fields: [
         {
@@ -149,7 +150,7 @@ export const Articles: CollectionConfig = {
       relationTo: 'articles',
       hasMany: true,
       maxDepth: 1,
-    }
+    },
   ],
   timestamps: true,
 }

@@ -150,15 +150,15 @@ function useScrollReveal() {
   useEffect(() => {
     // For Next.js back-button bfcache restoration, do an immediate sweep
     const ids = Array.from(document.querySelectorAll('[id]'))
-      .filter(el => {
-        const rect = el.getBoundingClientRect();
-        return rect.top < window.innerHeight && rect.bottom > 0;
+      .filter((el) => {
+        const rect = el.getBoundingClientRect()
+        return rect.top < window.innerHeight && rect.bottom > 0
       })
-      .map(el => el.id)
-      .filter(Boolean);
-    
+      .map((el) => el.id)
+      .filter(Boolean)
+
     if (ids.length) {
-      setRevealed(prev => new Set([...prev, ...ids]));
+      setRevealed((prev) => new Set([...prev, ...ids]))
     }
 
     const observer = new IntersectionObserver(

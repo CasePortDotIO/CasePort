@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -73,7 +73,7 @@
   --color-cp-purple: oklch(0.55 0.2 290);
   --color-cp-text-primary: oklch(0.97 0.003 250);
   --color-cp-text-secondary: oklch(0.82 0.01 250);
-  --color-cp-text-muted: oklch(0.60 0.012 250);
+  --color-cp-text-muted: oklch(0.6 0.012 250);
   --color-cp-glass-border: oklch(1 0 0 / 6%);
   --color-cp-glass-bg: oklch(1 0 0 / 3%);
 }
@@ -82,7 +82,9 @@
   .fade-up {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
   }
   .fade-up.visible {
     opacity: 1;
@@ -144,14 +146,14 @@
   --color-cp-purple: oklch(0.55 0.2 290);
   --color-cp-text-primary: oklch(0.97 0.003 250);
   --color-cp-text-secondary: oklch(0.82 0.01 250);
-  --color-cp-text-muted: oklch(0.60 0.012 250);
+  --color-cp-text-muted: oklch(0.6 0.012 250);
   --color-cp-glass-border: oklch(1 0 0 / 6%);
   --color-cp-glass-bg: oklch(1 0 0 / 3%);
 
   /* Font families */
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 :root {
@@ -201,14 +203,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
   button:not(:disabled),
-  [role="button"]:not([aria-disabled="true"]),
-  [type="button"]:not(:disabled),
-  [type="submit"]:not(:disabled),
-  [type="reset"]:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [type='button']:not(:disabled),
+  [type='submit']:not(:disabled),
+  [type='reset']:not(:disabled),
   a[href],
   select:not(:disabled),
-  input[type="checkbox"]:not(:disabled),
-  input[type="radio"]:not(:disabled) {
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled) {
     @apply cursor-pointer;
   }
 }
@@ -224,7 +226,7 @@
       transform: translateY(0);
     }
   }
-  
+
   @keyframes slideInLeft {
     from {
       opacity: 0;
@@ -235,7 +237,7 @@
       transform: translateX(0);
     }
   }
-  
+
   @keyframes slideInRight {
     from {
       opacity: 0;
@@ -246,7 +248,7 @@
       transform: translateX(0);
     }
   }
-  
+
   @keyframes scaleIn {
     from {
       opacity: 0;
@@ -257,9 +259,10 @@
       transform: scale(1);
     }
   }
-  
+
   @keyframes glow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4);
     }
     50% {
@@ -313,7 +316,7 @@
 
   /* CTA gradient button */
   .cta-gradient {
-    background: linear-gradient(135deg, #06B6D4, #8B5CF6);
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
     color: white;
     height: 48px;
     padding-left: 28px;
@@ -356,21 +359,35 @@
   }
 
   @keyframes orbFloat {
-    0%, 100% { transform: translate(0, 0); }
-    33% { transform: translate(20px, -15px); }
-    66% { transform: translate(-15px, 10px); }
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    33% {
+      transform: translate(20px, -15px);
+    }
+    66% {
+      transform: translate(-15px, 10px);
+    }
   }
 
   @keyframes orbPulse {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 0.7; }
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.7;
+    }
   }
 
   /* Fade up animation */
   .fade-up {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
   }
   .fade-up.visible {
     opacity: 1;
@@ -381,14 +398,19 @@
   .signal-bar {
     height: 3px;
     border-radius: 2px;
-    background: linear-gradient(90deg, #22D3EE, #8B5CF6);
+    background: linear-gradient(90deg, #22d3ee, #8b5cf6);
     transition: width 0.8s ease-out;
   }
 
   /* Breathing glow */
   @keyframes breatheGlow {
-    0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.05); }
-    50% { box-shadow: 0 0 30px rgba(34, 211, 238, 0.15); }
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.05);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.15);
+    }
   }
 
   /* ─── ARTICLE CARD — Rich Hover ─── */
@@ -427,7 +449,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #22D3EE;
+    color: #22d3ee;
     flex-shrink: 0;
   }
   .stat-number {
@@ -442,7 +464,7 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: oklch(0.60 0.012 250);
+    color: oklch(0.6 0.012 250);
     margin-top: 2px;
   }
 
@@ -492,4 +514,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
-

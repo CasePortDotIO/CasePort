@@ -69,7 +69,7 @@ function useCountUp(end: number, duration: number = 2000, startOnView: boolean =
   const ref = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref, { once: false, margin: '-50px' })
   const [hasRevealed, setHasRevealed] = useState(false)
-  
+
   useEffect(() => {
     if (isInView && !hasRevealed) setHasRevealed(true)
   }, [isInView, hasRevealed])

@@ -1,24 +1,24 @@
 'use client'
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    const onScroll = () => setScrolled(window.scrollY > 40)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-[#0A0E17]/90 backdrop-blur-xl border-b border-white/[0.06]"
-          : "bg-transparent"
+          ? 'bg-[#0A0E17]/90 backdrop-blur-xl border-b border-white/[0.06]'
+          : 'bg-transparent'
       }`}
     >
       <nav className="container flex items-center justify-between h-16 lg:h-[72px]">
@@ -26,7 +26,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2 group">
           <span
             className="text-[18px] font-bold tracking-[0.18em] text-cp-text-primary"
-            style={{ fontFamily: "var(--font-display)" }}
+            style={{ fontFamily: 'var(--font-display)' }}
           >
             CASEPORT
           </span>
@@ -46,10 +46,7 @@ export default function Navbar() {
           >
             Markets
           </Link>
-          <Link
-            href="/insights"
-            className="text-[15px] font-medium text-cp-cyan transition-colors"
-          >
+          <Link href="/insights" className="text-[15px] font-medium text-cp-cyan transition-colors">
             Insights
           </Link>
           <Link
@@ -102,10 +99,7 @@ export default function Navbar() {
             >
               Markets
             </Link>
-            <Link
-              href="/insights"
-              className="text-[15px] font-medium text-cp-cyan py-2"
-            >
+            <Link href="/insights" className="text-[15px] font-medium text-cp-cyan py-2">
               Insights
             </Link>
             <Link
@@ -132,7 +126,5 @@ export default function Navbar() {
         </div>
       )}
     </header>
-  );
+  )
 }
-
-
