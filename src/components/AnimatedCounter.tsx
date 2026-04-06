@@ -19,11 +19,18 @@ export default function AnimatedCounter({
   className = "",
 }: AnimatedCounterProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const inView = useInView(ref, { once: false, amount: 0.5 });
+  const [hasRevealed, setHasRevealed] = useState(false);
   const [display, setDisplay] = useState("0");
 
   useEffect(() => {
-    if (!isInView) return;
+    if (inView && !hasRevealed) {
+      setHasRevealed(true);
+    }
+  }, [inView, hasRevealed]);
+
+  useEffect(() => {
+    if (!hasRevealed) return;
     const controls = animate(0, target, {
       duration,
       ease: "easeOut",
@@ -36,7 +43,7 @@ export default function AnimatedCounter({
       },
     });
     return () => controls.stop();
-  }, [isInView, target, duration, decimals]);
+  }, [hasRevealed, target, duration, decimals]);
 
   return (
     <span ref={ref} className={className}>

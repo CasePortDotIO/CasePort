@@ -19,7 +19,7 @@ export const Header: React.FC = () => {
         <a href="#market" className="hover:text-white transition-colors">
           Market
         </a>
-        <a href="#insights" className="hover:text-white transition-colors">
+        <a href="/insights" className="hover:text-white transition-colors">
           Insights
         </a>
         <a href="#intelligence" className="hover:text-white transition-colors">

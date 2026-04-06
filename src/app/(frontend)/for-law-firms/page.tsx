@@ -42,8 +42,18 @@ function useInView(threshold = 0.15) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    
+    // bfcache immediate fix
+    const rect = el.getBoundingClientRect();
+    if(rect.top < window.innerHeight && rect.bottom > 0) setInView(true);
+
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.unobserve(el); } },
+      ([entry]) => { 
+        if (entry.isIntersecting) { 
+          setInView(true); 
+          // Do not unobserve so standard event flow isn't short-circuited by Next.js cache 
+        } 
+      },
       { threshold }
     );
     obs.observe(el);

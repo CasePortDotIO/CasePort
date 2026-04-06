@@ -8,10 +8,10 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useScrollReveal } from "@/hooks/useAnimations";
 
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const { ref, isVisible } = useScrollReveal(0.1);
+  const { ref, isInView: isVisible } = useScrollReveal(0.1);
   return (
     <div
       ref={ref}

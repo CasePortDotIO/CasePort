@@ -1,4 +1,5 @@
 import AnimatedCounter from '@/components/AnimatedCounter'
+import Navbar from '@/components/Navbar'
 import ROICalculator from '@/components/ROICalculator'
 import {
   Accordion,
@@ -86,7 +87,7 @@ const SYSTEM_VIZ =
 export default function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#030608] text-white antialiased scroll-smooth">
-      <Header />
+      <Navbar />
 
       {/* AEO: Hidden semantic content for AI crawlers & voice search */}
       <div className="sr-only" role="region" aria-label="About CasePort">
@@ -381,9 +382,13 @@ function Header() {
                 <span className="text-[8px] uppercase tracking-[0.22em] text-[#6B7280] font-mono mb-1">
                   For qualified firms only
                 </span>
-                <Button variant="gradient" className="rounded-full px-5 py-2 text-[13px] font-semibold" asChild>
-<Link href="/request-access">Request Private Access</Link>
-</Button>
+                <Button
+                  variant="gradient"
+                  className="rounded-full px-5 py-2 text-[13px] font-semibold"
+                  asChild
+                >
+                  <Link href="/request-access">Request Private Access</Link>
+                </Button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -412,7 +417,7 @@ function Header() {
               {[
                 { label: 'For Law Firms', href: '#system' },
                 { label: 'Market', href: '#market' },
-                { label: 'Insights', href: '#insights' },
+                { label: 'Insights', href: '/insights' },
                 { label: 'Intelligence', href: '#intelligence' },
                 { label: 'Injured?', href: '#injured' },
                 { label: 'FAQ', href: '#faq' },
@@ -429,9 +434,13 @@ function Header() {
                 <div className="text-[9px] uppercase tracking-[0.22em] text-[#6B7280] font-mono mb-3 text-center">
                   For qualified firms only
                 </div>
-                <Button variant="gradient" className="w-full rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_24px_rgba(0,212,255,0.2)]" asChild>
-<Link href="/request-access">Request Private Access</Link>
-</Button>
+                <Button
+                  variant="gradient"
+                  className="w-full rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_24px_rgba(0,212,255,0.2)]"
+                  asChild
+                >
+                  <Link href="/request-access">Request Private Access</Link>
+                </Button>
               </div>
             </nav>
           </SheetContent>
@@ -484,12 +493,19 @@ function HeroSection() {
             </p>
 
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-              <Button variant="gradient" className="relative overflow-hidden rounded-full px-7 py-3 text-[14px] font-semibold" asChild>
-<Link href="/request-access">
-<span className="relative z-10">Request Private Access</span>
-<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full animate-[shimmer_3s_ease-in-out_infinite]" style={{ backgroundSize: "200% 100%" }} />
-</Link>
-</Button>
+              <Button
+                variant="gradient"
+                className="relative overflow-hidden rounded-full px-7 py-3 text-[14px] font-semibold"
+                asChild
+              >
+                <Link href="/request-access">
+                  <span className="relative z-10">Request Private Access</span>
+                  <div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full animate-[shimmer_3s_ease-in-out_infinite]"
+                    style={{ backgroundSize: '200% 100%' }}
+                  />
+                </Link>
+              </Button>
               <a
                 href="#how-it-works"
                 className="group flex items-center gap-2 text-[14px] text-[#9CA3AF] font-medium transition hover:text-white"
@@ -1791,9 +1807,13 @@ function FinalCTASection() {
           </p>
 
           <div className="mt-7 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Button variant="gradient" className="rounded-full px-8 py-3.5 text-sm font-semibold" asChild>
-<Link href="/request-access">Request Private Access</Link>
-</Button>
+            <Button
+              variant="gradient"
+              className="rounded-full px-8 py-3.5 text-sm font-semibold"
+              asChild
+            >
+              <Link href="/request-access">Request Private Access</Link>
+            </Button>
             <a
               href="#roi-calculator"
               className="group flex items-center gap-2 text-[14px] text-[#9CA3AF] transition hover:text-white"
@@ -1869,7 +1889,7 @@ function Footer() {
             <div className="system-label text-[#7A8290] mb-3">Resources</div>
             <div className="space-y-2">
               <a
-                href="#insights"
+                href="/insights"
                 className="block text-[14px] text-[#9CA3AF] transition hover:text-white"
               >
                 Insights

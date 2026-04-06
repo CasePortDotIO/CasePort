@@ -1,11 +1,48 @@
-import { useInView } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export function useScrollReveal(threshold = 0.15) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: threshold });
-  return { ref, isInView };
+  const ref = useRef<HTMLDivElement>(null);
+  const [hasRevealed, setHasRevealed] = useState(false);
+
+  useEffect(() => {
+    // Pure, native IntersectionObserver - completely immune to framer-motion / Next.js cache bugs!
+    const el = ref.current;
+    if (!el) return;
+
+    // Check immediately on mount in case it's already visible (like on bfcache restore)
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && Math.abs(rect.bottom) > 0) {
+      setHasRevealed(true);
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasRevealed(true);
+        }
+      },
+      { threshold }
+    );
+    
+    observer.observe(el);
+
+    // Keep it explicitly observed or check pageshow events to bulletproof back-button
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted && el) {
+        const rc = el.getBoundingClientRect();
+        if (rc.top < window.innerHeight && Math.abs(rc.bottom) > 0) setHasRevealed(true);
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, [threshold]);
+
+  return { ref, isInView: hasRevealed };
 }
 
 export const fadeUp: Variants = {

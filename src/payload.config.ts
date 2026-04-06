@@ -10,6 +10,9 @@ import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 import { Waitlists } from './collections/Waitlists'
+import { Categories } from './collections/Categories'
+import { Authors } from './collections/Authors'
+import { Articles } from './collections/Articles'
 
 import { MarketsPage } from './globals/MarketsPage'
 
@@ -24,7 +27,7 @@ export default buildConfig({
     },
   },
   globals: [MarketsPage],
-  collections: [Users, Media, Markets, Applications, Waitlists],
+  collections: [Users, Media, Markets, Applications, Waitlists, Categories, Authors, Articles],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

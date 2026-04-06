@@ -67,7 +67,13 @@ const DATA_VIZ =
 function useCountUp(end: number, duration: number = 2000, startOnView: boolean = true) {
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const isInView = useInView(ref, { once: false, margin: '-50px' })
+  const [hasRevealed, setHasRevealed] = useState(false)
+  
+  useEffect(() => {
+    if (isInView && !hasRevealed) setHasRevealed(true)
+  }, [isInView, hasRevealed])
+
   const hasStarted = useRef(false)
   const previousEnd = useRef(end)
 
@@ -76,7 +82,7 @@ function useCountUp(end: number, duration: number = 2000, startOnView: boolean =
       hasStarted.current = false
       previousEnd.current = end
     }
-    if (!startOnView || !isInView || hasStarted.current || end === 0) return
+    if (!startOnView || !hasRevealed || hasStarted.current || end === 0) return
     hasStarted.current = true
     const startTime = performance.now()
     const animate = (currentTime: number) => {

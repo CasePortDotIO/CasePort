@@ -67,7 +67,7 @@ export default function Footer() {
               {["Privacy", "Terms", "Contact"].map((item) => (
                 <li key={item}>
                   <a
-                    href={`/${item.toLowerCase()}`}
+                    href={`https://www.caseport.io/${item.toLowerCase()}`}
                     className="text-[15px] text-cp-text-secondary hover:text-cp-text-primary transition-colors"
                   >
                     {item}

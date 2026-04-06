@@ -1,7 +1,24 @@
-"use client";
+import React from 'react';
+import { notFound } from 'next/navigation';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+import ArticleClient from './ArticleClient';
 
-import ArticlePage from "@/components/ArticlePage";
+export default async function InsightsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const payload = await getPayload({ config: configPromise });
+  
+  const { docs } = await payload.find({
+    collection: 'articles',
+    where: { slug: { equals: slug } },
+    depth: 1, // Populatable relationships
+  });
 
-export default function TestingInsightsPage() {
-  return <ArticlePage />;
+  const article = docs[0];
+
+  if (!article) {
+    notFound();
+  }
+
+  return <ArticleClient article={article} />;
 }

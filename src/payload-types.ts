@@ -72,6 +72,9 @@ export interface Config {
     markets: Market;
     applications: Application;
     waitlists: Waitlist;
+    categories: Category;
+    authors: Author;
+    articles: Article;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +87,9 @@ export interface Config {
     markets: MarketsSelect<false> | MarketsSelect<true>;
     applications: ApplicationsSelect<false> | ApplicationsSelect<true>;
     waitlists: WaitlistsSelect<false> | WaitlistsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    authors: AuthorsSelect<false> | AuthorsSelect<true>;
+    articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -282,6 +288,112 @@ export interface Waitlist {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authors".
+ */
+export interface Author {
+  id: string;
+  name: string;
+  title: string;
+  avatar?: (string | null) | Media;
+  bio?: string | null;
+  socialLinks?:
+    | {
+        platform?: ('twitter' | 'linkedin' | 'github') | null;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles".
+ */
+export interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  heroImage: string | Media;
+  category: string | Category;
+  author: string | Author;
+  /**
+   * Estimated reading time in minutes
+   */
+  readTime?: number | null;
+  publishedAt?: string | null;
+  excerpt: string;
+  /**
+   * Displayed directly under the main title in the hero section.
+   */
+  subtitle?: string | null;
+  /**
+   * A larger editorial intro text bridging the hero and the main body.
+   */
+  executiveSummary?: string | null;
+  /**
+   * Bullet points summarizing the article, displayed in a highlighted box.
+   */
+  keyTakeaways?:
+    | {
+        takeaway: string;
+        id?: string | null;
+      }[]
+    | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Structured answers to feed directly to AI search engines (ChatGPT, Google AI Overview). Hidden from visual reading view.
+   */
+  seoAnswers?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * These populate the FAQ accordion at the bottom of the article.
+   */
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  relatedArticles?: (string | Article)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -323,6 +435,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'waitlists';
         value: string | Waitlist;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'authors';
+        value: string | Author;
+      } | null)
+    | ({
+        relationTo: 'articles';
+        value: string | Article;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -482,6 +606,77 @@ export interface WaitlistsSelect<T extends boolean = true> {
   referralEmail?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "authors_select".
+ */
+export interface AuthorsSelect<T extends boolean = true> {
+  name?: T;
+  title?: T;
+  avatar?: T;
+  bio?: T;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "articles_select".
+ */
+export interface ArticlesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  heroImage?: T;
+  category?: T;
+  author?: T;
+  readTime?: T;
+  publishedAt?: T;
+  excerpt?: T;
+  subtitle?: T;
+  executiveSummary?: T;
+  keyTakeaways?:
+    | T
+    | {
+        takeaway?: T;
+        id?: T;
+      };
+  content?: T;
+  seoAnswers?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  relatedArticles?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

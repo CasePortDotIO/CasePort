@@ -11,7 +11,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <body>
         <main>{children}</main>
         <Toaster theme="dark" position="top-center" richColors />

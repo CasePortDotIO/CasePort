@@ -1,3 +1,4 @@
+'use client'
 /*
   DESIGN: "The Observatory" — FAQ Section
   Visible FAQ for SEO/AEO — conversational voice-search patterns
@@ -132,3 +133,4 @@ export default function FAQSection() {
     </section>
   );
 }
+
