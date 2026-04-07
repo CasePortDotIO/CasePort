@@ -44,7 +44,7 @@ export default buildConfig({
       collections: {
         media: true,
       },
-      token: process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_fake_client_token',
+      token: process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_12345_123456789012345678901234567890',
     }),
   ],
 })
