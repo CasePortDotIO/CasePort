@@ -1,7 +1,8 @@
 import React from 'react';
-import { RichText } from '@payloadcms/richtext-lexical/react';
+import { RichText, defaultJSXConverters } from '@payloadcms/richtext-lexical/react';
 
-const jsxConverters = {
+const jsxConverters: any = {
+  ...defaultJSXConverters,
   heading: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     if (node.tag === 'h2') {
       const id = node.children[0]?.text?.toLowerCase().replace(/\s+/g, '-');

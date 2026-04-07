@@ -361,7 +361,7 @@ function LeakageCalculator() {
   return (
     <div className="bg-gradient-to-br from-slate-50 to-cyan-50 border border-slate-200 rounded-lg p-8 mb-8">
       <h3 className="text-2xl font-bold text-slate-900 mb-6">Calculate Your Intake Leakage Cost</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-2">Monthly Leads</label>
           <input
@@ -404,10 +404,10 @@ function LeakageCalculator() {
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-lg p-6 border-l-4 border-red-500">
-        <p className="text-sm text-slate-600 mb-2">Your estimated monthly leakage:</p>
-        <div className="text-4xl font-bold text-red-600 mb-2">${monthlyCost.toLocaleString()}</div>
-        <p className="text-sm text-slate-600">
+      <div className="bg-white rounded-lg p-5 lg:p-6 border-l-4 border-red-500">
+        <p className="text-xs lg:text-sm text-slate-600 mb-2">Your estimated monthly leakage:</p>
+        <div className="text-3xl lg:text-4xl font-bold text-red-600 mb-2">${monthlyCost.toLocaleString()}</div>
+        <p className="text-xs lg:text-sm text-slate-600">
           That's <strong>${annualCost.toLocaleString()}</strong> per year in lost cases.
         </p>
       </div>
@@ -433,25 +433,25 @@ function MidArticleCTA({ depth }: { depth: number }) {
         data-reveal
         className="mb-32 transition-all duration-700 opacity-100 translate-y-0"
       >
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-12 text-white border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300">
-          <h3 className="text-3xl font-bold mb-4">
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300">
+          <h3 className="text-2xl sm:text-3xl font-bold mb-4">
             {depth >= 80
               ? "Your Firm's Intake Audit is Waiting"
               : depth >= 60
                 ? 'See Your Intake Leakage in Real Numbers'
                 : 'Stop Losing Cases to Intake Leakage'}
           </h3>
-          <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+          <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-relaxed">
             {depth >= 80
               ? "You've read this far. You care about fixing this. Let's show you exactly where your firm is leaking value."
               : depth >= 60
                 ? "Most firms don't know their actual leakage cost. We'll calculate yours in 5 minutes."
                 : 'You just read about the problem. Now fix it. The firms that moved fastest on intake optimization saw 30-40% improvement in case retention within 90 days.'}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
             <button
               onClick={() => setShowModal(true)}
-              className="inline-block px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
+              className="inline-block text-center w-full sm:w-auto px-6 py-4 lg:px-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
             >
               {depth >= 80
                 ? 'Get Your Free Audit →'
@@ -462,10 +462,10 @@ function MidArticleCTA({ depth }: { depth: number }) {
             {depth >= 60 && (
               <button
                 onClick={() => setShowCalculator(true)}
-                className="inline-block px-8 py-4 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+                className="inline-flex items-center justify-center content-center w-full sm:w-auto px-6 py-4 lg:px-8 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
               >
-                <Download size={18} className="inline mr-2" />
-                Download Worksheet
+                <Download size={18} className="mr-2 flex-shrink-0" />
+                <span className="whitespace-nowrap">Download Worksheet</span>
               </button>
             )}
           </div>
@@ -580,9 +580,9 @@ export default function ArticleClient({ article }: { article: any }) {
         />
 
         {/* Hero content */}
-        <div className="relative z-10 container mx-auto px-6 lg:px-12 py-32 lg:py-48">
+        <div className="relative z-10 container mx-auto px-6 lg:px-12 py-24 lg:py-48 mt-16 lg:mt-0 max-w-full overflow-hidden">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 mb-12 text-sm text-gray-400">
+          <div className="flex items-center gap-2 mb-10 lg:mb-12 text-xs lg:text-sm text-gray-400 flex-wrap">
             <Link href="/insights" className="hover:text-cyan-300 transition-colors">
               Insights
             </Link>
@@ -605,19 +605,19 @@ export default function ArticleClient({ article }: { article: any }) {
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl lg:text-6xl font-bold text-white mb-8 leading-tight max-w-3xl">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 lg:mb-8 leading-tight max-w-4xl tracking-tight break-words">
             {content?.title || article?.title}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl text-gray-300 mb-16 max-w-2xl leading-relaxed">
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mb-12 lg:mb-16 max-w-2xl leading-relaxed">
             {article?.subtitle}
           </p>
 
           {/* Trust Signals + Author Meta */}
           <div className="space-y-6 pt-8 border-t border-white/10">
             {/* Trust Badges Row */}
-            <div className="flex flex-wrap gap-4 text-xs text-gray-300">
+            <div className="flex flex-wrap gap-3 lg:gap-4 text-xs text-gray-300">
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
                 <Eye size={14} className="text-cyan-400" />
                 <span>1,247 reading now</span>
@@ -633,21 +633,21 @@ export default function ArticleClient({ article }: { article: any }) {
             </div>
 
             {/* Author Meta + Share */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 lg:gap-8 mt-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl">
+                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg lg:text-xl flex-shrink-0">
                   {content?.author
                     ?.split(' ')
                     .map((n: string) => n[0])
                     .join('') || 'MK'}
                 </div>
                 <div>
-                  <div className="font-semibold text-white">{content?.author}</div>
-                  <div className="text-sm text-gray-400">{content?.authorRole}</div>
-                  <div className="text-xs text-cyan-300 mt-1">Advisor to 50+ PI firms</div>
+                  <div className="font-semibold text-white text-base lg:text-lg">{content?.author}</div>
+                  <div className="text-xs lg:text-sm text-gray-400">{content?.authorRole}</div>
+                  <div className="text-[10px] lg:text-xs text-cyan-300 mt-1">Advisor to 50+ PI firms</div>
                 </div>
               </div>
-              <div className="flex items-center gap-6 text-sm text-gray-400">
+              <div className="flex flex-wrap items-center gap-4 lg:gap-6 text-xs lg:text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <Calendar size={16} />
                   <span>{new Date(datePublished).toLocaleDateString()}</span>
@@ -703,10 +703,10 @@ export default function ArticleClient({ article }: { article: any }) {
 
       {/* ─── ARTICLE BODY (WHITE SECTION) ─── */}
       <div className="bg-white">
-        <div className="container mx-auto px-6 lg:px-12 py-24 lg:py-40">
-          <div className="flex gap-12">
+        <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-40">
+          <div className="flex flex-col lg:flex-row gap-12 items-start">
             {/* Main reading column */}
-            <div className="flex-1 max-w-[720px] mx-auto">
+            <div className="flex-1 max-w-[720px] mx-auto w-full">
               {/* Executive Summary - Minimal Premium Styling */}
               <section
                 id="executive-summary"
@@ -845,11 +845,11 @@ export default function ArticleClient({ article }: { article: any }) {
                     : 'opacity-0 translate-y-8'
                 }`}
               >
-                <div className="bg-gradient-to-r from-slate-50 to-cyan-50 border border-slate-200 rounded-lg p-8">
-                  <div className="flex gap-6 mb-8">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex-shrink-0" />
+                <div className="bg-gradient-to-r from-slate-50 to-cyan-50 border border-slate-200 rounded-lg p-6 lg:p-8">
+                  <div className="flex flex-col sm:flex-row gap-6 mb-8">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex-shrink-0" />
                     <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-2 gap-3 sm:gap-0">
                         <div>
                           <h3 className="text-xl font-bold text-slate-900">{content?.author}</h3>
                           <p className="text-sm text-slate-600">{content?.authorRole}</p>
@@ -866,17 +866,17 @@ export default function ArticleClient({ article }: { article: any }) {
                       <p className="text-slate-700 leading-relaxed mb-4">{authorBio}</p>
 
                       {/* Credentials */}
-                      <div className="grid grid-cols-3 gap-4 mb-6 py-4 border-y border-slate-200">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 py-4 border-y border-slate-200">
                         <div>
-                          <div className="text-2xl font-bold text-cyan-600">50+</div>
+                          <div className="text-xl sm:text-2xl font-bold text-cyan-600">50+</div>
                           <div className="text-xs text-slate-600">Firms Advised</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-cyan-600">$2.1B</div>
-                          <div className="text-xs text-slate-600">Case Value Optimized</div>
+                          <div className="text-xl sm:text-2xl font-bold text-cyan-600">$2.1B</div>
+                          <div className="text-xs text-slate-600 truncate">Case Val Optimized</div>
                         </div>
-                        <div>
-                          <div className="text-2xl font-bold text-cyan-600">8 yrs</div>
+                        <div className="col-span-2 sm:col-span-1">
+                          <div className="text-xl sm:text-2xl font-bold text-cyan-600">8 yrs</div>
                           <div className="text-xs text-slate-600">PI Operations</div>
                         </div>
                       </div>
@@ -1060,26 +1060,26 @@ export default function ArticleClient({ article }: { article: any }) {
                     : 'opacity-0 translate-y-8'
                 }`}
               >
-                <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-8">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">Get Weekly Insights</h3>
-                  <p className="text-slate-700 mb-6">
+                <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-6 lg:p-8">
+                  <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2 lg:mb-4">Get Weekly Insights</h3>
+                  <p className="text-sm lg:text-base text-slate-700 mb-6">
                     Join 2,400+ personal injury operators who get our weekly brief on case
                     acquisition, intake optimization, and market signals.
                   </p>
-                  <div className="flex gap-3 mb-4">
+                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
                     <input
                       type="email"
                       placeholder="Enter your email"
-                      className="flex-1 px-4 py-3 rounded-lg border border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full sm:flex-1 px-4 py-3 rounded-lg border border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                     <button
                       onClick={() => toast.success('Welcome to the brief.')}
-                      className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
+                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105 whitespace-nowrap"
                     >
                       Subscribe Free
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 text-center sm:text-left">
                     ✓ No spam. Unsubscribe anytime. Next brief: Tuesday 9am EST.
                   </p>
                 </div>

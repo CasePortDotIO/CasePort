@@ -1,6 +1,0 @@
-# CasePort — Private Access Application
-# This is a private qualification portal, not a public-facing page.
-# Crawling is disallowed.
-
-User-agent: *
-Disallow: /
