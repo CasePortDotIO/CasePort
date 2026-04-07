@@ -1,11 +1,11 @@
 import { getPayload } from "payload";
-import config from "./src/payload.config.ts";
+import config from "./src/payload.config";
 import fs from "fs";
 import path from "path";
 import https from "https";
 
-import { articles } from "./src/lib/articles.ts";
-import { articleContents } from "./src/lib/articleContent.ts";
+import { articles } from "./src/lib/articles";
+import { articleContents } from "./src/lib/articleContent";
 
 async function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
