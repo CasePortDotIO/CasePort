@@ -406,7 +406,9 @@ function LeakageCalculator() {
       </div>
       <div className="bg-white rounded-lg p-5 lg:p-6 border-l-4 border-red-500">
         <p className="text-xs lg:text-sm text-slate-600 mb-2">Your estimated monthly leakage:</p>
-        <div className="text-3xl lg:text-4xl font-bold text-red-600 mb-2">${monthlyCost.toLocaleString()}</div>
+        <div className="text-3xl lg:text-4xl font-bold text-red-600 mb-2">
+          ${monthlyCost.toLocaleString()}
+        </div>
         <p className="text-xs lg:text-sm text-slate-600">
           That's <strong>${annualCost.toLocaleString()}</strong> per year in lost cases.
         </p>
@@ -642,9 +644,13 @@ export default function ArticleClient({ article }: { article: any }) {
                     .join('') || 'MK'}
                 </div>
                 <div>
-                  <div className="font-semibold text-white text-base lg:text-lg">{content?.author}</div>
+                  <div className="font-semibold text-white text-base lg:text-lg">
+                    {content?.author}
+                  </div>
                   <div className="text-xs lg:text-sm text-gray-400">{content?.authorRole}</div>
-                  <div className="text-[10px] lg:text-xs text-cyan-300 mt-1">Advisor to 50+ PI firms</div>
+                  <div className="text-[10px] lg:text-xs text-cyan-300 mt-1">
+                    Advisor to 50+ PI firms
+                  </div>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-4 lg:gap-6 text-xs lg:text-sm text-gray-400">
@@ -1061,7 +1067,9 @@ export default function ArticleClient({ article }: { article: any }) {
                 }`}
               >
                 <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-6 lg:p-8">
-                  <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2 lg:mb-4">Get Weekly Insights</h3>
+                  <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2 lg:mb-4">
+                    Get Weekly Insights
+                  </h3>
                   <p className="text-sm lg:text-base text-slate-700 mb-6">
                     Join 2,400+ personal injury operators who get our weekly brief on case
                     acquisition, intake optimization, and market signals.
