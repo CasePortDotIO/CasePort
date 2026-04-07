@@ -31,7 +31,8 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["caseport-insights-complete", 
+  "exclude": [
+    "caseport-insights-complete",
     "node_modules",
     "HomePage",
     "ForLawFirm",
@@ -46,4 +47,3 @@
     "seed.ts"
   ]
 }
-
