@@ -9,7 +9,6 @@ import {
   Car,
   CheckCircle,
   ChevronDown,
-  ChevronLeft,
   Clock,
   FileText,
   Heart,
@@ -22,7 +21,6 @@ import {
   Users,
   Zap,
 } from 'lucide-react'
-import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import './injured.css'
 
@@ -196,22 +194,11 @@ export default function Home() {
       {/* HEADER — Premium, Calm, Concierge                                           */}
       {/* ============================================================================ */}
       <header className="sticky top-0 z-50 bg-[#0F1419]/95 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-8 py-3 md:py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-            <Link
-              href="/"
-              className="text-white/60 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-full p-1.5 backdrop-blur-md border border-white/10 group flex items-center justify-center shrink-0"
-            >
-              <ChevronLeft
-                size={16}
-                className="sm:w-[18px] sm:h-[18px] transform group-hover:-translate-x-0.5 transition-transform"
-              />
-            </Link>
-            <span className="text-white font-bold text-base sm:text-lg tracking-widest truncate">
-              CASEPORT
-            </span>
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="text-white font-bold text-lg tracking-widest">CASEPORT</span>
           </div>
-          <a href="tel:+18002273669" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
+          <a href="tel:+18002273669" className="flex items-center gap-2.5 group">
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-xs text-white/50 font-medium leading-none">
                 Questions? Speak with us
@@ -220,12 +207,10 @@ export default function Home() {
                 1-800-CASE-NOW
               </span>
             </div>
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#22D3EE]/15 border border-[#22D3EE]/25 flex items-center justify-center group-hover:bg-[#22D3EE]/25 group-hover:border-[#22D3EE]/40 transition-all duration-300 shrink-0">
-              <Phone size={14} className="text-[#22D3EE] sm:w-[15px] sm:h-[15px]" />
+            <div className="w-9 h-9 rounded-full bg-[#22D3EE]/15 border border-[#22D3EE]/25 flex items-center justify-center group-hover:bg-[#22D3EE]/25 group-hover:border-[#22D3EE]/40 transition-all duration-300">
+              <Phone size={15} className="text-[#22D3EE]" />
             </div>
-            <span className="sm:hidden text-xs text-white font-bold tracking-wide whitespace-nowrap uppercase">
-              CALL US
-            </span>
+            <span className="sm:hidden text-sm text-white font-semibold">1-800-CASE-NOW</span>
           </a>
         </div>
       </header>
