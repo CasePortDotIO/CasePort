@@ -15,10 +15,9 @@ export function ApplicationsUnseenBadge() {
 
   const fetchCount = async () => {
     try {
-      const res = await fetch(
-        '/api/applications?where[seen][equals]=false&limit=0',
-        { credentials: 'include' },
-      )
+      const res = await fetch('/api/applications?where[seen][equals]=false&limit=0', {
+        credentials: 'include',
+      })
       if (!res.ok) return
       const data = await res.json()
       setCount(data.totalDocs ?? 0)
