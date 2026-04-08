@@ -15,10 +15,9 @@ export function IntelligenceUnseenBadge() {
 
   const fetchCount = async () => {
     try {
-      const res = await fetch(
-        '/api/intelligence-briefs?where[seen][equals]=false&limit=0',
-        { credentials: 'include' },
-      )
+      const res = await fetch('/api/intelligence-briefs?where[seen][equals]=false&limit=0', {
+        credentials: 'include',
+      })
       if (!res.ok) return
       const data = await res.json()
       setCount(data.totalDocs ?? 0)
