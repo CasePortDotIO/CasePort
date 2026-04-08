@@ -443,12 +443,12 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                   </div>
 
                   <div className="mt-10 flex gap-5">
-                    <button className="cta-gradient flex items-center gap-2 !h-12 !text-[15px]">
+                    <Link
+                      href={`/insights/${featured?.slug}`}
+                      className="cta-gradient flex items-center gap-2 !h-12 !text-[15px]"
+                    >
                       Read Article <ArrowRight size={15} />
-                    </button>
-                    <button className="cta-secondary flex items-center gap-2 !h-12 !text-[15px]">
-                      <Bookmark size={15} /> Save
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -1079,12 +1079,9 @@ function FinalCTA() {
               <Link href="/" className="cta-gradient flex items-center gap-2.5">
                 Learn About CasePort <ArrowRight size={16} />
               </Link>
-              <a
-                href="mailto:access@caseport.io"
-                className="cta-secondary flex items-center gap-2.5"
-              >
+              <Link href="/request-access" className="cta-secondary flex items-center gap-2.5">
                 Request Private Access <ArrowUpRight size={16} />
-              </a>
+              </Link>
             </div>
           </div>
         </Reveal>

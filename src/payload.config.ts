@@ -14,6 +14,7 @@ import { InjuredLeads } from './collections/InjuredLeads'
 import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
+import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Waitlists } from './collections/Waitlists'
 
 import { MarketsPage } from './globals/MarketsPage'
@@ -27,6 +28,13 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      beforeNavLinks: [
+        '@/components/admin/IntelligenceUnseenBadge#IntelligenceUnseenBadge',
+        '@/components/admin/InjuredLeadsUnseenBadge#InjuredLeadsUnseenBadge',
+        '@/components/admin/ApplicationsUnseenBadge#ApplicationsUnseenBadge',
+      ],
+    },
   },
   globals: [MarketsPage],
   collections: [
@@ -35,6 +43,7 @@ export default buildConfig({
     Markets,
     Applications,
     Waitlists,
+    IntelligenceBriefs,
     Categories,
     Authors,
     Articles,
