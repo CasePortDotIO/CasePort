@@ -35,3 +35,4 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Subscription failed' }, { status: 500 })
   }
 }
+
