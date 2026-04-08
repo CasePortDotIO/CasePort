@@ -786,9 +786,7 @@ function NewsletterSection() {
 
   function handleSubscribe(e: React.FormEvent) {
     e.preventDefault()
-    const dest = email
-      ? `/intelligence?email=${encodeURIComponent(email)}`
-      : '/intelligence'
+    const dest = email ? `/intelligence?email=${encodeURIComponent(email)}` : '/intelligence'
     window.location.href = dest
   }
 
@@ -1026,7 +1024,10 @@ function SignalsSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
           {signals.map((signal, i) => (
             <Reveal key={signal.id} delay={i * 0.1}>
-              <Link href="/insights" className="signal-card glass-panel p-7 lg:p-8 group cursor-pointer block">
+              <Link
+                href="/insights"
+                className="signal-card glass-panel p-7 lg:p-8 group cursor-pointer block"
+              >
                 <div className="flex items-center justify-between mb-5">
                   <span className="system-label text-cp-green flex items-center gap-2 text-[10px]">
                     <span className="w-2 h-2 rounded-full bg-cp-green animate-pulse" />

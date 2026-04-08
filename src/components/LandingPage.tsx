@@ -368,7 +368,10 @@ function Header() {
                     17 founding slots left
                   </span>
                 </div>
-                <Button asChild className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:scale-105 text-black font-semibold border-0 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                <Button
+                  asChild
+                  className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:scale-105 text-black font-semibold border-0 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]"
+                >
                   <Link href="/markets">Check Availability</Link>
                 </Button>
               </motion.div>

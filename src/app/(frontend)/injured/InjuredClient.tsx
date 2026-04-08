@@ -1075,7 +1075,11 @@ export default function Home() {
                 Company
               </p>
               <div className="space-y-2.5">
-                {[{ label: 'For Law Firms', href: '/for-law-firms' }, { label: 'Insights', href: '/insights' }, { label: 'Contact', href: 'mailto:access@caseport.io' }].map((link) => (
+                {[
+                  { label: 'For Law Firms', href: '/for-law-firms' },
+                  { label: 'Insights', href: '/insights' },
+                  { label: 'Contact', href: 'mailto:access@caseport.io' },
+                ].map((link) => (
                   <a
                     key={link.label}
                     href={link.href}
@@ -1093,7 +1097,11 @@ export default function Home() {
                 Legal
               </p>
               <div className="space-y-2.5">
-                {[{ label: 'Privacy Policy', href: '/privacy' }, { label: 'Terms', href: '/terms' }, { label: 'Disclaimer', href: '/terms#disclaimer' }].map((link) => (
+                {[
+                  { label: 'Privacy Policy', href: '/privacy' },
+                  { label: 'Terms', href: '/terms' },
+                  { label: 'Disclaimer', href: '/terms#disclaimer' },
+                ].map((link) => (
                   <a
                     key={link.label}
                     href={link.href}
