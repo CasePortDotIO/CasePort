@@ -177,9 +177,8 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
         return
       }
 
-      
       const payloadData = new FormData()
-      
+
       // Append standard text fields
       Object.entries(currentData).forEach(([key, value]) => {
         if (value) payloadData.append(key, value)
@@ -447,7 +446,9 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                     onChange={(e) => handleInputChange('state', e.target.value)}
                     className="w-full px-5 py-4 bg-white/[0.04] border border-white/[0.1] rounded-xl text-white focus:outline-none focus:border-[#C9A96E]/50 focus:ring-1 focus:ring-[#C9A96E]/30 transition-all duration-300 [color-scheme:dark]"
                   >
-                    <option value="" className="bg-[#0F1419] text-white">Select state</option>
+                    <option value="" className="bg-[#0F1419] text-white">
+                      Select state
+                    </option>
                     {[
                       'Alabama',
                       'Alaska',
@@ -550,7 +551,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                     key={type}
                     onClick={() => {
                       handleInputChange('accidentType', type)
-                        setTimeout(() => handleNext({ accidentType: type }), 300)
+                      setTimeout(() => handleNext({ accidentType: type }), 300)
                     }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.accidentType === type
@@ -593,7 +594,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                     key={role}
                     onClick={() => {
                       handleInputChange('role', role)
-                        setTimeout(() => handleNext({ role: role }), 300)
+                      setTimeout(() => handleNext({ role: role }), 300)
                     }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.role === role
@@ -634,9 +635,9 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                   <button
                     key={care}
                     onClick={() => {
-                        handleInputChange('medicalCare', care)
-                        setTimeout(() => handleNext({ medicalCare: care }), 300)
-                      }}
+                      handleInputChange('medicalCare', care)
+                      setTimeout(() => handleNext({ medicalCare: care }), 300)
+                    }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.medicalCare === care
                         ? 'bg-[#C9A96E]/15 border-2 border-[#C9A96E]/40 text-[#C9A96E]'
@@ -674,9 +675,9 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                   <button
                     key={option}
                     onClick={() => {
-                        handleInputChange('fault', option)
-                        setTimeout(() => handleNext({ fault: option }), 300)
-                      }}
+                      handleInputChange('fault', option)
+                      setTimeout(() => handleNext({ fault: option }), 300)
+                    }}
                     className={`w-full p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.fault === option
                         ? 'bg-[#C9A96E]/15 border-2 border-[#C9A96E]/40 text-[#C9A96E]'
@@ -708,7 +709,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                     key={option}
                     onClick={() => {
                       handleInputChange('otherPartyInsurance', option)
-                        setTimeout(() => handleNext({ otherPartyInsurance: option }), 300)
+                      setTimeout(() => handleNext({ otherPartyInsurance: option }), 300)
                     }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.otherPartyInsurance === option
@@ -745,7 +746,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                     key={option}
                     onClick={() => {
                       handleInputChange('hasLawyer', option.toLowerCase())
-                        setTimeout(() => handleNext({ hasLawyer: option.toLowerCase() }), 300)
+                      setTimeout(() => handleNext({ hasLawyer: option.toLowerCase() }), 300)
                     }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.hasLawyer === option.toLowerCase()
@@ -780,7 +781,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                     key={option}
                     onClick={() => {
                       handleInputChange('preferredContact', option)
-                        setTimeout(() => handleNext({ preferredContact: option }), 300)
+                      setTimeout(() => handleNext({ preferredContact: option }), 300)
                     }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.preferredContact === option
@@ -812,9 +813,9 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                   <button
                     key={option}
                     onClick={() => {
-                        handleInputChange('canTalkNow', option)
-                        setTimeout(() => handleNext({ canTalkNow: option }), 300)
-                      }}
+                      handleInputChange('canTalkNow', option)
+                      setTimeout(() => handleNext({ canTalkNow: option }), 300)
+                    }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.canTalkNow === option
                         ? 'bg-[#C9A96E]/15 border-2 border-[#C9A96E]/40 text-[#C9A96E]'
@@ -855,7 +856,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                     key={option}
                     onClick={() => {
                       handleInputChange('hasDocuments', option)
-                        setTimeout(() => handleNext({ hasDocuments: option }), 300)
+                      setTimeout(() => handleNext({ hasDocuments: option }), 300)
                     }}
                     className={`p-4 text-left rounded-xl transition-all duration-300 ${
                       formData.hasDocuments === option
@@ -885,40 +886,57 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
                 </h2>
                 <p className="text-white/40 text-sm">Add anything you already have available.</p>
               </div>
-                <div className="relative border-2 border-dashed border-white/[0.1] rounded-xl p-10 text-center hover:border-[#C9A96E]/30 transition-colors duration-300">
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    title=""
-                  />
-                  <Upload size={28} className="mx-auto text-white/25 mb-3" />
-                  <p className="text-white/60 font-medium text-sm mb-1">
-                    Drag and drop or click to upload
-                  </p>
-                  <p className="text-white/25 text-xs">PDF, JPG, PNG</p>
-                </div>
+              <div className="relative border-2 border-dashed border-white/[0.1] rounded-xl p-10 text-center hover:border-[#C9A96E]/30 transition-colors duration-300">
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  title=""
+                />
+                <Upload size={28} className="mx-auto text-white/25 mb-3" />
+                <p className="text-white/60 font-medium text-sm mb-1">
+                  Drag and drop or click to upload
+                </p>
+                <p className="text-white/25 text-xs">PDF, JPG, PNG</p>
+              </div>
 
-                {selectedFiles.length > 0 && (
-                  <div className="space-y-2 mt-4">
-                    <p className="text-[#C9A96E] text-sm font-medium">Selected files:</p>
-                    <ul className="space-y-2">
-                      {selectedFiles.map((file, i) => (
-                        <li key={i} className="flex items-center justify-between bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
-                          <span className="text-white/80 text-sm truncate max-w-[80%]">{file.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveFile(i)}
-                            className="text-white/40 hover:text-white/80"
+              {selectedFiles.length > 0 && (
+                <div className="space-y-2 mt-4">
+                  <p className="text-[#C9A96E] text-sm font-medium">Selected files:</p>
+                  <ul className="space-y-2">
+                    {selectedFiles.map((file, i) => (
+                      <li
+                        key={i}
+                        className="flex items-center justify-between bg-white/[0.03] border border-white/[0.06] rounded-xl p-3"
+                      >
+                        <span className="text-white/80 text-sm truncate max-w-[80%]">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(i)}
+                          className="text-white/40 hover:text-white/80"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            ></path>
+                          </svg>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 space-y-2.5">
                 {['Secure upload', 'Private file handling', 'Multiple files accepted'].map(
@@ -1046,8 +1064,8 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
               {isSubmitting
                 ? 'Submitting...'
                 : currentScreen === totalScreens
-                ? 'Complete Secure Case Check'
-                : 'Continue'}
+                  ? 'Complete Secure Case Check'
+                  : 'Continue'}
             </span>
             {currentScreen < totalScreens && !isSubmitting && <ChevronRight size={16} />}
           </button>
@@ -1062,10 +1080,3 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
     </div>
   )
 }
-
-
-
-
-
-
-

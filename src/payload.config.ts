@@ -10,11 +10,11 @@ import { Applications } from './collections/Applications'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
+import { InjuredLeads } from './collections/InjuredLeads'
 import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 import { Waitlists } from './collections/Waitlists'
-import { InjuredLeads } from './collections/InjuredLeads'
 
 import { MarketsPage } from './globals/MarketsPage'
 
@@ -29,7 +29,17 @@ export default buildConfig({
     },
   },
   globals: [MarketsPage],
-  collections: [Users, Media, Markets, Applications, Waitlists, Categories, Authors, Articles, InjuredLeads],
+  collections: [
+    Users,
+    Media,
+    Markets,
+    Applications,
+    Waitlists,
+    Categories,
+    Authors,
+    Articles,
+    InjuredLeads,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

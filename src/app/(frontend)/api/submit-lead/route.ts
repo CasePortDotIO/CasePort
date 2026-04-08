@@ -1,15 +1,15 @@
-import { getPayload } from 'payload'
 import config from '@payload-config'
+import { getPayload } from 'payload'
 
 export async function POST(req: Request) {
   try {
     const payload = await getPayload({ config })
     const formData = await req.formData()
-    
+
     // Extract text fields
     const data: Record<string, any> = {}
-    
-    // Extract files explicitly 
+
+    // Extract files explicitly
     const files = formData.getAll('documents')
     const uploadedMediaIds: any[] = []
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     for (const file of files) {
       if (file instanceof File) {
         const buffer = Buffer.from(await file.arrayBuffer())
-        
+
         // Use local payload API to bypass 'registered only' create access rules on Media
         const media = await payload.create({
           collection: 'media',
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
             size: file.size,
           },
         })
-        
+
         // Collect uploaded Media IDs
         uploadedMediaIds.push(media.id)
       }
@@ -59,8 +59,8 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Lead submission error:', error)
     return Response.json(
-      { error: error instanceof Error ? error.message : 'Unknown error occurred' }, 
-      { status: 500 }
+      { error: error instanceof Error ? error.message : 'Unknown error occurred' },
+      { status: 500 },
     )
   }
 }
