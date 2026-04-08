@@ -25,7 +25,7 @@ export const Header: React.FC = () => {
         <a href="#intelligence" className="hover:text-white transition-colors">
           Intelligence
         </a>
-        <a href="#injured" className="hover:text-white transition-colors">
+        <a href="/injured" className="hover:text-white transition-colors">
           Injured? &nearr;
         </a>
       </nav>

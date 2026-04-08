@@ -14,6 +14,7 @@ import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
 import { Waitlists } from './collections/Waitlists'
+import { InjuredLeads } from './collections/InjuredLeads'
 
 import { MarketsPage } from './globals/MarketsPage'
 
@@ -28,7 +29,7 @@ export default buildConfig({
     },
   },
   globals: [MarketsPage],
-  collections: [Users, Media, Markets, Applications, Waitlists, Categories, Authors, Articles],
+  collections: [Users, Media, Markets, Applications, Waitlists, Categories, Authors, Articles, InjuredLeads],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -40,11 +41,12 @@ export default buildConfig({
   sharp,
   plugins: [
     vercelBlobStorage({
-      enabled: true,
+      enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
       collections: {
         media: true,
       },
-      token: process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_12345_123456789012345678901234567890',
+      token:
+        process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_12345_123456789012345678901234567890',
     }),
   ],
 })

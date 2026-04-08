@@ -75,6 +75,7 @@ export interface Config {
     categories: Category;
     authors: Author;
     articles: Article;
+    'injured-leads': InjuredLead;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +91,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
+    'injured-leads': InjuredLeadsSelect<false> | InjuredLeadsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -394,6 +396,35 @@ export interface Article {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injured-leads".
+ */
+export interface InjuredLead {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email?: string | null;
+  accidentDate?: string | null;
+  state?: string | null;
+  county?: string | null;
+  accidentType?: string | null;
+  role?: string | null;
+  medicalCare?: string | null;
+  fault?: string | null;
+  otherPartyInsurance?: string | null;
+  hasLawyer?: string | null;
+  preferredContact?: string | null;
+  canTalkNow?: string | null;
+  hasDocuments?: string | null;
+  /**
+   * Documents explicitly uploaded by the user during this form submission.
+   */
+  uploadedDocuments?: (string | Media)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -447,6 +478,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'articles';
         value: string | Article;
+      } | null)
+    | ({
+        relationTo: 'injured-leads';
+        value: string | InjuredLead;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -677,6 +712,31 @@ export interface ArticlesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injured-leads_select".
+ */
+export interface InjuredLeadsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  email?: T;
+  accidentDate?: T;
+  state?: T;
+  county?: T;
+  accidentType?: T;
+  role?: T;
+  medicalCare?: T;
+  fault?: T;
+  otherPartyInsurance?: T;
+  hasLawyer?: T;
+  preferredContact?: T;
+  canTalkNow?: T;
+  hasDocuments?: T;
+  uploadedDocuments?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1901,7 +1901,7 @@ function Footer() {
                 Intelligence
               </a>
               <a
-                href="#injured"
+                href="/injured"
                 className="block text-[14px] text-[#9CA3AF] transition hover:text-white"
               >
                 Injured?
@@ -1963,3 +1963,4 @@ function Footer() {
     </footer>
   )
 }
+
