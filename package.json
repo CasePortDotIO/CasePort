@@ -1,7 +1,7 @@
 {
   "name": "caseport",
   "version": "1.0.0",
-  "description": "A blank template to get started with Payload 3.0",
+  "description": "CasePort — Premium case acquisition infrastructure for personal injury law firms.",
   "license": "MIT",
   "type": "module",
   "scripts": {

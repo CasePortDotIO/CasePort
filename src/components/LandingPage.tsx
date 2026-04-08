@@ -1,3 +1,5 @@
+'use client'
+
 import AnimatedCounter from '@/components/AnimatedCounter'
 import Navbar from '@/components/Navbar'
 import ROICalculator from '@/components/ROICalculator'
@@ -1963,4 +1965,3 @@ function Footer() {
     </footer>
   )
 }
-

@@ -4,7 +4,10 @@ export const InjuredLeads: CollectionConfig = {
   slug: 'injured-leads',
   admin: {
     useAsTitle: 'lastName',
-    defaultColumns: ['lastName', 'firstName', 'phone', 'accidentDate', 'createdAt'],
+    defaultColumns: ['lastName', 'firstName', 'phone', 'accidentDate', 'seen', 'createdAt'],
+    components: {
+      beforeList: ['@/components/admin/MarkInjuredLeadsSeen#MarkInjuredLeadsSeen'],
+    },
   },
   access: {
     create: () => true, // Anyone can submit the form
@@ -29,6 +32,7 @@ export const InjuredLeads: CollectionConfig = {
     { name: 'preferredContact', type: 'text' },
     { name: 'canTalkNow', type: 'text' },
     { name: 'hasDocuments', type: 'text' },
+    { name: 'seen', type: 'checkbox', defaultValue: false },
     {
       name: 'uploadedDocuments',
       type: 'relationship',

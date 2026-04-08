@@ -4,7 +4,10 @@ export const Applications: CollectionConfig = {
   slug: 'applications',
   admin: {
     useAsTitle: 'firmName',
-    defaultColumns: ['firmName', 'fullName', 'workEmail', 'status', 'leadTier', 'createdAt'],
+    defaultColumns: ['firmName', 'fullName', 'workEmail', 'status', 'leadTier', 'seen', 'createdAt'],
+    components: {
+      beforeList: ['@/components/admin/MarkApplicationsSeen#MarkApplicationsSeen'],
+    },
   },
   access: {
     read: () => true,
@@ -81,6 +84,8 @@ export const Applications: CollectionConfig = {
         },
       },
     },
+
+    { name: 'seen', type: 'checkbox', defaultValue: false },
 
     // UTM / Metadata
     /*

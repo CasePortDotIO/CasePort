@@ -72,6 +72,7 @@ export interface Config {
     markets: Market;
     applications: Application;
     waitlists: Waitlist;
+    'intelligence-briefs': IntelligenceBrief;
     categories: Category;
     authors: Author;
     articles: Article;
@@ -88,6 +89,7 @@ export interface Config {
     markets: MarketsSelect<false> | MarketsSelect<true>;
     applications: ApplicationsSelect<false> | ApplicationsSelect<true>;
     waitlists: WaitlistsSelect<false> | WaitlistsSelect<true>;
+    'intelligence-briefs': IntelligenceBriefsSelect<false> | IntelligenceBriefsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
@@ -272,6 +274,7 @@ export interface Application {
     | number
     | boolean
     | null;
+  seen?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -285,6 +288,48 @@ export interface Waitlist {
   firmName?: string | null;
   hardStopReason?: string | null;
   referralEmail?: string | null;
+  source?: ('waitlist' | 'intelligence') | null;
+  role?: ('owner' | 'partner' | 'intake' | 'ops' | 'other') | null;
+  market?:
+    | (
+        | 'personal-injury'
+        | 'workers-comp'
+        | 'medical-malpractice'
+        | 'product-liability'
+        | 'premises-liability'
+        | 'auto-accidents'
+        | 'other'
+      )
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Subscribers to the CasePort Intelligence weekly brief.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-briefs".
+ */
+export interface IntelligenceBrief {
+  id: string;
+  /**
+   * Subscriber work email address.
+   */
+  email: string;
+  role: 'owner' | 'partner' | 'intake' | 'ops' | 'other';
+  market:
+    | 'personal-injury'
+    | 'workers-comp'
+    | 'medical-malpractice'
+    | 'product-liability'
+    | 'premises-liability'
+    | 'auto-accidents'
+    | 'other';
+  status?: ('active' | 'unsubscribed') | null;
+  /**
+   * Checked once an admin has viewed this subscriber.
+   */
+  seen?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -416,6 +461,7 @@ export interface InjuredLead {
   preferredContact?: string | null;
   canTalkNow?: string | null;
   hasDocuments?: string | null;
+  seen?: boolean | null;
   /**
    * Documents explicitly uploaded by the user during this form submission.
    */
@@ -466,6 +512,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'waitlists';
         value: string | Waitlist;
+      } | null)
+    | ({
+        relationTo: 'intelligence-briefs';
+        value: string | IntelligenceBrief;
       } | null)
     | ({
         relationTo: 'categories';
@@ -627,6 +677,7 @@ export interface ApplicationsSelect<T extends boolean = true> {
   leadTier?: T;
   status?: T;
   answers?: T;
+  seen?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -639,6 +690,22 @@ export interface WaitlistsSelect<T extends boolean = true> {
   firmName?: T;
   hardStopReason?: T;
   referralEmail?: T;
+  source?: T;
+  role?: T;
+  market?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-briefs_select".
+ */
+export interface IntelligenceBriefsSelect<T extends boolean = true> {
+  email?: T;
+  role?: T;
+  market?: T;
+  status?: T;
+  seen?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -734,6 +801,7 @@ export interface InjuredLeadsSelect<T extends boolean = true> {
   preferredContact?: T;
   canTalkNow?: T;
   hasDocuments?: T;
+  seen?: T;
   uploadedDocuments?: T;
   updatedAt?: T;
   createdAt?: T;
