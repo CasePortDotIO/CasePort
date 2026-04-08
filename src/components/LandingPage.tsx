@@ -368,8 +368,8 @@ function Header() {
                     17 founding slots left
                   </span>
                 </div>
-                <Button className="${cls.trim()} bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:scale-105 text-black font-semibold border-0 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]">
-                  Check Availability
+                <Button asChild className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:scale-105 text-black font-semibold border-0 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]">
+                  <Link href="/markets">Check Availability</Link>
                 </Button>
               </motion.div>
             ) : (
@@ -417,11 +417,11 @@ function Header() {
             </SheetHeader>
             <nav className="flex flex-col gap-1 px-4 mt-4">
               {[
-                { label: 'For Law Firms', href: '#system' },
-                { label: 'Market', href: '#market' },
+                { label: 'For Law Firms', href: '/for-law-firms' },
+                { label: 'Market', href: '/markets' },
                 { label: 'Insights', href: '/insights' },
-                { label: 'Intelligence', href: '#intelligence' },
-                { label: 'Injured?', href: '#injured' },
+                { label: 'Intelligence', href: '/intelligence' },
+                { label: 'Injured?', href: '/injured' },
                 { label: 'FAQ', href: '#faq' },
               ].map((item) => (
                 <a
@@ -1952,10 +1952,10 @@ function Footer() {
               &copy; {new Date().getFullYear()} CasePort. All rights reserved.
             </p>
             <div className="flex gap-6 text-[12px] text-[#5A6270]">
-              <a href="#" className="transition hover:text-[#9CA3AF]">
+              <a href="/privacy" className="transition hover:text-[#9CA3AF]">
                 Privacy Policy
               </a>
-              <a href="#" className="transition hover:text-[#9CA3AF]">
+              <a href="/terms" className="transition hover:text-[#9CA3AF]">
                 Terms of Service
               </a>
             </div>

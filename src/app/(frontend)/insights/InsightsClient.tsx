@@ -784,6 +784,14 @@ function ArticleCard({ article }: { article: any }) {
 function NewsletterSection() {
   const [email, setEmail] = useState('')
 
+  function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault()
+    const dest = email
+      ? `/intelligence?email=${encodeURIComponent(email)}`
+      : '/intelligence'
+    window.location.href = dest
+  }
+
   return (
     <section id="subscribe" className="relative py-32 lg:py-44">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0E17] to-[#0B1120]" />
@@ -862,7 +870,10 @@ function NewsletterSection() {
                   className="flex-1 h-14 px-5 rounded-xl bg-white/[0.06] border border-white/[0.08] text-[15px] text-cp-text-primary placeholder:text-cp-text-muted focus:outline-none focus:border-cp-cyan/40 transition-colors"
                   aria-label="Email address"
                 />
-                <button className="cta-gradient whitespace-nowrap !h-14 !text-[15px]">
+                <button
+                  onClick={handleSubscribe}
+                  className="cta-gradient whitespace-nowrap !h-14 !text-[15px]"
+                >
                   Subscribe Free
                 </button>
               </div>
@@ -903,7 +914,10 @@ function TopicClusters() {
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 lg:gap-8">
           {topicClusters.map((topic, i) => (
             <Reveal key={topic.name} delay={i * 0.08}>
-              <div className="topic-card glass-panel p-8 lg:p-10 group cursor-pointer">
+              <Link
+                href={`/insights?category=${encodeURIComponent(topic.name)}`}
+                className="topic-card glass-panel p-8 lg:p-10 group cursor-pointer block h-full"
+              >
                 <div className="flex items-start justify-between mb-6">
                   <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-cp-cyan group-hover:bg-cp-cyan/10 group-hover:border-cp-cyan/20 transition-all duration-300">
                     {getTopicIcon(topic.icon)}
@@ -933,7 +947,7 @@ function TopicClusters() {
                     Explore <ArrowRight size={14} />
                   </span>
                 </div>
-              </div>
+              </Link>
             </Reveal>
           ))}
         </div>
@@ -1012,7 +1026,7 @@ function SignalsSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
           {signals.map((signal, i) => (
             <Reveal key={signal.id} delay={i * 0.1}>
-              <div className="signal-card glass-panel p-7 lg:p-8 group cursor-pointer">
+              <Link href="/insights" className="signal-card glass-panel p-7 lg:p-8 group cursor-pointer block">
                 <div className="flex items-center justify-between mb-5">
                   <span className="system-label text-cp-green flex items-center gap-2 text-[10px]">
                     <span className="w-2 h-2 rounded-full bg-cp-green animate-pulse" />
@@ -1045,7 +1059,7 @@ function SignalsSection() {
                   </div>
                   <span className="text-[12px] text-cp-text-muted font-mono">{signal.date}</span>
                 </div>
-              </div>
+              </Link>
             </Reveal>
           ))}
         </div>

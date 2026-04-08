@@ -448,14 +448,15 @@ export default function MarketPage() {
                   artificial scarcity — a structural requirement. The math is simple:{' '}
                   {stats.total || 46} markets, 3 firms each, and the strongest firms fill first.
                 </p>
-                <button
+                <Link
+                  href="#grid"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)',
                   }}
                 >
                   Check Your Market <ArrowRight size={16} />
-                </button>
+                </Link>
               </motion.div>
 
               {/* Right: Stats Grid */}

@@ -1075,13 +1075,13 @@ export default function Home() {
                 Company
               </p>
               <div className="space-y-2.5">
-                {['For Law Firms', 'Insights', 'Contact'].map((link) => (
+                {[{ label: 'For Law Firms', href: '/for-law-firms' }, { label: 'Insights', href: '/insights' }, { label: 'Contact', href: 'mailto:access@caseport.io' }].map((link) => (
                   <a
-                    key={link}
-                    href="#"
+                    key={link.label}
+                    href={link.href}
                     className="block text-white/40 text-sm hover:text-[#22D3EE] transition-colors duration-300"
                   >
-                    {link}
+                    {link.label}
                   </a>
                 ))}
               </div>
@@ -1093,13 +1093,13 @@ export default function Home() {
                 Legal
               </p>
               <div className="space-y-2.5">
-                {['Privacy Policy', 'Terms', 'Disclaimer'].map((link) => (
+                {[{ label: 'Privacy Policy', href: '/privacy' }, { label: 'Terms', href: '/terms' }, { label: 'Disclaimer', href: '/terms#disclaimer' }].map((link) => (
                   <a
-                    key={link}
-                    href="#"
+                    key={link.label}
+                    href={link.href}
                     className="block text-white/40 text-sm hover:text-[#A89968] transition-colors duration-300"
                   >
-                    {link}
+                    {link.label}
                   </a>
                 ))}
               </div>

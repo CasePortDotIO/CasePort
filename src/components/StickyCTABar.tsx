@@ -62,7 +62,8 @@ export default function StickyCTABar({ market, onClose }: StickyCTABarProps) {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <button
+          <Link
+            href="/request-access"
             className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105 text-[13px] sm:text-[14px]"
             style={{
               background: "linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)",
@@ -71,7 +72,7 @@ export default function StickyCTABar({ market, onClose }: StickyCTABarProps) {
             <span className="hidden sm:inline">Request Access</span>
             <span className="sm:hidden">Request</span>
             <ArrowRight size={14} className="hidden sm:inline" />
-          </button>
+          </Link>
           <button
             onClick={onClose}
             className="p-2 hover:bg-white/[0.08] rounded-[8px] transition-colors"

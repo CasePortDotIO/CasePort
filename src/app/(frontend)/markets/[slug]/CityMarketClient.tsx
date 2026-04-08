@@ -215,7 +215,7 @@ export default function CityMarketPage() {
               variant="gradient"
               size="lg"
               className="rounded-full shadow-lg shadow-[#00B4D8]/20"
-              onClick={() => router.push('/markets')}
+              onClick={() => router.push('/request-access')}
             >
               Request Access <ArrowRight size={16} className="ml-2" />
             </Button>
@@ -400,7 +400,7 @@ export default function CityMarketPage() {
             variant="gradient"
             size="lg"
             className="rounded-full shadow-lg shadow-[#00B4D8]/20"
-            onClick={() => router.push('/markets')}
+            onClick={() => router.push('/request-access')}
           >
             Request Access <ArrowRight size={16} className="ml-2" />
           </Button>

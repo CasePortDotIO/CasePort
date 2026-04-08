@@ -384,9 +384,7 @@ function QualificationForm() {
             </button>
             <button
               onClick={() => {
-                alert(
-                  'Qualification request submitted. Our team will review your firm within 48 hours.',
-                )
+                window.location.href = '/request-access'
               }}
               className="cta-primary flex-1 h-12 flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
@@ -1365,7 +1363,7 @@ export default function TestingLawFirmPage() {
                 <ul className="space-y-2">
                   <li>
                     <a
-                      href="#"
+                      href="/privacy"
                       style={{ color: '#B0B8C4', fontSize: '14px' }}
                       className="hover:text-white transition-colors duration-300"
                     >
@@ -1374,7 +1372,7 @@ export default function TestingLawFirmPage() {
                   </li>
                   <li>
                     <a
-                      href="#"
+                      href="/terms"
                       style={{ color: '#B0B8C4', fontSize: '14px' }}
                       className="hover:text-white transition-colors duration-300"
                     >
