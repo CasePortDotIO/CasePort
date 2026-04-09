@@ -244,7 +244,7 @@ export default function Home() {
               <p className="text-[#22D3EE] text-sm font-medium tracking-widest uppercase mb-6">
                 Injured in a car or truck accident?
               </p>
-              <h1 className="text-white mb-6">
+              <h1 className="text-white mb-6 lg:text-[72px] sm:text[60px] text-[48px]">
                 Start with the <span className="text-[#22D3EE]">right next step.</span>
               </h1>
               <p
