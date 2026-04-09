@@ -63,15 +63,18 @@ const marketsData = [
     faqs: [
       {
         question: 'How many firms compete for LA leads?',
-        answer: 'A maximum of 3 firms. Once all slots are filled, no new partners are accepted for this market.',
+        answer:
+          'A maximum of 3 firms. Once all slots are filled, no new partners are accepted for this market.',
       },
       {
         question: 'What case types does CasePort focus on in LA?',
-        answer: 'Personal injury, primarily motor vehicle accidents, rideshare, and pedestrian incidents.',
+        answer:
+          'Personal injury, primarily motor vehicle accidents, rideshare, and pedestrian incidents.',
       },
       {
         question: 'Is there a minimum monthly commitment?',
-        answer: 'No monthly minimum. Your wallet funds deploy only when qualified leads are delivered.',
+        answer:
+          'No monthly minimum. Your wallet funds deploy only when qualified leads are delivered.',
       },
     ],
   },
@@ -118,7 +121,8 @@ const marketsData = [
     faqs: [
       {
         question: 'What is the average case value in San Francisco?',
-        answer: 'Average case values range from $92K to $480K depending on injury severity and liability.',
+        answer:
+          'Average case values range from $92K to $480K depending on injury severity and liability.',
       },
       {
         question: 'How many open partner slots are available?',
@@ -126,7 +130,8 @@ const marketsData = [
       },
       {
         question: 'How are leads qualified?',
-        answer: 'Each lead passes a multi-step intake review covering injury, liability, and treatment status before delivery.',
+        answer:
+          'Each lead passes a multi-step intake review covering injury, liability, and treatment status before delivery.',
       },
     ],
   },
@@ -174,11 +179,13 @@ const marketsData = [
       },
       {
         question: 'What case types are most common in San Diego?',
-        answer: 'Motor vehicle accidents, pedestrian incidents, and rideshare cases are the most frequent.',
+        answer:
+          'Motor vehicle accidents, pedestrian incidents, and rideshare cases are the most frequent.',
       },
       {
         question: 'Can I join the waitlist if slots fill up?',
-        answer: 'Yes. If all slots are taken, you can join the waitlist to be notified when a slot opens.',
+        answer:
+          'Yes. If all slots are taken, you can join the waitlist to be notified when a slot opens.',
       },
     ],
   },
@@ -226,7 +233,8 @@ const marketsData = [
     faqs: [
       {
         question: 'How competitive is the Phoenix market?',
-        answer: 'Phoenix has an MII of 89 — very competitive. Only 1 slot remains before the market is capped.',
+        answer:
+          'Phoenix has an MII of 89 — very competitive. Only 1 slot remains before the market is capped.',
       },
       {
         question: 'What is the typical response time for leads?',
@@ -234,7 +242,8 @@ const marketsData = [
       },
       {
         question: 'Can I upgrade to a higher volume tier?',
-        answer: 'Yes. Volume tiers are available for partners who want priority access within their market.',
+        answer:
+          'Yes. Volume tiers are available for partners who want priority access within their market.',
       },
     ],
   },
@@ -258,7 +267,8 @@ const marketsData = [
     heroSubline:
       'Market is fully capped. 47 firms are on the waitlist. Join now to secure your position when a slot opens.',
     testimonial: {
-      quote: "The system works. We're signing 35+ cases a month. The infrastructure is bulletproof.",
+      quote:
+        "The system works. We're signing 35+ cases a month. The infrastructure is bulletproof.",
       author: 'David Thompson — Vegas Legal Group',
     },
     whyThisMarket: [
@@ -282,11 +292,13 @@ const marketsData = [
     faqs: [
       {
         question: 'Can I still join if the market is capped?',
-        answer: 'Yes. You can join the waitlist. When a partner slot opens, waitlist firms are contacted in order.',
+        answer:
+          'Yes. You can join the waitlist. When a partner slot opens, waitlist firms are contacted in order.',
       },
       {
         question: 'How long is the typical wait?',
-        answer: 'Wait times vary. Slot availability depends on partner contract renewals and market activity.',
+        answer:
+          'Wait times vary. Slot availability depends on partner contract renewals and market activity.',
       },
       {
         question: 'Is there a cost to join the waitlist?',
@@ -341,7 +353,8 @@ const marketsData = [
       },
       {
         question: 'What injury types are most common in Seattle?',
-        answer: 'Motor vehicle accidents are the most common, followed by pedestrian and cyclist incidents.',
+        answer:
+          'Motor vehicle accidents are the most common, followed by pedestrian and cyclist incidents.',
       },
       {
         question: 'Are there long-term contracts?',
@@ -366,7 +379,7 @@ const marketsData = [
     avgCaseValue: '$65K–$400K',
     heroHeadline: 'Denver Personal Injury Lead Network',
     heroSubline:
-      'One slot left in Colorado\'s largest PI market. MII of 84, consistent case flow, 24-hour SLA.',
+      "One slot left in Colorado's largest PI market. MII of 84, consistent case flow, 24-hour SLA.",
     testimonial: {
       quote: 'We went from 6 cases/month to 22. The infrastructure is incredible.',
       author: 'Robert Williams — Rocky Mountain Legal',
@@ -378,7 +391,7 @@ const marketsData = [
       },
       {
         title: 'Tech-Driven Market',
-        desc: 'Denver\'s growing professional population drives high-value PI cases with strong liability profiles.',
+        desc: "Denver's growing professional population drives high-value PI cases with strong liability profiles.",
       },
       {
         title: 'Pre-Funded Wallet Model',
@@ -392,15 +405,18 @@ const marketsData = [
     faqs: [
       {
         question: 'How does Denver compare to other Mountain West markets?',
-        answer: 'Denver leads all Mountain West markets with an MII of 84 and 1,289 qualified cases per year.',
+        answer:
+          'Denver leads all Mountain West markets with an MII of 84 and 1,289 qualified cases per year.',
       },
       {
         question: 'Is there a setup fee?',
-        answer: 'No setup fee. Fund your wallet and start receiving leads immediately after onboarding.',
+        answer:
+          'No setup fee. Fund your wallet and start receiving leads immediately after onboarding.',
       },
       {
         question: 'What happens when Denver caps?',
-        answer: 'No new partners will be accepted once the third slot is filled. Waitlist forms become available.',
+        answer:
+          'No new partners will be accepted once the third slot is filled. Waitlist forms become available.',
       },
     ],
   },
@@ -450,7 +466,8 @@ const marketsData = [
     faqs: [
       {
         question: 'Is Houston accepting new partners?',
-        answer: 'No. The market is fully capped. New firms can join the waitlist to be notified when a slot opens.',
+        answer:
+          'No. The market is fully capped. New firms can join the waitlist to be notified when a slot opens.',
       },
       {
         question: 'How many firms are on the Houston waitlist?',
@@ -505,11 +522,13 @@ const marketsData = [
     faqs: [
       {
         question: 'Does CasePort cover both Dallas and Fort Worth?',
-        answer: 'Yes. The DFW market covers the entire metro area including both cities and surrounding suburbs.',
+        answer:
+          'Yes. The DFW market covers the entire metro area including both cities and surrounding suburbs.',
       },
       {
         question: 'What is the MII for DFW?',
-        answer: 'DFW scores 93/100 on our Market Intelligence Index — one of the highest in the South.',
+        answer:
+          'DFW scores 93/100 on our Market Intelligence Index — one of the highest in the South.',
       },
       {
         question: 'When will DFW cap?',
@@ -542,7 +561,7 @@ const marketsData = [
     },
     whyThisMarket: [
       {
-        title: 'Florida\'s #1 PI Market',
+        title: "Florida's #1 PI Market",
         desc: 'Miami leads all Florida metros with 58,100 monthly searches and an MII of 95.',
       },
       {
@@ -569,7 +588,8 @@ const marketsData = [
       },
       {
         question: 'What types of cases does Miami produce?',
-        answer: 'Miami specializes in motor vehicle accidents, rideshare incidents, and multi-vehicle collisions.',
+        answer:
+          'Miami specializes in motor vehicle accidents, rideshare incidents, and multi-vehicle collisions.',
       },
     ],
   },
@@ -620,11 +640,13 @@ const marketsData = [
       },
       {
         question: 'Will Tampa cap soon?',
-        answer: 'With only 1 slot remaining, Tampa is expected to cap shortly after the final partner is confirmed.',
+        answer:
+          'With only 1 slot remaining, Tampa is expected to cap shortly after the final partner is confirmed.',
       },
       {
         question: 'Is there a trial period for new partners?',
-        answer: 'There is no formal trial period, but the pre-funded wallet model means you only spend when leads are delivered.',
+        answer:
+          'There is no formal trial period, but the pre-funded wallet model means you only spend when leads are delivered.',
       },
     ],
   },
@@ -645,14 +667,14 @@ const marketsData = [
     avgCaseValue: '$68K–$460K',
     heroHeadline: 'Atlanta Personal Injury Lead Network',
     heroSubline:
-      'Southeast\'s most active PI market. 45,200 monthly searches, MII of 92, and 1 open slot remaining.',
+      "Southeast's most active PI market. 45,200 monthly searches, MII of 92, and 1 open slot remaining.",
     testimonial: {
-      quote: "Atlanta is our second-best market. 32 cases/month. The system is perfect.",
+      quote: 'Atlanta is our second-best market. 32 cases/month. The system is perfect.',
       author: 'Thomas Anderson — Atlanta Legal Group',
     },
     whyThisMarket: [
       {
-        title: 'Southeast\'s Largest PI Market',
+        title: "Southeast's Largest PI Market",
         desc: 'Atlanta leads the Southeast with 45,200 monthly PI searches and an MII of 92.',
       },
       {
@@ -675,7 +697,8 @@ const marketsData = [
       },
       {
         question: 'What is the average settlement in Atlanta?',
-        answer: 'Average settlements range from $175K to $315K depending on case type and severity.',
+        answer:
+          'Average settlements range from $175K to $315K depending on case type and severity.',
       },
       {
         question: 'Are there any exclusivity guarantees?',
@@ -712,7 +735,7 @@ const marketsData = [
       },
       {
         title: 'High Growth Trajectory',
-        desc: 'Nashville\'s population grew 20% in the last decade. PI case volume is following the same curve.',
+        desc: "Nashville's population grew 20% in the last decade. PI case volume is following the same curve.",
       },
       {
         title: 'Pre-Funded Wallet Model',
@@ -726,15 +749,18 @@ const marketsData = [
     faqs: [
       {
         question: 'Is Nashville a good market for smaller firms?',
-        answer: 'Yes. Nashville\'s volume is ideal for firms scaling intake — enough to grow without being overwhelmed.',
+        answer:
+          "Yes. Nashville's volume is ideal for firms scaling intake — enough to grow without being overwhelmed.",
       },
       {
         question: 'What case types are common in Nashville?',
-        answer: 'Motor vehicle accidents are the most common, driven by high interstate traffic through the metro.',
+        answer:
+          'Motor vehicle accidents are the most common, driven by high interstate traffic through the metro.',
       },
       {
         question: 'How do I get started?',
-        answer: 'Request access through the form. If your firm qualifies, a CasePort representative will reach out within 48 hours.',
+        answer:
+          'Request access through the form. If your firm qualifies, a CasePort representative will reach out within 48 hours.',
       },
     ],
   },
@@ -788,11 +814,13 @@ const marketsData = [
       },
       {
         question: 'How long is the typical wait in NYC?',
-        answer: 'Wait times vary. With 84 firms on the waitlist, we recommend joining early to hold your position.',
+        answer:
+          'Wait times vary. With 84 firms on the waitlist, we recommend joining early to hold your position.',
       },
       {
         question: 'What case types does NYC produce?',
-        answer: 'NYC has a diverse mix: motor vehicle accidents, slip and fall, pedestrian incidents, and transit accidents.',
+        answer:
+          'NYC has a diverse mix: motor vehicle accidents, slip and fall, pedestrian incidents, and transit accidents.',
       },
     ],
   },
@@ -813,7 +841,7 @@ const marketsData = [
     avgCaseValue: '$72K–$450K',
     heroHeadline: 'Philadelphia Personal Injury Lead Network',
     heroSubline:
-      'One slot remains in the Northeast\'s third-largest PI market. 42,300 monthly searches and an MII of 90.',
+      "One slot remains in the Northeast's third-largest PI market. 42,300 monthly searches and an MII of 90.",
     testimonial: {
       quote: 'Philadelphia is a powerhouse market. 28 cases/month. Incredible system.',
       author: 'Margaret Sullivan — Philadelphia Legal Group',
@@ -839,15 +867,18 @@ const marketsData = [
     faqs: [
       {
         question: 'Does CasePort cover South Jersey too?',
-        answer: 'The Philadelphia market covers the greater metro area including South Jersey and Delaware County.',
+        answer:
+          'The Philadelphia market covers the greater metro area including South Jersey and Delaware County.',
       },
       {
         question: 'What is the average case value in Philadelphia?',
-        answer: 'Average case values range from $72K to $450K depending on injury severity and jurisdiction.',
+        answer:
+          'Average case values range from $72K to $450K depending on injury severity and jurisdiction.',
       },
       {
         question: 'When will Philadelphia cap?',
-        answer: 'Philadelphia will cap when the third partner slot is filled. Only one slot remains.',
+        answer:
+          'Philadelphia will cap when the third partner slot is filled. Only one slot remains.',
       },
     ],
   },
@@ -868,7 +899,7 @@ const marketsData = [
     avgCaseValue: '$88K–$520K',
     heroHeadline: 'Boston Personal Injury Lead Network',
     heroSubline:
-      'Two open slots in New England\'s most valuable PI market. Premium settlements averaging $195K–$360K.',
+      "Two open slots in New England's most valuable PI market. Premium settlements averaging $195K–$360K.",
     testimonial: {
       quote: 'Boston market is excellent. 22 leads/month. Top-tier quality.',
       author: 'Christopher Lee — Boston Legal Partners',
@@ -894,15 +925,18 @@ const marketsData = [
     faqs: [
       {
         question: 'Does Boston include Cambridge and Somerville?',
-        answer: 'Yes. The Boston market covers the broader Greater Boston metro including all surrounding municipalities.',
+        answer:
+          'Yes. The Boston market covers the broader Greater Boston metro including all surrounding municipalities.',
       },
       {
         question: 'What makes Boston settlements higher than average?',
-        answer: 'Massachusetts has strong plaintiff-friendly laws and high medical costs that typically drive up settlement values.',
+        answer:
+          'Massachusetts has strong plaintiff-friendly laws and high medical costs that typically drive up settlement values.',
       },
       {
         question: 'How do I qualify for the Boston market?',
-        answer: 'Submit a partner application. CasePort reviews firm history, capacity, and case volume before approving.',
+        answer:
+          'Submit a partner application. CasePort reviews firm history, capacity, and case volume before approving.',
       },
     ],
   },
@@ -949,11 +983,13 @@ const marketsData = [
     faqs: [
       {
         question: 'Does the DC market include Maryland and Virginia suburbs?',
-        answer: 'Yes. The DC market covers the full DMV region including Northern Virginia and suburban Maryland.',
+        answer:
+          'Yes. The DC market covers the full DMV region including Northern Virginia and suburban Maryland.',
       },
       {
         question: 'What is the average settlement in DC?',
-        answer: 'Average settlements range from $180K to $340K depending on injury severity and jurisdiction.',
+        answer:
+          'Average settlements range from $180K to $340K depending on injury severity and jurisdiction.',
       },
       {
         question: 'When will DC cap?',
@@ -1062,7 +1098,8 @@ const marketsData = [
     faqs: [
       {
         question: 'Does MSP include St. Paul and suburbs?',
-        answer: 'Yes. The Minneapolis–St. Paul market covers the full Twin Cities metro including all suburbs.',
+        answer:
+          'Yes. The Minneapolis–St. Paul market covers the full Twin Cities metro including all suburbs.',
       },
       {
         question: 'What is the case volume for MSP?',
@@ -1091,7 +1128,7 @@ const marketsData = [
     avgCaseValue: '$55K–$360K',
     heroHeadline: 'Detroit Personal Injury Lead Network',
     heroSubline:
-      'Two open partner slots in Michigan\'s largest PI market. 18,600 monthly searches with 2 open slots.',
+      "Two open partner slots in Michigan's largest PI market. 18,600 monthly searches with 2 open slots.",
     testimonial: {
       quote: 'Detroit market is solid. 13 leads/month. Good conversion.',
       author: 'Mark Wilson — Detroit Legal Partners',
@@ -1103,7 +1140,7 @@ const marketsData = [
       },
       {
         title: 'Michigan No-Fault Reform Impact',
-        desc: 'Michigan\'s no-fault reform continues to generate complex PI cases. Attorneys with PI expertise are in demand.',
+        desc: "Michigan's no-fault reform continues to generate complex PI cases. Attorneys with PI expertise are in demand.",
       },
       {
         title: 'Pre-Funded Wallet Model',
@@ -1116,8 +1153,9 @@ const marketsData = [
     ],
     faqs: [
       {
-        question: 'How has Michigan\'s no-fault reform affected the PI market?',
-        answer: 'The 2019 reform created more complexity and litigation, increasing demand for experienced PI attorneys.',
+        question: "How has Michigan's no-fault reform affected the PI market?",
+        answer:
+          'The 2019 reform created more complexity and litigation, increasing demand for experienced PI attorneys.',
       },
       {
         question: 'Does Detroit cover metro suburbs like Troy and Dearborn?',
