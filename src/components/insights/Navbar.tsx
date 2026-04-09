@@ -23,13 +23,16 @@ export default function Navbar() {
     >
       <nav className="container flex items-center justify-between h-16 lg:h-[72px]">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <span
-            className="text-[18px] font-bold tracking-[0.18em] text-cp-text-primary"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
+        <Link href="/" className="flex-shrink-0">
+          <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
             CASEPORT
-          </span>
+          </div>
+          <div
+            className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em] uppercase font-mono"
+            style={{ fontSize: '0.5rem' }}
+          >
+            Case Flow Without Guesswork
+          </div>
         </Link>
 
         {/* Desktop Nav */}

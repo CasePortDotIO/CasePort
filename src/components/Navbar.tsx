@@ -37,8 +37,8 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-8 text-[13px] font-medium text-[#9CA3AF] lg:flex">
           <Link
-            href="/for-law-firms"
-            className={`link-underline transition duration-200 hover:text-white ${pathname.includes('/for-law-firms') ? 'text-white' : ''}`}
+            href="/personal-injury-leads"
+            className={`link-underline transition duration-200 hover:text-white ${pathname.includes('/personal-injury-leads') ? 'text-white' : ''}`}
           >
             For Law Firms
           </Link>
@@ -136,7 +136,7 @@ export default function Navbar() {
             </SheetHeader>
             <nav className="flex flex-col gap-1 px-4 mt-4">
               {[
-                { label: 'For Law Firms', href: '/for-law-firms' },
+                { label: 'For Law Firms', href: '/personal-injury-leads' },
                 { label: 'Market', href: '/markets' },
                 { label: 'Insights', href: '/insights' },
                 { label: 'Intelligence', href: '/intelligence' },

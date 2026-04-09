@@ -12,7 +12,7 @@
  * 7. FAQ — Reduce friction
  * 8. Final CTA — Action trigger
  *
- * BRAND SYSTEM (from /for-law-firms audit):
+ * BRAND SYSTEM (from /personal-injury-leads audit):
  * - H1/H2: Geist, 60px, 700, -2.4px tracking, #F1F3F5
  * - H3: Geist, 30px, 700, white
  * - Section labels: JetBrains Mono, 12px, 500, 1.8px tracking, uppercase, oklch(0.6 0.015 250)

@@ -9,7 +9,6 @@ import {
   Car,
   CheckCircle,
   ChevronDown,
-  ChevronLeft,
   Clock,
   FileText,
   Heart,
@@ -197,20 +196,17 @@ export default function Home() {
       {/* ============================================================================ */}
       <header className="sticky top-0 z-50 bg-[#0F1419]/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-8 py-3 md:py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-            <Link
-              href="/"
-              className="text-white/60 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-full p-1.5 backdrop-blur-md border border-white/10 group flex items-center justify-center shrink-0"
-            >
-              <ChevronLeft
-                size={16}
-                className="sm:w-[18px] sm:h-[18px] transform group-hover:-translate-x-0.5 transition-transform"
-              />
-            </Link>
-            <span className="text-white font-bold text-base sm:text-lg tracking-widest truncate">
+          <Link href="/" className="flex-shrink-0">
+            <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
               CASEPORT
-            </span>
-          </div>
+            </div>
+            <div
+              className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em] uppercase font-mono"
+              style={{ fontSize: '0.5rem' }}
+            >
+              Case Flow Without Guesswork
+            </div>
+          </Link>
           <a href="tel:+18002273669" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-xs text-white/50 font-medium leading-none">
@@ -1076,7 +1072,7 @@ export default function Home() {
               </p>
               <div className="space-y-2.5">
                 {[
-                  { label: 'For Law Firms', href: '/for-law-firms' },
+                  { label: 'For Law Firms', href: '/personal-injury-leads' },
                   { label: 'Insights', href: '/insights' },
                   { label: 'Contact', href: 'mailto:access@caseport.io' },
                 ].map((link) => (

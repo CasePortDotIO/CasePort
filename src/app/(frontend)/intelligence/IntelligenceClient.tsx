@@ -1,19 +1,20 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import {
   ArrowRight,
+  Award,
   CheckCircle2,
   Circle,
-  Zap,
+  Lock,
+  Mail,
+  Shield,
   Target,
   TrendingUp,
-  Shield,
-  Award,
-  Mail,
-  Lock,
+  Zap,
 } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 /**
  * CasePort Intelligence Page - Focused Capture Asset
@@ -61,11 +62,15 @@ export default function IntelligencePage() {
   }
 
   const scrollToSignup = () => {
-    document.getElementById('signup-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document
+      .getElementById('signup-section')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const scrollToArchive = () => {
-    document.getElementById('archive-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document
+      .getElementById('archive-section')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
@@ -95,7 +100,17 @@ export default function IntelligencePage() {
       {/* ── STRIPPED HEADER ── */}
       <header className="border-b border-gray-800/50 sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <div className="font-bold text-lg text-white tracking-wider">CASEPORT</div>
+          <Link href="/" className="flex-shrink-0">
+            <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
+              CASEPORT
+            </div>
+            <div
+              className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em] uppercase font-mono"
+              style={{ fontSize: '0.5rem' }}
+            >
+              Case Flow Without Guesswork
+            </div>
+          </Link>
           <button
             onClick={scrollToSignup}
             className="px-6 py-2 bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 text-sm"
@@ -291,9 +306,7 @@ export default function IntelligencePage() {
                   {isSubmitting ? 'Subscribing…' : 'Get the Brief'}
                 </button>
 
-                {submitError && (
-                  <p className="text-red-400 text-sm mt-3">{submitError}</p>
-                )}
+                {submitError && <p className="text-red-400 text-sm mt-3">{submitError}</p>}
               </form>
 
               <div className="mt-8 pt-8 border-t border-gray-700 space-y-2 text-sm text-gray-400">
@@ -346,8 +359,7 @@ export default function IntelligencePage() {
                 },
               ].map((item) => {
                 const Icon = item.icon
-                const colorClass =
-                  item.color === 'cyan' ? 'text-cyan-400' : 'text-purple-400'
+                const colorClass = item.color === 'cyan' ? 'text-cyan-400' : 'text-purple-400'
                 return (
                   <div
                     key={item.title}
@@ -452,10 +464,7 @@ export default function IntelligencePage() {
                     'Less case decay',
                     'Higher signed-case yield per inquiry',
                   ].map((item) => (
-                    <li
-                      key={item}
-                      className="text-gray-300 text-sm flex items-start gap-3 group"
-                    >
+                    <li key={item} className="text-gray-300 text-sm flex items-start gap-3 group">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 flex-shrink-0 inline-block group-hover:scale-150 transition-transform duration-200" />
                       {item}
                     </li>

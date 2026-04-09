@@ -5,7 +5,6 @@ import ROICalculator from '@/components/ROICalculator'
 import { Button } from '@/components/ui/button'
 import { VideoTestimonials } from '@/components/VideoTestimonials'
 import {
-  ArrowLeft,
   ArrowRight,
   Award,
   ChevronDown,
@@ -384,7 +383,7 @@ function QualificationForm() {
             </button>
             <button
               onClick={() => {
-                window.location.href = '/request-access'
+                window.location.href = '/injured'
               }}
               className="cta-primary flex-1 h-12 flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
@@ -450,25 +449,17 @@ export default function TestingLawFirmPage() {
         }}
       >
         <div className="container mx-auto px-5 sm:px-6 lg:px-8 flex items-center justify-between h-16 md:h-20">
-          <a
-            href="/"
-            className="flex items-center gap-2 group transition-opacity duration-300 hover:opacity-80"
-          >
-            <div className="flex flex-col">
-              <span
-                className="text-lg font-bold tracking-wider"
-                style={{ color: '#F1F3F5', letterSpacing: '0.15em' }}
-              >
-                CASEPORT
-              </span>
-              <span
-                className="text-xs"
-                style={{ color: 'oklch(78% .13 195)', letterSpacing: '0.1em', marginTop: '4px' }}
-              >
-                CASE FLOW WITHOUT GUESSWORK
-              </span>
+          <Link href="/" className="flex-shrink-0">
+            <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
+              CASEPORT
             </div>
-          </a>
+            <div
+              className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em] uppercase font-mono"
+              style={{ fontSize: '0.5rem' }}
+            >
+              Case Flow Without Guesswork
+            </div>
+          </Link>
           <div className="hidden md:flex items-center gap-8">
             <a
               href="#how-it-works"
@@ -496,7 +487,7 @@ export default function TestingLawFirmPage() {
               asChild
               className="text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
-              <a href="#access">
+              <a href="/injured">
                 Claim Your Access <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </Button>
@@ -506,7 +497,7 @@ export default function TestingLawFirmPage() {
             asChild
             className="md:hidden text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
           >
-            <a href="#access">Claim Access</a>
+            <a href="/injured">Claim Access</a>
           </Button>
         </div>
       </nav>
@@ -520,13 +511,6 @@ export default function TestingLawFirmPage() {
             <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
               {/* Left: Copy */}
               <div>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.1] text-sm font-medium text-slate-300 hover:text-white hover:bg-white/[0.1] transition-all duration-300 mb-8 w-fit group backdrop-blur-md"
-                >
-                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                  Back to Home
-                </Link>
                 <div className="block" />
                 <SystemLabel>Case Acquisition System</SystemLabel>
                 <h1
@@ -569,12 +553,12 @@ export default function TestingLawFirmPage() {
                     asChild
                     className="text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
                   >
-                    <a href="/request-access">
+                    <a href="/injured">
                       Claim Your Market Access <ArrowRight className="w-4 h-4" />
                     </a>
                   </Button>
                   <a
-                    href="#objections"
+                    href="#how-it-works"
                     className="cta-secondary h-12 flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 hover:opacity-80"
                   >
                     See How It Works <ArrowRight className="w-4 h-4" />
@@ -1433,7 +1417,7 @@ export default function TestingLawFirmPage() {
               name: 'www.CasePort.io - Personal Injury Case Acquisition',
               description:
                 'Market-capped case acquisition system for personal injury law firms across the United States',
-              url: 'https://www.caseport.io/for-law-firms',
+              url: 'https://www.caseport.io/personal-injury-leads',
               areaServed: [{ '@type': 'State', name: 'US' }],
               serviceArea: 'US',
               priceRange: '$$',
@@ -1443,7 +1427,7 @@ export default function TestingLawFirmPage() {
               name: 'Case Acquisition System for Personal Injury Law Firms',
               description:
                 'Market-capped, review-first case acquisition system with 12-dimension lead scoring, zero lead decay protocol, and pre-funded wallet model',
-              url: 'https://www.caseport.io/for-law-firms',
+              url: 'https://www.caseport.io/personal-injury-leads',
               provider: {
                 '@type': 'Organization',
                 name: 'www.CasePort.io',
@@ -1473,7 +1457,7 @@ export default function TestingLawFirmPage() {
                   '@type': 'ListItem',
                   position: 2,
                   name: 'For Law Firms',
-                  item: 'https://www.caseport.io/for-law-firms',
+                  item: 'https://www.caseport.io/personal-injury-leads',
                 },
               ],
             },

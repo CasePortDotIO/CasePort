@@ -38,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${BASE_URL}/for-law-firms`,
+      url: `${BASE_URL}/personal-injury-leads`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,

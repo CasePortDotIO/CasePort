@@ -28,7 +28,6 @@ import {
   ArrowUp,
   ArrowUpRight,
   BarChart3,
-  Bookmark,
   Building2,
   ChevronRight,
   Clock,
@@ -556,17 +555,15 @@ function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
-      result = result.filter(
-        (a) => {
-          const catName = typeof a.category === 'object' ? a.category?.title : a.category
-          return (
-            a.title?.toLowerCase().includes(q) ||
-            a.excerpt?.toLowerCase().includes(q) ||
-            (a.tags || []).some((t: string) => t.toLowerCase().includes(q)) ||
-            (catName || '').toLowerCase().includes(q)
-          )
-        }
-      )
+      result = result.filter((a) => {
+        const catName = typeof a.category === 'object' ? a.category?.title : a.category
+        return (
+          a.title?.toLowerCase().includes(q) ||
+          a.excerpt?.toLowerCase().includes(q) ||
+          (a.tags || []).some((t: string) => t.toLowerCase().includes(q)) ||
+          (catName || '').toLowerCase().includes(q)
+        )
+      })
     }
     return result
   }, [activeCategory, searchQuery])
