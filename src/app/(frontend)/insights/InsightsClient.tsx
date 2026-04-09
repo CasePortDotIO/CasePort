@@ -347,6 +347,8 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 
 // ─── FEATURED ARTICLE SECTION ───
 function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+  if (!fetchedArticles || fetchedArticles.length === 0) return null
+
   const featured = fetchedArticles[0]
   const latestThree = fetchedArticles.slice(1, 4)
 
@@ -547,16 +549,23 @@ function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
   const filtered = useMemo(() => {
     let result = fetchedArticles || []
     if (activeCategory !== 'All') {
-      result = result.filter((a: any) => a.category === activeCategory)
+      result = result.filter((a: any) => {
+        const catName = typeof a.category === 'object' ? a.category?.title : a.category
+        return catName === activeCategory
+      })
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
       result = result.filter(
-        (a) =>
-          a.title.toLowerCase().includes(q) ||
-          a.excerpt.toLowerCase().includes(q) ||
-          (a.tags || []).some((t: string) => t.toLowerCase().includes(q)) ||
-          a.category.toLowerCase().includes(q),
+        (a) => {
+          const catName = typeof a.category === 'object' ? a.category?.title : a.category
+          return (
+            a.title?.toLowerCase().includes(q) ||
+            a.excerpt?.toLowerCase().includes(q) ||
+            (a.tags || []).some((t: string) => t.toLowerCase().includes(q)) ||
+            (catName || '').toLowerCase().includes(q)
+          )
+        }
       )
     }
     return result
