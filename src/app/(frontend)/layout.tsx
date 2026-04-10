@@ -1,3 +1,4 @@
+import Script from 'next/script'
 import React from 'react'
 import { Toaster } from 'sonner'
 import './styles.css'
@@ -34,6 +35,20 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-SBN7G1VHGV"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-SBN7G1VHGV');
+          `}
+        </Script>
+      </head>
       <body>
         <main>{children}</main>
         <Toaster theme="dark" position="top-center" richColors />
