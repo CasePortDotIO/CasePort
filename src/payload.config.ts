@@ -11,16 +11,16 @@ import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
 import { InjuredLeads } from './collections/InjuredLeads'
+import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
-import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Waitlists } from './collections/Waitlists'
 
+import { FooterNav } from './globals/FooterNav'
+import { HeaderNav } from './globals/HeaderNav'
 import { MarketsPage } from './globals/MarketsPage'
 import { SiteSettings } from './globals/SiteSettings'
-import { HeaderNav } from './globals/HeaderNav'
-import { FooterNav } from './globals/FooterNav'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

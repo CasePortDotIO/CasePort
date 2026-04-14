@@ -60,7 +60,11 @@ export default function CityMarketPage({
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-t-[#00B4D8] border-b-transparent"></div>
         </div>
-        <Footer platformLinks={platformLinks} resourceLinks={resourceLinks} legalLinks={legalLinks} />
+        <Footer
+          platformLinks={platformLinks}
+          resourceLinks={resourceLinks}
+          legalLinks={legalLinks}
+        />
       </div>
     )
   }
@@ -81,7 +85,11 @@ export default function CityMarketPage({
             Back to Markets
           </Button>
         </div>
-        <Footer platformLinks={platformLinks} resourceLinks={resourceLinks} legalLinks={legalLinks} />
+        <Footer
+          platformLinks={platformLinks}
+          resourceLinks={resourceLinks}
+          legalLinks={legalLinks}
+        />
       </div>
     )
   }

@@ -1,8 +1,8 @@
+import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import CityMarketPage from './CityMarketClient'
-import { fetchNavData } from '@/lib/navData'
 
 export async function generateMetadata({
   params,

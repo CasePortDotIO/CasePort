@@ -394,7 +394,7 @@ export default function MarketPage({
             <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.01_250)]/60 via-[oklch(0.06_0.01_250)]/80 to-[oklch(0.06_0.01_250)]" />
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-12">
+          <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-[6.5rem] sm:pt-32 pb-12">
             {/* System Status Bar */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -1045,7 +1045,11 @@ export default function MarketPage({
         <ComparisonTable />
 
         {/* Footer */}
-        <Footer platformLinks={platformLinks} resourceLinks={resourceLinks} legalLinks={legalLinks} />
+        <Footer
+          platformLinks={platformLinks}
+          resourceLinks={resourceLinks}
+          legalLinks={legalLinks}
+        />
 
         {/* Unlisted Market Form */}
         {hasUnlistedMarket && (

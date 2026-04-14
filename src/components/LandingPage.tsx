@@ -143,7 +143,7 @@ export default function Home({
         </p>
       </div>
 
-      <main>
+      <main className="pt-16 lg:pt-[72px]">
         {/* ─── ZONE 1: DEEP SPACE ─── Hero + Trust + Spotlight */}
         <div
           className="relative"

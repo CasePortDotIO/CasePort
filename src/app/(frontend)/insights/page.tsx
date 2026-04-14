@@ -1,8 +1,8 @@
-import type { Metadata } from 'next'
+import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
+import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import InsightsClient from './InsightsClient'
-import { fetchNavData } from '@/lib/navData'
 
 // Cache for 1 hour; Next.js revalidates in the background so users always
 // hit a pre-built page instead of waiting for a DB round-trip.

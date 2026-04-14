@@ -1,8 +1,8 @@
+import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
 import MarketPage from './MarketsClient'
-import { fetchNavData } from '@/lib/navData'
 
 // Cache for 1 hour — markets data changes infrequently.
 export const revalidate = 3600
@@ -30,8 +30,7 @@ export default async function MarketsPage() {
     fetchNavData(),
   ])
 
-  const initialFaqs: { question: string; answer: string }[] =
-    (marketsPageGlobal as any)?.faqs ?? []
+  const initialFaqs: { question: string; answer: string }[] = (marketsPageGlobal as any)?.faqs ?? []
 
   return <MarketPage initialMarkets={markets} initialFaqs={initialFaqs} {...navData} />
 }

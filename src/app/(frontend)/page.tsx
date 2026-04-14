@@ -1,6 +1,6 @@
+import { fetchNavData } from '@/lib/navData'
 import type { Metadata } from 'next'
 import LandingPage from '../../components/LandingPage'
-import { fetchNavData } from '@/lib/navData'
 
 export const metadata: Metadata = {
   title: 'Get More Signed Cases | Personal Injury Leads & Case Acquisition System',

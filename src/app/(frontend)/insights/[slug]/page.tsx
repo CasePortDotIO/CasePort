@@ -1,10 +1,9 @@
-import React from 'react'
+import { fetchNavData } from '@/lib/navData'
+import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 import ArticleClient from './ArticleClient'
-import { fetchNavData } from '@/lib/navData'
 
 export async function generateMetadata({
   params,

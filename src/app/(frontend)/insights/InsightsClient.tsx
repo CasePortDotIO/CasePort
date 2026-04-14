@@ -19,8 +19,8 @@
 import AEOContent from '@/components/insights/AEOContent'
 import FAQSection from '@/components/insights/FAQSection'
 import Footer from '@/components/insights/Footer'
-import Navbar from '@/components/Navbar'
 import StructuredData from '@/components/insights/StructuredData'
+import Navbar from '@/components/Navbar'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 import { categories, signals, topicClusters, type Category } from '@/lib/articles'
 import {
@@ -1129,7 +1129,7 @@ export default function InsightsClient({
     <>
       <StructuredData />
       <AEOContent />
-      <main className="bg-[#0A0E17] min-h-screen overflow-x-hidden">
+      <main className="bg-[#0A0E17] min-h-screen overflow-x-hidden pt-16 lg:pt-[72px]">
         <ReadingProgressBar />
         <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
         <HeroSection fetchedArticles={fetchedArticles} />
