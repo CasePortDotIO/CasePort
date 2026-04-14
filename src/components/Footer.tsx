@@ -4,7 +4,17 @@
  * Consistent with homepage footer structure
  */
 
-export default function Footer() {
+type FooterLink = { label: string; href: string }
+
+export default function Footer({
+  platformLinks = [],
+  resourceLinks = [],
+  legalLinks = [],
+}: {
+  platformLinks?: FooterLink[]
+  resourceLinks?: FooterLink[]
+  legalLinks?: FooterLink[]
+}) {
   return (
     <footer className="relative border-t border-white/[0.08]" style={{ backgroundColor: "oklch(0.06 0.01 250)" }}>
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -28,14 +38,8 @@ export default function Footer() {
           <div>
             <h4 className="system-label text-[#6B7280] mb-4">Platform</h4>
             <ul className="space-y-3">
-              {[
-                { label: "For Law Firms", href: "https://www.caseport.io" },
-                { label: "How It Works", href: "https://www.caseport.io/#how-it-works" },
-                { label: "ROI Projection", href: "https://www.caseport.io/#roi" },
-                { label: "Why CasePort", href: "https://www.caseport.io/#why" },
-                { label: "FAQ", href: "https://www.caseport.io/#faq" },
-              ].map((link) => (
-                <li key={link.label}>
+              {platformLinks.map((link) => (
+                <li key={link.href}>
                   <a href={link.href} className="text-[14px] text-[#B0B8C4] hover:text-[#F1F3F5] transition-colors">
                     {link.label}
                   </a>
@@ -48,12 +52,8 @@ export default function Footer() {
           <div>
             <h4 className="system-label text-[#6B7280] mb-4">Resources</h4>
             <ul className="space-y-3">
-              {[
-                { label: "Insights", href: "https://www.caseport.io/insights" },
-                { label: "Intelligence", href: "https://www.caseport.io/intelligence" },
-                { label: "Injured?", href: "https://www.caseport.io/injured" },
-              ].map((link) => (
-                <li key={link.label}>
+              {resourceLinks.map((link) => (
+                <li key={link.href}>
                   <a href={link.href} className="text-[14px] text-[#B0B8C4] hover:text-[#F1F3F5] transition-colors">
                     {link.label}
                   </a>
@@ -85,8 +85,11 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-6 gap-4">
             <span className="text-[12px] text-[#6B7280]">&copy; {new Date().getFullYear()} CasePort. All rights reserved.</span>
             <div className="flex gap-6">
-              <a href="https://www.caseport.io/privacy" className="text-[12px] text-[#6B7280] hover:text-[#B0B8C4] transition-colors">Privacy Policy</a>
-              <a href="https://www.caseport.io/terms" className="text-[12px] text-[#6B7280] hover:text-[#B0B8C4] transition-colors">Terms of Service</a>
+              {legalLinks.map((link) => (
+                <a key={link.href} href={link.href} className="text-[12px] text-[#6B7280] hover:text-[#B0B8C4] transition-colors">
+                  {link.label}
+                </a>
+              ))}
             </div>
           </div>
         </div>

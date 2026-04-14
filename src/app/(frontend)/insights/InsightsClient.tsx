@@ -19,7 +19,7 @@
 import AEOContent from '@/components/insights/AEOContent'
 import FAQSection from '@/components/insights/FAQSection'
 import Footer from '@/components/insights/Footer'
-import Navbar from '@/components/insights/Navbar'
+import Navbar from '@/components/Navbar'
 import StructuredData from '@/components/insights/StructuredData'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 import { categories, signals, topicClusters, type Category } from '@/lib/articles'
@@ -1112,14 +1112,26 @@ function FinalCTA() {
 }
 
 // ─── MAIN PAGE ───
-export default function InsightsClient({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+type NavLink = { label: string; href: string; openInNewTab?: boolean }
+
+export default function InsightsClient({
+  fetchedArticles = [],
+  navLinks = [],
+  ctaLabel,
+  ctaHref,
+}: {
+  fetchedArticles: any[]
+  navLinks?: NavLink[]
+  ctaLabel?: string
+  ctaHref?: string
+}) {
   return (
     <>
       <StructuredData />
       <AEOContent />
       <main className="bg-[#0A0E17] min-h-screen overflow-x-hidden">
         <ReadingProgressBar />
-        <Navbar />
+        <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
         <HeroSection fetchedArticles={fetchedArticles} />
         <FeaturedSection fetchedArticles={fetchedArticles} />
         <EditorialGrid fetchedArticles={fetchedArticles} />

@@ -99,10 +99,28 @@ function useCountUp(end: number, duration: number = 2000, startOnView: boolean =
   return { count, ref }
 }
 
-export default function MarketPage() {
-  const [markets, setMarkets] = useState<any[]>([])
-  const [pageFaqs, setPageFaqs] = useState<{ question: string; answer: string }[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+export default function MarketPage({
+  initialMarkets = [],
+  initialFaqs = [],
+  navLinks,
+  ctaLabel,
+  ctaHref,
+  platformLinks,
+  resourceLinks,
+  legalLinks,
+}: {
+  initialMarkets?: any[]
+  initialFaqs?: { question: string; answer: string }[]
+  navLinks?: any[]
+  ctaLabel?: string
+  ctaHref?: string
+  platformLinks?: any[]
+  resourceLinks?: any[]
+  legalLinks?: any[]
+}) {
+  const [markets, setMarkets] = useState<any[]>(initialMarkets)
+  const [pageFaqs, setPageFaqs] = useState<{ question: string; answer: string }[]>(initialFaqs)
+  const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRegion, setSelectedRegion] = useState<string>('All')
   const [selectedStatus, setSelectedStatus] = useState<MarketStatus | 'all'>('all')
@@ -113,6 +131,10 @@ export default function MarketPage() {
   const exitIntentShown = useRef(false)
 
   useEffect(() => {
+    // Only fetch if not pre-populated from the server
+    if (initialMarkets.length > 0) return
+
+    setIsLoading(true)
     fetch('/api/markets?limit=100')
       .then((res) => res.json())
       .then((data) => {
@@ -356,7 +378,7 @@ export default function MarketPage() {
       <main>
         <AEOContentBlocks />
         <LiveMarketTicker />
-        <Navbar />
+        <Navbar navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
 
         {/* ============================================ */}
         {/* SECTION 1: HERO — Above the fold */}
@@ -1023,7 +1045,7 @@ export default function MarketPage() {
         <ComparisonTable />
 
         {/* Footer */}
-        <Footer />
+        <Footer platformLinks={platformLinks} resourceLinks={resourceLinks} legalLinks={legalLinks} />
 
         {/* Unlisted Market Form */}
         {hasUnlistedMarket && (

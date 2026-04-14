@@ -1,5 +1,8 @@
+import configPromise from '@payload-config'
 import type { Metadata } from 'next'
+import { getPayload } from 'payload'
 import CityMarketPage from './CityMarketClient'
+import { fetchNavData } from '@/lib/navData'
 
 export async function generateMetadata({
   params,
@@ -7,18 +10,22 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  // Capitalise slug for title e.g. "los-angeles" → "Los Angeles"
-  const city = slug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+
+  const payload = await getPayload({ config: configPromise })
+  const { docs } = await payload.find({
+    collection: 'markets',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  })
+  const city = docs[0]?.metro || slug
 
   return {
-    title: `${city} Personal Injury Leads`,
+    title: `${city} Personal Injury Leads | CasePort`,
     description: `Exclusive personal injury lead market for ${city}. Territorial exclusivity — only 3 partner firms per metro. Pre-funded wallet model. 15-minute response time.`,
     alternates: { canonical: `https://www.caseport.io/markets/${slug}` },
     openGraph: {
-      title: `CasePort \u2014 ${city} PI Lead Market`,
+      title: `${city} Personal Injury Leads | CasePort`,
       description: `Exclusive personal injury leads in ${city}. 3-firm territorial cap. Apply for access.`,
       url: `https://www.caseport.io/markets/${slug}`,
       type: 'website',
@@ -26,6 +33,7 @@ export async function generateMetadata({
   }
 }
 
-export default function MarketSlugPage() {
-  return <CityMarketPage />
+export default async function MarketSlugPage() {
+  const navData = await fetchNavData()
+  return <CityMarketPage {...navData} />
 }

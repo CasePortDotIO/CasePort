@@ -2,16 +2,19 @@ import type { Metadata } from 'next'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import InsightsClient from './InsightsClient'
+import { fetchNavData } from '@/lib/navData'
 
-export const dynamic = 'force-dynamic'
+// Cache for 1 hour; Next.js revalidates in the background so users always
+// hit a pre-built page instead of waiting for a DB round-trip.
+export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Insights',
+  title: 'CasePort Insights | Personal Injury Lead Generation, Intake & Case Acquisition',
   description:
     'Expert analysis on personal injury case acquisition, market intelligence, and law firm growth strategy from the CasePort team.',
   alternates: { canonical: 'https://www.caseport.io/insights' },
   openGraph: {
-    title: 'CasePort Insights',
+    title: 'CasePort Insights | Personal Injury Lead Generation, Intake & Case Acquisition',
     description:
       'Expert analysis on personal injury case acquisition, market intelligence, and law firm growth strategy.',
     url: 'https://www.caseport.io/insights',
@@ -22,11 +25,14 @@ export const metadata: Metadata = {
 export default async function InsightsPage() {
   const payload = await getPayload({ config: configPromise })
 
-  const { docs } = await payload.find({
-    collection: 'articles',
-    depth: 1, // Populatable relationships
-    sort: '-publishedAt',
-  })
+  const [{ docs }, navData] = await Promise.all([
+    payload.find({
+      collection: 'articles',
+      depth: 1,
+      sort: '-publishedAt',
+    }),
+    fetchNavData(),
+  ])
 
-  return <InsightsClient fetchedArticles={docs} />
+  return <InsightsClient fetchedArticles={docs} {...navData} />
 }

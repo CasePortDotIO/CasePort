@@ -21,7 +21,7 @@ const marketsData = [
   // ── WEST ──────────────────────────────────────────────────────────────────
   {
     metro: 'Los Angeles',
-    slug: 'los-angeles',
+    slug: 'los-angeles-personal-injury-leads',
     state: 'CA',
     status: 'limited' as const,
     mii: 97,
@@ -80,7 +80,7 @@ const marketsData = [
   },
   {
     metro: 'San Francisco',
-    slug: 'san-francisco',
+    slug: 'san-francisco-personal-injury-leads',
     state: 'CA',
     status: 'active' as const,
     mii: 88,
@@ -137,7 +137,7 @@ const marketsData = [
   },
   {
     metro: 'San Diego',
-    slug: 'san-diego',
+    slug: 'san-diego-personal-injury-leads',
     state: 'CA',
     status: 'active' as const,
     mii: 82,
@@ -191,7 +191,7 @@ const marketsData = [
   },
   {
     metro: 'Phoenix',
-    slug: 'phoenix',
+    slug: 'phoenix-personal-injury-leads',
     state: 'AZ',
     status: 'limited' as const,
     mii: 89,
@@ -249,7 +249,7 @@ const marketsData = [
   },
   {
     metro: 'Las Vegas',
-    slug: 'las-vegas',
+    slug: 'las-vegas-personal-injury-leads',
     state: 'NV',
     status: 'capped' as const,
     mii: 91,
@@ -308,7 +308,7 @@ const marketsData = [
   },
   {
     metro: 'Seattle',
-    slug: 'seattle',
+    slug: 'seattle-personal-injury-leads',
     state: 'WA',
     status: 'active' as const,
     mii: 79,
@@ -364,7 +364,7 @@ const marketsData = [
   },
   {
     metro: 'Denver',
-    slug: 'denver',
+    slug: 'denver-personal-injury-leads',
     state: 'CO',
     status: 'limited' as const,
     mii: 84,
@@ -424,7 +424,7 @@ const marketsData = [
   // ── SOUTH ─────────────────────────────────────────────────────────────────
   {
     metro: 'Houston',
-    slug: 'houston',
+    slug: 'houston-personal-injury-leads',
     state: 'TX',
     status: 'capped' as const,
     mii: 96,
@@ -481,7 +481,7 @@ const marketsData = [
   },
   {
     metro: 'Dallas–Fort Worth',
-    slug: 'dallas-fort-worth',
+    slug: 'dallas-fort-worth-personal-injury-leads',
     state: 'TX',
     status: 'limited' as const,
     mii: 93,
@@ -538,7 +538,7 @@ const marketsData = [
   },
   {
     metro: 'Miami',
-    slug: 'miami',
+    slug: 'miami-personal-injury-leads',
     state: 'FL',
     status: 'capped' as const,
     mii: 95,
@@ -595,7 +595,7 @@ const marketsData = [
   },
   {
     metro: 'Tampa',
-    slug: 'tampa',
+    slug: 'tampa-personal-injury-leads',
     state: 'FL',
     status: 'limited' as const,
     mii: 85,
@@ -652,7 +652,7 @@ const marketsData = [
   },
   {
     metro: 'Atlanta',
-    slug: 'atlanta',
+    slug: 'atlanta-personal-injury-leads',
     state: 'GA',
     status: 'limited' as const,
     mii: 92,
@@ -708,7 +708,7 @@ const marketsData = [
   },
   {
     metro: 'Nashville',
-    slug: 'nashville',
+    slug: 'nashville-personal-injury-leads',
     state: 'TN',
     status: 'active' as const,
     mii: 74,
@@ -768,7 +768,7 @@ const marketsData = [
   // ── NORTHEAST ─────────────────────────────────────────────────────────────
   {
     metro: 'New York City',
-    slug: 'new-york-city',
+    slug: 'new-york-city-personal-injury-leads',
     state: 'NY',
     status: 'capped' as const,
     mii: 98,
@@ -826,7 +826,7 @@ const marketsData = [
   },
   {
     metro: 'Philadelphia',
-    slug: 'philadelphia',
+    slug: 'philadelphia-personal-injury-leads',
     state: 'PA',
     status: 'limited' as const,
     mii: 90,
@@ -884,7 +884,7 @@ const marketsData = [
   },
   {
     metro: 'Boston',
-    slug: 'boston',
+    slug: 'boston-personal-injury-leads',
     state: 'MA',
     status: 'active' as const,
     mii: 87,
@@ -942,7 +942,7 @@ const marketsData = [
   },
   {
     metro: 'Washington, D.C.',
-    slug: 'washington-dc',
+    slug: 'washington-dc-personal-injury-leads',
     state: 'DC',
     status: 'limited' as const,
     mii: 86,
@@ -1001,7 +1001,7 @@ const marketsData = [
   // ── MIDWEST ───────────────────────────────────────────────────────────────
   {
     metro: 'Chicago',
-    slug: 'chicago',
+    slug: 'chicago-personal-injury-leads',
     state: 'IL',
     status: 'capped' as const,
     mii: 99,
@@ -1057,7 +1057,7 @@ const marketsData = [
   },
   {
     metro: 'Minneapolis–St. Paul',
-    slug: 'minneapolis-st-paul',
+    slug: 'minneapolis-st-paul-personal-injury-leads',
     state: 'MN',
     status: 'limited' as const,
     mii: 81,
@@ -1113,7 +1113,7 @@ const marketsData = [
   },
   {
     metro: 'Detroit',
-    slug: 'detroit',
+    slug: 'detroit-personal-injury-leads',
     state: 'MI',
     status: 'active' as const,
     mii: 72,

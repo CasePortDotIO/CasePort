@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import ArticleClient from './ArticleClient'
+import { fetchNavData } from '@/lib/navData'
 
 export async function generateMetadata({
   params,
@@ -44,11 +45,14 @@ export default async function InsightsArticlePage({
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
 
-  const { docs } = await payload.find({
-    collection: 'articles',
-    where: { slug: { equals: slug } },
-    depth: 1, // Populatable relationships
-  })
+  const [{ docs }, navData] = await Promise.all([
+    payload.find({
+      collection: 'articles',
+      where: { slug: { equals: slug } },
+      depth: 1,
+    }),
+    fetchNavData(),
+  ])
 
   const article = docs[0]
 
@@ -56,5 +60,5 @@ export default async function InsightsArticlePage({
     notFound()
   }
 
-  return <ArticleClient article={article} />
+  return <ArticleClient article={article} {...navData} />
 }

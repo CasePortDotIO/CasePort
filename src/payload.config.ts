@@ -18,6 +18,9 @@ import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Waitlists } from './collections/Waitlists'
 
 import { MarketsPage } from './globals/MarketsPage'
+import { SiteSettings } from './globals/SiteSettings'
+import { HeaderNav } from './globals/HeaderNav'
+import { FooterNav } from './globals/FooterNav'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -36,7 +39,7 @@ export default buildConfig({
       ],
     },
   },
-  globals: [MarketsPage],
+  globals: [MarketsPage, SiteSettings, HeaderNav, FooterNav],
   collections: [
     Users,
     Media,

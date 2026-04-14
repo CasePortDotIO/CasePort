@@ -82,10 +82,20 @@ const SYSTEM_VIZ =
 /* ═══════════════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════ */
-export default function Home() {
+type NavLink = { label: string; href: string; openInNewTab?: boolean }
+
+export default function Home({
+  navLinks,
+  ctaLabel,
+  ctaHref,
+}: {
+  navLinks?: NavLink[]
+  ctaLabel?: string
+  ctaHref?: string
+}) {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#030608] text-white antialiased scroll-smooth">
-      <Navbar />
+      <Navbar navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
 
       {/* AEO: Hidden semantic content for AI crawlers & voice search */}
       <div className="sr-only" role="region" aria-label="About CasePort">

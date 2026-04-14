@@ -35,7 +35,7 @@
 */
 
 import Footer from '@/components/insights/Footer'
-import Navbar from '@/components/insights/Navbar'
+import Navbar from '@/components/Navbar'
 import {
   ArrowUp,
   Award,
@@ -478,7 +478,19 @@ function MidArticleCTA({ depth }: { depth: number }) {
   )
 }
 
-export default function ArticleClient({ article }: { article: any }) {
+type NavLink = { label: string; href: string; openInNewTab?: boolean }
+
+export default function ArticleClient({
+  article,
+  navLinks = [],
+  ctaLabel,
+  ctaHref,
+}: {
+  article: any
+  navLinks?: NavLink[]
+  ctaLabel?: string
+  ctaHref?: string
+}) {
   const [activeSection, setActiveSection] = useState<string>('')
   const [heroScroll, setHeroScroll] = useState(0)
   const revealed = useScrollReveal()
@@ -555,7 +567,7 @@ export default function ArticleClient({ article }: { article: any }) {
         datePublished={datePublished}
         dateModified={dateModified}
       />
-      <Navbar />
+      <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
       <ReadingProgress />
       <BackToTop />
 

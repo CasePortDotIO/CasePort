@@ -105,9 +105,15 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'markets-page': MarketsPage;
+    'site-settings': SiteSetting;
+    'header-nav': HeaderNav;
+    'footer-nav': FooterNav;
   };
   globalsSelect: {
     'markets-page': MarketsPageSelect<false> | MarketsPageSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'header-nav': HeaderNavSelect<false> | HeaderNavSelect<true>;
+    'footer-nav': FooterNavSelect<false> | FooterNavSelect<true>;
   };
   locale: null;
   widgets: {
@@ -866,6 +872,99 @@ export interface MarketsPage {
   createdAt?: string | null;
 }
 /**
+ * Site-wide defaults: SEO, CTAs, contact info, legal, and organization schema.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (string | null) | Media;
+  /**
+   * Relative paths to prevent indexing (e.g. /thank-you)
+   */
+  noindexPages?:
+    | {
+        path: string;
+        id?: string | null;
+      }[]
+    | null;
+  primaryCtaLabel?: string | null;
+  primaryCtaHref?: string | null;
+  injuredCtaLabel?: string | null;
+  injuredCtaHref?: string | null;
+  contactEmail?: string | null;
+  brandName?: string | null;
+  brandTagline?: string | null;
+  brandSummary?: string | null;
+  legalDisclaimer?: string | null;
+  privacyPolicyUrl?: string | null;
+  termsUrl?: string | null;
+  orgName?: string | null;
+  orgUrl?: string | null;
+  orgDescription?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Controls the top navigation links and the primary CTA button.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header-nav".
+ */
+export interface HeaderNav {
+  id: string;
+  /**
+   * Order determines display order in the navigation.
+   */
+  navLinks?:
+    | {
+        label: string;
+        href: string;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Controls footer nav groups, social links, and utility links.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-nav".
+ */
+export interface FooterNav {
+  id: string;
+  platformLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  resourceLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  legalLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "markets-page_select".
  */
@@ -875,6 +974,87 @@ export interface MarketsPageSelect<T extends boolean = true> {
     | {
         question?: T;
         answer?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
+  noindexPages?:
+    | T
+    | {
+        path?: T;
+        id?: T;
+      };
+  primaryCtaLabel?: T;
+  primaryCtaHref?: T;
+  injuredCtaLabel?: T;
+  injuredCtaHref?: T;
+  contactEmail?: T;
+  brandName?: T;
+  brandTagline?: T;
+  brandSummary?: T;
+  legalDisclaimer?: T;
+  privacyPolicyUrl?: T;
+  termsUrl?: T;
+  orgName?: T;
+  orgUrl?: T;
+  orgDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header-nav_select".
+ */
+export interface HeaderNavSelect<T extends boolean = true> {
+  navLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  ctaLabel?: T;
+  ctaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-nav_select".
+ */
+export interface FooterNavSelect<T extends boolean = true> {
+  platformLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  resourceLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  legalLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
         id?: T;
       };
   updatedAt?: T;
