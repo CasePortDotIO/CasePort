@@ -301,7 +301,9 @@ function StateSelect({
       onChange={(e) => onChange(e.target.value)}
       className={`w-full h-12 px-4 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white focus:border-primary/50 focus:outline-none transition-all duration-300 focus:bg-white/[0.06] ${className}`}
     >
-      <option value="" className="bg-[rgb(3,6,8)]">Select state</option>
+      <option value="" className="bg-[rgb(3,6,8)]">
+        Select state
+      </option>
       {US_STATES.map(({ value, label }) => (
         <option key={value} value={value} className="bg-[rgb(3,6,8)]">
           {label}
