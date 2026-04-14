@@ -361,6 +361,26 @@ export interface Author {
   title: string;
   avatar?: (string | null) | Media;
   bio?: string | null;
+  profileUrl?: string | null;
+  /**
+   * Short labels shown as pills on article pages (e.g. "Expert", "50+ Firms").
+   */
+  badges?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Stats shown in the credential grid (e.g. value "50+" / label "Firms Advised").
+   */
+  credentials?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
   socialLinks?:
     | {
         platform?: ('twitter' | 'linkedin' | 'github') | null;
@@ -735,6 +755,20 @@ export interface AuthorsSelect<T extends boolean = true> {
   title?: T;
   avatar?: T;
   bio?: T;
+  profileUrl?: T;
+  badges?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  credentials?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
   socialLinks?:
     | T
     | {

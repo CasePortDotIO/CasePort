@@ -503,7 +503,7 @@ export default function ArticleClient({
     // Convert Payload Lexical content into the expected format
     const title = article.title
     const author = article.author?.name || 'Martha Bennett'
-    const authorRole = article.author?.role || 'Director of Operations'
+    const authorRole = article.author?.title || 'Director of Operations'
     const authorBio =
       article.author?.bio ||
       `${author} is a ${authorRole}. With deep expertise in personal injury law operations, she has advised 50+ firms on intake optimization and case acquisition strategy.`
@@ -750,7 +750,6 @@ export default function ArticleClient({
                   </div>
                 </div>
               </section>
-
               {/* Key Takeaways */}
               <section
                 id="key-takeaways"
@@ -780,15 +779,12 @@ export default function ArticleClient({
                   ))}
                 </ul>
               </section>
-
               {/* Article Content */}
               <div className="article-body mb-32 transition-all duration-700 opacity-100 translate-y-0">
                 <CustomRichText content={article.content} />
               </div>
-
               {/* Mid-Article CTA - Tiered Based on Reading Depth */}
               <MidArticleCTA depth={useReadingDepth()} />
-
               {/* FAQ Section */}
               <section
                 id="faq"
@@ -818,7 +814,6 @@ export default function ArticleClient({
                   ))}
                 </Accordion>
               </section>
-
               {/* Cite This Research */}
               <section
                 id="cite"
@@ -852,7 +847,6 @@ export default function ArticleClient({
                   </button>
                 </div>
               </section>
-
               {/* Author Bio - Enhanced Credibility */}
               <section
                 id="author-bio"
@@ -865,61 +859,74 @@ export default function ArticleClient({
               >
                 <div className="bg-gradient-to-r from-slate-50 to-cyan-50 border border-slate-200 rounded-lg p-6 lg:p-8">
                   <div className="flex flex-col sm:flex-row gap-6 mb-8">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex-shrink-0" />
+                    {/* Avatar */}
+                    {article?.author?.avatar?.url ? (
+                      <img
+                        src={article.author.avatar.url}
+                        alt={content?.author}
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex-shrink-0" />
+                    )}
                     <div className="flex-1">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-2 gap-3 sm:gap-0">
                         <div>
                           <h3 className="text-xl font-bold text-slate-900">{content?.author}</h3>
                           <p className="text-sm text-slate-600">{content?.authorRole}</p>
                         </div>
-                        <div className="flex gap-2">
-                          <span className="px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full">
-                            Expert
-                          </span>
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                            50+ Firms
-                          </span>
-                        </div>
+                        {/* Badges from CMS */}
+                        {article?.author?.badges?.length > 0 && (
+                          <div className="flex gap-2 flex-wrap">
+                            {article.author.badges.map((b: any, i: number) => (
+                              <span
+                                key={i}
+                                className="px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full"
+                              >
+                                {b.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <p className="text-slate-700 leading-relaxed mb-4">{authorBio}</p>
 
-                      {/* Credentials */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 py-4 border-y border-slate-200">
-                        <div>
-                          <div className="text-xl sm:text-2xl font-bold text-cyan-600">50+</div>
-                          <div className="text-xs text-slate-600">Firms Advised</div>
+                      {/* Credentials from CMS */}
+                      {article?.author?.credentials?.length > 0 && (
+                        <div className={`grid grid-cols-2 sm:grid-cols-${Math.min(article.author.credentials.length, 3)} gap-4 mb-6 py-4 border-y border-slate-200`}>
+                          {article.author.credentials.map((c: any, i: number) => (
+                            <div key={i} className={article.author.credentials.length % 3 !== 0 && i === article.author.credentials.length - 1 ? 'col-span-2 sm:col-span-1' : ''}>
+                              <div className="text-xl sm:text-2xl font-bold text-cyan-600">{c.value}</div>
+                              <div className="text-xs text-slate-600">{c.label}</div>
+                            </div>
+                          ))}
                         </div>
-                        <div>
-                          <div className="text-xl sm:text-2xl font-bold text-cyan-600">$2.1B</div>
-                          <div className="text-xs text-slate-600 truncate">Case Val Optimized</div>
-                        </div>
-                        <div className="col-span-2 sm:col-span-1">
-                          <div className="text-xl sm:text-2xl font-bold text-cyan-600">8 yrs</div>
-                          <div className="text-xs text-slate-600">PI Operations</div>
-                        </div>
-                      </div>
+                      )}
 
                       <div className="flex flex-col sm:flex-row gap-3">
                         <button
-                          onClick={() => toast.success('Email sent to Martha.')}
+                          onClick={() => toast.success(`Email sent to ${content?.author}.`)}
                           className="flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm"
                         >
                           <MessageSquare size={16} />
-                          Ask Martha a Question
+                          Ask {content?.author?.split(' ')[0]} a Question
                         </button>
-                        <a
-                          href="#"
-                          className="flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm"
-                        >
-                          <ExternalLink size={16} />
-                          View Martha's Profile
-                        </a>
+                        {article?.author?.profileUrl && (
+                          <a
+                            href={article.author.profileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm"
+                          >
+                            <ExternalLink size={16} />
+                            View {content?.author?.split(' ')[0]}'s Profile
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
               </section>
-
               {/* Continue Reading */}
               <section
                 id="continue-reading"
@@ -964,8 +971,7 @@ export default function ArticleClient({
                   })}
                 </div>
               </section>
-
-              {/* Comparison Table - Leakage vs. No Leakage */}
+              {/* Comparison Table - Leakage vs. No Leakage
               <section
                 id="comparison"
                 data-reveal
@@ -1028,9 +1034,8 @@ export default function ArticleClient({
                   *Based on industry benchmarks. Your results may vary based on market, practice
                   area, and current intake process efficiency.
                 </p>
-              </section>
-
-              {/* Final CTA - High Urgency Dan Lok Voice */}
+              </section> */}
+              {/* Final CTA - High Urgency Dan Lok Voice
               <section
                 id="final-cta"
                 data-reveal
@@ -1066,7 +1071,7 @@ export default function ArticleClient({
                     </Link>
                   </div>
                 </div>
-              </section>
+              </section> */}
 
               {/* Newsletter CTA - With Social Proof */}
               <section
