@@ -400,7 +400,7 @@ export default function MarketPage({
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="bg-white/[0.03] border border-white/[0.08] inline-flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-2.5 mb-8 overflow-hidden rounded-2xl"
+              className="relative bg-white/[0.03] border border-white/[0.08] inline-flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-2.5 mb-8 overflow-hidden rounded-2xl"
               role="status"
               aria-label={`System status: ${stats.total} markets active, ${stats.capped} capped, ${stats.evaluation} in review`}
             >
@@ -471,8 +471,8 @@ export default function MarketPage({
                   {stats.total || 46} markets, 3 firms each, and the strongest firms fill first.
                 </p>
                 <Link
-                  href="#grid"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
+                  href="/request-access"
+                  className="inline-flex items-center gap-2 cursor-pointer px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)',
                   }}
@@ -1036,13 +1036,21 @@ export default function MarketPage({
         <VideoTestimonialSection />
 
         {/* Case Study Section */}
-        <CaseStudySection />
+        <CaseStudySection
+          checkButonClickHandler={() =>
+            document.getElementById('grid')?.scrollIntoView({ behavior: 'smooth' })
+          }
+        />
 
         {/* Lead Quality Guarantee Section */}
         <LeadQualityGuarantee />
 
         {/* Comparison Table */}
-        <ComparisonTable />
+        <ComparisonTable
+          checkButonClickHandler={() =>
+            document.getElementById('grid')?.scrollIntoView({ behavior: 'smooth' })
+          }
+        />
 
         {/* Footer */}
         <Footer

@@ -200,12 +200,12 @@ export default function Home() {
             <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
               CASEPORT
             </div>
-            <div
+            {/* <div
               className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em] uppercase font-mono"
               style={{ fontSize: '0.5rem' }}
             >
               Case Flow Without Guesswork
-            </div>
+            </div> */}
           </Link>
           <a href="tel:+18002273669" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
             <div className="hidden sm:flex flex-col items-end">
@@ -468,11 +468,13 @@ export default function Home() {
         <div
           className={`relative z-10 max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(3) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#22D3EE] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               How it works
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">A simpler way to move forward after an accident</h2>
+            <h2 className="text-[#1A1A1A] mb-5 lg:text-[72px] sm:text[60px] text-[48px]">
+              A simpler way to move forward after an accident
+            </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
               We guide you through a simple process to understand your situation and explore your
               options.
@@ -540,11 +542,13 @@ export default function Home() {
         <div
           className={`relative z-10 max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(4) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Accident types
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">Common situations we may be able to help with</h2>
+            <h2 className="text-[#1A1A1A] lg:text-[72px] sm:text[60px] text-[48px] mb-5">
+              Common situations we may be able to help with
+            </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
               Availability can depend on location, case type, and other factors.
             </p>
@@ -602,18 +606,20 @@ export default function Home() {
         <div
           className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(5) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               After an accident
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">What to do after an accident</h2>
+            <h2 className="text-[#1A1A1A] mb-5 lg:text-[72px] sm:text[60px] text-[48px]">
+              What to do after an accident
+            </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
               These steps can help protect your health and strengthen your case.
             </p>
           </div>
 
           {/* FIX 3: Timeline cards now max-w-4xl — full visual width */}
-          <div className="max-w-4xl space-y-0">
+          <div className="max-w-7xl space-y-0">
             {[
               {
                 num: '01',
@@ -686,7 +692,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — Copy */}
             <div className="max-w-lg">
-              <h2 className="text-white mb-5">
+              <h2 className="text-white mb-5 text-[48px]">
                 The Secure Case Check takes <span className="text-[#22D3EE]">about 2 minutes</span>
               </h2>
               <p className="text-white/50 text-lg leading-relaxed mb-4">
@@ -803,11 +809,11 @@ export default function Home() {
         <div
           className={`relative z-10 max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(7) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Helpful documents
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">
+            <h2 className="text-[#1A1A1A] mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
               Documents can help your request move forward faster
             </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
@@ -816,7 +822,7 @@ export default function Home() {
           </div>
 
           {/* FIX 3: Document cards wider — full max-w-5xl with more generous padding */}
-          <div className="max-w-5xl grid md:grid-cols-3 gap-8 mb-10">
+          <div className="max-w-7xl grid md:grid-cols-3 gap-8 mb-10">
             {[
               {
                 icon: Camera,
@@ -872,11 +878,11 @@ export default function Home() {
         <div
           className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(8) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Your privacy matters
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">
+            <h2 className="text-[#1A1A1A] mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
               Clear, private, and built to help you move faster
             </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
@@ -885,7 +891,7 @@ export default function Home() {
           </div>
 
           {/* 4 Cards — HORIZONTAL ICON-LEFT layout with left accent border */}
-          <div className="grid sm:grid-cols-2 gap-6 max-w-4xl">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-7xl">
             {[
               {
                 icon: Lock,
@@ -963,14 +969,16 @@ export default function Home() {
         <div
           className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(9) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Common questions
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">Questions people often ask after an accident</h2>
+            <h2 className="text-[#1A1A1A] mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
+              Questions people often ask after an accident
+            </h2>
           </div>
 
-          <div className="max-w-3xl space-y-3">
+          <div className="max-w-7xl space-y-3">
             {faqItems.map((item, i) => (
               <div
                 key={i}
@@ -1011,9 +1019,9 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(201,169,110,0.05)_0%,transparent_60%)]" />
 
         <div
-          className={`relative max-w-3xl mx-auto px-5 md:px-8 text-center transition-all duration-1000 ${visibleSections.includes(10) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+          className={`relative max-w-7xl mx-auto px-5 md:px-8 text-center transition-all duration-1000 ${visibleSections.includes(10) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <h2 className="text-white mb-5">
+          <h2 className="text-white mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
             Start with the <span className="text-[#22D3EE]">right next step</span>
           </h2>
           <p className="text-white/50 text-lg leading-relaxed mb-4 max-w-xl mx-auto">

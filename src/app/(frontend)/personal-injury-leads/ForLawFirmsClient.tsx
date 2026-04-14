@@ -230,6 +230,88 @@ function LeadScoreBar({ label, score, color }: { label: string; score: number; c
 }
 
 /* ─────────────────────────────────────────────
+   State Select Component (all 50 states + D.C.)
+   ───────────────────────────────────────────── */
+const US_STATES = [
+  { value: 'AL', label: 'Alabama' },
+  { value: 'AK', label: 'Alaska' },
+  { value: 'AZ', label: 'Arizona' },
+  { value: 'AR', label: 'Arkansas' },
+  { value: 'CA', label: 'California' },
+  { value: 'CO', label: 'Colorado' },
+  { value: 'CT', label: 'Connecticut' },
+  { value: 'DE', label: 'Delaware' },
+  { value: 'FL', label: 'Florida' },
+  { value: 'GA', label: 'Georgia' },
+  { value: 'HI', label: 'Hawaii' },
+  { value: 'ID', label: 'Idaho' },
+  { value: 'IL', label: 'Illinois' },
+  { value: 'IN', label: 'Indiana' },
+  { value: 'IA', label: 'Iowa' },
+  { value: 'KS', label: 'Kansas' },
+  { value: 'KY', label: 'Kentucky' },
+  { value: 'LA', label: 'Louisiana' },
+  { value: 'ME', label: 'Maine' },
+  { value: 'MD', label: 'Maryland' },
+  { value: 'MA', label: 'Massachusetts' },
+  { value: 'MI', label: 'Michigan' },
+  { value: 'MN', label: 'Minnesota' },
+  { value: 'MS', label: 'Mississippi' },
+  { value: 'MO', label: 'Missouri' },
+  { value: 'MT', label: 'Montana' },
+  { value: 'NE', label: 'Nebraska' },
+  { value: 'NV', label: 'Nevada' },
+  { value: 'NH', label: 'New Hampshire' },
+  { value: 'NJ', label: 'New Jersey' },
+  { value: 'NM', label: 'New Mexico' },
+  { value: 'NY', label: 'New York' },
+  { value: 'NC', label: 'North Carolina' },
+  { value: 'ND', label: 'North Dakota' },
+  { value: 'OH', label: 'Ohio' },
+  { value: 'OK', label: 'Oklahoma' },
+  { value: 'OR', label: 'Oregon' },
+  { value: 'PA', label: 'Pennsylvania' },
+  { value: 'RI', label: 'Rhode Island' },
+  { value: 'SC', label: 'South Carolina' },
+  { value: 'SD', label: 'South Dakota' },
+  { value: 'TN', label: 'Tennessee' },
+  { value: 'TX', label: 'Texas' },
+  { value: 'UT', label: 'Utah' },
+  { value: 'VT', label: 'Vermont' },
+  { value: 'VA', label: 'Virginia' },
+  { value: 'WA', label: 'Washington' },
+  { value: 'WV', label: 'West Virginia' },
+  { value: 'WI', label: 'Wisconsin' },
+  { value: 'WY', label: 'Wyoming' },
+  { value: 'DC', label: 'Washington D.C.' },
+]
+
+function StateSelect({
+  value,
+  onChange,
+  className = '',
+}: {
+  value: string
+  onChange: (value: string) => void
+  className?: string
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`w-full h-12 px-4 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white focus:border-primary/50 focus:outline-none transition-all duration-300 focus:bg-white/[0.06] ${className}`}
+    >
+      <option value="" className="bg-[rgb(3,6,8)]">Select state</option>
+      {US_STATES.map(({ value, label }) => (
+        <option key={value} value={value} className="bg-[rgb(3,6,8)]">
+          {label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
+/* ─────────────────────────────────────────────
    Qualification Form
    ───────────────────────────────────────────── */
 function QualificationForm() {
@@ -291,13 +373,7 @@ function QualificationForm() {
             <label className="system-label block mb-3" style={{ color: '#6B7280' }}>
               State
             </label>
-            <input
-              type="text"
-              value={formData.state}
-              onChange={(e) => updateField('state', e.target.value)}
-              placeholder="e.g., California"
-              className="w-full h-12 px-4 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none transition-all duration-300 focus:bg-white/[0.06]"
-            />
+            <StateSelect value={formData.state} onChange={(v) => updateField('state', v)} />
           </div>
           <div>
             <label className="system-label block mb-3" style={{ color: '#6B7280' }}>
@@ -383,7 +459,7 @@ function QualificationForm() {
             </button>
             <button
               onClick={() => {
-                window.location.href = '/injured'
+                window.location.href = '/request-access'
               }}
               className="cta-primary flex-1 h-12 flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
@@ -487,7 +563,7 @@ export default function TestingLawFirmPage() {
               asChild
               className="text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
-              <a href="/injured">
+              <a href="/request-access">
                 Claim Your Access <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </Button>
@@ -497,7 +573,7 @@ export default function TestingLawFirmPage() {
             asChild
             className="md:hidden text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
           >
-            <a href="/injured">Claim Access</a>
+            <a href="/request-access">Claim Access</a>
           </Button>
         </div>
       </nav>
@@ -512,7 +588,7 @@ export default function TestingLawFirmPage() {
               {/* Left: Copy */}
               <div>
                 <div className="block" />
-                <SystemLabel>Case Acquisition System</SystemLabel>
+                {/* <SystemLabel>Case Acquisition System</SystemLabel> */}
                 <h1
                   className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight mb-5"
                   style={{ color: '#F1F3F5', letterSpacing: '-0.04em' }}
@@ -553,7 +629,7 @@ export default function TestingLawFirmPage() {
                     asChild
                     className="text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
                   >
-                    <a href="/injured">
+                    <a href="/request-access">
                       Claim Your Market Access <ArrowRight className="w-4 h-4" />
                     </a>
                   </Button>

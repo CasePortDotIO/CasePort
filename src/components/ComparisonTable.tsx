@@ -1,77 +1,81 @@
-import Link from 'next/link';
+import Link from 'next/link'
 /**
  * ComparisonTable — CasePort vs Traditional Lead Gen (AGGRESSIVE REDESIGN)
- * 
+ *
  * Converts objections into advantages with visual punch
  * Shows structural superiority of the 3-firm cap model
- * 
+ *
  * BRAND SYSTEM:
  * - Glass: 4% white bg, 8% white border, 12px radius
  * - Geist for body
  * - JetBrains Mono for labels
  */
 
-import { motion } from "framer-motion";
-import { Check, X, Zap, TrendingUp, Lock, Clock } from "lucide-react";
+import { motion } from 'framer-motion'
+import { Check, X, Zap, TrendingUp, Lock, Clock } from 'lucide-react'
 
 const comparisonData = [
   {
-    feature: "Territorial Control",
+    feature: 'Territorial Control',
     icon: Lock,
     caseport: true,
     traditional: false,
-    description: "Your market. Your leads. No competition.",
+    description: 'Your market. Your leads. No competition.',
   },
   {
-    feature: "Firms Per Market",
+    feature: 'Firms Per Market',
     icon: Users,
-    caseport: "3 (capped)",
-    traditional: "10-50+",
-    description: "Scarcity = Quality",
+    caseport: '3 (capped)',
+    traditional: '10-50+',
+    description: 'Scarcity = Quality',
   },
   {
-    feature: "Lead Dilution",
+    feature: 'Lead Dilution',
     icon: Zap,
-    caseport: "None",
-    traditional: "Severe",
-    description: "Every lead is yours",
+    caseport: 'None',
+    traditional: 'Severe',
+    description: 'Every lead is yours',
   },
   {
-    feature: "Payment Model",
+    feature: 'Payment Model',
     icon: DollarSign,
-    caseport: "Pre-funded wallet",
-    traditional: "Pay-per-lead",
-    description: "Control your spend",
+    caseport: 'Pre-funded wallet',
+    traditional: 'Pay-per-lead',
+    description: 'Control your spend',
   },
   {
-    feature: "Lead Quality Guarantee",
+    feature: 'Lead Quality Guarantee',
     icon: ShieldCheck,
     caseport: true,
     traditional: false,
-    description: "Qualified or refunded",
+    description: 'Qualified or refunded',
   },
   {
-    feature: "Response Time",
+    feature: 'Response Time',
     icon: Clock,
-    caseport: "15 minutes",
-    traditional: "24-48 hours",
-    description: "Speed = Conversion",
+    caseport: '15 minutes',
+    traditional: '24-48 hours',
+    description: 'Speed = Conversion',
   },
   {
-    feature: "Conversion Rates",
+    feature: 'Conversion Rates',
     icon: TrendingUp,
-    caseport: "25%+",
-    traditional: "<2%",
-    description: "12x better performance",
+    caseport: '25%+',
+    traditional: '<2%',
+    description: '12x better performance',
   },
-];
+]
 
 // Icon imports
-import { Users, DollarSign, ShieldCheck } from "lucide-react";
+import { Users, DollarSign, ShieldCheck } from 'lucide-react'
 
-export default function ComparisonTable() {
+interface props {
+  checkButonClickHandler: () => void
+}
+
+export default function ComparisonTable(props: props) {
   return (
-    <section className="py-20 sm:py-28" style={{ backgroundColor: "oklch(0.06 0.01 250)" }}>
+    <section className="py-20 sm:py-28" style={{ backgroundColor: 'oklch(0.06 0.01 250)' }}>
       <div className="container mx-auto px-5 sm:px-6 lg:px-8 mx-auto px-5 sm:px-6 lg:px-8 max-w-6xl">
         {/* Header */}
         <div className="mb-16 text-center">
@@ -100,14 +104,15 @@ export default function ComparisonTable() {
             transition={{ delay: 0.2 }}
             className="text-[16px] text-[#B0B8C4] max-w-2xl mx-auto"
           >
-            The 3-firm cap isn't artificial scarcity. It's the infrastructure requirement for maintaining lead quality and conversion rates.
+            The 3-firm cap isn't artificial scarcity. It's the infrastructure requirement for
+            maintaining lead quality and conversion rates.
           </motion.p>
         </div>
 
         {/* Comparison Cards */}
         <div className="grid sm:grid-cols-2 gap-6 mb-12">
           {comparisonData.map((item, idx) => {
-            const Icon = item.icon;
+            const Icon = item.icon
             return (
               <motion.div
                 key={idx}
@@ -117,8 +122,8 @@ export default function ComparisonTable() {
                 transition={{ delay: idx * 0.06 }}
                 className="rounded-[12px] p-6 sm:p-5"
                 style={{
-                  background: "rgba(255, 255, 255, 0.04)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
                 }}
               >
                 {/* Icon + Feature */}
@@ -133,43 +138,65 @@ export default function ComparisonTable() {
                 {/* Comparison */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* CasePort */}
-                  <div className="rounded-[8px] p-3" style={{ background: "rgba(34, 211, 238, 0.1)", border: "1px solid rgba(34, 211, 238, 0.2)" }}>
-                    <p className="text-[10px] text-[#6B7280] mb-2 tracking-[0.1em] uppercase" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div
+                    className="rounded-[8px] p-3"
+                    style={{
+                      background: 'rgba(34, 211, 238, 0.1)',
+                      border: '1px solid rgba(34, 211, 238, 0.2)',
+                    }}
+                  >
+                    <p
+                      className="text-[10px] text-[#6B7280] mb-2 tracking-[0.1em] uppercase"
+                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    >
                       CasePort
                     </p>
                     <div className="flex items-center gap-2">
-                      {typeof item.caseport === "boolean" ? (
+                      {typeof item.caseport === 'boolean' ? (
                         item.caseport ? (
                           <Check size={16} className="text-[#10B981]" />
                         ) : (
                           <X size={16} className="text-[#6B7280]" />
                         )
                       ) : (
-                        <span className="text-[13px] font-bold text-[#22D3EE]">{item.caseport}</span>
+                        <span className="text-[13px] font-bold text-[#22D3EE]">
+                          {item.caseport}
+                        </span>
                       )}
                     </div>
                   </div>
 
                   {/* Traditional */}
-                  <div className="rounded-[8px] p-3" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.04)" }}>
-                    <p className="text-[10px] text-[#6B7280] mb-2 tracking-[0.1em] uppercase" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <div
+                    className="rounded-[8px] p-3"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid rgba(255, 255, 255, 0.04)',
+                    }}
+                  >
+                    <p
+                      className="text-[10px] text-[#6B7280] mb-2 tracking-[0.1em] uppercase"
+                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    >
                       Traditional
                     </p>
                     <div className="flex items-center gap-2">
-                      {typeof item.traditional === "boolean" ? (
+                      {typeof item.traditional === 'boolean' ? (
                         item.traditional ? (
                           <Check size={16} className="text-[#10B981]" />
                         ) : (
                           <X size={16} className="text-[#6B7280]" />
                         )
                       ) : (
-                        <span className="text-[13px] font-bold text-[#6B7280]">{item.traditional}</span>
+                        <span className="text-[13px] font-bold text-[#6B7280]">
+                          {item.traditional}
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
               </motion.div>
-            );
+            )
           })}
         </div>
 
@@ -185,9 +212,10 @@ export default function ComparisonTable() {
             Ready to experience the difference? Your market might be ready.
           </p>
           <button
+            onClick={props.checkButonClickHandler}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
             style={{
-              background: "linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)",
+              background: 'linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)',
             }}
           >
             Check Your Market
@@ -195,5 +223,5 @@ export default function ComparisonTable() {
         </motion.div>
       </div>
     </section>
-  );
+  )
 }

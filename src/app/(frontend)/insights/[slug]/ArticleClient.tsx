@@ -418,7 +418,7 @@ function LeakageCalculator() {
 }
 
 /* ─── Mid-Article CTA Component ─── */
-function MidArticleCTA({ depth }: { depth: number }) {
+function MidArticleCTA({ depth, cta }: { depth: number; cta?: any }) {
   const [showModal, setShowModal] = useState(false)
   const [showCalculator, setShowCalculator] = useState(false)
 
@@ -428,6 +428,35 @@ function MidArticleCTA({ depth }: { depth: number }) {
     return <LeakageCalculator />
   }
 
+  const heading =
+    cta?.heading ||
+    (depth >= 80
+      ? "Your Firm's Intake Audit is Waiting"
+      : depth >= 60
+        ? 'See Your Intake Leakage in Real Numbers'
+        : 'Stop Losing Cases to Intake Leakage')
+
+  const body =
+    cta?.body ||
+    (depth >= 80
+      ? "You've read this far. You care about fixing this. Let's show you exactly where your firm is leaking value."
+      : depth >= 60
+        ? "Most firms don't know their actual leakage cost. We'll calculate yours in 5 minutes."
+        : 'You just read about the problem. Now fix it. The firms that moved fastest on intake optimization saw 30-40% improvement in case retention within 90 days.')
+
+  const primaryLabel =
+    cta?.primaryLabel ||
+    (depth >= 80
+      ? 'Get Your Free Audit →'
+      : depth >= 60
+        ? 'Calculate Your Leakage →'
+        : 'See How CasePort Works →')
+
+  const primaryHref = cta?.primaryHref
+
+  const secondaryLabel = cta?.secondaryLabel || 'Download Worksheet'
+  const secondaryHref = cta?.secondaryHref
+
   return (
     <>
       <section
@@ -436,40 +465,44 @@ function MidArticleCTA({ depth }: { depth: number }) {
         className="mb-32 transition-all duration-700 opacity-100 translate-y-0"
       >
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300">
-          <h3 className="text-2xl sm:text-3xl font-bold mb-4">
-            {depth >= 80
-              ? "Your Firm's Intake Audit is Waiting"
-              : depth >= 60
-                ? 'See Your Intake Leakage in Real Numbers'
-                : 'Stop Losing Cases to Intake Leakage'}
-          </h3>
-          <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-relaxed">
-            {depth >= 80
-              ? "You've read this far. You care about fixing this. Let's show you exactly where your firm is leaking value."
-              : depth >= 60
-                ? "Most firms don't know their actual leakage cost. We'll calculate yours in 5 minutes."
-                : 'You just read about the problem. Now fix it. The firms that moved fastest on intake optimization saw 30-40% improvement in case retention within 90 days.'}
-          </p>
+          <h3 className="text-2xl sm:text-3xl font-bold mb-4">{heading}</h3>
+          <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-relaxed">{body}</p>
           <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
-            <button
-              onClick={() => setShowModal(true)}
-              className="inline-block text-center w-full sm:w-auto px-6 py-4 lg:px-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
-            >
-              {depth >= 80
-                ? 'Get Your Free Audit →'
-                : depth >= 60
-                  ? 'Calculate Your Leakage →'
-                  : 'See How CasePort Works →'}
-            </button>
-            {depth >= 60 && (
-              <button
-                onClick={() => setShowCalculator(true)}
-                className="inline-flex items-center justify-center content-center w-full sm:w-auto px-6 py-4 lg:px-8 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+            {primaryHref ? (
+              <a
+                href={primaryHref}
+                className="inline-block text-center w-full sm:w-auto px-6 py-4 lg:px-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
               >
-                <Download size={18} className="mr-2 flex-shrink-0" />
-                <span className="whitespace-nowrap">Download Worksheet</span>
+                {primaryLabel}
+              </a>
+            ) : (
+              <button
+                onClick={() => setShowModal(true)}
+                className="inline-block text-center w-full sm:w-auto px-6 py-4 lg:px-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
+              >
+                {primaryLabel}
               </button>
             )}
+            {(secondaryHref || depth >= 60) &&
+              (secondaryHref ? (
+                <a
+                  href={secondaryHref}
+                  target={secondaryHref.startsWith('http') ? '_blank' : undefined}
+                  rel={secondaryHref.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className="inline-flex items-center justify-center content-center w-full sm:w-auto px-6 py-4 lg:px-8 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+                >
+                  <Download size={18} className="mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{secondaryLabel}</span>
+                </a>
+              ) : (
+                <button
+                  onClick={() => setShowCalculator(true)}
+                  className="inline-flex items-center justify-center content-center w-full sm:w-auto px-6 py-4 lg:px-8 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
+                >
+                  <Download size={18} className="mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{secondaryLabel}</span>
+                </button>
+              ))}
           </div>
         </div>
       </section>
@@ -535,7 +568,7 @@ export default function ArticleClient({
   const datePublished = content?.date || new Date().toISOString()
   const dateModified = content?.updatedDate || datePublished
   const authorBio = content?.authorBio || ''
-  const relatedArticles: any[] = []
+  const relatedArticles: any[] = article?.relatedArticles || []
   const articleUrl = `https://www.caseport.io/insights/${article?.slug}`
 
   useEffect(() => {
@@ -784,7 +817,7 @@ export default function ArticleClient({
                 <CustomRichText content={article.content} />
               </div>
               {/* Mid-Article CTA - Tiered Based on Reading Depth */}
-              <MidArticleCTA depth={useReadingDepth()} />
+              <MidArticleCTA depth={useReadingDepth()} cta={article?.midArticleCta} />
               {/* FAQ Section */}
               <section
                 id="faq"
@@ -831,14 +864,29 @@ export default function ArticleClient({
                     Use this citation format when referencing this article:
                   </p>
                   <div className="bg-white p-4 rounded border border-slate-200 mb-4 font-mono text-sm text-slate-700">
-                    Kechicha, M. (2026). The Hidden Cost of Intake Leakage in Personal Injury.
-                    CasePort Insights.
+                    {article?.citation ||
+                      `${content?.author
+                        ?.split(' ')
+                        .map((n: string, i: number, a: string[]) =>
+                          i === a.length - 1 ? n[0] + '.' : n,
+                        )
+                        .join(
+                          ' ',
+                        )} (${new Date(article?.publishedAt || '').getFullYear() || new Date().getFullYear()}). ${article?.title}. CasePort Insights.`}
                   </div>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(
-                        'Kechicha, M. (2026). The Hidden Cost of Intake Leakage in Personal Injury. CasePort Insights.',
-                      )
+                      const text =
+                        article?.citation ||
+                        `${content?.author
+                          ?.split(' ')
+                          .map((n: string, i: number, a: string[]) =>
+                            i === a.length - 1 ? n[0] + '.' : n,
+                          )
+                          .join(
+                            ' ',
+                          )} (${new Date(article?.publishedAt || '').getFullYear() || new Date().getFullYear()}). ${article?.title}. CasePort Insights.`
+                      navigator.clipboard.writeText(text)
                     }}
                     className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600 transition-colors"
                   >
@@ -893,17 +941,55 @@ export default function ArticleClient({
 
                       {/* Credentials from CMS */}
                       {article?.author?.credentials?.length > 0 && (
-                        <div className={`grid grid-cols-2 sm:grid-cols-${Math.min(article.author.credentials.length, 3)} gap-4 mb-6 py-4 border-y border-slate-200`}>
+                        <div
+                          className={`grid grid-cols-2 sm:grid-cols-${Math.min(article.author.credentials.length, 3)} gap-4 mb-6 py-4 border-y border-slate-200`}
+                        >
                           {article.author.credentials.map((c: any, i: number) => (
-                            <div key={i} className={article.author.credentials.length % 3 !== 0 && i === article.author.credentials.length - 1 ? 'col-span-2 sm:col-span-1' : ''}>
-                              <div className="text-xl sm:text-2xl font-bold text-cyan-600">{c.value}</div>
+                            <div
+                              key={i}
+                              className={
+                                article.author.credentials.length % 3 !== 0 &&
+                                i === article.author.credentials.length - 1
+                                  ? 'col-span-2 sm:col-span-1'
+                                  : ''
+                              }
+                            >
+                              <div className="text-xl sm:text-2xl font-bold text-cyan-600">
+                                {c.value}
+                              </div>
                               <div className="text-xs text-slate-600">{c.label}</div>
                             </div>
                           ))}
                         </div>
                       )}
 
-                      <div className="flex flex-col sm:flex-row gap-3">
+                      {/* CMS-driven author CTA buttons */}
+                      {article?.author?.ctaButtons?.length > 0 && (
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          {article.author.ctaButtons.map((btn: any, i: number) => (
+                            <a
+                              key={i}
+                              href={btn.href}
+                              target={btn.href?.startsWith('http') ? '_blank' : undefined}
+                              rel={btn.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                              className={
+                                btn.style === 'secondary'
+                                  ? 'flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm'
+                                  : 'flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm'
+                              }
+                            >
+                              {btn.style === 'secondary' ? (
+                                <ExternalLink size={16} />
+                              ) : (
+                                <MessageSquare size={16} />
+                              )}
+                              {btn.label}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      {/* Hardcoded buttons — commented out, replaced by CMS ctaButtons above */}
+                      {/* <div className="flex flex-col sm:flex-row gap-3">
                         <button
                           onClick={() => toast.success(`Email sent to ${content?.author}.`)}
                           className="flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm"
@@ -922,7 +1008,7 @@ export default function ArticleClient({
                             View {content?.author?.split(' ')[0]}'s Profile
                           </a>
                         )}
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -942,33 +1028,36 @@ export default function ArticleClient({
                   Continue Reading
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {relatedArticles.slice(0, 2).map((relatedSlug: string, idx: number) => {
-                    const relatedArticle = articles.find((a) => a.slug === relatedSlug)
-                    return relatedArticle ? (
-                      <Link
-                        key={idx}
-                        href={`/insights/${relatedSlug}`}
-                        className="group block p-6 bg-slate-50 border border-slate-200 rounded-lg hover:border-cyan-300 hover:bg-cyan-50/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
-                      >
-                        <div className="mb-4 h-40 bg-gradient-to-br from-slate-200 to-slate-300 rounded overflow-hidden">
+                  {relatedArticles.slice(0, 2).map((relatedArticle: any, idx: number) => (
+                    <Link
+                      key={idx}
+                      href={`/insights/${relatedArticle.slug}`}
+                      className="group block p-6 bg-slate-50 border border-slate-200 rounded-lg hover:border-cyan-300 hover:bg-cyan-50/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
+                    >
+                      <div className="mb-4 h-40 bg-gradient-to-br from-slate-200 to-slate-300 rounded overflow-hidden">
+                        {relatedArticle.heroImage?.url && (
                           <img
-                            src={relatedArticle.thumbnail}
+                            src={relatedArticle.heroImage.url}
                             alt={relatedArticle.title}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
-                        </div>
-                        <span className="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full mb-3">
-                          {relatedArticle.category}
-                        </span>
-                        <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-cyan-600 transition-colors">
-                          {relatedArticle.title}
-                        </h3>
-                        <p className="text-sm text-slate-600">
-                          {new Date(relatedArticle.date).toLocaleDateString()}
-                        </p>
-                      </Link>
-                    ) : null
-                  })}
+                        )}
+                      </div>
+                      <span className="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full mb-3">
+                        {typeof relatedArticle.category === 'object'
+                          ? relatedArticle.category?.title
+                          : relatedArticle.category}
+                      </span>
+                      <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-cyan-600 transition-colors">
+                        {relatedArticle.title}
+                      </h3>
+                      <p className="text-sm text-slate-600">
+                        {relatedArticle.publishedAt
+                          ? new Date(relatedArticle.publishedAt).toLocaleDateString()
+                          : ''}
+                      </p>
+                    </Link>
+                  ))}
                 </div>
               </section>
               {/* Comparison Table - Leakage vs. No Leakage
@@ -1092,16 +1181,16 @@ export default function ArticleClient({
                     acquisition, intake optimization, and market signals.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                    <input
+                    {/* <input
                       type="email"
                       placeholder="Enter your email"
                       className="w-full sm:flex-1 px-4 py-3 rounded-lg border border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    />
+                    /> */}
                     <button
-                      onClick={() => toast.success('Welcome to the brief.')}
+                      // onClick={() => toast.success('Welcome to the brief.')}
                       className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105 whitespace-nowrap"
                     >
-                      Subscribe Free
+                      <a href="/intelligence">Subscribe Free</a>
                     </button>
                   </div>
                   <p className="text-xs text-slate-500 text-center sm:text-left">

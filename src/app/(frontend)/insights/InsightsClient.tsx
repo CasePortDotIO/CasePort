@@ -294,17 +294,17 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
       />
 
       {/* Breadcrumbs */}
-      <Breadcrumbs />
+      {/* <Breadcrumbs /> */}
 
       {/* Hero Content */}
-      <div className="container relative z-10 flex-1 flex items-center py-16 lg:py-24">
+      <div className="container relative z-10 flex-1 flex items-center py-10 ">
         <div className="max-w-[960px]">
-          <Reveal>
+          {/* <Reveal>
             <span className="system-label text-cp-cyan inline-flex items-center gap-2.5 mb-10">
               <span className="w-2 h-2 rounded-full bg-cp-cyan animate-pulse" />
               CasePort Insights
             </span>
-          </Reveal>
+          </Reveal> */}
 
           <Reveal delay={0.1}>
             <h1
@@ -339,7 +339,7 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
       <StatsBar fetchedArticles={fetchedArticles} />
 
       {/* Bottom spacer */}
-      <div className="h-16 lg:h-24 relative z-10" />
+      <div className="h-16 relative z-10" />
     </section>
   )
 }
@@ -352,7 +352,7 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
   const latestThree = fetchedArticles.slice(1, 4)
 
   return (
-    <section className="relative py-32 lg:py-44">
+    <section className="relative py-32">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0E17] via-[#0B1120] to-[#0A0E17]" />
 
       <div className="container relative z-10">

@@ -151,6 +151,61 @@ export const Articles: CollectionConfig = {
       hasMany: true,
       maxDepth: 1,
     },
+    {
+      name: 'citation',
+      type: 'text',
+      admin: {
+        description:
+          'APA-style citation shown in the "Cite This Research" section. E.g. Smith, J. (2026). Title. CasePort Insights.',
+      },
+    },
+    {
+      name: 'midArticleCta',
+      label: 'Mid-Article CTA',
+      type: 'group',
+      admin: {
+        description:
+          'Override the mid-article call-to-action box shown after the article body. Leave blank to use the default depth-based content.',
+      },
+      fields: [
+        {
+          name: 'heading',
+          type: 'text',
+          admin: { placeholder: 'Stop Losing Cases to Intake Leakage' },
+        },
+        {
+          name: 'body',
+          type: 'textarea',
+          admin: {
+            placeholder: 'You just read about the problem. Now fix it...',
+          },
+        },
+        {
+          name: 'primaryLabel',
+          label: 'Primary Button Label',
+          type: 'text',
+          admin: { placeholder: 'Get Your Free Audit →' },
+        },
+        {
+          name: 'primaryHref',
+          label: 'Primary Button URL',
+          type: 'text',
+          admin: { placeholder: '/request-access' },
+        },
+        {
+          name: 'secondaryLabel',
+          label: 'Secondary Button Label',
+          type: 'text',
+          admin: { placeholder: 'Download Worksheet' },
+        },
+        {
+          name: 'secondaryHref',
+          label: 'Secondary Button URL',
+          type: 'text',
+          admin: { placeholder: 'https://...' },
+        },
+      ],
+    },
   ],
   timestamps: true,
 }

@@ -381,6 +381,17 @@ export interface Author {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Action buttons shown in the author bio section (e.g. "Ask a Question", "View Profile").
+   */
+  ctaButtons?:
+    | {
+        label: string;
+        href: string;
+        style?: ('primary' | 'secondary') | null;
+        id?: string | null;
+      }[]
+    | null;
   socialLinks?:
     | {
         platform?: ('twitter' | 'linkedin' | 'github') | null;
@@ -461,6 +472,21 @@ export interface Article {
       }[]
     | null;
   relatedArticles?: (string | Article)[] | null;
+  /**
+   * APA-style citation shown in the "Cite This Research" section. E.g. Smith, J. (2026). Title. CasePort Insights.
+   */
+  citation?: string | null;
+  /**
+   * Override the mid-article call-to-action box shown after the article body. Leave blank to use the default depth-based content.
+   */
+  midArticleCta?: {
+    heading?: string | null;
+    body?: string | null;
+    primaryLabel?: string | null;
+    primaryHref?: string | null;
+    secondaryLabel?: string | null;
+    secondaryHref?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -769,6 +795,14 @@ export interface AuthorsSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  ctaButtons?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        style?: T;
+        id?: T;
+      };
   socialLinks?:
     | T
     | {
@@ -816,6 +850,17 @@ export interface ArticlesSelect<T extends boolean = true> {
         id?: T;
       };
   relatedArticles?: T;
+  citation?: T;
+  midArticleCta?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        primaryLabel?: T;
+        primaryHref?: T;
+        secondaryLabel?: T;
+        secondaryHref?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

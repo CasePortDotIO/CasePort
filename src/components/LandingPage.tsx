@@ -312,7 +312,7 @@ function HeroSection() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center text-left lg:items-start lg:text-start"
+            className="flex flex-col items-start text-start"
           >
             {/* <div className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 mb-4">
               <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse-dot" />
@@ -360,9 +360,9 @@ function HeroSection() {
               </a>
             </div>
 
-            <p className="mt-2 text-[11px] text-[#5A6270]">
+            {/* <p className="mt-2 text-[11px] text-[#5A6270]">
               Review-first. Market-capped. Built for firms that care about intake quality.
-            </p>
+            </p> */}
           </motion.div>
 
           <motion.div
@@ -477,7 +477,7 @@ function TrustBar() {
               key={item}
               className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3.5 py-1.5"
             >
-              <span className="system-label text-[#7A8290]" style={{ fontSize: '0.6rem' }}>
+              <span className="system-label text-cp-text-primary" style={{ fontSize: '0.6rem' }}>
                 {item}
               </span>
             </div>
@@ -1226,7 +1226,11 @@ function LeadMagnetSection() {
               <Link href={'/intelligence'}>
                 <Button
                   variant="gradient"
-                  className="inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-[14px] font-semibold text-black transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(245,158,11,0.3)]"
+                  className="rounded-full px-8 py-3.5 text-sm font-semibold text-black shadow-[0_20px_60px_rgba(245,158,11,0.3)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_rgba(245,158,11,0.4)]"
+                  style={{
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #F59E0B 100%)',
+                  }}
+                  // className="inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-[14px] font-semibold text-black transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(245,158,11,0.3)]"
                 >
                   <Download className="h-4 w-4" />
                   Download Free Playbook
