@@ -9,17 +9,38 @@ const jsxConverters: any = {
         <h2
           id={id}
           data-section
-          className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12 opacity-100 translate-y-0"
+          className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12 mt-16 opacity-100 translate-y-0"
         >
           {nodesToJSX({ nodes: node.children })}
         </h2>
       )
     }
-    return <node.tag>{nodesToJSX({ nodes: node.children })}</node.tag>
+    if (node.tag === 'h3') {
+      return (
+        <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-6 mt-12">
+          {nodesToJSX({ nodes: node.children })}
+        </h3>
+      )
+    }
+    if (node.tag === 'h4') {
+      return (
+        <h4 className="text-xl lg:text-2xl font-bold text-slate-900 mb-4 mt-8">
+          {nodesToJSX({ nodes: node.children })}
+        </h4>
+      )
+    }
+    if (node.tag === 'h5' || node.tag === 'h6') {
+      return (
+        <node.tag className="text-lg lg:text-xl font-bold text-slate-900 mb-4 mt-6">
+          {nodesToJSX({ nodes: node.children })}
+        </node.tag>
+      )
+    }
+    return <node.tag className="font-bold text-slate-900 mb-4 mt-6">{nodesToJSX({ nodes: node.children })}</node.tag>
   },
   paragraph: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     return (
-      <p className="text-lg text-slate-700 leading-[2] mb-12">
+      <p className="text-lg text-slate-800 leading-relaxed mb-8">
         {nodesToJSX({ nodes: node.children })}
       </p>
     )

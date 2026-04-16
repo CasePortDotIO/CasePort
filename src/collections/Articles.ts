@@ -84,6 +84,13 @@ export const Articles: CollectionConfig = {
       },
     },
     {
+      name: 'keyInsight',
+      type: 'text',
+      admin: {
+        description: 'A single, punchy insight displayed beneath the Executive Summary.',
+      },
+    },
+    {
       name: 'keyTakeaways',
       type: 'array',
       label: 'Key Takeaways',
@@ -206,6 +213,116 @@ export const Articles: CollectionConfig = {
         },
       ],
     },
+    // ---- SEO/AEO Fields Start ----
+    {
+      name: 'metaTitle',
+      type: 'text',
+    },
+    {
+      name: 'metaDescription',
+      type: 'textarea',
+    },
+    {
+      name: 'canonicalUrl',
+      type: 'text',
+    },
+    {
+      name: 'noIndex',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
+      name: 'openGraph',
+      type: 'group',
+      fields: [
+        { name: 'ogTitle', type: 'text' },
+        { name: 'ogDescription', type: 'textarea' },
+        { name: 'ogImage', type: 'upload', relationTo: 'media' },
+      ],
+    },
+    {
+      name: 'twitterCard',
+      type: 'group',
+      fields: [
+        {
+          name: 'twitterCardType',
+          type: 'select',
+          options: ['summary', 'summary_large_image'],
+          defaultValue: 'summary_large_image',
+        },
+        { name: 'twitterTitle', type: 'text' },
+        { name: 'twitterDescription', type: 'textarea' },
+        { name: 'twitterImage', type: 'upload', relationTo: 'media' },
+      ],
+    },
+    {
+      name: 'schemaType',
+      type: 'select',
+      options: ['Article', 'NewsArticle', 'BlogPosting', 'HowTo'],
+      defaultValue: 'Article',
+    },
+    {
+      name: 'howToSteps',
+      type: 'array',
+      fields: [
+        { name: 'stepName', type: 'text' },
+        { name: 'stepText', type: 'textarea' },
+      ],
+    },
+    {
+      name: 'speakableSelectors',
+      type: 'array',
+      fields: [
+        { name: 'selector', type: 'text', admin: { placeholder: 'e.g., .direct-answer-block' } },
+      ],
+    },
+    {
+      name: 'directAnswer',
+      type: 'textarea',
+      admin: { description: 'Direct answer block extracted by AI and Voice' },
+    },
+    {
+      name: 'keyStatistics',
+      type: 'array',
+      fields: [
+        { name: 'stat', type: 'text', required: true },
+        { name: 'source', type: 'text', required: true },
+        { name: 'sourceUrl', type: 'text' },
+        { name: 'statYear', type: 'text' },
+      ],
+    },
+    {
+      name: 'expertQuotes',
+      type: 'array',
+      fields: [
+        { name: 'quote', type: 'textarea', required: true },
+        { name: 'speakerName', type: 'text', required: true },
+        { name: 'speakerTitle', type: 'text' },
+      ],
+    },
+    {
+      name: 'entityDefinitions',
+      type: 'array',
+      fields: [
+        { name: 'term', type: 'text', required: true },
+        { name: 'definition', type: 'textarea', required: true },
+      ],
+    },
+    {
+      name: 'lastVerifiedDate',
+      type: 'date',
+    },
+    {
+      name: 'expertReviewerName',
+      type: 'text',
+    },
+    {
+      name: 'legalDisclaimer',
+      type: 'select',
+      options: ['standard', 'no-legal-advice', 'platform', 'none'],
+      defaultValue: 'standard',
+    },
+    // ---- SEO/AEO Fields End ----
   ],
   timestamps: true,
 }

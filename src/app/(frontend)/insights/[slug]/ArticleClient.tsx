@@ -54,7 +54,6 @@ import {
   LinkIcon,
   Lock,
   MessageSquare,
-  RefreshCw,
   TrendingUp,
   X,
 } from 'lucide-react'
@@ -297,53 +296,8 @@ function TieredCTAModal({ depth, onClose }: { depth: number; onClose: () => void
 
 /* ─── Article Structured Data ─── */
 function ArticleStructuredData({ article, content, url, datePublished, dateModified }: any) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: content?.title || article?.title,
-    description: article?.subtitle || 'Personal Injury Law Insights',
-    image: article?.heroImage?.url || article?.thumbnail,
-    author: {
-      '@type': 'Person',
-      name: content?.author || 'Martha Kechicha',
-      jobTitle: content?.authorRole || 'Senior Analyst, CasePort Editorial',
-    },
-    datePublished: datePublished,
-    dateModified: dateModified,
-    publisher: {
-      '@type': 'Organization',
-      name: 'CasePort',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://www.caseport.io/logo.png',
-      },
-    },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': url,
-    },
-    articleBody: content?.sections?.map((s: any) => s.paragraphs?.join(' ')).join(' ') || '',
-    keywords: article?.tags?.join(', ') || '',
-    about: {
-      '@type': 'Thing',
-      name: 'Personal Injury Law',
-    },
-    mentions: [
-      { '@type': 'Thing', name: 'Intake Leakage' },
-      { '@type': 'Thing', name: 'Case Acquisition' },
-    ],
-    speakable: {
-      '@type': 'SpeakableSpecification',
-      cssSelector: ['.article-body h2', '.key-takeaway', '.stat-card'],
-    },
-  }
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  )
+  // Removed internal structured data since it was moved to page.tsx using article-schema.ts
+  return null
 }
 
 /* ─── Main Article Page Component ─── */
@@ -629,17 +583,32 @@ export default function ArticleClient({
         {/* Hero content */}
         <div className="relative z-10 container mx-auto px-6 lg:px-12 py-24 lg:py-48 mt-16 lg:mt-0 max-w-full overflow-hidden">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 mb-10 lg:mb-12 text-xs lg:text-sm text-gray-400 flex-wrap">
-            <Link href="/insights" className="hover:text-cyan-300 transition-colors">
-              Insights
-            </Link>
-            <ChevronRight size={16} />
-            <span>
-              {typeof article?.category === 'object'
-                ? article?.category?.title
-                : article?.category || 'Insight'}
-            </span>
-          </div>
+          <nav
+            aria-label="Breadcrumb"
+            className="flex items-center gap-2 mb-10 lg:mb-12 text-xs lg:text-sm text-gray-400 flex-wrap"
+          >
+            <ol className="flex items-center gap-2">
+              <li>
+                <Link href="/" className="hover:text-cyan-300 transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <ChevronRight size={14} />
+              </li>
+              <li>
+                <Link href="/insights" className="hover:text-cyan-300 transition-colors">
+                  Insights
+                </Link>
+              </li>
+              <li>
+                <ChevronRight size={14} />
+              </li>
+              <li className="line-clamp-1 max-w-[200px] truncate" aria-current="page">
+                {article?.title}
+              </li>
+            </ol>
+          </nav>
 
           {/* Category badge */}
           <div className="inline-block mb-8">
@@ -680,7 +649,7 @@ export default function ArticleClient({
             </div>
 
             {/* Author Meta + Share */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 lg:gap-8 mt-6">
+            <div className="article-byline flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 lg:gap-8 mt-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg lg:text-xl flex-shrink-0">
                   {content?.author
@@ -690,26 +659,32 @@ export default function ArticleClient({
                 </div>
                 <div>
                   <div className="font-semibold text-white text-base lg:text-lg">
-                    {content?.author}
+                    By {content?.author}
                   </div>
                   <div className="text-xs lg:text-sm text-gray-400">{content?.authorRole}</div>
-                  <div className="text-[10px] lg:text-xs text-cyan-300 mt-1">
-                    Advisor to 50+ PI firms
-                  </div>
+                  {article?.expertReviewerName && (
+                    <div className="expert-reviewer text-[10px] lg:text-xs text-cyan-300 mt-1">
+                      Reviewed by {article.expertReviewerName}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-4 lg:gap-6 text-xs lg:text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <Calendar size={16} />
-                  <span>{new Date(datePublished).toLocaleDateString()}</span>
+                  <time dateTime={datePublished}>
+                    {new Date(datePublished).toLocaleDateString()}
+                  </time>
                 </div>
+                {article?.lastVerifiedDate && (
+                  <div className="verified-date flex items-center gap-2 text-green-400 font-semibold">
+                    <CheckCircle2 size={16} />
+                    <span>Verified {new Date(article.lastVerifiedDate).toLocaleDateString()}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Clock size={16} />
-                  <span>8 min read</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RefreshCw size={16} />
-                  <span>Updated {new Date(dateModified).toLocaleDateString()}</span>
+                  <span>{article?.readTime || 8} min read</span>
                 </div>
               </div>
             </div>
@@ -758,143 +733,237 @@ export default function ArticleClient({
           <div className="flex flex-col lg:flex-row gap-12 items-start">
             {/* Main reading column */}
             <div className="flex-1 max-w-[720px] mx-auto w-full">
-              {/* Executive Summary - Minimal Premium Styling */}
-              <section
-                id="executive-summary"
-                data-section
-                data-reveal
-                className={`mb-32 transition-all duration-700 ${
-                  revealed.has('executive-summary')
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-8'
-                }`}
-              >
-                <div className="border-l-4 border-cyan-500 pl-8 py-4">
-                  <h2 className="text-2xl font-bold text-slate-900 mb-6">Executive Summary</h2>
-                  <p className="text-lg text-slate-700 leading-relaxed mb-6">
-                    {article?.executiveSummary}
-                  </p>
-                  <div className="flex items-start gap-3 pt-6 border-t border-slate-200">
-                    <Lightbulb className="text-cyan-600 flex-shrink-0 mt-1" size={18} />
-                    <p className="text-sm text-slate-600">
-                      <strong>Key Insight:</strong> Understanding where value gets lost is the first
-                      step to fixing it.
-                    </p>
+              {/* Direct Answer Block (Critical for AEO/SEO featured snippet) */}
+              {article?.directAnswer && (
+                <div className="direct-answer-block bg-blue-50/50 border-l-4 border-cyan-500 p-6 lg:p-8 rounded-r-xl mb-16 relative shadow-sm">
+                  <div className="absolute top-0 right-0 -mt-3 -mr-3 bg-white rounded-full p-1 shadow-md">
+                    <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-6 h-6 rounded-full flex items-center justify-center text-white">
+                      <Lightbulb size={12} />
+                    </div>
                   </div>
+                  <h3 className="text-sm font-bold tracking-widest text-cyan-600 uppercase mb-3 space-x-1">
+                    Quick Answer
+                  </h3>
+                  <p className="text-lg lg:text-xl text-slate-800 leading-relaxed font-medium">
+                    {article.directAnswer}
+                  </p>
                 </div>
-              </section>
+              )}
+
+              {/* Executive Summary - Minimal Premium Styling */}
+              {article?.executiveSummary && (
+                <section
+                  id="executive-summary"
+                  data-section
+                  data-reveal
+                  className={`mb-32 transition-all duration-700 ${
+                    revealed.has('executive-summary')
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 translate-y-8'
+                  }`}
+                >
+                  <div className="border-l-4 border-cyan-500 pl-8 py-4">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-6">Executive Summary</h2>
+                    <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                      {article?.executiveSummary}
+                    </p>
+
+                    {article?.keyInsight && (
+                      <div className="flex items-start gap-3 pt-6 border-t border-slate-200">
+                        <Lightbulb className="text-cyan-600 flex-shrink-0 mt-1" size={18} />
+                        <p className="text-sm text-slate-600">
+                          <strong>Key Insight:</strong> {article.keyInsight}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+
               {/* Key Takeaways */}
-              <section
-                id="key-takeaways"
-                data-section
-                data-reveal
-                className={`mb-32 transition-all duration-700 ${
-                  revealed.has('key-takeaways')
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-8'
-                }`}
-              >
-                <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
-                  Key Takeaways
-                </h2>
-                <ul className="space-y-4">
-                  {article?.keyTakeaways?.map((takeaway: any, idx: number) => (
-                    <li
-                      key={idx}
-                      className="flex items-start gap-4 p-6 bg-slate-50 rounded-lg border border-slate-200/50 hover:border-cyan-300/50 hover:bg-cyan-50/30 transition-all duration-300 hover:shadow-md"
-                      style={{ animationDelay: `${idx * 100}ms` }}
-                    >
-                      <CheckCircle2 className="text-cyan-600 flex-shrink-0 mt-1" size={20} />
-                      <span className="text-slate-700 leading-relaxed">
-                        {typeof takeaway === 'object' ? takeaway?.takeaway : takeaway}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
+              {article?.keyTakeaways?.length > 0 && (
+                <section
+                  id="key-takeaways"
+                  data-section
+                  data-reveal
+                  className={`key-takeaways mb-32 transition-all duration-700 ${
+                    revealed.has('key-takeaways')
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 translate-y-8'
+                  }`}
+                >
+                  <h3 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                    Key Takeaways
+                  </h3>
+                  <ul className="space-y-4">
+                    {article?.keyTakeaways?.map((takeaway: any, idx: number) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-4 p-6 bg-slate-50 rounded-lg border border-slate-200/50 hover:border-cyan-300/50 hover:bg-cyan-50/30 transition-all duration-300 hover:shadow-md"
+                        style={{ animationDelay: `${idx * 100}ms` }}
+                      >
+                        <CheckCircle2 className="text-cyan-600 flex-shrink-0 mt-1" size={20} />
+                        <span className="text-slate-700 leading-relaxed font-medium">
+                          {typeof takeaway === 'object' ? takeaway?.takeaway : takeaway}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
               {/* Article Content */}
-              <div className="article-body mb-32 transition-all duration-700 opacity-100 translate-y-0">
+              <div className="article-body mb-24 transition-all duration-700 opacity-100 translate-y-0">
                 <CustomRichText content={article.content} />
               </div>
+
+              {/* Key Statistics */}
+              {article?.keyStatistics?.length > 0 && (
+                <div className="key-statistics mb-32 bg-slate-50 p-8 rounded-xl border border-slate-200">
+                  <h3 className="text-xl font-bold mb-6 text-slate-900">Key Industry Data</h3>
+                  <div className="space-y-6">
+                    {article.keyStatistics.map((stat: any, i: number) => (
+                      <div key={i} className="stat-item pl-4 border-l-2 border-cyan-500">
+                        <p className="stat-text text-lg text-slate-800 font-medium mb-2">
+                          {stat.stat}
+                        </p>
+                        <p className="stat-source text-sm text-slate-500">
+                          Source:{' '}
+                          {stat.sourceUrl ? (
+                            <a
+                              href={stat.sourceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-cyan-600 hover:underline"
+                            >
+                              {stat.source}
+                            </a>
+                          ) : (
+                            stat.source
+                          )}
+                          {stat.statYear && ` (${stat.statYear})`}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Expert Quotes */}
+              {article?.expertQuotes?.length > 0 && (
+                <div className="mb-32 space-y-12">
+                  {article.expertQuotes.map((quote: any, i: number) => (
+                    <blockquote
+                      key={i}
+                      className="expert-quote relative pl-8 py-4 border-l-4 border-blue-500 my-12 bg-white shadow-[0_4px_30px_rgba(0,0,0,0.03)] rounded-r-2xl pr-8"
+                    >
+                      <div className="text-cyan-200 absolute -top-4 -left-6 text-6xl opacity-50 select-none pointer-events-none font-serif">
+                        "
+                      </div>
+                      <p className="text-2xl text-slate-800 leading-relaxed font-serif italic mb-6">
+                        "{quote.quote}"
+                      </p>
+                      <cite className="not-italic flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold uppercase">
+                          {quote.speakerName?.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900">{quote.speakerName}</div>
+                          {quote.speakerTitle && (
+                            <div className="text-sm text-slate-500">{quote.speakerTitle}</div>
+                          )}
+                        </div>
+                      </cite>
+                    </blockquote>
+                  ))}
+                </div>
+              )}
+
               {/* Mid-Article CTA - Tiered Based on Reading Depth */}
               <MidArticleCTA depth={useReadingDepth()} cta={article?.midArticleCta} />
-              {/* FAQ Section */}
-              <section
-                id="faq"
-                data-section
-                data-reveal
-                className={`mb-32 transition-all duration-700 ${
-                  revealed.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-              >
-                <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
-                  Frequently Asked Questions
-                </h2>
-                <Accordion type="single" collapsible className="space-y-4">
-                  {article?.faqs?.map((item: any, idx: number) => (
-                    <AccordionItem
-                      key={idx}
-                      value={`faq-${idx}`}
-                      className="border border-slate-200 rounded-lg px-6 data-[state=open]:bg-cyan-50 transition-colors duration-300"
-                    >
-                      <AccordionTrigger className="text-lg font-semibold text-slate-900 hover:text-cyan-600 transition-colors py-4">
-                        {item.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-slate-700 leading-relaxed pb-4">
-                        {item.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </section>
-              {/* Cite This Research */}
-              <section
-                id="cite"
-                data-reveal
-                className={`mb-32 transition-all duration-700 ${
-                  revealed.has('cite') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-              >
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-8">
-                  <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Lock size={20} className="text-cyan-600" />
-                    Cite This Research
-                  </h3>
-                  <p className="text-sm text-slate-600 mb-4">
-                    Use this citation format when referencing this article:
-                  </p>
-                  <div className="bg-white p-4 rounded border border-slate-200 mb-4 font-mono text-sm text-slate-700">
-                    {article?.citation ||
-                      `${content?.author
-                        ?.split(' ')
-                        .map((n: string, i: number, a: string[]) =>
-                          i === a.length - 1 ? n[0] + '.' : n,
-                        )
-                        .join(
-                          ' ',
-                        )} (${new Date(article?.publishedAt || '').getFullYear() || new Date().getFullYear()}). ${article?.title}. CasePort Insights.`}
+
+              {/* Entity Definitions (Glossary) */}
+              {article?.entityDefinitions?.length > 0 && (
+                <div className="entity-definitions mb-32 bg-white rounded-2xl border border-slate-200">
+                  <div className="bg-slate-50 border-b border-slate-200 px-8 py-6 rounded-t-2xl">
+                    <h3 className="text-2xl font-bold text-slate-900">Key Terms & Concepts</h3>
                   </div>
-                  <button
-                    onClick={() => {
-                      const text =
-                        article?.citation ||
-                        `${content?.author
-                          ?.split(' ')
-                          .map((n: string, i: number, a: string[]) =>
-                            i === a.length - 1 ? n[0] + '.' : n,
-                          )
-                          .join(
-                            ' ',
-                          )} (${new Date(article?.publishedAt || '').getFullYear() || new Date().getFullYear()}). ${article?.title}. CasePort Insights.`
-                      navigator.clipboard.writeText(text)
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600 transition-colors"
-                  >
-                    <Copy size={16} />
-                    Copy Citation
-                  </button>
+                  <dl className="divide-y divide-slate-100">
+                    {article.entityDefinitions.map((item: any, i: number) => (
+                      <div key={i} className="px-8 py-6 hover:bg-slate-50/50 transition-colors">
+                        <dt className="text-lg font-bold text-cyan-700 mb-2">{item.term}</dt>
+                        <dd className="text-slate-600 leading-relaxed">{item.definition}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-              </section>
+              )}
+
+              {/* FAQ Section */}
+              {article?.faqs?.length > 0 && (
+                <section
+                  id="faq"
+                  data-section
+                  data-reveal
+                  className={`mb-32 transition-all duration-700 ${
+                    revealed.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
+                >
+                  <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                    Frequently Asked Questions
+                  </h2>
+                  <Accordion type="single" collapsible className="space-y-4">
+                    {article.faqs.map((item: any, idx: number) => (
+                      <AccordionItem
+                        key={idx}
+                        value={`faq-${idx}`}
+                        className="faq-item border border-slate-200 rounded-lg px-6 data-[state=open]:bg-cyan-50 transition-colors duration-300"
+                      >
+                        <AccordionTrigger className="text-lg font-semibold text-slate-900 hover:text-cyan-600 transition-colors py-4">
+                          {item.question}
+                        </AccordionTrigger>
+                        <AccordionContent className="faq-answer text-slate-700 leading-relaxed pb-4">
+                          <p>{item.answer}</p>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </section>
+              )}
+              {/* Cite This Research */}
+              {article?.citation && (
+                <section
+                  id="cite"
+                  data-reveal
+                  className={`cite-this mb-32 transition-all duration-700 ${
+                    revealed.has('cite') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
+                >
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-8">
+                    <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <Lock size={20} className="text-cyan-600" />
+                      Cite This Research
+                    </h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      Use this citation format when referencing this article:
+                    </p>
+                    <div className="bg-white p-4 rounded border border-slate-200 mb-4 font-mono text-sm text-slate-700">
+                      {article.citation}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(article.citation)
+                        toast.success('Citation copied to clipboard')
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600 transition-colors"
+                    >
+                      <Copy size={16} />
+                      Copy Citation
+                    </button>
+                  </div>
+                </section>
+              )}
+
               {/* Author Bio - Enhanced Credibility */}
               <section
                 id="author-bio"
@@ -1014,52 +1083,52 @@ export default function ArticleClient({
                 </div>
               </section>
               {/* Continue Reading */}
-              <section
-                id="continue-reading"
-                data-section
-                data-reveal
-                className={`mb-32 transition-all duration-700 ${
-                  revealed.has('continue-reading')
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-8'
-                }`}
-              >
-                <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
-                  Continue Reading
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {relatedArticles.slice(0, 2).map((relatedArticle: any, idx: number) => (
-                    <Link
-                      key={idx}
-                      href={`/insights/${relatedArticle.slug}`}
-                      className="group block p-6 bg-slate-50 border border-slate-200 rounded-lg hover:border-cyan-300 hover:bg-cyan-50/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
-                    >
-                      <div className="mb-4 h-40 bg-gradient-to-br from-slate-200 to-slate-300 rounded overflow-hidden">
-                        {relatedArticle.heroImage?.url && (
-                          <img
-                            src={relatedArticle.heroImage.url}
-                            alt={relatedArticle.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                          />
-                        )}
-                      </div>
-                      <span className="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full mb-3">
-                        {typeof relatedArticle.category === 'object'
-                          ? relatedArticle.category?.title
-                          : relatedArticle.category}
-                      </span>
-                      <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-cyan-600 transition-colors">
-                        {relatedArticle.title}
-                      </h3>
-                      <p className="text-sm text-slate-600">
-                        {relatedArticle.publishedAt
-                          ? new Date(relatedArticle.publishedAt).toLocaleDateString()
-                          : ''}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </section>
+              {relatedArticles?.length > 0 && (
+                <section
+                  id="continue-reading"
+                  data-section
+                  data-reveal
+                  className={`related-articles mb-32 transition-all duration-700 ${
+                    revealed.has('continue-reading')
+                      ? 'opacity-100 translate-y-0'
+                      : 'opacity-0 translate-y-8'
+                  }`}
+                >
+                  <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                    Continue Reading
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {relatedArticles.slice(0, 2).map((relatedArticle: any, idx: number) => (
+                      <Link
+                        key={idx}
+                        href={`/insights/${relatedArticle.slug}`}
+                        className="group block p-6 bg-slate-50 border border-slate-200 rounded-lg hover:border-cyan-300 hover:bg-cyan-50/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
+                      >
+                        <div className="mb-4 h-40 bg-gradient-to-br from-slate-200 to-slate-300 rounded overflow-hidden">
+                          {relatedArticle?.heroImage?.url && (
+                            <img
+                              src={relatedArticle.heroImage.url}
+                              alt={relatedArticle.title || ''}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          )}
+                        </div>
+                        <span className="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full mb-3">
+                          {typeof relatedArticle?.category === 'object'
+                            ? relatedArticle.category?.title
+                            : relatedArticle?.category || 'Article'}
+                        </span>
+                        <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-cyan-600 transition-colors line-clamp-2">
+                          {relatedArticle?.title}
+                        </h3>
+                        <p className="text-sm text-slate-600 line-clamp-2">
+                          {relatedArticle?.excerpt}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
               {/* Comparison Table - Leakage vs. No Leakage
               <section
                 id="comparison"
@@ -1198,6 +1267,20 @@ export default function ArticleClient({
                   </p>
                 </div>
               </section>
+
+              {/* Legal Disclaimer */}
+              {article?.legalDisclaimer && article.legalDisclaimer !== 'none' && (
+                <div className="legal-disclaimer mt-24 pt-12 border-t border-slate-200">
+                  <small className="text-slate-500 text-xs text-balance block">
+                    {article.legalDisclaimer === 'standard' &&
+                      'This article is for general informational purposes only and does not constitute legal advice. The information provided may not apply to your specific situation. CasePort is not a law firm and does not provide legal services. Consult a licensed attorney in your jurisdiction for legal counsel.'}
+                    {article.legalDisclaimer === 'no-legal-advice' &&
+                      'This content discusses general industry practices and operational strategy. It does not constitute legal advice. CasePort is not a law firm.'}
+                    {article.legalDisclaimer === 'platform' &&
+                      "This content describes CasePort's services and platform capabilities. CasePort is not a law firm and does not provide legal representation."}
+                  </small>
+                </div>
+              )}
             </div>
 
             {/* Sidebar (Desktop only) */}

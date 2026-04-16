@@ -428,6 +428,10 @@ export interface Article {
    */
   executiveSummary?: string | null;
   /**
+   * A single, punchy insight displayed beneath the Executive Summary.
+   */
+  keyInsight?: string | null;
+  /**
    * Bullet points summarizing the article, displayed in a highlighted box.
    */
   keyTakeaways?:
@@ -487,6 +491,66 @@ export interface Article {
     secondaryLabel?: string | null;
     secondaryHref?: string | null;
   };
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  canonicalUrl?: string | null;
+  noIndex?: boolean | null;
+  openGraph?: {
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: (string | null) | Media;
+  };
+  twitterCard?: {
+    twitterCardType?: ('summary' | 'summary_large_image') | null;
+    twitterTitle?: string | null;
+    twitterDescription?: string | null;
+    twitterImage?: (string | null) | Media;
+  };
+  schemaType?: ('Article' | 'NewsArticle' | 'BlogPosting' | 'HowTo') | null;
+  howToSteps?:
+    | {
+        stepName?: string | null;
+        stepText?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  speakableSelectors?:
+    | {
+        selector?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Direct answer block extracted by AI and Voice
+   */
+  directAnswer?: string | null;
+  keyStatistics?:
+    | {
+        stat: string;
+        source: string;
+        sourceUrl?: string | null;
+        statYear?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  expertQuotes?:
+    | {
+        quote: string;
+        speakerName: string;
+        speakerTitle?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  entityDefinitions?:
+    | {
+        term: string;
+        definition: string;
+        id?: string | null;
+      }[]
+    | null;
+  lastVerifiedDate?: string | null;
+  expertReviewerName?: string | null;
+  legalDisclaimer?: ('standard' | 'no-legal-advice' | 'platform' | 'none') | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -828,6 +892,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   excerpt?: T;
   subtitle?: T;
   executiveSummary?: T;
+  keyInsight?: T;
   keyTakeaways?:
     | T
     | {
@@ -861,6 +926,67 @@ export interface ArticlesSelect<T extends boolean = true> {
         secondaryLabel?: T;
         secondaryHref?: T;
       };
+  metaTitle?: T;
+  metaDescription?: T;
+  canonicalUrl?: T;
+  noIndex?: T;
+  openGraph?:
+    | T
+    | {
+        ogTitle?: T;
+        ogDescription?: T;
+        ogImage?: T;
+      };
+  twitterCard?:
+    | T
+    | {
+        twitterCardType?: T;
+        twitterTitle?: T;
+        twitterDescription?: T;
+        twitterImage?: T;
+      };
+  schemaType?: T;
+  howToSteps?:
+    | T
+    | {
+        stepName?: T;
+        stepText?: T;
+        id?: T;
+      };
+  speakableSelectors?:
+    | T
+    | {
+        selector?: T;
+        id?: T;
+      };
+  directAnswer?: T;
+  keyStatistics?:
+    | T
+    | {
+        stat?: T;
+        source?: T;
+        sourceUrl?: T;
+        statYear?: T;
+        id?: T;
+      };
+  expertQuotes?:
+    | T
+    | {
+        quote?: T;
+        speakerName?: T;
+        speakerTitle?: T;
+        id?: T;
+      };
+  entityDefinitions?:
+    | T
+    | {
+        term?: T;
+        definition?: T;
+        id?: T;
+      };
+  lastVerifiedDate?: T;
+  expertReviewerName?: T;
+  legalDisclaimer?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
