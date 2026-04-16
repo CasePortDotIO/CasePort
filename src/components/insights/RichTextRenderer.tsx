@@ -36,7 +36,11 @@ const jsxConverters: any = {
         </node.tag>
       )
     }
-    return <node.tag className="font-bold text-slate-900 mb-4 mt-6">{nodesToJSX({ nodes: node.children })}</node.tag>
+    return (
+      <node.tag className="font-bold text-slate-900 mb-4 mt-6">
+        {nodesToJSX({ nodes: node.children })}
+      </node.tag>
+    )
   },
   paragraph: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     return (
