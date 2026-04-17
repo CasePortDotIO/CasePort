@@ -482,9 +482,10 @@ export default function ArticleClient({
 
     // Convert Payload Lexical content into the expected format
     const title = article.title
-    const author = typeof article.author === 'string' 
-      ? article.author 
-      : (article.author?.name || article.author?.email || 'CasePort Intelligence')
+    const author =
+      typeof article.author === 'string'
+        ? article.author
+        : article.author?.name || article.author?.email || 'CasePort Intelligence'
     const authorRole = article.author?.roles?.[0] || 'Market Exclusivity Division'
     const authorBio =
       article.author?.bio ||
@@ -799,7 +800,9 @@ export default function ArticleClient({
                       >
                         <CheckCircle2 className="text-cyan-600 flex-shrink-0 mt-1" size={20} />
                         <span className="text-slate-700 leading-relaxed font-medium">
-                          {typeof takeaway === 'object' ? takeaway?.point || takeaway?.takeaway : takeaway}
+                          {typeof takeaway === 'object'
+                            ? takeaway?.point || takeaway?.takeaway
+                            : takeaway}
                         </span>
                       </li>
                     ))}
