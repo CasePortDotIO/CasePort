@@ -129,13 +129,11 @@ export const SiteSettings: GlobalConfig = {
           name: 'privacyPolicyUrl',
           label: 'Privacy Policy URL',
           type: 'text',
-          defaultValue: 'https://www.caseport.io/privacy',
         },
         {
           name: 'termsUrl',
           label: 'Terms of Service URL',
           type: 'text',
-          defaultValue: 'https://www.caseport.io/terms',
         },
       ],
     },
@@ -155,7 +153,6 @@ export const SiteSettings: GlobalConfig = {
           name: 'orgUrl',
           label: 'Organization URL',
           type: 'text',
-          defaultValue: 'https://www.caseport.io',
         },
         {
           name: 'orgDescription',

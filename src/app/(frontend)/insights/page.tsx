@@ -12,12 +12,14 @@ export const metadata: Metadata = {
   title: 'CasePort Insights | Personal Injury Lead Generation, Intake & Case Acquisition',
   description:
     'Expert analysis on personal injury case acquisition, market intelligence, and law firm growth strategy from the CasePort team.',
-  alternates: { canonical: 'https://www.caseport.io/insights' },
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'}/insights`,
+  },
   openGraph: {
     title: 'CasePort Insights | Personal Injury Lead Generation, Intake & Case Acquisition',
     description:
       'Expert analysis on personal injury case acquisition, market intelligence, and law firm growth strategy.',
-    url: 'https://www.caseport.io/insights',
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'}/insights`,
     type: 'website',
   },
 }

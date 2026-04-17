@@ -6,6 +6,8 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import ArticleClient from './ArticleClient'
 
+export const revalidate = 3600
+
 export async function generateMetadata({
   params,
 }: {
@@ -16,7 +18,7 @@ export async function generateMetadata({
   const { docs } = await payload.find({
     collection: 'articles',
     where: { slug: { equals: slug } },
-    depth: 0,
+    depth: 2,
   })
   const article: any = docs[0]
   if (!article) return {}
@@ -25,34 +27,46 @@ export async function generateMetadata({
   const description = article.metaDescription ?? article.excerpt ?? ''
 
   // Twitter structure
-  const twitterImages = article.twitterCard?.twitterImage?.url
-    ? [article.twitterCard.twitterImage.url]
-    : article.openGraph?.ogImage?.url
-      ? [article.openGraph.ogImage.url]
-      : []
+  const twitterImages = article.xCardImage?.url
+    ? [article.xCardImage.url]
+    : article.socialShareImage?.url
+      ? [article.socialShareImage.url]
+      : article.heroImage?.url
+        ? [article.heroImage.url]
+        : []
+
+  const updateLog = article.contentUpdateHistory || []
+  const lastModified =
+    updateLog.length > 0
+      ? updateLog[updateLog.length - 1].date
+      : article.lastFactVerified || article.updatedAt
 
   return {
     title,
     description,
     alternates: {
-      canonical: article.canonicalUrl ?? `https://caseport.io/insights/${slug}`,
+      canonical:
+        article.canonicalUrl ??
+        `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'}/insights/${slug}`,
     },
-    robots: article.noIndex ? 'noindex,nofollow' : 'index,follow',
+    robots: article.hideFromSearchEngines ? 'noindex,nofollow' : 'index,follow',
     openGraph: {
-      title: article.openGraph?.ogTitle ?? article.metaTitle ?? article.title,
-      description: article.openGraph?.ogDescription ?? article.metaDescription ?? article.excerpt,
-      images: article.openGraph?.ogImage?.url
-        ? [{ url: article.openGraph.ogImage.url, width: 1200, height: 630 }]
-        : [],
+      title: article.socialHeadline ?? article.metaTitle ?? article.title,
+      description: article.socialDescription ?? article.metaDescription ?? article.excerpt,
+      images: article.socialShareImage?.url
+        ? [{ url: article.socialShareImage.url, width: 1200, height: 630 }]
+        : article.heroImage?.url
+          ? [{ url: article.heroImage.url, width: 1200, height: 630 }]
+          : [],
       type: 'article',
-      publishedTime: article.publishedAt,
-      modifiedTime: article.updatedAt,
+      publishedTime: article.publishedDate || article.createdAt,
+      modifiedTime: lastModified,
       siteName: 'CasePort',
     },
     twitter: {
-      card: article.twitterCard?.twitterCardType ?? 'summary_large_image',
-      title: article.twitterCard?.twitterTitle ?? article.metaTitle ?? article.title,
-      description: article.twitterCard?.twitterDescription ?? article.metaDescription,
+      card: article.xCardType ?? 'summary_large_image',
+      title: article.xCardTitle ?? article.socialHeadline ?? article.metaTitle ?? article.title,
+      description: article.xCardDescription ?? article.socialDescription ?? article.metaDescription,
       images: twitterImages,
     },
   }
@@ -69,8 +83,11 @@ export default async function InsightsArticlePage({
   const [{ docs }, navData] = await Promise.all([
     payload.find({
       collection: 'articles',
-      where: { slug: { equals: slug } },
-      depth: 1,
+      where: {
+        slug: { equals: slug },
+        _status: { equals: 'published' },
+      },
+      depth: 2,
     }),
     fetchNavData(),
   ])
@@ -85,15 +102,13 @@ export default async function InsightsArticlePage({
 
   return (
     <>
-      <head>
-        {schemas.map((schema, i) => (
-          <script
-            key={i}
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-          />
-        ))}
-      </head>
+      {schemas.map((schema, i) => (
+        <script
+          key={`schema-${i}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
       <ArticleClient article={article} {...navData} />
     </>
   )

@@ -85,7 +85,7 @@ export default function IntelligencePage() {
             name: 'CasePort Intelligence',
             description:
               'Private intelligence briefings for personal injury law firms on case acquisition and signed-case performance',
-            url: 'https://www.caseport.io/intelligence',
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'}/intelligence`,
             brand: { '@type': 'Brand', name: 'CasePort' },
             offers: {
               '@type': 'Offer',

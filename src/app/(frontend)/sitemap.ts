@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import type { MetadataRoute } from 'next'
 import { getPayload } from 'payload'
 
-const BASE_URL = 'https://www.caseport.io'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const payload = await getPayload({ config: configPromise })
@@ -28,12 +28,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: market.status === 'capped' ? 0.8 : market.status === 'limited' ? 0.85 : 0.9,
   }))
 
-  const articleUrls: MetadataRoute.Sitemap = articles.map((article) => ({
-    url: `${BASE_URL}/insights/${article.slug}`,
-    lastModified: article.updatedAt,
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }))
+  const articleUrls: MetadataRoute.Sitemap = articles.map((article) => {
+    let lastModified = article.updatedAt
+    if (article.contentUpdateHistory && article.contentUpdateHistory.length > 0) {
+      const dates = article.contentUpdateHistory.map((h: any) => new Date(h.date).getTime())
+      const maxDate = new Date(Math.max(...dates))
+      lastModified = maxDate.toISOString()
+    }
+
+    return {
+      url: `${BASE_URL}/insights/${article.slug}`,
+      lastModified: lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    }
+  })
 
   return [
     {

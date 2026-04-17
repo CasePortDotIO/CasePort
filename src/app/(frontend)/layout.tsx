@@ -4,7 +4,7 @@ import { Toaster } from 'sonner'
 import './styles.css'
 
 export const metadata = {
-  metadataBase: new URL('https://www.caseport.io'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'),
   title: {
     default: 'CasePort — Case Flow Without Guesswork',
     template: '%s | CasePort',
@@ -20,7 +20,7 @@ export const metadata = {
   ],
   openGraph: {
     siteName: 'CasePort',
-    url: 'https://www.caseport.io',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io',
     locale: 'en_US',
     type: 'website',
   },

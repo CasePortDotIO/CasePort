@@ -39,7 +39,7 @@ const cityCoordinates: Record<string, { lat: number; lng: number }> = {
 
 export function generateLocalBusinessSchema(
   market: any,
-  baseUrl: string = 'https://www.caseport.io',
+  baseUrl: string = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io',
 ) {
   const coords = cityCoordinates[market.slug || market.slug || market.id] || { lat: 0, lng: 0 }
 
@@ -140,7 +140,7 @@ export function generateLocalBusinessSchema(
  */
 export function generateOrganizationSchema(
   markets: Market[],
-  baseUrl: string = 'https://www.caseport.io',
+  baseUrl: string = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io',
 ) {
   return {
     '@context': 'https://schema.org',

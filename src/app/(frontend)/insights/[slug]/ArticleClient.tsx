@@ -47,7 +47,6 @@ import {
   ChevronRight,
   Clock,
   Copy,
-  Download,
   ExternalLink,
   Eye,
   Lightbulb,
@@ -57,12 +56,14 @@ import {
   TrendingUp,
   X,
 } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { FaLinkedin, FaTwitter } from 'react-icons/fa'
 import { toast } from 'sonner'
 
 import { CustomRichText } from '@/components/insights/RichTextRenderer'
+import { LegalDisclaimer } from '@/components/LegalDisclaimer'
 import {
   Accordion,
   AccordionContent,
@@ -372,7 +373,7 @@ function LeakageCalculator() {
 }
 
 /* ─── Mid-Article CTA Component ─── */
-function MidArticleCTA({ depth, cta }: { depth: number; cta?: any }) {
+function MidArticleCTA({ depth, article }: { depth: number; article?: any }) {
   const [showModal, setShowModal] = useState(false)
   const [showCalculator, setShowCalculator] = useState(false)
 
@@ -382,34 +383,57 @@ function MidArticleCTA({ depth, cta }: { depth: number; cta?: any }) {
     return <LeakageCalculator />
   }
 
-  const heading =
-    cta?.heading ||
-    (depth >= 80
-      ? "Your Firm's Intake Audit is Waiting"
-      : depth >= 60
-        ? 'See Your Intake Leakage in Real Numbers'
-        : 'Stop Losing Cases to Intake Leakage')
+  const cta = article?.midArticleCtaOverride || {}
 
-  const body =
-    cta?.body ||
-    (depth >= 80
-      ? "You've read this far. You care about fixing this. Let's show you exactly where your firm is leaking value."
-      : depth >= 60
-        ? "Most firms don't know their actual leakage cost. We'll calculate yours in 5 minutes."
-        : 'You just read about the problem. Now fix it. The firms that moved fastest on intake optimization saw 30-40% improvement in case retention within 90 days.')
+  let defaultHeading = ''
+  let defaultBody = ''
+  let defaultPrimaryLabel = ''
+  let defaultPrimaryHref = ''
 
-  const primaryLabel =
-    cta?.primaryLabel ||
-    (depth >= 80
-      ? 'Get Your Free Audit →'
-      : depth >= 60
-        ? 'Calculate Your Leakage →'
-        : 'See How CasePort Works →')
+  const intent = article?.searchIntent || ''
+  const pillar = article?.contentPillar || ''
 
-  const primaryHref = cta?.primaryHref
+  if (pillar === 'Claimant Education') {
+    defaultHeading = 'Were you injured in an accident? Get matched with a qualified PI attorney.'
+    defaultBody =
+      'CasePort connects accident victims with vetted personal injury attorneys. Free. No obligation.'
+    defaultPrimaryLabel = 'Start Your Free Case Review →'
+    defaultPrimaryHref = '/injured'
+  } else if (pillar === 'Platform Updates') {
+    defaultHeading = 'Want to know when new features launch?'
+    defaultBody = 'Join the CasePort intelligence brief to stay updated.'
+    defaultPrimaryLabel = 'Join the Intelligence Brief →'
+    defaultPrimaryHref = '/intelligence'
+  } else if (intent === 'Informational') {
+    defaultHeading = 'See how CasePort eliminates the guesswork'
+    defaultBody =
+      'Stop losing cases to slow intake. Start winning them with medical verification complete before delivery.'
+    defaultPrimaryLabel = 'Explore the Platform →'
+    defaultPrimaryHref = '/request-access'
+  } else if (intent === 'Commercial Investigation') {
+    defaultHeading = 'Find out if your market is still available'
+    defaultBody =
+      'We strictly limit access to ensure high case volume per firm. Check if your market is open.'
+    defaultPrimaryLabel = 'Check Market Availability →'
+    defaultPrimaryHref = '/markets'
+  } else if (intent === 'Transactional') {
+    defaultHeading = 'Ready to access qualified cases in your market?'
+    defaultBody = 'Join the firms already securing auto accident cases with medical verification.'
+    defaultPrimaryLabel = 'Apply for Market Access →'
+    defaultPrimaryHref = '/request-access'
+  } else {
+    // Default fallback
+    defaultHeading = 'See how CasePort eliminates the guesswork'
+    defaultBody =
+      'Stop losing cases to slow intake. Start winning them with medical verification complete before delivery.'
+    defaultPrimaryLabel = 'Explore the Platform →'
+    defaultPrimaryHref = '/request-access'
+  }
 
-  const secondaryLabel = cta?.secondaryLabel || 'Download Worksheet'
-  const secondaryHref = cta?.secondaryHref
+  const heading = cta?.heading || defaultHeading
+  const body = cta?.body || defaultBody
+  const primaryLabel = cta?.primaryButton || defaultPrimaryLabel
+  const primaryHref = cta?.primaryUrl || defaultPrimaryHref
 
   return (
     <>
@@ -422,49 +446,18 @@ function MidArticleCTA({ depth, cta }: { depth: number; cta?: any }) {
           <h3 className="text-2xl sm:text-3xl font-bold mb-4">{heading}</h3>
           <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-relaxed">{body}</p>
           <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
-            {primaryHref ? (
-              <a
-                href={primaryHref}
-                className="inline-block text-center w-full sm:w-auto px-6 py-4 lg:px-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
-              >
-                {primaryLabel}
-              </a>
-            ) : (
-              <button
-                onClick={() => setShowModal(true)}
-                className="inline-block text-center w-full sm:w-auto px-6 py-4 lg:px-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
-              >
-                {primaryLabel}
-              </button>
-            )}
-            {(secondaryHref || depth >= 60) &&
-              (secondaryHref ? (
-                <a
-                  href={secondaryHref}
-                  target={secondaryHref.startsWith('http') ? '_blank' : undefined}
-                  rel={secondaryHref.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center justify-center content-center w-full sm:w-auto px-6 py-4 lg:px-8 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
-                >
-                  <Download size={18} className="mr-2 flex-shrink-0" />
-                  <span className="whitespace-nowrap">{secondaryLabel}</span>
-                </a>
-              ) : (
-                <button
-                  onClick={() => setShowCalculator(true)}
-                  className="inline-flex items-center justify-center content-center w-full sm:w-auto px-6 py-4 lg:px-8 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg hover:bg-cyan-500/10 transition-all duration-300"
-                >
-                  <Download size={18} className="mr-2 flex-shrink-0" />
-                  <span className="whitespace-nowrap">{secondaryLabel}</span>
-                </button>
-              ))}
+            <Link
+              href={primaryHref}
+              className="inline-block text-center w-full sm:w-auto px-6 py-4 lg:px-8 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
+            >
+              {primaryLabel}
+            </Link>
           </div>
         </div>
       </section>
-      {showModal && <TieredCTAModal depth={depth} onClose={() => setShowModal(false)} />}
     </>
   )
 }
-
 type NavLink = { label: string; href: string; openInNewTab?: boolean }
 
 export default function ArticleClient({
@@ -523,7 +516,8 @@ export default function ArticleClient({
   const dateModified = content?.updatedDate || datePublished
   const authorBio = content?.authorBio || ''
   const relatedArticles: any[] = article?.relatedArticles || []
-  const articleUrl = `https://www.caseport.io/insights/${article?.slug}`
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'
+  const articleUrl = `${baseUrl}/insights/${article?.slug}`
 
   useEffect(() => {
     const handleScroll = () => {
@@ -547,13 +541,6 @@ export default function ArticleClient({
 
   return (
     <>
-      <ArticleStructuredData
-        article={article}
-        content={content}
-        url={articleUrl}
-        datePublished={datePublished}
-        dateModified={dateModified}
-      />
       <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
       <ReadingProgress />
       <BackToTop />
@@ -571,14 +558,20 @@ export default function ArticleClient({
 
         {/* Hero image background with parallax */}
         <div
-          className="absolute inset-0 opacity-40 transition-transform duration-300"
+          className="absolute inset-0 opacity-40 transition-transform duration-300 pointer-events-none"
           style={{
-            backgroundImage: `url('${article?.thumbnail || article?.heroImage?.url}')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
             transform: `translateY(${heroScroll * 0.5}px)`,
           }}
-        />
+        >
+          <Image
+            src={article?.thumbnail || article?.heroImage?.url || ''}
+            alt={article?.heroImage?.alt || content?.title || 'Article Hero Cover'}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </div>
 
         {/* Hero content */}
         <div className="relative z-10 container mx-auto px-6 lg:px-12 py-24 lg:py-48 mt-16 lg:mt-0 max-w-full overflow-hidden">
@@ -817,6 +810,40 @@ export default function ArticleClient({
                 <CustomRichText content={article.content} />
               </div>
 
+              {/* Mid-Article CTA - Tiered Based on Reading Depth */}
+              <MidArticleCTA depth={useReadingDepth()} article={article} />
+
+              {/* FAQ Section */}
+              {article?.faqs?.length > 0 && (
+                <section
+                  id="faq"
+                  data-section
+                  data-reveal
+                  className={`mb-32 transition-all duration-700 ${
+                    revealed.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
+                >
+                  <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                    Frequently Asked Questions
+                  </h2>
+                  <Accordion type="single" collapsible className="space-y-4">
+                    {article.faqs.map((item: any, idx: number) => (
+                      <AccordionItem
+                        key={idx}
+                        value={`faq-${idx}`}
+                        className="faq-item border border-slate-200 rounded-lg px-6 data-[state=open]:bg-cyan-50 transition-colors duration-300"
+                      >
+                        <AccordionTrigger className="text-lg font-semibold text-slate-900 hover:text-cyan-600 transition-colors py-4">
+                          {item.question}
+                        </AccordionTrigger>
+                        <AccordionContent className="faq-answer text-slate-700 leading-relaxed pb-4">
+                          <p>{item.answer}</p>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </section>
+              )}
               {/* Key Statistics */}
               {article?.keyStatistics?.length > 0 && (
                 <div className="key-statistics mb-32 bg-slate-50 p-8 rounded-xl border border-slate-200">
@@ -879,9 +906,6 @@ export default function ArticleClient({
                 </div>
               )}
 
-              {/* Mid-Article CTA - Tiered Based on Reading Depth */}
-              <MidArticleCTA depth={useReadingDepth()} cta={article?.midArticleCta} />
-
               {/* Entity Definitions (Glossary) */}
               {article?.entityDefinitions?.length > 0 && (
                 <div className="entity-definitions mb-32 bg-white rounded-2xl border border-slate-200">
@@ -899,37 +923,6 @@ export default function ArticleClient({
                 </div>
               )}
 
-              {/* FAQ Section */}
-              {article?.faqs?.length > 0 && (
-                <section
-                  id="faq"
-                  data-section
-                  data-reveal
-                  className={`mb-32 transition-all duration-700 ${
-                    revealed.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                  }`}
-                >
-                  <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
-                    Frequently Asked Questions
-                  </h2>
-                  <Accordion type="single" collapsible className="space-y-4">
-                    {article.faqs.map((item: any, idx: number) => (
-                      <AccordionItem
-                        key={idx}
-                        value={`faq-${idx}`}
-                        className="faq-item border border-slate-200 rounded-lg px-6 data-[state=open]:bg-cyan-50 transition-colors duration-300"
-                      >
-                        <AccordionTrigger className="text-lg font-semibold text-slate-900 hover:text-cyan-600 transition-colors py-4">
-                          {item.question}
-                        </AccordionTrigger>
-                        <AccordionContent className="faq-answer text-slate-700 leading-relaxed pb-4">
-                          <p>{item.answer}</p>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </section>
-              )}
               {/* Cite This Research */}
               {article?.citation && (
                 <section
@@ -964,124 +957,6 @@ export default function ArticleClient({
                 </section>
               )}
 
-              {/* Author Bio - Enhanced Credibility */}
-              <section
-                id="author-bio"
-                data-reveal
-                className={`mb-32 transition-all duration-700 ${
-                  revealed.has('author-bio')
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-8'
-                }`}
-              >
-                <div className="bg-gradient-to-r from-slate-50 to-cyan-50 border border-slate-200 rounded-lg p-6 lg:p-8">
-                  <div className="flex flex-col sm:flex-row gap-6 mb-8">
-                    {/* Avatar */}
-                    {article?.author?.avatar?.url ? (
-                      <img
-                        src={article.author.avatar.url}
-                        alt={content?.author}
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex-shrink-0" />
-                    )}
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-2 gap-3 sm:gap-0">
-                        <div>
-                          <h3 className="text-xl font-bold text-slate-900">{content?.author}</h3>
-                          <p className="text-sm text-slate-600">{content?.authorRole}</p>
-                        </div>
-                        {/* Badges from CMS */}
-                        {article?.author?.badges?.length > 0 && (
-                          <div className="flex gap-2 flex-wrap">
-                            {article.author.badges.map((b: any, i: number) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full"
-                              >
-                                {b.label}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-slate-700 leading-relaxed mb-4">{authorBio}</p>
-
-                      {/* Credentials from CMS */}
-                      {article?.author?.credentials?.length > 0 && (
-                        <div
-                          className={`grid grid-cols-2 sm:grid-cols-${Math.min(article.author.credentials.length, 3)} gap-4 mb-6 py-4 border-y border-slate-200`}
-                        >
-                          {article.author.credentials.map((c: any, i: number) => (
-                            <div
-                              key={i}
-                              className={
-                                article.author.credentials.length % 3 !== 0 &&
-                                i === article.author.credentials.length - 1
-                                  ? 'col-span-2 sm:col-span-1'
-                                  : ''
-                              }
-                            >
-                              <div className="text-xl sm:text-2xl font-bold text-cyan-600">
-                                {c.value}
-                              </div>
-                              <div className="text-xs text-slate-600">{c.label}</div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* CMS-driven author CTA buttons */}
-                      {article?.author?.ctaButtons?.length > 0 && (
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          {article.author.ctaButtons.map((btn: any, i: number) => (
-                            <a
-                              key={i}
-                              href={btn.href}
-                              target={btn.href?.startsWith('http') ? '_blank' : undefined}
-                              rel={btn.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                              className={
-                                btn.style === 'secondary'
-                                  ? 'flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm'
-                                  : 'flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm'
-                              }
-                            >
-                              {btn.style === 'secondary' ? (
-                                <ExternalLink size={16} />
-                              ) : (
-                                <MessageSquare size={16} />
-                              )}
-                              {btn.label}
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                      {/* Hardcoded buttons — commented out, replaced by CMS ctaButtons above */}
-                      {/* <div className="flex flex-col sm:flex-row gap-3">
-                        <button
-                          onClick={() => toast.success(`Email sent to ${content?.author}.`)}
-                          className="flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm"
-                        >
-                          <MessageSquare size={16} />
-                          Ask {content?.author?.split(' ')[0]} a Question
-                        </button>
-                        {article?.author?.profileUrl && (
-                          <a
-                            href={article.author.profileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm"
-                          >
-                            <ExternalLink size={16} />
-                            View {content?.author?.split(' ')[0]}'s Profile
-                          </a>
-                        )}
-                      </div> */}
-                    </div>
-                  </div>
-                </div>
-              </section>
               {/* Continue Reading */}
               {relatedArticles?.length > 0 && (
                 <section
@@ -1104,12 +979,18 @@ export default function ArticleClient({
                         href={`/insights/${relatedArticle.slug}`}
                         className="group block p-6 bg-slate-50 border border-slate-200 rounded-lg hover:border-cyan-300 hover:bg-cyan-50/30 hover:shadow-lg transition-all duration-300 hover:scale-105"
                       >
-                        <div className="mb-4 h-40 bg-gradient-to-br from-slate-200 to-slate-300 rounded overflow-hidden">
+                        <div className="mb-4 relative h-40 bg-gradient-to-br from-slate-200 to-slate-300 rounded overflow-hidden">
                           {relatedArticle?.heroImage?.url && (
-                            <img
+                            <Image
                               src={relatedArticle.heroImage.url}
-                              alt={relatedArticle.title || ''}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              alt={
+                                relatedArticle.heroImage.alt ||
+                                relatedArticle.title ||
+                                'Related article'
+                              }
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover group-hover:scale-110 transition-transform duration-300"
                             />
                           )}
                         </div>
@@ -1231,56 +1112,183 @@ export default function ArticleClient({
                 </div>
               </section> */}
 
-              {/* Newsletter CTA - With Social Proof */}
+              {/* Author Bio - Enhanced Credibility */}
               <section
-                id="newsletter"
+                id="author-bio"
                 data-reveal
                 className={`mb-32 transition-all duration-700 ${
-                  revealed.has('newsletter')
+                  revealed.has('author-bio')
                     ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
                 }`}
               >
-                <div className="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-6 lg:p-8">
-                  <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2 lg:mb-4">
-                    Get Weekly Insights
-                  </h3>
-                  <p className="text-sm lg:text-base text-slate-700 mb-6">
-                    Join 2,400+ personal injury operators who get our weekly brief on case
-                    acquisition, intake optimization, and market signals.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                    {/* <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="w-full sm:flex-1 px-4 py-3 rounded-lg border border-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    /> */}
-                    <button
-                      // onClick={() => toast.success('Welcome to the brief.')}
-                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105 whitespace-nowrap"
-                    >
-                      <a href="/intelligence">Subscribe Free</a>
-                    </button>
+                <div className="bg-gradient-to-r from-slate-50 to-cyan-50 border border-slate-200 rounded-lg p-6 lg:p-8">
+                  <div className="flex flex-col sm:flex-row gap-6 mb-8">
+                    {/* Avatar */}
+                    {article?.author?.avatar?.url ? (
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                        <Image
+                          src={article.author.avatar.url}
+                          alt={article.author.avatar.alt || content?.author || 'Author'}
+                          fill
+                          sizes="(max-width: 640px) 64px, 80px"
+                          className="rounded-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex-shrink-0" />
+                    )}
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-2 gap-3 sm:gap-0">
+                        <div>
+                          <h3 className="text-xl font-bold text-slate-900">{content?.author}</h3>
+                          <p className="text-sm text-slate-600">{content?.authorRole}</p>
+                        </div>
+                        {/* Badges from CMS */}
+                        {article?.author?.badges?.length > 0 && (
+                          <div className="flex gap-2 flex-wrap">
+                            {article.author.badges.map((b: any, i: number) => (
+                              <span
+                                key={i}
+                                className="px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-semibold rounded-full"
+                              >
+                                {b.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-slate-700 leading-relaxed mb-4">{authorBio}</p>
+
+                      {/* Credentials from CMS */}
+                      {article?.author?.credentials?.length > 0 && (
+                        <div
+                          className={`grid grid-cols-2 sm:grid-cols-${Math.min(article.author.credentials.length, 3)} gap-4 mb-6 py-4 border-y border-slate-200`}
+                        >
+                          {article.author.credentials.map((c: any, i: number) => (
+                            <div
+                              key={i}
+                              className={
+                                article.author.credentials.length % 3 !== 0 &&
+                                i === article.author.credentials.length - 1
+                                  ? 'col-span-2 sm:col-span-1'
+                                  : ''
+                              }
+                            >
+                              <div className="text-xl sm:text-2xl font-bold text-cyan-600">
+                                {c.value}
+                              </div>
+                              <div className="text-xs text-slate-600">{c.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* CMS-driven author CTA buttons */}
+                      {article?.author?.ctaButtons?.length > 0 && (
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          {article.author.ctaButtons.map((btn: any, i: number) => (
+                            <a
+                              key={i}
+                              href={btn.href}
+                              target={btn.href?.startsWith('http') ? '_blank' : undefined}
+                              rel={btn.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                              className={
+                                btn.style === 'secondary'
+                                  ? 'flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm'
+                                  : 'flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm'
+                              }
+                            >
+                              {btn.style === 'secondary' ? (
+                                <ExternalLink size={16} />
+                              ) : (
+                                <MessageSquare size={16} />
+                              )}
+                              {btn.label}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      {/* Hardcoded buttons — commented out, replaced by CMS ctaButtons above */}
+                      {/* <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                          onClick={() => toast.success(`Email sent to ${content?.author}.`)}
+                          className="flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm"
+                        >
+                          <MessageSquare size={16} />
+                          Ask {content?.author?.split(' ')[0]} a Question
+                        </button>
+                        {article?.author?.profileUrl && (
+                          <a
+                            href={article.author.profileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm"
+                          >
+                            <ExternalLink size={16} />
+                            View {content?.author?.split(' ')[0]}'s Profile
+                          </a>
+                        )}
+                      </div> */}
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-500 text-center sm:text-left">
-                    ✓ No spam. Unsubscribe anytime. Next brief: Tuesday 9am EST.
-                  </p>
                 </div>
               </section>
-
-              {/* Legal Disclaimer */}
-              {article?.legalDisclaimer && article.legalDisclaimer !== 'none' && (
-                <div className="legal-disclaimer mt-24 pt-12 border-t border-slate-200">
-                  <small className="text-slate-500 text-xs text-balance block">
-                    {article.legalDisclaimer === 'standard' &&
-                      'This article is for general informational purposes only and does not constitute legal advice. The information provided may not apply to your specific situation. CasePort is not a law firm and does not provide legal services. Consult a licensed attorney in your jurisdiction for legal counsel.'}
-                    {article.legalDisclaimer === 'no-legal-advice' &&
-                      'This content discusses general industry practices and operational strategy. It does not constitute legal advice. CasePort is not a law firm.'}
-                    {article.legalDisclaimer === 'platform' &&
-                      "This content describes CasePort's services and platform capabilities. CasePort is not a law firm and does not provide legal representation."}
-                  </small>
+              {/* End-of-Article CTA */}
+              <section
+                id="end-cta"
+                data-reveal
+                className={`mb-32 transition-all duration-700 ${
+                  revealed.has('end-cta') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
+              >
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30">
+                  {article?.contentPillar === 'Claimant Education' ? (
+                    <>
+                      <h3 className="text-3xl font-bold mb-4">
+                        Injured in an accident? You deserve qualified legal help.
+                      </h3>
+                      <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+                        CasePort connects accident victims with vetted personal injury attorneys who
+                        specialise in cases like yours. Free. No obligation.
+                      </p>
+                      <Link
+                        href="/injured"
+                        className="inline-block px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
+                      >
+                        Start Your Free Case Review →
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="text-3xl font-bold mb-4">
+                        Stop losing cases to slow intake. Start winning them.
+                      </h3>
+                      <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+                        CasePort delivers pre-qualified auto accident case opportunities to approved
+                        PI firms in real time — with medical verification complete before delivery.
+                        Your market may still be available.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <Link
+                          href="/request-access"
+                          className="inline-block px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg text-center hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
+                        >
+                          Apply for Market Access →
+                        </Link>
+                        <Link
+                          href="/"
+                          className="inline-block px-8 py-4 border-2 border-cyan-400 text-cyan-300 font-semibold rounded-lg text-center hover:bg-cyan-500/10 transition-all duration-300"
+                        >
+                          See how it works
+                        </Link>
+                      </div>
+                    </>
+                  )}
                 </div>
-              )}
+              </section>
+              {/* Legal Disclaimer */}
+              <LegalDisclaimer type={article?.legalDisclaimer} />
             </div>
 
             {/* Sidebar (Desktop only) */}

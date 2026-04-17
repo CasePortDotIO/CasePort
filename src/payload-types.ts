@@ -408,38 +408,39 @@ export interface Author {
  */
 export interface Article {
   id: string;
+  /**
+   * 50-80 chars. Auto slug.
+   */
   title: string;
   slug: string;
+  author: string | User;
+  contentPillar:
+    | 'For Law Firms'
+    | 'Auto Accident Cases'
+    | 'Claimant Education'
+    | 'Case Acquisition Strategy'
+    | 'PI Industry Intelligence'
+    | 'Intake Excellence'
+    | 'Lead Economics'
+    | 'Platform Updates';
+  contentFormat:
+    | 'Pillar Page'
+    | 'Cluster Article'
+    | 'FAQ Article'
+    | 'How-To Guide'
+    | 'News'
+    | 'Research Report'
+    | 'Case Study'
+    | 'Comparison'
+    | 'Definition';
   heroImage: string | Media;
-  category: string | Category;
-  author: string | Author;
-  /**
-   * Estimated reading time in minutes
-   */
-  readTime?: number | null;
-  publishedAt?: string | null;
   excerpt: string;
-  /**
-   * Displayed directly under the main title in the hero section.
-   */
   subtitle?: string | null;
-  /**
-   * A larger editorial intro text bridging the hero and the main body.
-   */
   executiveSummary?: string | null;
-  /**
-   * A single, punchy insight displayed beneath the Executive Summary.
-   */
-  keyInsight?: string | null;
-  /**
-   * Bullet points summarizing the article, displayed in a highlighted box.
-   */
-  keyTakeaways?:
-    | {
-        takeaway: string;
-        id?: string | null;
-      }[]
-    | null;
+  keyTakeaways: {
+    point: string;
+    id?: string | null;
+  }[];
   content: {
     root: {
       type: string;
@@ -455,81 +456,58 @@ export interface Article {
     };
     [k: string]: unknown;
   };
-  /**
-   * Structured answers to feed directly to AI search engines (ChatGPT, Google AI Overview). Hidden from visual reading view.
-   */
-  seoAnswers?:
+  tags?:
     | {
-        question: string;
-        answer: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * These populate the FAQ accordion at the bottom of the article.
-   */
-  faqs?:
-    | {
-        question: string;
-        answer: string;
+        tag?: string | null;
         id?: string | null;
       }[]
     | null;
   relatedArticles?: (string | Article)[] | null;
-  /**
-   * APA-style citation shown in the "Cite This Research" section. E.g. Smith, J. (2026). Title. CasePort Insights.
-   */
-  citation?: string | null;
-  /**
-   * Override the mid-article call-to-action box shown after the article body. Leave blank to use the default depth-based content.
-   */
-  midArticleCta?: {
-    heading?: string | null;
-    body?: string | null;
-    primaryLabel?: string | null;
-    primaryHref?: string | null;
-    secondaryLabel?: string | null;
-    secondaryHref?: string | null;
-  };
-  metaTitle?: string | null;
-  metaDescription?: string | null;
+  focusKeyword: string;
+  keywordDifficulty?: number | null;
+  monthlySearchVolume?: number | null;
+  currentRankingPosition?: number | null;
+  secondaryKeywords: {
+    keyword?: string | null;
+    id?: string | null;
+  }[];
+  metaTitle: string;
+  metaDescription: string;
   canonicalUrl?: string | null;
-  noIndex?: boolean | null;
-  openGraph?: {
-    ogTitle?: string | null;
-    ogDescription?: string | null;
-    ogImage?: (string | null) | Media;
-  };
-  twitterCard?: {
-    twitterCardType?: ('summary' | 'summary_large_image') | null;
-    twitterTitle?: string | null;
-    twitterDescription?: string | null;
-    twitterImage?: (string | null) | Media;
-  };
-  schemaType?: ('Article' | 'NewsArticle' | 'BlogPosting' | 'HowTo') | null;
-  howToSteps?:
+  socialHeadline?: string | null;
+  socialDescription?: string | null;
+  socialShareImage?: (string | null) | Media;
+  xCardType?: ('summary_large_image' | 'summary') | null;
+  xCardTitle?: string | null;
+  xCardDescription?: string | null;
+  xCardImage?: (string | null) | Media;
+  competingUrl?: string | null;
+  contentGap?:
     | {
-        stepName?: string | null;
-        stepText?: string | null;
+        gap?: string | null;
         id?: string | null;
       }[]
     | null;
-  speakableSelectors?:
+  directAnswer: string;
+  aiCitationSummary: string;
+  primaryAiQuery: string;
+  keyStatistics: {
+    text: string;
+    sourceName: string;
+    sourceUrl?: string | null;
+    year?: string | null;
+    id?: string | null;
+  }[];
+  faqSection: {
+    question: string;
+    answer: string;
+    id?: string | null;
+  }[];
+  termDefinitions?:
     | {
-        selector?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Direct answer block extracted by AI and Voice
-   */
-  directAnswer?: string | null;
-  keyStatistics?:
-    | {
-        stat: string;
-        source: string;
-        sourceUrl?: string | null;
-        statYear?: string | null;
+        term: string;
+        definition: string;
+        isProprietary?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -537,20 +515,88 @@ export interface Article {
     | {
         quote: string;
         speakerName: string;
-        speakerTitle?: string | null;
+        credentials?: string | null;
         id?: string | null;
       }[]
     | null;
-  entityDefinitions?:
+  voiceAnswer: string;
+  speakableCssSelectors: {
+    selector?: string | null;
+    id?: string | null;
+  }[];
+  conversationalQueryVariants?:
     | {
-        term: string;
-        definition: string;
+        query?: string | null;
         id?: string | null;
       }[]
     | null;
-  lastVerifiedDate?: string | null;
-  expertReviewerName?: string | null;
-  legalDisclaimer?: ('standard' | 'no-legal-advice' | 'platform' | 'none') | null;
+  targetsSpecificLocation?: boolean | null;
+  locationTargets?:
+    | {
+        state?: string | null;
+        city?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  schemaType: 'Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle';
+  howToSteps?:
+    | {
+        name: string;
+        description: string;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  sameAsEntityUrls: {
+    url: string;
+    id?: string | null;
+  }[];
+  articleSection?: string | null;
+  apaCitation?: string | null;
+  customJsonLd?: string | null;
+  legalDisclaimer: 'Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None';
+  abaComplianceVerified?: boolean | null;
+  expertReviewer?: string | null;
+  externalSources: {
+    name: string;
+    url?: string | null;
+    credibilityTier?: ('High' | 'Medium' | 'Low') | null;
+    id?: string | null;
+  }[];
+  pressMentions?:
+    | {
+        source?: string | null;
+        url?: string | null;
+        date?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaOverride?: {
+    heading?: string | null;
+    body?: string | null;
+    primaryLabel?: string | null;
+    primaryUrl?: string | null;
+    secondaryLabel?: string | null;
+    secondaryUrl?: string | null;
+  };
+  contentUpdateHistory?:
+    | {
+        date: string;
+        summary: string;
+        updatedBy: string;
+        id?: string | null;
+      }[]
+    | null;
+  publishedDate?: string | null;
+  aeoScore?: number | null;
+  readTime?: number | null;
+  searchIntent: 'Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational';
+  targetSerpFeature?: string | null;
+  contentConfidence?: ('High' | 'Medium' | 'Low') | null;
+  hideFromSearchEngines?: boolean | null;
+  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null;
+  nextReviewDue?: string | null;
+  lastFactVerified?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -884,89 +930,79 @@ export interface AuthorsSelect<T extends boolean = true> {
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  heroImage?: T;
-  category?: T;
   author?: T;
-  readTime?: T;
-  publishedAt?: T;
+  contentPillar?: T;
+  contentFormat?: T;
+  heroImage?: T;
   excerpt?: T;
   subtitle?: T;
   executiveSummary?: T;
-  keyInsight?: T;
   keyTakeaways?:
     | T
     | {
-        takeaway?: T;
+        point?: T;
         id?: T;
       };
   content?: T;
-  seoAnswers?:
+  tags?:
     | T
     | {
-        question?: T;
-        answer?: T;
-        id?: T;
-      };
-  faqs?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
+        tag?: T;
         id?: T;
       };
   relatedArticles?: T;
-  citation?: T;
-  midArticleCta?:
+  focusKeyword?: T;
+  keywordDifficulty?: T;
+  monthlySearchVolume?: T;
+  currentRankingPosition?: T;
+  secondaryKeywords?:
     | T
     | {
-        heading?: T;
-        body?: T;
-        primaryLabel?: T;
-        primaryHref?: T;
-        secondaryLabel?: T;
-        secondaryHref?: T;
+        keyword?: T;
+        id?: T;
       };
   metaTitle?: T;
   metaDescription?: T;
   canonicalUrl?: T;
-  noIndex?: T;
-  openGraph?:
+  socialHeadline?: T;
+  socialDescription?: T;
+  socialShareImage?: T;
+  xCardType?: T;
+  xCardTitle?: T;
+  xCardDescription?: T;
+  xCardImage?: T;
+  competingUrl?: T;
+  contentGap?:
     | T
     | {
-        ogTitle?: T;
-        ogDescription?: T;
-        ogImage?: T;
-      };
-  twitterCard?:
-    | T
-    | {
-        twitterCardType?: T;
-        twitterTitle?: T;
-        twitterDescription?: T;
-        twitterImage?: T;
-      };
-  schemaType?: T;
-  howToSteps?:
-    | T
-    | {
-        stepName?: T;
-        stepText?: T;
-        id?: T;
-      };
-  speakableSelectors?:
-    | T
-    | {
-        selector?: T;
+        gap?: T;
         id?: T;
       };
   directAnswer?: T;
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
   keyStatistics?:
     | T
     | {
-        stat?: T;
-        source?: T;
+        text?: T;
+        sourceName?: T;
         sourceUrl?: T;
-        statYear?: T;
+        year?: T;
+        id?: T;
+      };
+  faqSection?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  termDefinitions?:
+    | T
+    | {
+        term?: T;
+        definition?: T;
+        isProprietary?: T;
         id?: T;
       };
   expertQuotes?:
@@ -974,19 +1010,95 @@ export interface ArticlesSelect<T extends boolean = true> {
     | {
         quote?: T;
         speakerName?: T;
-        speakerTitle?: T;
+        credentials?: T;
         id?: T;
       };
-  entityDefinitions?:
+  voiceAnswer?: T;
+  speakableCssSelectors?:
     | T
     | {
-        term?: T;
-        definition?: T;
+        selector?: T;
         id?: T;
       };
-  lastVerifiedDate?: T;
-  expertReviewerName?: T;
+  conversationalQueryVariants?:
+    | T
+    | {
+        query?: T;
+        id?: T;
+      };
+  targetsSpecificLocation?: T;
+  locationTargets?:
+    | T
+    | {
+        state?: T;
+        city?: T;
+        id?: T;
+      };
+  schemaType?: T;
+  howToSteps?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        image?: T;
+        id?: T;
+      };
+  sameAsEntityUrls?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  articleSection?: T;
+  apaCitation?: T;
+  customJsonLd?: T;
   legalDisclaimer?: T;
+  abaComplianceVerified?: T;
+  expertReviewer?: T;
+  externalSources?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        credibilityTier?: T;
+        id?: T;
+      };
+  pressMentions?:
+    | T
+    | {
+        source?: T;
+        url?: T;
+        date?: T;
+        id?: T;
+      };
+  ctaOverride?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        primaryLabel?: T;
+        primaryUrl?: T;
+        secondaryLabel?: T;
+        secondaryUrl?: T;
+      };
+  contentUpdateHistory?:
+    | T
+    | {
+        date?: T;
+        summary?: T;
+        updatedBy?: T;
+        id?: T;
+      };
+  publishedDate?: T;
+  aeoScore?: T;
+  readTime?: T;
+  searchIntent?: T;
+  targetSerpFeature?: T;
+  contentConfidence?: T;
+  hideFromSearchEngines?: T;
+  reviewCycle?: T;
+  nextReviewDue?: T;
+  lastFactVerified?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

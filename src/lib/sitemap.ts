@@ -7,7 +7,9 @@
 
 import { markets } from './marketData'
 
-export function generateSitemap(baseUrl: string = 'https://www.caseport.io'): string {
+export function generateSitemap(
+  baseUrl: string = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io',
+): string {
   const urls = [
     // Main pages
     {
@@ -52,7 +54,9 @@ ${urls
 /**
  * Generates robots.txt with sitemap reference
  */
-export function generateRobotsTxt(baseUrl: string = 'https://www.caseport.io'): string {
+export function generateRobotsTxt(
+  baseUrl: string = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io',
+): string {
   return `User-agent: *
 Allow: /
 Disallow: /admin/
