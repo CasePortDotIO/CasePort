@@ -116,11 +116,14 @@ export const Articles: CollectionConfig = {
         {
           label: 'Content',
           fields: [
+            { name: 'title', type: 'text', required: true, admin: { description: '50-80 chars. Auto slug.' } },
             {
-              name: 'title',
-              type: 'text',
-              required: true,
-              admin: { description: '50-80 chars. Auto slug.' },
+              type: 'row',
+              fields: [
+                { name: 'currentReaders', type: 'number', defaultValue: 1247, admin: { description: 'Live reading now counter' } },
+                { name: 'citationCount', type: 'number', defaultValue: 47, admin: { description: 'Cited by X firms' } },
+                { name: 'signalStrength', type: 'number', min: 0, max: 100, defaultValue: 94, admin: { description: 'Signal Strength (0-100)' } },
+              ]
             },
             { name: 'slug', type: 'text', unique: true, index: true, required: true },
             { name: 'author', type: 'relationship', relationTo: 'users', required: true },

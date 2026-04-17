@@ -412,6 +412,18 @@ export interface Article {
    * 50-80 chars. Auto slug.
    */
   title: string;
+  /**
+   * Live reading now counter
+   */
+  currentReaders?: number | null;
+  /**
+   * Cited by X firms
+   */
+  citationCount?: number | null;
+  /**
+   * Signal Strength (0-100)
+   */
+  signalStrength?: number | null;
   slug: string;
   author: string | User;
   contentPillar:
@@ -929,6 +941,9 @@ export interface AuthorsSelect<T extends boolean = true> {
  */
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
+  currentReaders?: T;
+  citationCount?: T;
+  signalStrength?: T;
   slug?: T;
   author?: T;
   contentPillar?: T;

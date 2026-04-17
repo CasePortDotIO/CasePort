@@ -482,11 +482,13 @@ export default function ArticleClient({
 
     // Convert Payload Lexical content into the expected format
     const title = article.title
-    const author = article.author?.name || 'Martha Bennett'
-    const authorRole = article.author?.title || 'Director of Operations'
+    const author = typeof article.author === 'string' 
+      ? article.author 
+      : (article.author?.name || article.author?.email || 'CasePort Intelligence')
+    const authorRole = article.author?.roles?.[0] || 'Market Exclusivity Division'
     const authorBio =
       article.author?.bio ||
-      `${author} is a ${authorRole}. With deep expertise in personal injury law operations, she has advised 50+ firms on intake optimization and case acquisition strategy.`
+      `The CasePort intelligence team analyzes real-time placement capacity, settlement pipelines, and lead volume metrics across all 46 core territories`
     const readTime = `${article.estimatedReadTime || 8} min read`
     const date = article.publishedAt || new Date().toISOString()
 
@@ -629,15 +631,15 @@ export default function ArticleClient({
             <div className="flex flex-wrap gap-3 lg:gap-4 text-xs text-gray-300">
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
                 <Eye size={14} className="text-cyan-400" />
-                <span>1,247 reading now</span>
+                <span>{(article?.currentReaders || 1247).toLocaleString()} reading now</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
                 <Award size={14} className="text-cyan-400" />
-                <span>Cited by 47 firms</span>
+                <span>Cited by {(article?.citationCount || 47).toLocaleString()} firms</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
                 <TrendingUp size={14} className="text-cyan-400" />
-                <span>Signal Strength: 94/100</span>
+                <span>Signal Strength: {article?.signalStrength || 94}/100</span>
               </div>
             </div>
 
@@ -797,7 +799,7 @@ export default function ArticleClient({
                       >
                         <CheckCircle2 className="text-cyan-600 flex-shrink-0 mt-1" size={20} />
                         <span className="text-slate-700 leading-relaxed font-medium">
-                          {typeof takeaway === 'object' ? takeaway?.takeaway : takeaway}
+                          {typeof takeaway === 'object' ? takeaway?.point || takeaway?.takeaway : takeaway}
                         </span>
                       </li>
                     ))}
@@ -814,7 +816,7 @@ export default function ArticleClient({
               <MidArticleCTA depth={useReadingDepth()} article={article} />
 
               {/* FAQ Section */}
-              {article?.faqs?.length > 0 && (
+              {article?.faqSection?.length > 0 && (
                 <section
                   id="faq"
                   data-section
@@ -827,7 +829,7 @@ export default function ArticleClient({
                     Frequently Asked Questions
                   </h2>
                   <Accordion type="single" collapsible className="space-y-4">
-                    {article.faqs.map((item: any, idx: number) => (
+                    {article.faqSection.map((item: any, idx: number) => (
                       <AccordionItem
                         key={idx}
                         value={`faq-${idx}`}
@@ -852,7 +854,7 @@ export default function ArticleClient({
                     {article.keyStatistics.map((stat: any, i: number) => (
                       <div key={i} className="stat-item pl-4 border-l-2 border-cyan-500">
                         <p className="stat-text text-lg text-slate-800 font-medium mb-2">
-                          {stat.stat}
+                          {stat.text || stat.stat}
                         </p>
                         <p className="stat-source text-sm text-slate-500">
                           Source:{' '}
@@ -863,12 +865,12 @@ export default function ArticleClient({
                               rel="noopener noreferrer"
                               className="text-cyan-600 hover:underline"
                             >
-                              {stat.source}
+                              {stat.sourceName || stat.source}
                             </a>
                           ) : (
-                            stat.source
+                            stat.sourceName || stat.source
                           )}
-                          {stat.statYear && ` (${stat.statYear})`}
+                          {(stat.year || stat.statYear) && ` (${stat.year || stat.statYear})`}
                         </p>
                       </div>
                     ))}
