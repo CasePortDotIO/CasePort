@@ -97,6 +97,18 @@ export const Articles: CollectionConfig = {
     drafts: true,
   },
   hooks: {
+    beforeValidate: [
+      ({ data, operation }) => {
+        // Auto-generate slug from title if it doesn't exist or was left blank 
+        if (!data?.slug && data?.title) {
+          data.slug = data.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with hyphens
+            .replace(/(^-|-$)+/g, '') // Remove leading/trailing hyphens       
+        }
+        return data
+      },
+    ],
     beforeChange: [
       async ({ data }) => {
         data.aeoScore = await generateAeoScore({ data } as any)
@@ -104,8 +116,19 @@ export const Articles: CollectionConfig = {
         data.nextReviewDue = await calculateNextReviewDue({ data } as any)
         return data
       },
-    ],
-  },
+    ],    afterChange: [
+      async ({ doc }) => {
+        try {
+          const { revalidatePath } = await import('next/cache')
+          revalidatePath('/insights')
+          if (doc.slug) {
+            revalidatePath(`/insights/${doc.slug}`)
+          }
+        } catch (error) {
+          // If we are not in a Next.js server context, quietly ignore
+        }
+      },
+    ],  },
   access: {
     read: () => true,
   },
@@ -148,7 +171,16 @@ export const Articles: CollectionConfig = {
               ],
             },
             { name: 'slug', type: 'text', unique: true, index: true, required: true },
-            { name: 'author', type: 'relationship', relationTo: 'users', required: true },
+            { name: 'author', type: 'relationship', relationTo: 'authors', required: true },
+            {
+              name: 'category',
+              type: 'relationship',
+              relationTo: 'categories',
+              required: true,
+              admin: {
+                description: 'Select the main category for this article',
+              },
+            },
             {
               name: 'contentPillar',
               type: 'select',

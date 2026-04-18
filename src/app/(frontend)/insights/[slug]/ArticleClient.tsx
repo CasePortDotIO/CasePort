@@ -59,6 +59,7 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { generateArticleJsonLd } from '@/lib/article-schema'
 import { FaLinkedin, FaTwitter } from 'react-icons/fa'
 import { toast } from 'sonner'
 
@@ -484,8 +485,7 @@ export default function ArticleClient({
     const title = article.title
     const author =
       typeof article.author === 'string'
-        ? article.author
-        : article.author?.name || article.author?.email || 'CasePort Intelligence'
+        ? article.author : article.author?.name || 'CasePort Intelligence'
     const authorRole = article.author?.roles?.[0] || 'Market Exclusivity Division'
     const authorBio =
       article.author?.bio ||
@@ -542,8 +542,17 @@ export default function ArticleClient({
     return <div>Article not found</div>
   }
 
+  const schemas = generateArticleJsonLd(article)
+
   return (
     <>
+      {schemas.map((schema, i) => (
+        <script
+          key={`schema-${i}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
       <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
       <ReadingProgress />
       <BackToTop />
@@ -738,7 +747,7 @@ export default function ArticleClient({
                     </div>
                   </div>
                   <h3 className="text-sm font-bold tracking-widest text-cyan-600 uppercase mb-3 space-x-1">
-                    Quick Answer
+                    Direct Answer
                   </h3>
                   <p className="text-lg lg:text-xl text-slate-800 leading-relaxed font-medium">
                     {article.directAnswer}
@@ -1407,3 +1416,4 @@ export default function ArticleClient({
     </>
   )
 }
+

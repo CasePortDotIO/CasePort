@@ -27,14 +27,19 @@ export const metadata: Metadata = {
 export default async function InsightsPage() {
   const payload = await getPayload({ config: configPromise })
 
-  const [{ docs }, navData] = await Promise.all([
+  const [{ docs }, { docs: categories }, navData] = await Promise.all([
     payload.find({
       collection: 'articles',
       depth: 1,
       sort: '-publishedAt',
     }),
+    payload.find({
+      collection: 'categories',
+      depth: 0,
+      limit: 100,
+    }),
     fetchNavData(),
   ])
 
-  return <InsightsClient fetchedArticles={docs} {...navData} />
+  return <InsightsClient fetchedArticles={docs} fetchedCategories={categories} {...navData} />
 }

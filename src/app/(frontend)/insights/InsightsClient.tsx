@@ -541,8 +541,8 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── EDITORIAL GRID SECTION (with Search Bar) ───
-function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
-  const [activeCategory, setActiveCategory] = useState<'All' | Category>('All')
+function EditorialGrid({ fetchedArticles = [], fetchedCategories = [] }: { fetchedArticles: any[], fetchedCategories?: any[] }) {
+  const [activeCategory, setActiveCategory] = useState<'All' | string>('All')
   const [searchQuery, setSearchQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -628,19 +628,30 @@ function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
         {/* Category Filters */}
         <Reveal delay={0.1}>
           <div className="flex flex-wrap gap-3 mb-16">
-            {['All', ...categories].map((cat) => (
               <button
-                key={cat}
-                onClick={() => setActiveCategory(cat as 'All' | Category)}
+                key="All"
+                onClick={() => setActiveCategory('All')}
                 className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
-                  activeCategory === cat
+                  activeCategory === 'All'
                     ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
                     : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
                 }`}
               >
-                {cat}
+                All
               </button>
-            ))}
+              {(fetchedCategories && fetchedCategories.length > 0 ? fetchedCategories.map(c => c.title) : categories).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat as string)}
+                  className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
+                    activeCategory === cat
+                      ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
+                      : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
           </div>
         </Reveal>
 
@@ -1116,11 +1127,13 @@ type NavLink = { label: string; href: string; openInNewTab?: boolean }
 
 export default function InsightsClient({
   fetchedArticles = [],
+  fetchedCategories = [],
   navLinks = [],
   ctaLabel,
   ctaHref,
 }: {
   fetchedArticles: any[]
+  fetchedCategories?: any[]
   navLinks?: NavLink[]
   ctaLabel?: string
   ctaHref?: string
@@ -1134,7 +1147,7 @@ export default function InsightsClient({
         <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
         <HeroSection fetchedArticles={fetchedArticles} />
         <FeaturedSection fetchedArticles={fetchedArticles} />
-        <EditorialGrid fetchedArticles={fetchedArticles} />
+        <EditorialGrid fetchedArticles={fetchedArticles} fetchedCategories={fetchedCategories} />
         <NewsletterSection />
         <TopicClusters />
         <EditorialPhilosophy />

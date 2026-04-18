@@ -98,17 +98,8 @@ export default async function InsightsArticlePage({
     notFound()
   }
 
-  const schemas = generateArticleJsonLd(article)
-
   return (
     <>
-      {schemas.map((schema, i) => (
-        <script
-          key={`schema-${i}`}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      ))}
       <ArticleClient article={article} {...navData} />
     </>
   )

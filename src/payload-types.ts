@@ -425,7 +425,11 @@ export interface Article {
    */
   signalStrength?: number | null;
   slug: string;
-  author: string | User;
+  author: string | Author;
+  /**
+   * Select the main category for this article
+   */
+  category: string | Category;
   contentPillar:
     | 'For Law Firms'
     | 'Auto Accident Cases'
@@ -946,6 +950,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   signalStrength?: T;
   slug?: T;
   author?: T;
+  category?: T;
   contentPillar?: T;
   contentFormat?: T;
   heroImage?: T;
