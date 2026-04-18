@@ -541,7 +541,13 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── EDITORIAL GRID SECTION (with Search Bar) ───
-function EditorialGrid({ fetchedArticles = [], fetchedCategories = [] }: { fetchedArticles: any[], fetchedCategories?: any[] }) {
+function EditorialGrid({
+  fetchedArticles = [],
+  fetchedCategories = [],
+}: {
+  fetchedArticles: any[]
+  fetchedCategories?: any[]
+}) {
   const [activeCategory, setActiveCategory] = useState<'All' | string>('All')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -628,30 +634,33 @@ function EditorialGrid({ fetchedArticles = [], fetchedCategories = [] }: { fetch
         {/* Category Filters */}
         <Reveal delay={0.1}>
           <div className="flex flex-wrap gap-3 mb-16">
+            <button
+              key="All"
+              onClick={() => setActiveCategory('All')}
+              className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
+                activeCategory === 'All'
+                  ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
+                  : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
+              }`}
+            >
+              All
+            </button>
+            {(fetchedCategories && fetchedCategories.length > 0
+              ? fetchedCategories.map((c) => c.title)
+              : categories
+            ).map((cat) => (
               <button
-                key="All"
-                onClick={() => setActiveCategory('All')}
+                key={cat}
+                onClick={() => setActiveCategory(cat as string)}
                 className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
-                  activeCategory === 'All'
+                  activeCategory === cat
                     ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
                     : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
                 }`}
               >
-                All
+                {cat}
               </button>
-              {(fetchedCategories && fetchedCategories.length > 0 ? fetchedCategories.map(c => c.title) : categories).map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat as string)}
-                  className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
-                    activeCategory === cat
-                      ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
-                      : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+            ))}
           </div>
         </Reveal>
 

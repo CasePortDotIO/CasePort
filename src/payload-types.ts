@@ -430,15 +430,6 @@ export interface Article {
    * Select the main category for this article
    */
   category: string | Category;
-  contentPillar:
-    | 'For Law Firms'
-    | 'Auto Accident Cases'
-    | 'Claimant Education'
-    | 'Case Acquisition Strategy'
-    | 'PI Industry Intelligence'
-    | 'Intake Excellence'
-    | 'Lead Economics'
-    | 'Platform Updates';
   contentFormat:
     | 'Pillar Page'
     | 'Cluster Article'
@@ -951,7 +942,6 @@ export interface ArticlesSelect<T extends boolean = true> {
   slug?: T;
   author?: T;
   category?: T;
-  contentPillar?: T;
   contentFormat?: T;
   heroImage?: T;
   excerpt?: T;

@@ -1,4 +1,3 @@
-import { generateArticleJsonLd } from '@/lib/article-schema'
 import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'

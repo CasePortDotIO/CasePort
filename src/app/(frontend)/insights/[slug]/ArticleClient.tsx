@@ -36,6 +36,7 @@
 
 import Footer from '@/components/insights/Footer'
 import Navbar from '@/components/Navbar'
+import { generateArticleJsonLd } from '@/lib/article-schema'
 import {
   ArrowUp,
   Award,
@@ -59,7 +60,6 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { generateArticleJsonLd } from '@/lib/article-schema'
 import { FaLinkedin, FaTwitter } from 'react-icons/fa'
 import { toast } from 'sonner'
 
@@ -392,7 +392,7 @@ function MidArticleCTA({ depth, article }: { depth: number; article?: any }) {
   let defaultPrimaryHref = ''
 
   const intent = article?.searchIntent || ''
-  const pillar = article?.contentPillar || ''
+  const pillar = (typeof article?.category === 'object' ? article?.category?.title : article?.category) || ''
 
   if (pillar === 'Claimant Education') {
     defaultHeading = 'Were you injured in an accident? Get matched with a qualified PI attorney.'
@@ -485,7 +485,8 @@ export default function ArticleClient({
     const title = article.title
     const author =
       typeof article.author === 'string'
-        ? article.author : article.author?.name || 'CasePort Intelligence'
+        ? article.author
+        : article.author?.name || 'CasePort Intelligence'
     const authorRole = article.author?.roles?.[0] || 'Market Exclusivity Division'
     const authorBio =
       article.author?.bio ||
@@ -1257,7 +1258,7 @@ export default function ArticleClient({
                 }`}
               >
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30">
-                  {article?.contentPillar === 'Claimant Education' ? (
+                  {(typeof article?.category === 'object' ? article?.category?.title : article?.category) === 'Claimant Education' ? (
                     <>
                       <h3 className="text-3xl font-bold mb-4">
                         Injured in an accident? You deserve qualified legal help.
@@ -1416,4 +1417,5 @@ export default function ArticleClient({
     </>
   )
 }
+
 

@@ -99,12 +99,12 @@ export const Articles: CollectionConfig = {
   hooks: {
     beforeValidate: [
       ({ data, operation }) => {
-        // Auto-generate slug from title if it doesn't exist or was left blank 
+        // Auto-generate slug from title if it doesn't exist or was left blank
         if (!data?.slug && data?.title) {
           data.slug = data.title
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with hyphens
-            .replace(/(^-|-$)+/g, '') // Remove leading/trailing hyphens       
+            .replace(/(^-|-$)+/g, '') // Remove leading/trailing hyphens
         }
         return data
       },
@@ -116,7 +116,8 @@ export const Articles: CollectionConfig = {
         data.nextReviewDue = await calculateNextReviewDue({ data } as any)
         return data
       },
-    ],    afterChange: [
+    ],
+    afterChange: [
       async ({ doc }) => {
         try {
           const { revalidatePath } = await import('next/cache')
@@ -128,7 +129,8 @@ export const Articles: CollectionConfig = {
           // If we are not in a Next.js server context, quietly ignore
         }
       },
-    ],  },
+    ],
+  },
   access: {
     read: () => true,
   },
@@ -174,29 +176,15 @@ export const Articles: CollectionConfig = {
             { name: 'author', type: 'relationship', relationTo: 'authors', required: true },
             {
               name: 'category',
-              type: 'relationship',
-              relationTo: 'categories',
-              required: true,
-              admin: {
-                description: 'Select the main category for this article',
+                label: 'Content Pillar',
+                  type: 'relationship',
+                relationTo: 'categories',
+                required: true,
+                admin: {
+                  description: 'Select the main category for this article',
+                },
               },
-            },
-            {
-              name: 'contentPillar',
-              type: 'select',
-              required: true,
-              options: [
-                'For Law Firms',
-                'Auto Accident Cases',
-                'Claimant Education',
-                'Case Acquisition Strategy',
-                'PI Industry Intelligence',
-                'Intake Excellence',
-                'Lead Economics',
-                'Platform Updates',
-              ],
-            },
-            {
+              {
               name: 'contentFormat',
               type: 'select',
               required: true,
@@ -464,3 +452,7 @@ export const Articles: CollectionConfig = {
     { name: 'lastFactVerified', type: 'date', admin: { position: 'sidebar' } },
   ],
 }
+
+
+
+
