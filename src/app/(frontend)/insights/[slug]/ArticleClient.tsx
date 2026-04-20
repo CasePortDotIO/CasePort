@@ -392,7 +392,8 @@ function MidArticleCTA({ depth, article }: { depth: number; article?: any }) {
   let defaultPrimaryHref = ''
 
   const intent = article?.searchIntent || ''
-  const pillar = (typeof article?.category === 'object' ? article?.category?.title : article?.category) || ''
+  const pillar =
+    (typeof article?.category === 'object' ? article?.category?.title : article?.category) || ''
 
   if (pillar === 'Claimant Education') {
     defaultHeading = 'Were you injured in an accident? Get matched with a qualified PI attorney.'
@@ -492,7 +493,7 @@ export default function ArticleClient({
       article.author?.bio ||
       `The CasePort intelligence team analyzes real-time placement capacity, settlement pipelines, and lead volume metrics across all 46 core territories`
     const readTime = `${article.estimatedReadTime || 8} min read`
-    const date = article.publishedAt || new Date().toISOString()
+    const date = article.publishedAt || article.createdAt || '2026-04-20T00:00:00.000Z'
 
     // Safely extract headings for TOC
     const sections: any[] = []
@@ -823,6 +824,94 @@ export default function ArticleClient({
               {/* Article Content */}
               <div className="article-body mb-24 transition-all duration-700 opacity-100 translate-y-0">
                 <CustomRichText content={article.content} />
+
+                {article?.roiTable?.enableTable && article?.roiTable?.rows?.length > 0 && (
+                  <div className="w-full my-12 lg:my-16 flex flex-col rounded-2xl border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(6,81,237,0.08)] bg-white animate-fadeInUp overflow-hidden">
+                    {article.roiTable.tableName && (
+                      <div className="bg-slate-50 border-b border-slate-200 px-6 py-5">
+                        <h4 className="text-xl font-bold text-slate-900">
+                          {article.roiTable.tableName}
+                        </h4>
+                      </div>
+                    )}
+                    <div className="w-full overflow-x-auto pb-2 custom-scrollbar">
+                      <div
+                        className="min-w-250 w-full inline-block align-middle"
+                        itemScope
+                        itemType="https://schema.org/Dataset"
+                      >
+                        <meta
+                          itemProp="name"
+                          content={article.roiTable.tableName || 'ROI Calculator Matrix'}
+                        />
+                        <meta
+                          itemProp="description"
+                          content="A structural analysis of additional revenue generated from rapid case response times by monthly lead volume."
+                        />
+                        <table className="w-full text-left border-collapse z-10 relative">
+                          <caption className="sr-only">
+                            {article.roiTable.tableName || 'ROI Calculator Matrix'}
+                          </caption>
+                          <thead>
+                            <tr className="bg-[#FAFBFC] border-b border-slate-200">
+                              <th
+                                scope="col"
+                                className="px-3 py-3 text-[15px] font-bold text-slate-900 border-r border-slate-100 w-[18%] leading-snug"
+                              >
+                                {article.roiTable.headers?.col1 || 'Column 1'}
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-3 py-3 text-[15px] font-bold text-slate-900 border-r border-slate-100 w-[16%] leading-snug"
+                              >
+                                {article.roiTable.headers?.col2 || 'Column 2'}
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-3 py-3 text-[15px] font-bold text-slate-900 border-r border-slate-100 w-[18%] leading-snug"
+                              >
+                                {article.roiTable.headers?.col3 || 'Column 3'}
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-3 py-3 text-[15px] font-bold text-slate-900 border-r border-slate-100 w-[24%] leading-snug"
+                              >
+                                {article.roiTable.headers?.col4 || 'Column 4'}
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-3 py-3 text-[15px] font-bold text-slate-900 w-[24%] leading-snug"
+                              >
+                                {article.roiTable.headers?.col5 || 'Column 5'}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {article.roiTable.rows.map((row: any, i: number) => (
+                              <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                                <td className="p-3 text-[15px] text-slate-700 font-medium whitespace-nowrap border-r border-slate-100">
+                                  {row.col1}
+                                </td>
+                                <td className="p-3 text-[15px] text-slate-700 whitespace-nowrap border-r border-slate-100">
+                                  {row.col2}
+                                </td>
+                                <td className="p-3 text-[15px] text-slate-700 whitespace-nowrap border-r border-slate-100">
+                                  {row.col3}
+                                </td>
+                                <td className="p-3 text-[15px] text-slate-700 whitespace-nowrap border-r border-slate-100">
+                                  {row.col4}
+                                </td>
+                                <td className="p-3 text-[15px] text-[#008A9E] font-bold whitespace-nowrap">
+                                  {row.col5}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Mid-Article CTA - Tiered Based on Reading Depth */}
@@ -1258,7 +1347,9 @@ export default function ArticleClient({
                 }`}
               >
                 <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30">
-                  {(typeof article?.category === 'object' ? article?.category?.title : article?.category) === 'Claimant Education' ? (
+                  {(typeof article?.category === 'object'
+                    ? article?.category?.title
+                    : article?.category) === 'Claimant Education' ? (
                     <>
                       <h3 className="text-3xl font-bold mb-4">
                         Injured in an accident? You deserve qualified legal help.
@@ -1417,5 +1508,3 @@ export default function ArticleClient({
     </>
   )
 }
-
-

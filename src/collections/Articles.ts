@@ -176,15 +176,15 @@ export const Articles: CollectionConfig = {
             { name: 'author', type: 'relationship', relationTo: 'authors', required: true },
             {
               name: 'category',
-                label: 'Content Pillar',
-                  type: 'relationship',
-                relationTo: 'categories',
-                required: true,
-                admin: {
-                  description: 'Select the main category for this article',
-                },
+              label: 'Content Pillar',
+              type: 'relationship',
+              relationTo: 'categories',
+              required: true,
+              admin: {
+                description: 'Select the main category for this article',
               },
-              {
+            },
+            {
               name: 'contentFormat',
               type: 'select',
               required: true,
@@ -211,6 +211,64 @@ export const Articles: CollectionConfig = {
               minRows: 3,
               maxRows: 5,
               fields: [{ name: 'point', type: 'text', required: true }],
+            },
+            {
+              name: 'roiTable',
+              type: 'group',
+              admin: {
+                description: 'Customizable Table with editable headers and rows for ROI matrix.',
+              },
+              fields: [
+                {
+                  name: 'enableTable',
+                  type: 'checkbox',
+                  defaultValue: false,
+                  label: 'Include this table in the article?',
+                },
+                { name: 'tableName', type: 'text', defaultValue: 'ROI Calculator Matrix' },
+                {
+                  name: 'headers',
+                  type: 'group',
+                  fields: [
+                    {
+                      name: 'col1',
+                      type: 'text',
+                      required: true,
+                      defaultValue: 'Monthly lead spend',
+                    },
+                    { name: 'col2', type: 'text', required: true, defaultValue: 'Leads/month' },
+                    {
+                      name: 'col3',
+                      type: 'text',
+                      required: true,
+                      defaultValue: 'Current sign rate',
+                    },
+                    {
+                      name: 'col4',
+                      type: 'text',
+                      required: true,
+                      defaultValue: 'Additional cases/month at 5-min response',
+                    },
+                    {
+                      name: 'col5',
+                      type: 'text',
+                      required: true,
+                      defaultValue: 'Additional annual revenue',
+                    },
+                  ],
+                },
+                {
+                  name: 'rows',
+                  type: 'array',
+                  fields: [
+                    { name: 'col1', type: 'text', required: true, label: 'Column 1' },
+                    { name: 'col2', type: 'text', required: true, label: 'Column 2' },
+                    { name: 'col3', type: 'text', required: true, label: 'Column 3' },
+                    { name: 'col4', type: 'text', required: true, label: 'Column 4' },
+                    { name: 'col5', type: 'text', required: true, label: 'Column 5' },
+                  ],
+                },
+              ],
             },
             { name: 'content', type: 'richText', required: true },
             { name: 'tags', type: 'array', fields: [{ name: 'tag', type: 'text' }] },
@@ -452,7 +510,3 @@ export const Articles: CollectionConfig = {
     { name: 'lastFactVerified', type: 'date', admin: { position: 'sidebar' } },
   ],
 }
-
-
-
-

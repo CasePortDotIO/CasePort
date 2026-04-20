@@ -448,6 +448,30 @@ export interface Article {
     point: string;
     id?: string | null;
   }[];
+  /**
+   * Customizable Table with editable headers and rows for ROI matrix.
+   */
+  roiTable: {
+    enableTable?: boolean | null;
+    tableName?: string | null;
+    headers: {
+      col1: string;
+      col2: string;
+      col3: string;
+      col4: string;
+      col5: string;
+    };
+    rows?:
+      | {
+          col1: string;
+          col2: string;
+          col3: string;
+          col4: string;
+          col5: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   content: {
     root: {
       type: string;
@@ -952,6 +976,31 @@ export interface ArticlesSelect<T extends boolean = true> {
     | {
         point?: T;
         id?: T;
+      };
+  roiTable?:
+    | T
+    | {
+        enableTable?: T;
+        tableName?: T;
+        headers?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+            };
+        rows?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+              id?: T;
+            };
       };
   content?: T;
   tags?:
