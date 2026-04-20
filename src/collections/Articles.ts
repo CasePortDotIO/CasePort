@@ -74,6 +74,50 @@ const calculateReadTime: FieldHook = async ({ data }) => {
   return Math.ceil(words / 200) || 1
 }
 
+const generateSeoScore: FieldHook = async ({ data }) => {
+  let score = 0
+  const d = data || {}
+  
+  const keyword = (d.focusKeyword ?? '').toLowerCase().trim()
+  const title = (d.title ?? '').toLowerCase()
+  const metaTitle = d.metaTitle ?? ''
+  const metaDesc = d.metaDescription ?? ''
+  const slug = (d.slug ?? '').toLowerCase()
+  
+  // Use extractTextFromRichText that already exists in this file
+  const bodyText = d.content?.root?.children ? extractTextFromRichText(d.content.root.children).toLowerCase().slice(0, 300) : ''
+  const altText = typeof d.heroImage === 'object' ? d.heroImage?.alt ?? '' : ''
+  const related = d.relatedArticles ?? []
+  const secondary = d.secondaryKeywords ?? []
+
+  const mt = metaTitle.trim().length
+  if (mt >= 50 && mt <= 60) score += 15
+  else if (mt >= 45 && mt <= 65) score += 7
+
+  const md = metaDesc.trim().length
+  if (md >= 140 && md <= 160) score += 15
+  else if (md >= 120 && md <= 170) score += 7
+
+  if (keyword && title.includes(keyword)) score += 15
+
+  if (keyword && bodyText.includes(keyword)) score += 10
+
+  if (keyword && slug.includes(keyword.replace(/\s+/g, '-'))) score += 10
+
+  if (altText.trim().length > 10) score += 10
+
+  if (related.length >= 3) score += 10
+  else if (related.length >= 1) score += 5
+
+  if (secondary.length >= 4) score += 10
+  else if (secondary.length >= 2) score += 5
+
+  const fullBody = d.content?.root?.children ? extractTextFromRichText(d.content.root.children).toLowerCase() : ''
+  if (keyword && fullBody.includes(keyword)) score += 5
+
+  return Math.min(score, 100)
+}
+
 const calculateNextReviewDue: FieldHook = async ({ data }) => {
   if (!data?.publishedDate || !data?.reviewCycle) return null
   const pubDate = new Date(data.publishedDate)
@@ -91,7 +135,7 @@ export const Articles: CollectionConfig = {
   slug: 'articles',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'status', 'publishedDate', 'aeoScore'],
+    defaultColumns: ['title', 'status', 'publishedDate', 'aeoScore', 'seoScore'],
   },
   versions: {
     drafts: true,
@@ -112,6 +156,7 @@ export const Articles: CollectionConfig = {
     beforeChange: [
       async ({ data }) => {
         data.aeoScore = await generateAeoScore({ data } as any)
+        data.seoScore = await generateSeoScore({ data } as any)
         data.readTime = await calculateReadTime({ data } as any)
         data.nextReviewDue = await calculateNextReviewDue({ data } as any)
         return data
@@ -479,6 +524,17 @@ export const Articles: CollectionConfig = {
     // Sidebar
     { name: 'publishedDate', type: 'date', admin: { position: 'sidebar' } },
     { name: 'aeoScore', type: 'number', admin: { position: 'sidebar', readOnly: true } },
+    {
+      name: "seoScore",
+      label: "SEO Score (auto-calculated)",
+      type: "number",
+      admin: {
+        position: "sidebar",
+        readOnly: true,
+        description:
+          "Auto-calculated on every save. 0-100. Target 80+ before publishing.",
+      },
+    },
     { name: 'readTime', type: 'number', admin: { position: 'sidebar', readOnly: true } },
     {
       name: 'searchIntent',

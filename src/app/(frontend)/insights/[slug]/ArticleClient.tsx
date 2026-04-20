@@ -583,12 +583,12 @@ export default function ArticleClient({
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center"
+            className="object-cover object-center hero-image"
           />
         </div>
 
         {/* Hero content */}
-        <div className="relative z-10 container mx-auto px-6 lg:px-12 py-24 lg:py-48 mt-16 lg:mt-0 max-w-full overflow-hidden">
+        <div className="relative z-10 container mx-auto px-6 lg:px-12 py-24 lg:py-48 mt-16 lg:mt-0 max-w-full overflow-hidden article-header">
           {/* Breadcrumb */}
           <nav
             aria-label="Breadcrumb"
@@ -737,7 +737,7 @@ export default function ArticleClient({
       {/* ─── ARTICLE BODY (WHITE SECTION) ─── */}
       <div className="bg-white">
         <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-40">
-          <div className="flex flex-col lg:flex-row gap-12 items-start">
+          <div className="flex flex-col lg:flex-row gap-12 lg:items-stretch relative">
             {/* Main reading column */}
             <div className="flex-1 max-w-[720px] mx-auto w-full">
               {/* Direct Answer Block (Critical for AEO/SEO featured snippet) */}

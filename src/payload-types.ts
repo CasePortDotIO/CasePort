@@ -620,6 +620,10 @@ export interface Article {
     | null;
   publishedDate?: string | null;
   aeoScore?: number | null;
+  /**
+   * Auto-calculated on every save. 0-100. Target 80+ before publishing.
+   */
+  seoScore?: number | null;
   readTime?: number | null;
   searchIntent: 'Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational';
   targetSerpFeature?: string | null;
@@ -1150,6 +1154,7 @@ export interface ArticlesSelect<T extends boolean = true> {
       };
   publishedDate?: T;
   aeoScore?: T;
+  seoScore?: T;
   readTime?: T;
   searchIntent?: T;
   targetSerpFeature?: T;

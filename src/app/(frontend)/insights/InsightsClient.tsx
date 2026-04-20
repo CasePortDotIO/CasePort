@@ -220,8 +220,8 @@ function Breadcrumbs() {
 }
 
 // ─── SOCIAL PROOF / STATS BAR with Count-Up ───
-function StatsBar({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
-  const articleCount = useCountUp(fetchedArticles.length || 0, 1800)
+function StatsBar({ fetchedArticles = [], articleCount: serverArticleCount }: { fetchedArticles: any[], articleCount?: number }) {
+  const articleCount = useCountUp((serverArticleCount ?? fetchedArticles.length) || 0, 1800)
   const clusters = useCountUp(6, 1200)
   const subscribers = useCountUp(2400, 2200)
 
@@ -272,7 +272,7 @@ function StatsBar({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── HERO SECTION ───
-function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+function HeroSection({ fetchedArticles = [], articleCount }: { fetchedArticles: any[], articleCount?: number }) {
   return (
     <section className="relative min-h-[100vh] flex flex-col overflow-hidden">
       {/* Background */}
@@ -336,7 +336,7 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
       </div>
 
       {/* Stats Bar at bottom of hero */}
-      <StatsBar fetchedArticles={fetchedArticles} />
+      <StatsBar fetchedArticles={fetchedArticles} articleCount={articleCount} />
 
       {/* Bottom spacer */}
       <div className="h-16 relative z-10" />
@@ -503,7 +503,7 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                               : article.category}
                           </span>
                           <span className="text-[11px] text-cp-text-muted font-mono">
-                            <time itemProp="datePublished">{article.date}</time>
+                            By {article.author?.name || article.author?.email || article.author || 'CasePort Editorial Team'} &middot; <time itemProp="datePublished">{new Date(article.publishedDate || article.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
                           </span>
                         </div>
                         <h3
@@ -794,7 +794,7 @@ function ArticleCard({ article }: { article: any }) {
 
           <div className="mt-6 flex items-center justify-between pt-5 border-t border-white/[0.04]">
             <span className="text-[13px] text-cp-text-muted font-mono">
-              <time itemProp="datePublished">{article.date}</time> &middot; {article.readTime}
+              By {article.author?.name || article.author?.email || article.author || 'CasePort Editorial Team'} &middot; <time itemProp="datePublished">{new Date(article.publishedDate || article.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time> &middot; {article.readTime}
             </span>
             <span className="text-[14px] text-cp-cyan flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-[-4px] group-hover:translate-x-0">
               Read <ArrowUpRight size={14} />
@@ -1140,12 +1140,14 @@ export default function InsightsClient({
   navLinks = [],
   ctaLabel,
   ctaHref,
+  articleCount,
 }: {
   fetchedArticles: any[]
   fetchedCategories?: any[]
   navLinks?: NavLink[]
   ctaLabel?: string
   ctaHref?: string
+  articleCount?: number
 }) {
   return (
     <>
@@ -1154,7 +1156,7 @@ export default function InsightsClient({
       <main className="bg-[#0A0E17] min-h-screen overflow-x-hidden pt-16 lg:pt-[72px]">
         <ReadingProgressBar />
         <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
-        <HeroSection fetchedArticles={fetchedArticles} />
+        <HeroSection fetchedArticles={fetchedArticles} articleCount={articleCount} />
         <FeaturedSection fetchedArticles={fetchedArticles} />
         <EditorialGrid fetchedArticles={fetchedArticles} fetchedCategories={fetchedCategories} />
         <NewsletterSection />

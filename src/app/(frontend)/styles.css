@@ -576,3 +576,27 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+/*
+Task
+10:
+Fix
+mobile
+-
+direct
+answer
+block
+*/
+/* Task 10: Fix mobile - direct answer block */
+@media (max-width: 768px) {
+  .hero-image {
+    max-height: 200px !important;
+    object-fit: cover;
+  }
+  .direct-answer-block {
+    margin-top: 12px;
+  }
+  .article-header {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+}
