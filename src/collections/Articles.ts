@@ -77,16 +77,18 @@ const calculateReadTime: FieldHook = async ({ data }) => {
 const generateSeoScore: FieldHook = async ({ data }) => {
   let score = 0
   const d = data || {}
-  
+
   const keyword = (d.focusKeyword ?? '').toLowerCase().trim()
   const title = (d.title ?? '').toLowerCase()
   const metaTitle = d.metaTitle ?? ''
   const metaDesc = d.metaDescription ?? ''
   const slug = (d.slug ?? '').toLowerCase()
-  
+
   // Use extractTextFromRichText that already exists in this file
-  const bodyText = d.content?.root?.children ? extractTextFromRichText(d.content.root.children).toLowerCase().slice(0, 300) : ''
-  const altText = typeof d.heroImage === 'object' ? d.heroImage?.alt ?? '' : ''
+  const bodyText = d.content?.root?.children
+    ? extractTextFromRichText(d.content.root.children).toLowerCase().slice(0, 300)
+    : ''
+  const altText = typeof d.heroImage === 'object' ? (d.heroImage?.alt ?? '') : ''
   const related = d.relatedArticles ?? []
   const secondary = d.secondaryKeywords ?? []
 
@@ -112,7 +114,9 @@ const generateSeoScore: FieldHook = async ({ data }) => {
   if (secondary.length >= 4) score += 10
   else if (secondary.length >= 2) score += 5
 
-  const fullBody = d.content?.root?.children ? extractTextFromRichText(d.content.root.children).toLowerCase() : ''
+  const fullBody = d.content?.root?.children
+    ? extractTextFromRichText(d.content.root.children).toLowerCase()
+    : ''
   if (keyword && fullBody.includes(keyword)) score += 5
 
   return Math.min(score, 100)
@@ -525,14 +529,13 @@ export const Articles: CollectionConfig = {
     { name: 'publishedDate', type: 'date', admin: { position: 'sidebar' } },
     { name: 'aeoScore', type: 'number', admin: { position: 'sidebar', readOnly: true } },
     {
-      name: "seoScore",
-      label: "SEO Score (auto-calculated)",
-      type: "number",
+      name: 'seoScore',
+      label: 'SEO Score (auto-calculated)',
+      type: 'number',
       admin: {
-        position: "sidebar",
+        position: 'sidebar',
         readOnly: true,
-        description:
-          "Auto-calculated on every save. 0-100. Target 80+ before publishing.",
+        description: 'Auto-calculated on every save. 0-100. Target 80+ before publishing.',
       },
     },
     { name: 'readTime', type: 'number', admin: { position: 'sidebar', readOnly: true } },

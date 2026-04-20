@@ -220,7 +220,13 @@ function Breadcrumbs() {
 }
 
 // ─── SOCIAL PROOF / STATS BAR with Count-Up ───
-function StatsBar({ fetchedArticles = [], articleCount: serverArticleCount }: { fetchedArticles: any[], articleCount?: number }) {
+function StatsBar({
+  fetchedArticles = [],
+  articleCount: serverArticleCount,
+}: {
+  fetchedArticles: any[]
+  articleCount?: number
+}) {
   const articleCount = useCountUp((serverArticleCount ?? fetchedArticles.length) || 0, 1800)
   const clusters = useCountUp(6, 1200)
   const subscribers = useCountUp(2400, 2200)
@@ -272,7 +278,13 @@ function StatsBar({ fetchedArticles = [], articleCount: serverArticleCount }: { 
 }
 
 // ─── HERO SECTION ───
-function HeroSection({ fetchedArticles = [], articleCount }: { fetchedArticles: any[], articleCount?: number }) {
+function HeroSection({
+  fetchedArticles = [],
+  articleCount,
+}: {
+  fetchedArticles: any[]
+  articleCount?: number
+}) {
   return (
     <section className="relative min-h-[100vh] flex flex-col overflow-hidden">
       {/* Background */}
@@ -503,7 +515,21 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                               : article.category}
                           </span>
                           <span className="text-[11px] text-cp-text-muted font-mono">
-                            By {article.author?.name || article.author?.email || article.author || 'CasePort Editorial Team'} &middot; <time itemProp="datePublished">{new Date(article.publishedDate || article.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+                            By{' '}
+                            {article.author?.name ||
+                              article.author?.email ||
+                              article.author ||
+                              'CasePort Editorial Team'}{' '}
+                            &middot;{' '}
+                            <time itemProp="datePublished">
+                              {new Date(
+                                article.publishedDate || article.createdAt,
+                              ).toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                              })}
+                            </time>
                           </span>
                         </div>
                         <h3
@@ -794,7 +820,20 @@ function ArticleCard({ article }: { article: any }) {
 
           <div className="mt-6 flex items-center justify-between pt-5 border-t border-white/[0.04]">
             <span className="text-[13px] text-cp-text-muted font-mono">
-              By {article.author?.name || article.author?.email || article.author || 'CasePort Editorial Team'} &middot; <time itemProp="datePublished">{new Date(article.publishedDate || article.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</time> &middot; {article.readTime}
+              By{' '}
+              {article.author?.name ||
+                article.author?.email ||
+                article.author ||
+                'CasePort Editorial Team'}{' '}
+              &middot;{' '}
+              <time itemProp="datePublished">
+                {new Date(article.publishedDate || article.createdAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </time>{' '}
+              &middot; {article.readTime}
             </span>
             <span className="text-[14px] text-cp-cyan flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-[-4px] group-hover:translate-x-0">
               Read <ArrowUpRight size={14} />

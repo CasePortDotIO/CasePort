@@ -43,5 +43,12 @@ export default async function InsightsPage() {
     fetchNavData(),
   ])
 
-  return <InsightsClient fetchedArticles={docs} fetchedCategories={categories} articleCount={articleCount} {...navData} />
+  return (
+    <InsightsClient
+      fetchedArticles={docs}
+      fetchedCategories={categories}
+      articleCount={articleCount}
+      {...navData}
+    />
+  )
 }
