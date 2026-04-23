@@ -3,7 +3,7 @@ import config from './src/payload.config'
 
 async function run() {
   const payload = await getPayload({ config })
-  
+
   // Find an existing article to clone its required fields
   console.log('Fetching an existing article to copy required fields...')
   const existingArticles = await payload.find({
@@ -24,7 +24,7 @@ async function run() {
       title: 'Dummy Article with Table Data',
       slug: 'dummy-article-with-table-' + Date.now(),
       status: 'draft',
-      
+
       // Overwrite the content to include a Lexical Table
       content: {
         root: {
@@ -49,9 +49,9 @@ async function run() {
                   style: '',
                   text: 'This is a sample article demonstrating the Lexical Table feature',
                   type: 'text',
-                  version: 1
-                }
-              ]
+                  version: 1,
+                },
+              ],
             },
             {
               type: 'table',
@@ -85,10 +85,18 @@ async function run() {
                           version: 1,
                           direction: 'ltr',
                           children: [
-                            { detail: 0, format: 1, mode: 'normal', style: '', text: 'Feature', type: 'text', version: 1 }
-                          ]
-                        }
-                      ]
+                            {
+                              detail: 0,
+                              format: 1,
+                              mode: 'normal',
+                              style: '',
+                              text: 'Feature',
+                              type: 'text',
+                              version: 1,
+                            },
+                          ],
+                        },
+                      ],
                     },
                     {
                       type: 'tablecell',
@@ -108,12 +116,20 @@ async function run() {
                           version: 1,
                           direction: 'ltr',
                           children: [
-                            { detail: 0, format: 1, mode: 'normal', style: '', text: 'Details', type: 'text', version: 1 }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                            {
+                              detail: 0,
+                              format: 1,
+                              mode: 'normal',
+                              style: '',
+                              text: 'Details',
+                              type: 'text',
+                              version: 1,
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
                 },
                 {
                   type: 'tablerow',
@@ -140,10 +156,18 @@ async function run() {
                           version: 1,
                           direction: 'ltr',
                           children: [
-                            { detail: 0, format: 0, mode: 'normal', style: '', text: 'Lexical Table', type: 'text', version: 1 }
-                          ]
-                        }
-                      ]
+                            {
+                              detail: 0,
+                              format: 0,
+                              mode: 'normal',
+                              style: '',
+                              text: 'Lexical Table',
+                              type: 'text',
+                              version: 1,
+                            },
+                          ],
+                        },
+                      ],
                     },
                     {
                       type: 'tablecell',
@@ -163,20 +187,28 @@ async function run() {
                           version: 1,
                           direction: 'ltr',
                           children: [
-                            { detail: 0, format: 0, mode: 'normal', style: '', text: 'Successfully Added!', type: 'text', version: 1 }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
+                            {
+                              detail: 0,
+                              format: 0,
+                              mode: 'normal',
+                              style: '',
+                              text: 'Successfully Added!',
+                              type: 'text',
+                              version: 1,
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
     }
-    
+
     // Ensure relationship fields only pass their ID
     if (newArticleData.author && typeof newArticleData.author === 'object') {
       newArticleData.author = newArticleData.author.id
@@ -185,12 +217,13 @@ async function run() {
       newArticleData.heroImage = newArticleData.heroImage.id
     }
     if (newArticleData.category && typeof newArticleData.category === 'object') {
-        newArticleData.category = newArticleData.category.id
+      newArticleData.category = newArticleData.category.id
     }
-    
   } else {
-      console.error('No existing articles found to copy structure from. Since Articles has many strictly required fields (AEO, SEO, excerpt, images, etc.), please create at least one article manually first so it can be cloned.')
-      process.exit(1)
+    console.error(
+      'No existing articles found to copy structure from. Since Articles has many strictly required fields (AEO, SEO, excerpt, images, etc.), please create at least one article manually first so it can be cloned.',
+    )
+    process.exit(1)
   }
 
   try {

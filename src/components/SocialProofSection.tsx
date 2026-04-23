@@ -13,9 +13,9 @@
  * - Geist for body text
  */
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, Users, Briefcase } from 'lucide-react'
-import { useState, useEffect, useMemo } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Briefcase, TrendingUp, Users } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function SocialProofSection({ markets = [] }: { markets?: any[] }) {
   const topMarkets = useMemo(() => {
