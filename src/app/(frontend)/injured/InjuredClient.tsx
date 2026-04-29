@@ -103,7 +103,7 @@ export default function Home() {
       phase: 2,
       label: 'Fit',
       question: 'Do you currently have legal representation?',
-      chips: ['No', 'Yes', 'Not sure'],
+      chips: ['No', 'Yes', 'Not sure.'],
       answer: 0,
     },
     {
@@ -116,7 +116,7 @@ export default function Home() {
     {
       phase: 4,
       label: 'Contact',
-      question: 'How would you prefer to be contacted?',
+      question: 'How would you prefer to be contacted.',
       chips: ['Phone call', 'Text message', 'Email'],
       answer: 0,
     },
@@ -182,10 +182,6 @@ export default function Home() {
     {
       q: 'Can I still continue if I do not have documents yet?',
       a: 'Yes. Documents can help strengthen your file, but you can still begin without them.',
-    },
-    {
-      q: 'What if I already have a lawyer?',
-      a: 'If you are already represented for this accident, we may not be able to continue this request.',
     },
   ]
 
