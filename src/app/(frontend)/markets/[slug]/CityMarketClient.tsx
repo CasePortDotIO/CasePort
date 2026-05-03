@@ -15,7 +15,21 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-export default function CityMarketPage() {
+export default function CityMarketPage({
+  navLinks,
+  ctaLabel,
+  ctaHref,
+  platformLinks,
+  resourceLinks,
+  legalLinks,
+}: {
+  navLinks?: any[]
+  ctaLabel?: string
+  ctaHref?: string
+  platformLinks?: any[]
+  resourceLinks?: any[]
+  legalLinks?: any[]
+}) {
   const params = useParams()
   const router = useRouter()
   const cityId = typeof params?.slug === 'string' ? params.slug.toLowerCase() : ''
@@ -42,11 +56,15 @@ export default function CityMarketPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#030608]">
-        <Navbar />
+        <Navbar navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-t-[#00B4D8] border-b-transparent"></div>
         </div>
-        <Footer />
+        <Footer
+          platformLinks={platformLinks}
+          resourceLinks={resourceLinks}
+          legalLinks={legalLinks}
+        />
       </div>
     )
   }
@@ -54,7 +72,7 @@ export default function CityMarketPage() {
   if (!market) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#030608]">
-        <Navbar />
+        <Navbar navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-[32px] font-bold text-[#F1F3F5] mb-4">Market Not Found</h1>
           <p className="text-[#B0B8C4] mb-8">
@@ -67,7 +85,11 @@ export default function CityMarketPage() {
             Back to Markets
           </Button>
         </div>
-        <Footer />
+        <Footer
+          platformLinks={platformLinks}
+          resourceLinks={resourceLinks}
+          legalLinks={legalLinks}
+        />
       </div>
     )
   }
@@ -153,7 +175,7 @@ export default function CityMarketPage() {
       <style>{`
         html { scroll-behavior: smooth; }
       `}</style>
-      <Navbar />
+      <Navbar navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
@@ -215,7 +237,7 @@ export default function CityMarketPage() {
               variant="gradient"
               size="lg"
               className="rounded-full shadow-lg shadow-[#00B4D8]/20"
-              onClick={() => router.push('/markets')}
+              onClick={() => router.push('/request-access')}
             >
               Request Access <ArrowRight size={16} className="ml-2" />
             </Button>
@@ -400,14 +422,14 @@ export default function CityMarketPage() {
             variant="gradient"
             size="lg"
             className="rounded-full shadow-lg shadow-[#00B4D8]/20"
-            onClick={() => router.push('/markets')}
+            onClick={() => router.push('/request-access')}
           >
             Request Access <ArrowRight size={16} className="ml-2" />
           </Button>
         </div>
       </section>
 
-      <Footer />
+      <Footer platformLinks={platformLinks} resourceLinks={resourceLinks} legalLinks={legalLinks} />
     </div>
   )
 }

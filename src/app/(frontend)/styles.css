@@ -560,3 +560,43 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+/*
+Task
+10:
+Fix
+mobile
+-
+direct
+answer
+block
+*/
+/* Task 10: Fix mobile - direct answer block */
+@media (max-width: 768px) {
+  .hero-image {
+    max-height: 200px !important;
+    object-fit: cover;
+  }
+  .direct-answer-block {
+    margin-top: 12px;
+  }
+  .article-header {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+}

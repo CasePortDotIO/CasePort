@@ -405,7 +405,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 1: Accident Date */}
           {currentScreen === 1 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -427,7 +427,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 2: Location */}
           {currentScreen === 2 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -529,7 +529,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 3: Accident Type */}
           {currentScreen === 3 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -569,7 +569,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 4: Role */}
           {currentScreen === 4 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -614,7 +614,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 5: Medical Care */}
           {currentScreen === 5 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -654,7 +654,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 6: Fault */}
           {currentScreen === 6 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -694,7 +694,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 7: Insurance */}
           {currentScreen === 7 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -729,7 +729,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 8: Has Lawyer */}
           {currentScreen === 8 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -764,7 +764,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 9: Preferred Contact */}
           {currentScreen === 9 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -799,7 +799,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 10: Can Talk Now */}
           {currentScreen === 10 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -834,7 +834,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 11: Documents */}
           {currentScreen === 11 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -877,7 +877,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 12: Upload Documents */}
           {currentScreen === 12 && formData.hasDocuments === 'Upload documents now' && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}
@@ -976,7 +976,7 @@ export default function SecureCaseCheckForm({ isOpen, onClose }: Props) {
           {/* Screen 13: Contact Info */}
           {currentScreen === 13 && (
             <div className="space-y-6">
-              <div>
+              <div className="text-center">
                 <h2
                   className="text-white text-xl font-semibold mb-2"
                   style={{ fontFamily: 'Playfair Display, serif' }}

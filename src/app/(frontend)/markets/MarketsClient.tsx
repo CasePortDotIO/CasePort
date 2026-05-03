@@ -12,7 +12,7 @@
  * 7. FAQ — Reduce friction
  * 8. Final CTA — Action trigger
  *
- * BRAND SYSTEM (from /for-law-firms audit):
+ * BRAND SYSTEM (from /personal-injury-leads audit):
  * - H1/H2: Geist, 60px, 700, -2.4px tracking, #F1F3F5
  * - H3: Geist, 30px, 700, white
  * - Section labels: JetBrains Mono, 12px, 500, 1.8px tracking, uppercase, oklch(0.6 0.015 250)
@@ -99,10 +99,28 @@ function useCountUp(end: number, duration: number = 2000, startOnView: boolean =
   return { count, ref }
 }
 
-export default function MarketPage() {
-  const [markets, setMarkets] = useState<any[]>([])
-  const [pageFaqs, setPageFaqs] = useState<{ question: string; answer: string }[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+export default function MarketPage({
+  initialMarkets = [],
+  initialFaqs = [],
+  navLinks,
+  ctaLabel,
+  ctaHref,
+  platformLinks,
+  resourceLinks,
+  legalLinks,
+}: {
+  initialMarkets?: any[]
+  initialFaqs?: { question: string; answer: string }[]
+  navLinks?: any[]
+  ctaLabel?: string
+  ctaHref?: string
+  platformLinks?: any[]
+  resourceLinks?: any[]
+  legalLinks?: any[]
+}) {
+  const [markets, setMarkets] = useState<any[]>(initialMarkets)
+  const [pageFaqs, setPageFaqs] = useState<{ question: string; answer: string }[]>(initialFaqs)
+  const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedRegion, setSelectedRegion] = useState<string>('All')
   const [selectedStatus, setSelectedStatus] = useState<MarketStatus | 'all'>('all')
@@ -113,6 +131,10 @@ export default function MarketPage() {
   const exitIntentShown = useRef(false)
 
   useEffect(() => {
+    // Only fetch if not pre-populated from the server
+    if (initialMarkets.length > 0) return
+
+    setIsLoading(true)
     fetch('/api/markets?limit=100')
       .then((res) => res.json())
       .then((data) => {
@@ -356,7 +378,7 @@ export default function MarketPage() {
       <main>
         <AEOContentBlocks />
         <LiveMarketTicker />
-        <Navbar />
+        <Navbar navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
 
         {/* ============================================ */}
         {/* SECTION 1: HERO — Above the fold */}
@@ -372,13 +394,13 @@ export default function MarketPage() {
             <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.06_0.01_250)]/60 via-[oklch(0.06_0.01_250)]/80 to-[oklch(0.06_0.01_250)]" />
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-12">
+          <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-[6.5rem] sm:pt-32 pb-12">
             {/* System Status Bar */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="bg-white/[0.03] border border-white/[0.08] inline-flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-2.5 mb-8 overflow-hidden rounded-2xl"
+              className="relative bg-white/[0.03] border border-white/[0.08] inline-flex items-center gap-3 sm:gap-5 px-4 sm:px-5 py-2.5 mb-8 overflow-hidden rounded-2xl"
               role="status"
               aria-label={`System status: ${stats.total} markets active, ${stats.capped} capped, ${stats.evaluation} in review`}
             >
@@ -448,14 +470,15 @@ export default function MarketPage() {
                   artificial scarcity — a structural requirement. The math is simple:{' '}
                   {stats.total || 46} markets, 3 firms each, and the strongest firms fill first.
                 </p>
-                <button
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
+                <Link
+                  href="/request-access"
+                  className="inline-flex items-center gap-2 cursor-pointer px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)',
                   }}
                 >
                   Check Your Market <ArrowRight size={16} />
-                </button>
+                </Link>
               </motion.div>
 
               {/* Right: Stats Grid */}
@@ -1013,16 +1036,28 @@ export default function MarketPage() {
         <VideoTestimonialSection />
 
         {/* Case Study Section */}
-        <CaseStudySection />
+        <CaseStudySection
+          checkButonClickHandler={() =>
+            document.getElementById('grid')?.scrollIntoView({ behavior: 'smooth' })
+          }
+        />
 
         {/* Lead Quality Guarantee Section */}
         <LeadQualityGuarantee />
 
         {/* Comparison Table */}
-        <ComparisonTable />
+        <ComparisonTable
+          checkButonClickHandler={() =>
+            document.getElementById('grid')?.scrollIntoView({ behavior: 'smooth' })
+          }
+        />
 
         {/* Footer */}
-        <Footer />
+        <Footer
+          platformLinks={platformLinks}
+          resourceLinks={resourceLinks}
+          legalLinks={legalLinks}
+        />
 
         {/* Unlisted Market Form */}
         {hasUnlistedMarket && (

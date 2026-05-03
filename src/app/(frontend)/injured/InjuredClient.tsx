@@ -9,7 +9,6 @@ import {
   Car,
   CheckCircle,
   ChevronDown,
-  ChevronLeft,
   Clock,
   FileText,
   Heart,
@@ -104,7 +103,7 @@ export default function Home() {
       phase: 2,
       label: 'Fit',
       question: 'Do you currently have legal representation?',
-      chips: ['No', 'Yes', 'Not sure'],
+      chips: ['No', 'Yes', 'Not sure.'],
       answer: 0,
     },
     {
@@ -117,7 +116,7 @@ export default function Home() {
     {
       phase: 4,
       label: 'Contact',
-      question: 'How would you prefer to be contacted?',
+      question: 'How would you prefer to be contacted.',
       chips: ['Phone call', 'Text message', 'Email'],
       answer: 0,
     },
@@ -184,10 +183,6 @@ export default function Home() {
       q: 'Can I still continue if I do not have documents yet?',
       a: 'Yes. Documents can help strengthen your file, but you can still begin without them.',
     },
-    {
-      q: 'What if I already have a lawyer?',
-      a: 'If you are already represented for this accident, we may not be able to continue this request.',
-    },
   ]
 
   return (
@@ -197,20 +192,17 @@ export default function Home() {
       {/* ============================================================================ */}
       <header className="sticky top-0 z-50 bg-[#0F1419]/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-8 py-3 md:py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
-            <Link
-              href="/"
-              className="text-white/60 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-full p-1.5 backdrop-blur-md border border-white/10 group flex items-center justify-center shrink-0"
-            >
-              <ChevronLeft
-                size={16}
-                className="sm:w-[18px] sm:h-[18px] transform group-hover:-translate-x-0.5 transition-transform"
-              />
-            </Link>
-            <span className="text-white font-bold text-base sm:text-lg tracking-widest truncate">
+          <Link href="/" className="flex-shrink-0">
+            <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
               CASEPORT
-            </span>
-          </div>
+            </div>
+            {/* <div
+              className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em] uppercase font-mono"
+              style={{ fontSize: '0.5rem' }}
+            >
+              Case Flow Without Guesswork
+            </div> */}
+          </Link>
           <a href="tel:+18002273669" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-xs text-white/50 font-medium leading-none">
@@ -248,7 +240,7 @@ export default function Home() {
               <p className="text-[#22D3EE] text-sm font-medium tracking-widest uppercase mb-6">
                 Injured in a car or truck accident?
               </p>
-              <h1 className="text-white mb-6">
+              <h1 className="text-white mb-6 lg:text-[72px] sm:text[60px] text-[48px]">
                 Start with the <span className="text-[#22D3EE]">right next step.</span>
               </h1>
               <p
@@ -472,11 +464,13 @@ export default function Home() {
         <div
           className={`relative z-10 max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(3) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#22D3EE] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               How it works
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">A simpler way to move forward after an accident</h2>
+            <h2 className="text-[#1A1A1A] mb-5 lg:text-[72px] sm:text[60px] text-[48px]">
+              A simpler way to move forward after an accident
+            </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
               We guide you through a simple process to understand your situation and explore your
               options.
@@ -544,11 +538,13 @@ export default function Home() {
         <div
           className={`relative z-10 max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(4) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Accident types
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">Common situations we may be able to help with</h2>
+            <h2 className="text-[#1A1A1A] lg:text-[72px] sm:text[60px] text-[48px] mb-5">
+              Common situations we may be able to help with
+            </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
               Availability can depend on location, case type, and other factors.
             </p>
@@ -606,18 +602,20 @@ export default function Home() {
         <div
           className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(5) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               After an accident
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">What to do after an accident</h2>
+            <h2 className="text-[#1A1A1A] mb-5 lg:text-[72px] sm:text[60px] text-[48px]">
+              What to do after an accident
+            </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
               These steps can help protect your health and strengthen your case.
             </p>
           </div>
 
           {/* FIX 3: Timeline cards now max-w-4xl — full visual width */}
-          <div className="max-w-4xl space-y-0">
+          <div className="max-w-7xl space-y-0">
             {[
               {
                 num: '01',
@@ -690,7 +688,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left — Copy */}
             <div className="max-w-lg">
-              <h2 className="text-white mb-5">
+              <h2 className="text-white mb-5 text-[48px]">
                 The Secure Case Check takes <span className="text-[#22D3EE]">about 2 minutes</span>
               </h2>
               <p className="text-white/50 text-lg leading-relaxed mb-4">
@@ -807,11 +805,11 @@ export default function Home() {
         <div
           className={`relative z-10 max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(7) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Helpful documents
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">
+            <h2 className="text-[#1A1A1A] mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
               Documents can help your request move forward faster
             </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
@@ -820,7 +818,7 @@ export default function Home() {
           </div>
 
           {/* FIX 3: Document cards wider — full max-w-5xl with more generous padding */}
-          <div className="max-w-5xl grid md:grid-cols-3 gap-8 mb-10">
+          <div className="max-w-7xl grid md:grid-cols-3 gap-8 mb-10">
             {[
               {
                 icon: Camera,
@@ -876,11 +874,11 @@ export default function Home() {
         <div
           className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(8) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Your privacy matters
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">
+            <h2 className="text-[#1A1A1A] mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
               Clear, private, and built to help you move faster
             </h2>
             <p className="text-[#6B6560] text-lg leading-relaxed">
@@ -889,7 +887,7 @@ export default function Home() {
           </div>
 
           {/* 4 Cards — HORIZONTAL ICON-LEFT layout with left accent border */}
-          <div className="grid sm:grid-cols-2 gap-6 max-w-4xl">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-7xl">
             {[
               {
                 icon: Lock,
@@ -967,14 +965,16 @@ export default function Home() {
         <div
           className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-1000 ${visibleSections.includes(9) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <div className="max-w-2xl mx-auto text-center mb-16">
+          <div className="max-w-5xl mx-auto text-center mb-16">
             <p className="text-[#8B7355] text-xs font-semibold tracking-[0.2em] uppercase mb-4">
               Common questions
             </p>
-            <h2 className="text-[#1A1A1A] mb-5">Questions people often ask after an accident</h2>
+            <h2 className="text-[#1A1A1A] mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
+              Questions people often ask after an accident
+            </h2>
           </div>
 
-          <div className="max-w-3xl space-y-3">
+          <div className="max-w-7xl space-y-3">
             {faqItems.map((item, i) => (
               <div
                 key={i}
@@ -1015,9 +1015,9 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(201,169,110,0.05)_0%,transparent_60%)]" />
 
         <div
-          className={`relative max-w-3xl mx-auto px-5 md:px-8 text-center transition-all duration-1000 ${visibleSections.includes(10) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+          className={`relative max-w-7xl mx-auto px-5 md:px-8 text-center transition-all duration-1000 ${visibleSections.includes(10) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
         >
-          <h2 className="text-white mb-5">
+          <h2 className="text-white mb-5 text-[48px] lg:text-[72px] sm:text-[60px]">
             Start with the <span className="text-[#22D3EE]">right next step</span>
           </h2>
           <p className="text-white/50 text-lg leading-relaxed mb-4 max-w-xl mx-auto">
@@ -1075,13 +1075,17 @@ export default function Home() {
                 Company
               </p>
               <div className="space-y-2.5">
-                {['For Law Firms', 'Insights', 'Contact'].map((link) => (
+                {[
+                  { label: 'For Law Firms', href: '/personal-injury-leads' },
+                  { label: 'Insights', href: '/insights' },
+                  { label: 'Contact', href: 'mailto:access@caseport.io' },
+                ].map((link) => (
                   <a
-                    key={link}
-                    href="#"
+                    key={link.label}
+                    href={link.href}
                     className="block text-white/40 text-sm hover:text-[#22D3EE] transition-colors duration-300"
                   >
-                    {link}
+                    {link.label}
                   </a>
                 ))}
               </div>
@@ -1093,13 +1097,17 @@ export default function Home() {
                 Legal
               </p>
               <div className="space-y-2.5">
-                {['Privacy Policy', 'Terms', 'Disclaimer'].map((link) => (
+                {[
+                  { label: 'Privacy Policy', href: '/privacy' },
+                  { label: 'Terms', href: '/terms' },
+                  { label: 'Disclaimer', href: '/terms#disclaimer' },
+                ].map((link) => (
                   <a
-                    key={link}
-                    href="#"
+                    key={link.label}
+                    href={link.href}
                     className="block text-white/40 text-sm hover:text-[#A89968] transition-colors duration-300"
                   >
-                    {link}
+                    {link.label}
                   </a>
                 ))}
               </div>

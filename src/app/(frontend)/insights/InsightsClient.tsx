@@ -19,8 +19,8 @@
 import AEOContent from '@/components/insights/AEOContent'
 import FAQSection from '@/components/insights/FAQSection'
 import Footer from '@/components/insights/Footer'
-import Navbar from '@/components/insights/Navbar'
 import StructuredData from '@/components/insights/StructuredData'
+import Navbar from '@/components/Navbar'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 import { categories, signals, topicClusters, type Category } from '@/lib/articles'
 import {
@@ -28,7 +28,6 @@ import {
   ArrowUp,
   ArrowUpRight,
   BarChart3,
-  Bookmark,
   Building2,
   ChevronRight,
   Clock,
@@ -221,8 +220,14 @@ function Breadcrumbs() {
 }
 
 // ─── SOCIAL PROOF / STATS BAR with Count-Up ───
-function StatsBar({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
-  const articleCount = useCountUp(fetchedArticles.length || 0, 1800)
+function StatsBar({
+  fetchedArticles = [],
+  articleCount: serverArticleCount,
+}: {
+  fetchedArticles: any[]
+  articleCount?: number
+}) {
+  const articleCount = useCountUp((serverArticleCount ?? fetchedArticles.length) || 0, 1800)
   const clusters = useCountUp(6, 1200)
   const subscribers = useCountUp(2400, 2200)
 
@@ -273,7 +278,13 @@ function StatsBar({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── HERO SECTION ───
-function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+function HeroSection({
+  fetchedArticles = [],
+  articleCount,
+}: {
+  fetchedArticles: any[]
+  articleCount?: number
+}) {
   return (
     <section className="relative min-h-[100vh] flex flex-col overflow-hidden">
       {/* Background */}
@@ -295,17 +306,17 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
       />
 
       {/* Breadcrumbs */}
-      <Breadcrumbs />
+      {/* <Breadcrumbs /> */}
 
       {/* Hero Content */}
-      <div className="container relative z-10 flex-1 flex items-center py-16 lg:py-24">
+      <div className="container relative z-10 flex-1 flex items-center py-10 ">
         <div className="max-w-[960px]">
-          <Reveal>
+          {/* <Reveal>
             <span className="system-label text-cp-cyan inline-flex items-center gap-2.5 mb-10">
               <span className="w-2 h-2 rounded-full bg-cp-cyan animate-pulse" />
               CasePort Insights
             </span>
-          </Reveal>
+          </Reveal> */}
 
           <Reveal delay={0.1}>
             <h1
@@ -337,21 +348,23 @@ function HeroSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
       </div>
 
       {/* Stats Bar at bottom of hero */}
-      <StatsBar fetchedArticles={fetchedArticles} />
+      <StatsBar fetchedArticles={fetchedArticles} articleCount={articleCount} />
 
       {/* Bottom spacer */}
-      <div className="h-16 lg:h-24 relative z-10" />
+      <div className="h-16 relative z-10" />
     </section>
   )
 }
 
 // ─── FEATURED ARTICLE SECTION ───
 function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+  if (!fetchedArticles || fetchedArticles.length === 0) return null
+
   const featured = fetchedArticles[0]
   const latestThree = fetchedArticles.slice(1, 4)
 
   return (
-    <section className="relative py-32 lg:py-44">
+    <section className="relative py-32">
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0E17] via-[#0B1120] to-[#0A0E17]" />
 
       <div className="container relative z-10">
@@ -502,7 +515,21 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
                               : article.category}
                           </span>
                           <span className="text-[11px] text-cp-text-muted font-mono">
-                            <time itemProp="datePublished">{article.date}</time>
+                            By{' '}
+                            {article.author?.name ||
+                              article.author?.email ||
+                              article.author ||
+                              'CasePort Editorial Team'}{' '}
+                            &middot;{' '}
+                            <time itemProp="datePublished">
+                              {new Date(
+                                article.publishedDate || article.createdAt,
+                              ).toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                              })}
+                            </time>
                           </span>
                         </div>
                         <h3
@@ -540,24 +567,35 @@ function FeaturedSection({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
 }
 
 // ─── EDITORIAL GRID SECTION (with Search Bar) ───
-function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
-  const [activeCategory, setActiveCategory] = useState<'All' | Category>('All')
+function EditorialGrid({
+  fetchedArticles = [],
+  fetchedCategories = [],
+}: {
+  fetchedArticles: any[]
+  fetchedCategories?: any[]
+}) {
+  const [activeCategory, setActiveCategory] = useState<'All' | string>('All')
   const [searchQuery, setSearchQuery] = useState('')
 
   const filtered = useMemo(() => {
     let result = fetchedArticles || []
     if (activeCategory !== 'All') {
-      result = result.filter((a: any) => a.category === activeCategory)
+      result = result.filter((a: any) => {
+        const catName = typeof a.category === 'object' ? a.category?.title : a.category
+        return catName === activeCategory
+      })
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
-      result = result.filter(
-        (a) =>
-          a.title.toLowerCase().includes(q) ||
-          a.excerpt.toLowerCase().includes(q) ||
+      result = result.filter((a) => {
+        const catName = typeof a.category === 'object' ? a.category?.title : a.category
+        return (
+          a.title?.toLowerCase().includes(q) ||
+          a.excerpt?.toLowerCase().includes(q) ||
           (a.tags || []).some((t: string) => t.toLowerCase().includes(q)) ||
-          a.category.toLowerCase().includes(q),
-      )
+          (catName || '').toLowerCase().includes(q)
+        )
+      })
     }
     return result
   }, [activeCategory, searchQuery])
@@ -622,10 +660,24 @@ function EditorialGrid({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
         {/* Category Filters */}
         <Reveal delay={0.1}>
           <div className="flex flex-wrap gap-3 mb-16">
-            {['All', ...categories].map((cat) => (
+            <button
+              key="All"
+              onClick={() => setActiveCategory('All')}
+              className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
+                activeCategory === 'All'
+                  ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
+                  : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
+              }`}
+            >
+              All
+            </button>
+            {(fetchedCategories && fetchedCategories.length > 0
+              ? fetchedCategories.map((c) => c.title)
+              : categories
+            ).map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat as 'All' | Category)}
+                onClick={() => setActiveCategory(cat as string)}
                 className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
                   activeCategory === cat
                     ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
@@ -768,7 +820,20 @@ function ArticleCard({ article }: { article: any }) {
 
           <div className="mt-6 flex items-center justify-between pt-5 border-t border-white/[0.04]">
             <span className="text-[13px] text-cp-text-muted font-mono">
-              <time itemProp="datePublished">{article.date}</time> &middot; {article.readTime}
+              By{' '}
+              {article.author?.name ||
+                article.author?.email ||
+                article.author ||
+                'CasePort Editorial Team'}{' '}
+              &middot;{' '}
+              <time itemProp="datePublished">
+                {new Date(article.publishedDate || article.createdAt).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </time>{' '}
+              &middot; {article.readTime}
             </span>
             <span className="text-[14px] text-cp-cyan flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-[-4px] group-hover:translate-x-0">
               Read <ArrowUpRight size={14} />
@@ -783,6 +848,12 @@ function ArticleCard({ article }: { article: any }) {
 // ─── NEWSLETTER SECTION ───
 function NewsletterSection() {
   const [email, setEmail] = useState('')
+
+  function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault()
+    const dest = email ? `/intelligence?email=${encodeURIComponent(email)}` : '/intelligence'
+    window.location.href = dest
+  }
 
   return (
     <section id="subscribe" className="relative py-32 lg:py-44">
@@ -862,7 +933,10 @@ function NewsletterSection() {
                   className="flex-1 h-14 px-5 rounded-xl bg-white/[0.06] border border-white/[0.08] text-[15px] text-cp-text-primary placeholder:text-cp-text-muted focus:outline-none focus:border-cp-cyan/40 transition-colors"
                   aria-label="Email address"
                 />
-                <button className="cta-gradient whitespace-nowrap !h-14 !text-[15px]">
+                <button
+                  onClick={handleSubscribe}
+                  className="cta-gradient whitespace-nowrap !h-14 !text-[15px]"
+                >
                   Subscribe Free
                 </button>
               </div>
@@ -903,7 +977,10 @@ function TopicClusters() {
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 lg:gap-8">
           {topicClusters.map((topic, i) => (
             <Reveal key={topic.name} delay={i * 0.08}>
-              <div className="topic-card glass-panel p-8 lg:p-10 group cursor-pointer">
+              <Link
+                href={`/insights?category=${encodeURIComponent(topic.name)}`}
+                className="topic-card glass-panel p-8 lg:p-10 group cursor-pointer block h-full"
+              >
                 <div className="flex items-start justify-between mb-6">
                   <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-cp-cyan group-hover:bg-cp-cyan/10 group-hover:border-cp-cyan/20 transition-all duration-300">
                     {getTopicIcon(topic.icon)}
@@ -933,7 +1010,7 @@ function TopicClusters() {
                     Explore <ArrowRight size={14} />
                   </span>
                 </div>
-              </div>
+              </Link>
             </Reveal>
           ))}
         </div>
@@ -1012,7 +1089,10 @@ function SignalsSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
           {signals.map((signal, i) => (
             <Reveal key={signal.id} delay={i * 0.1}>
-              <div className="signal-card glass-panel p-7 lg:p-8 group cursor-pointer">
+              <Link
+                href="/insights"
+                className="signal-card glass-panel p-7 lg:p-8 group cursor-pointer block"
+              >
                 <div className="flex items-center justify-between mb-5">
                   <span className="system-label text-cp-green flex items-center gap-2 text-[10px]">
                     <span className="w-2 h-2 rounded-full bg-cp-green animate-pulse" />
@@ -1045,7 +1125,7 @@ function SignalsSection() {
                   </div>
                   <span className="text-[12px] text-cp-text-muted font-mono">{signal.date}</span>
                 </div>
-              </div>
+              </Link>
             </Reveal>
           ))}
         </div>
@@ -1091,17 +1171,33 @@ function FinalCTA() {
 }
 
 // ─── MAIN PAGE ───
-export default function InsightsClient({ fetchedArticles = [] }: { fetchedArticles: any[] }) {
+type NavLink = { label: string; href: string; openInNewTab?: boolean }
+
+export default function InsightsClient({
+  fetchedArticles = [],
+  fetchedCategories = [],
+  navLinks = [],
+  ctaLabel,
+  ctaHref,
+  articleCount,
+}: {
+  fetchedArticles: any[]
+  fetchedCategories?: any[]
+  navLinks?: NavLink[]
+  ctaLabel?: string
+  ctaHref?: string
+  articleCount?: number
+}) {
   return (
     <>
       <StructuredData />
       <AEOContent />
-      <main className="bg-[#0A0E17] min-h-screen overflow-x-hidden">
+      <main className="bg-[#0A0E17] min-h-screen overflow-x-hidden pt-16 lg:pt-[72px]">
         <ReadingProgressBar />
-        <Navbar />
-        <HeroSection fetchedArticles={fetchedArticles} />
+        <Navbar variant="editorial" navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
+        <HeroSection fetchedArticles={fetchedArticles} articleCount={articleCount} />
         <FeaturedSection fetchedArticles={fetchedArticles} />
-        <EditorialGrid fetchedArticles={fetchedArticles} />
+        <EditorialGrid fetchedArticles={fetchedArticles} fetchedCategories={fetchedCategories} />
         <NewsletterSection />
         <TopicClusters />
         <EditorialPhilosophy />

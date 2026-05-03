@@ -46,7 +46,7 @@ export default function CustomDatePicker({ value, onChange }: CustomDatePickerPr
   }
 
   const monthName = displayMonth.toLocaleString('default', { month: 'long', year: 'numeric' })
-  const selectedDate = value ? new Date(value) : null
+  const selectedDate = value ? new Date(value + 'T00:00:00') : null
   const isSelectedMonth =
     selectedDate &&
     selectedDate.getMonth() === displayMonth.getMonth() &&

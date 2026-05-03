@@ -5,7 +5,6 @@ import ROICalculator from '@/components/ROICalculator'
 import { Button } from '@/components/ui/button'
 import { VideoTestimonials } from '@/components/VideoTestimonials'
 import {
-  ArrowLeft,
   ArrowRight,
   Award,
   ChevronDown,
@@ -231,6 +230,90 @@ function LeadScoreBar({ label, score, color }: { label: string; score: number; c
 }
 
 /* ─────────────────────────────────────────────
+   State Select Component (all 50 states + D.C.)
+   ───────────────────────────────────────────── */
+const US_STATES = [
+  { value: 'AL', label: 'Alabama' },
+  { value: 'AK', label: 'Alaska' },
+  { value: 'AZ', label: 'Arizona' },
+  { value: 'AR', label: 'Arkansas' },
+  { value: 'CA', label: 'California' },
+  { value: 'CO', label: 'Colorado' },
+  { value: 'CT', label: 'Connecticut' },
+  { value: 'DE', label: 'Delaware' },
+  { value: 'FL', label: 'Florida' },
+  { value: 'GA', label: 'Georgia' },
+  { value: 'HI', label: 'Hawaii' },
+  { value: 'ID', label: 'Idaho' },
+  { value: 'IL', label: 'Illinois' },
+  { value: 'IN', label: 'Indiana' },
+  { value: 'IA', label: 'Iowa' },
+  { value: 'KS', label: 'Kansas' },
+  { value: 'KY', label: 'Kentucky' },
+  { value: 'LA', label: 'Louisiana' },
+  { value: 'ME', label: 'Maine' },
+  { value: 'MD', label: 'Maryland' },
+  { value: 'MA', label: 'Massachusetts' },
+  { value: 'MI', label: 'Michigan' },
+  { value: 'MN', label: 'Minnesota' },
+  { value: 'MS', label: 'Mississippi' },
+  { value: 'MO', label: 'Missouri' },
+  { value: 'MT', label: 'Montana' },
+  { value: 'NE', label: 'Nebraska' },
+  { value: 'NV', label: 'Nevada' },
+  { value: 'NH', label: 'New Hampshire' },
+  { value: 'NJ', label: 'New Jersey' },
+  { value: 'NM', label: 'New Mexico' },
+  { value: 'NY', label: 'New York' },
+  { value: 'NC', label: 'North Carolina' },
+  { value: 'ND', label: 'North Dakota' },
+  { value: 'OH', label: 'Ohio' },
+  { value: 'OK', label: 'Oklahoma' },
+  { value: 'OR', label: 'Oregon' },
+  { value: 'PA', label: 'Pennsylvania' },
+  { value: 'RI', label: 'Rhode Island' },
+  { value: 'SC', label: 'South Carolina' },
+  { value: 'SD', label: 'South Dakota' },
+  { value: 'TN', label: 'Tennessee' },
+  { value: 'TX', label: 'Texas' },
+  { value: 'UT', label: 'Utah' },
+  { value: 'VT', label: 'Vermont' },
+  { value: 'VA', label: 'Virginia' },
+  { value: 'WA', label: 'Washington' },
+  { value: 'WV', label: 'West Virginia' },
+  { value: 'WI', label: 'Wisconsin' },
+  { value: 'WY', label: 'Wyoming' },
+  { value: 'DC', label: 'Washington D.C.' },
+]
+
+function StateSelect({
+  value,
+  onChange,
+  className = '',
+}: {
+  value: string
+  onChange: (value: string) => void
+  className?: string
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`w-full h-12 px-4 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white focus:border-primary/50 focus:outline-none transition-all duration-300 focus:bg-white/[0.06] ${className}`}
+    >
+      <option value="" className="bg-[rgb(3,6,8)]">
+        Select state
+      </option>
+      {US_STATES.map(({ value, label }) => (
+        <option key={value} value={value} className="bg-[rgb(3,6,8)]">
+          {label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
+/* ─────────────────────────────────────────────
    Qualification Form
    ───────────────────────────────────────────── */
 function QualificationForm() {
@@ -292,13 +375,7 @@ function QualificationForm() {
             <label className="system-label block mb-3" style={{ color: '#6B7280' }}>
               State
             </label>
-            <input
-              type="text"
-              value={formData.state}
-              onChange={(e) => updateField('state', e.target.value)}
-              placeholder="e.g., California"
-              className="w-full h-12 px-4 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-white/30 focus:border-primary/50 focus:outline-none transition-all duration-300 focus:bg-white/[0.06]"
-            />
+            <StateSelect value={formData.state} onChange={(v) => updateField('state', v)} />
           </div>
           <div>
             <label className="system-label block mb-3" style={{ color: '#6B7280' }}>
@@ -384,9 +461,7 @@ function QualificationForm() {
             </button>
             <button
               onClick={() => {
-                alert(
-                  'Qualification request submitted. Our team will review your firm within 48 hours.',
-                )
+                window.location.href = '/request-access'
               }}
               className="cta-primary flex-1 h-12 flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
@@ -452,25 +527,17 @@ export default function TestingLawFirmPage() {
         }}
       >
         <div className="container mx-auto px-5 sm:px-6 lg:px-8 flex items-center justify-between h-16 md:h-20">
-          <a
-            href="/"
-            className="flex items-center gap-2 group transition-opacity duration-300 hover:opacity-80"
-          >
-            <div className="flex flex-col">
-              <span
-                className="text-lg font-bold tracking-wider"
-                style={{ color: '#F1F3F5', letterSpacing: '0.15em' }}
-              >
-                CASEPORT
-              </span>
-              <span
-                className="text-xs"
-                style={{ color: 'oklch(78% .13 195)', letterSpacing: '0.1em', marginTop: '4px' }}
-              >
-                CASE FLOW WITHOUT GUESSWORK
-              </span>
+          <Link href="/" className="flex-shrink-0">
+            <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
+              CASEPORT
             </div>
-          </a>
+            <div
+              className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em] uppercase font-mono"
+              style={{ fontSize: '0.5rem' }}
+            >
+              Case Flow Without Guesswork
+            </div>
+          </Link>
           <div className="hidden md:flex items-center gap-8">
             <a
               href="#how-it-works"
@@ -498,7 +565,7 @@ export default function TestingLawFirmPage() {
               asChild
               className="text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
-              <a href="#access">
+              <a href="/request-access">
                 Claim Your Access <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </Button>
@@ -508,7 +575,7 @@ export default function TestingLawFirmPage() {
             asChild
             className="md:hidden text-sm h-10 px-5 flex items-center gap-1.5 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
           >
-            <a href="#access">Claim Access</a>
+            <a href="/request-access">Claim Access</a>
           </Button>
         </div>
       </nav>
@@ -522,15 +589,8 @@ export default function TestingLawFirmPage() {
             <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
               {/* Left: Copy */}
               <div>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.1] text-sm font-medium text-slate-300 hover:text-white hover:bg-white/[0.1] transition-all duration-300 mb-8 w-fit group backdrop-blur-md"
-                >
-                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                  Back to Home
-                </Link>
                 <div className="block" />
-                <SystemLabel>Case Acquisition System</SystemLabel>
+                {/* <SystemLabel>Case Acquisition System</SystemLabel> */}
                 <h1
                   className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight mb-5"
                   style={{ color: '#F1F3F5', letterSpacing: '-0.04em' }}
@@ -576,7 +636,7 @@ export default function TestingLawFirmPage() {
                     </a>
                   </Button>
                   <a
-                    href="#objections"
+                    href="#how-it-works"
                     className="cta-secondary h-12 flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-300 hover:opacity-80"
                   >
                     See How It Works <ArrowRight className="w-4 h-4" />
@@ -1365,7 +1425,7 @@ export default function TestingLawFirmPage() {
                 <ul className="space-y-2">
                   <li>
                     <a
-                      href="#"
+                      href="/privacy"
                       style={{ color: '#B0B8C4', fontSize: '14px' }}
                       className="hover:text-white transition-colors duration-300"
                     >
@@ -1374,7 +1434,7 @@ export default function TestingLawFirmPage() {
                   </li>
                   <li>
                     <a
-                      href="#"
+                      href="/terms"
                       style={{ color: '#B0B8C4', fontSize: '14px' }}
                       className="hover:text-white transition-colors duration-300"
                     >
@@ -1435,7 +1495,7 @@ export default function TestingLawFirmPage() {
               name: 'www.CasePort.io - Personal Injury Case Acquisition',
               description:
                 'Market-capped case acquisition system for personal injury law firms across the United States',
-              url: 'https://www.caseport.io/for-law-firms',
+              url: 'https://www.caseport.io/personal-injury-leads',
               areaServed: [{ '@type': 'State', name: 'US' }],
               serviceArea: 'US',
               priceRange: '$$',
@@ -1445,7 +1505,7 @@ export default function TestingLawFirmPage() {
               name: 'Case Acquisition System for Personal Injury Law Firms',
               description:
                 'Market-capped, review-first case acquisition system with 12-dimension lead scoring, zero lead decay protocol, and pre-funded wallet model',
-              url: 'https://www.caseport.io/for-law-firms',
+              url: 'https://www.caseport.io/personal-injury-leads',
               provider: {
                 '@type': 'Organization',
                 name: 'www.CasePort.io',
@@ -1475,7 +1535,7 @@ export default function TestingLawFirmPage() {
                   '@type': 'ListItem',
                   position: 2,
                   name: 'For Law Firms',
-                  item: 'https://www.caseport.io/for-law-firms',
+                  item: 'https://www.caseport.io/personal-injury-leads',
                 },
               ],
             },

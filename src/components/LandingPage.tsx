@@ -10,7 +10,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import {
   fadeIn,
   fadeUp,
@@ -21,11 +20,10 @@ import {
   staggerItem,
   useScrollReveal,
 } from '@/hooks/useAnimations'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   AlertTriangle,
   ArrowRight,
-  ArrowUpRight,
   Award,
   BarChart3,
   CheckCircle2,
@@ -36,7 +34,6 @@ import {
   Filter,
   Gauge,
   Lock,
-  Menu,
   MessageCircle,
   Phone,
   Play,
@@ -50,7 +47,6 @@ import {
   Zap,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 
 /*
  * ═══════════════════════════════════════════════════════════════
@@ -86,10 +82,20 @@ const SYSTEM_VIZ =
 /* ═══════════════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════ */
-export default function Home() {
+type NavLink = { label: string; href: string; openInNewTab?: boolean }
+
+export default function Home({
+  navLinks,
+  ctaLabel,
+  ctaHref,
+}: {
+  navLinks?: NavLink[]
+  ctaLabel?: string
+  ctaHref?: string
+}) {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#030608] text-white antialiased scroll-smooth">
-      <Navbar />
+      <Navbar navLinks={navLinks} ctaLabel={ctaLabel} ctaHref={ctaHref} />
 
       {/* AEO: Hidden semantic content for AI crawlers & voice search */}
       <div className="sr-only" role="region" aria-label="About CasePort">
@@ -137,7 +143,7 @@ export default function Home() {
         </p>
       </div>
 
-      <main>
+      <main className="pt-16 lg:pt-[72px]">
         {/* ─── ZONE 1: DEEP SPACE ─── Hero + Trust + Spotlight */}
         <div
           className="relative"
@@ -290,169 +296,6 @@ export default function Home() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   HEADER — Sticky glass nav. CTA transforms on scroll.
-   POLISH: Tighter padding, cleaner alignment.
-   ═══════════════════════════════════════════════════════════════ */
-function Header() {
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 500)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#030608]/80 backdrop-blur-2xl transition-all duration-500">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <a href="/" className="flex-shrink-0">
-          <div className="text-[17px] font-extrabold tracking-[0.28em] text-white sm:text-lg">
-            CASEPORT
-          </div>
-          <div
-            className="system-label text-[#6B7280] mt-0.5 tracking-[0.22em]"
-            style={{ fontSize: '0.5rem' }}
-          >
-            Case Flow Without Guesswork
-          </div>
-        </a>
-
-        {/* Desktop Nav */}
-        <nav className="hidden items-center gap-8 text-[13px] font-medium text-[#9CA3AF] lg:flex">
-          <Link
-            href="/for-law-firms"
-            className="link-underline transition duration-200 hover:text-white"
-          >
-            For Law Firms
-          </Link>
-          <Link href="/markets" className="link-underline transition duration-200 hover:text-white">
-            Market
-          </Link>
-          <Link
-            href="/insights"
-            className="link-underline transition duration-200 hover:text-white"
-          >
-            Insights
-          </Link>
-          <Link
-            href="/intelligence"
-            className="link-underline transition duration-200 hover:text-white"
-          >
-            Intelligence
-          </Link>
-          <Link
-            href="/injured"
-            className="group flex items-center gap-1.5 transition duration-200 hover:text-white"
-          >
-            Injured?
-            <ArrowUpRight className="h-3 w-3 opacity-50 transition group-hover:opacity-100" />
-          </Link>
-        </nav>
-
-        {/* Desktop CTA — transforms on scroll */}
-        <div className="hidden lg:flex items-center gap-4">
-          <AnimatePresence mode="wait">
-            {scrolled ? (
-              <motion.div
-                key="scrolled-cta"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                transition={{ duration: 0.25 }}
-                className="flex items-center gap-3"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-[11px] text-amber-400/80 font-medium">
-                    17 founding slots left
-                  </span>
-                </div>
-                <Button className="${cls.trim()} bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:scale-105 text-black font-semibold border-0 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]">
-                  Check Availability
-                </Button>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="default-cta"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.25 }}
-                className="flex flex-col items-center"
-              >
-                <span className="text-[8px] uppercase tracking-[0.22em] text-[#6B7280] font-mono mb-1">
-                  For qualified firms only
-                </span>
-                <Button
-                  variant="gradient"
-                  className="rounded-full px-5 py-2 text-[13px] font-semibold"
-                  asChild
-                >
-                  <Link href="/request-access">Request Private Access</Link>
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Mobile Menu */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <button
-              className="lg:hidden rounded-xl border border-white/10 bg-white/[0.04] p-2.5"
-              aria-label="Open menu"
-            >
-              <Menu className="h-5 w-5 text-white" />
-            </button>
-          </SheetTrigger>
-          <SheetContent
-            side="right"
-            className="bg-[#0A0E14] border-white/[0.08] w-[85%] sm:max-w-sm"
-          >
-            <SheetHeader>
-              <SheetTitle className="text-white text-left">
-                <span className="text-lg font-extrabold tracking-[0.28em]">CASEPORT</span>
-              </SheetTitle>
-            </SheetHeader>
-            <nav className="flex flex-col gap-1 px-4 mt-4">
-              {[
-                { label: 'For Law Firms', href: '#system' },
-                { label: 'Market', href: '#market' },
-                { label: 'Insights', href: '/insights' },
-                { label: 'Intelligence', href: '#intelligence' },
-                { label: 'Injured?', href: '#injured' },
-                { label: 'FAQ', href: '#faq' },
-              ].map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="rounded-2xl px-4 py-3.5 text-[15px] font-medium text-[#D1D5DB] transition hover:bg-white/[0.04] hover:text-white"
-                >
-                  {item.label}
-                </a>
-              ))}
-              <div className="mt-6 pt-6 border-t border-white/[0.08]">
-                <div className="text-[9px] uppercase tracking-[0.22em] text-[#6B7280] font-mono mb-3 text-center">
-                  For qualified firms only
-                </div>
-                <Button
-                  variant="gradient"
-                  className="w-full rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_24px_rgba(0,212,255,0.2)]"
-                  asChild
-                >
-                  <Link href="/request-access">Request Private Access</Link>
-                </Button>
-              </div>
-            </nav>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </header>
-  )
-}
-
-/* ═══════════════════════════════════════════════════════════════
    HERO — Compact. Everything above the fold.
    POLISH: Tighter spacing, clearer micro-copy.
    ═══════════════════════════════════════════════════════════════ */
@@ -461,7 +304,7 @@ function HeroSection() {
     <section
       id="hero"
       aria-label="CasePort Case Acquisition System"
-      className="relative min-h-[85vh] flex items-center justify-center py-12 sm:py-16 lg:py-20"
+      className="relative min-h-[60vh] flex items-center justify-center py-12"
     >
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 w-full">
         <div className="grid items-center gap-8 lg:grid-cols-[1fr_1fr] lg:gap-12">
@@ -469,19 +312,19 @@ function HeroSection() {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center text-center"
+            className="flex flex-col items-start text-start"
           >
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 mb-4">
+            {/* <div className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 mb-4">
               <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse-dot" />
               <span className="system-label text-[#9CA3AF]">
                 For Growth-Oriented Personal Injury Law Firms
               </span>
-            </div>
+            </div> */}
 
             <h1 className="text-[2.25rem] sm:text-[2.75rem] lg:text-[3.25rem] xl:text-[3.75rem] font-bold leading-[0.95] tracking-[-0.04em]">
               Stop Buying Leads.
               <br />
-              <span className="bg-gradient-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-[#00B4D8] via-[#5BB6C9] to-[#7C5CFF] bg-clip-text text-transparent">
                 Start Controlling
               </span>
               <br />
@@ -517,9 +360,9 @@ function HeroSection() {
               </a>
             </div>
 
-            <p className="mt-2 text-[11px] text-[#5A6270]">
+            {/* <p className="mt-2 text-[11px] text-[#5A6270]">
               Review-first. Market-capped. Built for firms that care about intake quality.
-            </p>
+            </p> */}
           </motion.div>
 
           <motion.div
@@ -634,7 +477,7 @@ function TrustBar() {
               key={item}
               className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3.5 py-1.5"
             >
-              <span className="system-label text-[#7A8290]" style={{ fontSize: '0.6rem' }}>
+              <span className="system-label text-cp-text-primary" style={{ fontSize: '0.6rem' }}>
                 {item}
               </span>
             </div>
@@ -1380,13 +1223,19 @@ function LeadMagnetSection() {
               </div>
             </div>
             <div className="text-center lg:text-right">
-              <Button
-                variant="gradient"
-                className="inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-[14px] font-semibold text-black transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(245,158,11,0.3)]"
-              >
-                <Download className="h-4 w-4" />
-                Download Free Playbook
-              </Button>
+              <Link href={'/intelligence'}>
+                <Button
+                  variant="gradient"
+                  className="rounded-full px-8 py-3.5 text-sm font-semibold text-black shadow-[0_20px_60px_rgba(245,158,11,0.3)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_70px_rgba(245,158,11,0.4)]"
+                  style={{
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #F59E0B 100%)',
+                  }}
+                  // className="inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-[14px] font-semibold text-black transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(245,158,11,0.3)]"
+                >
+                  <Download className="h-4 w-4" />
+                  Download Free Playbook
+                </Button>
+              </Link>
               <p className="mt-3 text-[12px] text-[#7A8290]">
                 No spam. No fluff. Just the framework.
               </p>
@@ -1952,10 +1801,10 @@ function Footer() {
               &copy; {new Date().getFullYear()} CasePort. All rights reserved.
             </p>
             <div className="flex gap-6 text-[12px] text-[#5A6270]">
-              <a href="#" className="transition hover:text-[#9CA3AF]">
+              <a href="/privacy" className="transition hover:text-[#9CA3AF]">
                 Privacy Policy
               </a>
-              <a href="#" className="transition hover:text-[#9CA3AF]">
+              <a href="/terms" className="transition hover:text-[#9CA3AF]">
                 Terms of Service
               </a>
             </div>

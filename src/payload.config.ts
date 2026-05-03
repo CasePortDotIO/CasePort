@@ -1,5 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { EXPERIMENTAL_TableFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -11,13 +11,16 @@ import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
 import { InjuredLeads } from './collections/InjuredLeads'
+import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
 import { Users } from './collections/Users'
-import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Waitlists } from './collections/Waitlists'
 
+import { FooterNav } from './globals/FooterNav'
+import { HeaderNav } from './globals/HeaderNav'
 import { MarketsPage } from './globals/MarketsPage'
+import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -36,7 +39,7 @@ export default buildConfig({
       ],
     },
   },
-  globals: [MarketsPage],
+  globals: [MarketsPage, SiteSettings, HeaderNav, FooterNav],
   collections: [
     Users,
     Media,
@@ -49,7 +52,9 @@ export default buildConfig({
     Articles,
     InjuredLeads,
   ],
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature()],
+  }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

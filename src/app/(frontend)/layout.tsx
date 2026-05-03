@@ -1,12 +1,13 @@
+import Script from 'next/script'
 import React from 'react'
 import { Toaster } from 'sonner'
 import './styles.css'
 
 export const metadata = {
-  metadataBase: new URL('https://www.caseport.io'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'),
   title: {
     default: 'CasePort — Case Flow Without Guesswork',
-    template: '%s | CasePort',
+    template: '%s',
   },
   description:
     'Premium case acquisition system for personal injury law firms. Structured, disciplined case flow infrastructure for growth-oriented PI firms.',
@@ -19,7 +20,7 @@ export const metadata = {
   ],
   openGraph: {
     siteName: 'CasePort',
-    url: 'https://www.caseport.io',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io',
     locale: 'en_US',
     type: 'website',
   },
@@ -34,6 +35,20 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
 
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-SBN7G1VHGV"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-SBN7G1VHGV');
+          `}
+        </Script>
+      </head>
       <body>
         <main>{children}</main>
         <Toaster theme="dark" position="top-center" richColors />

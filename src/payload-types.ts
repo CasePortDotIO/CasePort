@@ -105,9 +105,15 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'markets-page': MarketsPage;
+    'site-settings': SiteSetting;
+    'header-nav': HeaderNav;
+    'footer-nav': FooterNav;
   };
   globalsSelect: {
     'markets-page': MarketsPageSelect<false> | MarketsPageSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'header-nav': HeaderNavSelect<false> | HeaderNavSelect<true>;
+    'footer-nav': FooterNavSelect<false> | FooterNavSelect<true>;
   };
   locale: null;
   widgets: {
@@ -355,6 +361,37 @@ export interface Author {
   title: string;
   avatar?: (string | null) | Media;
   bio?: string | null;
+  profileUrl?: string | null;
+  /**
+   * Short labels shown as pills on article pages (e.g. "Expert", "50+ Firms").
+   */
+  badges?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Stats shown in the credential grid (e.g. value "50+" / label "Firms Advised").
+   */
+  credentials?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Action buttons shown in the author bio section (e.g. "Ask a Question", "View Profile").
+   */
+  ctaButtons?:
+    | {
+        label: string;
+        href: string;
+        style?: ('primary' | 'secondary') | null;
+        id?: string | null;
+      }[]
+    | null;
   socialLinks?:
     | {
         platform?: ('twitter' | 'linkedin' | 'github') | null;
@@ -371,34 +408,70 @@ export interface Author {
  */
 export interface Article {
   id: string;
+  /**
+   * 50-80 chars. Auto slug.
+   */
   title: string;
+  /**
+   * Live reading now counter
+   */
+  currentReaders?: number | null;
+  /**
+   * Cited by X firms
+   */
+  citationCount?: number | null;
+  /**
+   * Signal Strength (0-100)
+   */
+  signalStrength?: number | null;
   slug: string;
-  heroImage: string | Media;
-  category: string | Category;
   author: string | Author;
   /**
-   * Estimated reading time in minutes
+   * Select the main category for this article
    */
-  readTime?: number | null;
-  publishedAt?: string | null;
+  category: string | Category;
+  contentFormat:
+    | 'Pillar Page'
+    | 'Cluster Article'
+    | 'FAQ Article'
+    | 'How-To Guide'
+    | 'News'
+    | 'Research Report'
+    | 'Case Study'
+    | 'Comparison'
+    | 'Definition';
+  heroImage: string | Media;
   excerpt: string;
-  /**
-   * Displayed directly under the main title in the hero section.
-   */
   subtitle?: string | null;
-  /**
-   * A larger editorial intro text bridging the hero and the main body.
-   */
   executiveSummary?: string | null;
+  keyTakeaways: {
+    point: string;
+    id?: string | null;
+  }[];
   /**
-   * Bullet points summarizing the article, displayed in a highlighted box.
+   * Customizable Table with editable headers and rows for ROI matrix.
    */
-  keyTakeaways?:
-    | {
-        takeaway: string;
-        id?: string | null;
-      }[]
-    | null;
+  roiTable: {
+    enableTable?: boolean | null;
+    tableName?: string | null;
+    headers: {
+      col1: string;
+      col2: string;
+      col3: string;
+      col4: string;
+      col5: string;
+    };
+    rows?:
+      | {
+          col1: string;
+          col2: string;
+          col3: string;
+          col4: string;
+          col5: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   content: {
     root: {
       type: string;
@@ -414,27 +487,385 @@ export interface Article {
     };
     [k: string]: unknown;
   };
-  /**
-   * Structured answers to feed directly to AI search engines (ChatGPT, Google AI Overview). Hidden from visual reading view.
-   */
-  seoAnswers?:
+  tags?:
     | {
-        question: string;
-        answer: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * These populate the FAQ accordion at the bottom of the article.
-   */
-  faqs?:
-    | {
-        question: string;
-        answer: string;
+        tag?: string | null;
         id?: string | null;
       }[]
     | null;
   relatedArticles?: (string | Article)[] | null;
+  focusKeyword: string;
+  keywordDifficulty?: number | null;
+  monthlySearchVolume?: number | null;
+  currentRankingPosition?: number | null;
+  secondaryKeywords: {
+    keyword?: string | null;
+    id?: string | null;
+  }[];
+  metaTitle: string;
+  metaDescription: string;
+  canonicalUrl?: string | null;
+  socialHeadline?: string | null;
+  socialDescription?: string | null;
+  socialShareImage?: (string | null) | Media;
+  xCardType?: ('summary_large_image' | 'summary') | null;
+  xCardTitle?: string | null;
+  xCardDescription?: string | null;
+  xCardImage?: (string | null) | Media;
+  competingUrl?: string | null;
+  contentGap?:
+    | {
+        gap?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  directAnswer: string;
+  aiCitationSummary: string;
+  primaryAiQuery: string;
+  keyStatistics: {
+    text: string;
+    sourceName: string;
+    sourceUrl?: string | null;
+    year?: string | null;
+    id?: string | null;
+  }[];
+  faqSection: {
+    question: string;
+    answer: string;
+    id?: string | null;
+  }[];
+  termDefinitions?:
+    | {
+        term: string;
+        definition: string;
+        isProprietary?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  expertQuotes?:
+    | {
+        quote: string;
+        speakerName: string;
+        credentials?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  voiceAnswer: string;
+  speakableCssSelectors: {
+    selector?: string | null;
+    id?: string | null;
+  }[];
+  conversationalQueryVariants?:
+    | {
+        query?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  targetsSpecificLocation?: boolean | null;
+  locationTargets?:
+    | {
+        state?: string | null;
+        city?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  schemaType: 'Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle';
+  howToSteps?:
+    | {
+        name: string;
+        description: string;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  sameAsEntityUrls: {
+    url: string;
+    id?: string | null;
+  }[];
+  articleSection?: string | null;
+  apaCitation?: string | null;
+  customJsonLd?: string | null;
+  legalDisclaimer: 'Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None';
+  abaComplianceVerified?: boolean | null;
+  expertReviewer?: string | null;
+  externalSources: {
+    name: string;
+    url?: string | null;
+    credibilityTier?: ('High' | 'Medium' | 'Low') | null;
+    id?: string | null;
+  }[];
+  pressMentions?:
+    | {
+        source?: string | null;
+        url?: string | null;
+        date?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaOverride?: {
+    heading?: string | null;
+    body?: string | null;
+    primaryLabel?: string | null;
+    primaryUrl?: string | null;
+    secondaryLabel?: string | null;
+    secondaryUrl?: string | null;
+  };
+  contentUpdateHistory?:
+    | {
+        date: string;
+        summary: string;
+        updatedBy: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Select all states this article targets
+   */
+  targetStates?:
+    | (
+        | 'AL'
+        | 'AK'
+        | 'AZ'
+        | 'AR'
+        | 'CA'
+        | 'CO'
+        | 'CT'
+        | 'DE'
+        | 'FL'
+        | 'GA'
+        | 'HI'
+        | 'ID'
+        | 'IL'
+        | 'IN'
+        | 'IA'
+        | 'KS'
+        | 'KY'
+        | 'LA'
+        | 'ME'
+        | 'MD'
+        | 'MA'
+        | 'MI'
+        | 'MN'
+        | 'MS'
+        | 'MO'
+        | 'MT'
+        | 'NE'
+        | 'NV'
+        | 'NH'
+        | 'NJ'
+        | 'NM'
+        | 'NY'
+        | 'NC'
+        | 'ND'
+        | 'OH'
+        | 'OK'
+        | 'OR'
+        | 'PA'
+        | 'RI'
+        | 'SC'
+        | 'SD'
+        | 'TN'
+        | 'TX'
+        | 'UT'
+        | 'VT'
+        | 'VA'
+        | 'WA'
+        | 'WV'
+        | 'WI'
+        | 'WY'
+      )[]
+    | null;
+  targetCities?:
+    | {
+        city?: string | null;
+        state?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  jurisdiction?: string | null;
+  serviceAreaDescription?: string | null;
+  localSchemaType?: ('LocalBusiness' | 'Attorney' | 'ServiceArea') | null;
+  stateSpecificDeadline?: number | null;
+  stateSpecificExceptions?: string | null;
+  tollingProvisions?:
+    | {
+        state?: string | null;
+        tollingRule?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  sgeAnswerability?: number | null;
+  /**
+   * Direct, extractable answer for Google SGE
+   */
+  sgeOptimizedAnswer?: string | null;
+  uniqueContentSignals?:
+    | {
+        signal?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  freshnessSignal?: ('breaking' | 'recent' | 'evergreen') | null;
+  competitorComparison?: string | null;
+  dominanceScoring?: {
+    seoScore?: number | null;
+    aeoScore?: number | null;
+    geoScore?: number | null;
+    sgeScore?: number | null;
+    voiceSearchScore?: number | null;
+    overallDominanceScore?: number | null;
+    dominanceRank?: ('critical' | 'weak' | 'strong' | 'dominant') | null;
+    competitiveAdvantageScore?: number | null;
+  };
+  topCompetitors?:
+    | {
+        url?: string | null;
+        estimatedScore?: number | null;
+        yourAdvantage?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  competitiveGapAnalysis?: string | null;
+  uniqueAdvantages?:
+    | {
+        advantage?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  performanceMetrics?: {
+    totalFormSubmissions?: number | null;
+    totalEmailCaptures?: number | null;
+    averageLeadQualityScore?: number | null;
+    leadToCaseConversionRate?: number | null;
+    estimatedRevenue?: number | null;
+    estimatedProfit?: number | null;
+    roi?: number | null;
+    performanceStatus?: ('loss' | 'breakeven' | 'profitable' | 'highly_profitable') | null;
+    recommendedAction?: ('remove' | 'optimize' | 'maintain' | 'expand') | null;
+  };
+  searchEngineSubmission?: {
+    googleSubmitted?: boolean | null;
+    googleSubmissionTime?: string | null;
+    googleSubmissionMessage?: string | null;
+    bingSubmitted?: boolean | null;
+    bingSubmissionTime?: string | null;
+    bingSubmissionMessage?: string | null;
+  };
+  primaryEntity?: string | null;
+  entityDefinition?: string | null;
+  relatedEntities?:
+    | {
+        entity?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  entityImportance?: ('critical' | 'important' | 'supporting') | null;
+  contentValidation?: {
+    contentLength?: number | null;
+    h2Count?: number | null;
+    h3Count?: number | null;
+    faqCount?: number | null;
+    validationStatus?: ('pass' | 'warning' | 'fail') | null;
+    validationErrors?:
+      | {
+          error?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  internalLinks?:
+    | {
+        linkedArticleId?: (string | null) | Article;
+        anchorText?: string | null;
+        relevanceScore?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  contentFreshness?: {
+    lastReviewDate?: string | null;
+    nextReviewDue?: string | null;
+    daysOld?: number | null;
+    freshnessStatus?: ('fresh' | 'current' | 'aging' | 'stale') | null;
+  };
+  featuredSnippetOptimization?: {
+    targetSnippetType?: ('paragraph' | 'list' | 'table' | 'definition') | null;
+    /**
+     * Content optimized for featured snippet
+     */
+    snippetContent?: string | null;
+    /**
+     * Position in Google featured snippets (if ranked)
+     */
+    currentSnippetRank?: number | null;
+    snippetOptimizationScore?: number | null;
+  };
+  backlinkTracking?: {
+    totalBacklinks?: number | null;
+    highQualityBacklinks?: number | null;
+    referringDomains?: number | null;
+    backlinkGrowth?: number | null;
+    backlinkLastUpdated?: string | null;
+  };
+  keywordRankings?:
+    | {
+        keyword?: string | null;
+        currentRank?: number | null;
+        previousRank?: number | null;
+        rankChange?: number | null;
+        searchVolume?: number | null;
+        lastUpdated?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  trafficMetrics?: {
+    monthlyVisitors?: number | null;
+    bounceRate?: number | null;
+    averageTimeOnPage?: number | null;
+    scrollDepth?: number | null;
+    trafficSources?:
+      | {
+          source?: string | null;
+          visitors?: number | null;
+          percentage?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  aiCitationTracking?: {
+    claudeCitations?: number | null;
+    chatgptCitations?: number | null;
+    perplexityCitations?: number | null;
+    totalAiCitations?: number | null;
+    shareOfVoice?: number | null;
+    lastUpdated?: string | null;
+  };
+  conversionFunnel?: {
+    uniqueVisitors?: number | null;
+    formViews?: number | null;
+    formSubmissions?: number | null;
+    emailCaptures?: number | null;
+    confirmedLeads?: number | null;
+    confirmedCases?: number | null;
+    visitorToFormRate?: number | null;
+    formToLeadRate?: number | null;
+    leadToCaseRate?: number | null;
+  };
+  publishedDate?: string | null;
+  aeoScore?: number | null;
+  /**
+   * Auto-calculated on every save. 0-100. Target 80+ before publishing.
+   */
+  seoScore?: number | null;
+  readTime?: number | null;
+  searchIntent: 'Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational';
+  targetSerpFeature?: string | null;
+  contentConfidence?: ('High' | 'Medium' | 'Low') | null;
+  hideFromSearchEngines?: boolean | null;
+  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null;
+  nextReviewDue?: string | null;
+  lastFactVerified?: string | null;
+  contentQualityScore?: number | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -729,6 +1160,28 @@ export interface AuthorsSelect<T extends boolean = true> {
   title?: T;
   avatar?: T;
   bio?: T;
+  profileUrl?: T;
+  badges?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  credentials?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  ctaButtons?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        style?: T;
+        id?: T;
+      };
   socialLinks?:
     | T
     | {
@@ -745,37 +1198,394 @@ export interface AuthorsSelect<T extends boolean = true> {
  */
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
+  currentReaders?: T;
+  citationCount?: T;
+  signalStrength?: T;
   slug?: T;
-  heroImage?: T;
-  category?: T;
   author?: T;
-  readTime?: T;
-  publishedAt?: T;
+  category?: T;
+  contentFormat?: T;
+  heroImage?: T;
   excerpt?: T;
   subtitle?: T;
   executiveSummary?: T;
   keyTakeaways?:
     | T
     | {
-        takeaway?: T;
+        point?: T;
         id?: T;
+      };
+  roiTable?:
+    | T
+    | {
+        enableTable?: T;
+        tableName?: T;
+        headers?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+            };
+        rows?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+              id?: T;
+            };
       };
   content?: T;
-  seoAnswers?:
+  tags?:
     | T
     | {
-        question?: T;
-        answer?: T;
-        id?: T;
-      };
-  faqs?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
+        tag?: T;
         id?: T;
       };
   relatedArticles?: T;
+  focusKeyword?: T;
+  keywordDifficulty?: T;
+  monthlySearchVolume?: T;
+  currentRankingPosition?: T;
+  secondaryKeywords?:
+    | T
+    | {
+        keyword?: T;
+        id?: T;
+      };
+  metaTitle?: T;
+  metaDescription?: T;
+  canonicalUrl?: T;
+  socialHeadline?: T;
+  socialDescription?: T;
+  socialShareImage?: T;
+  xCardType?: T;
+  xCardTitle?: T;
+  xCardDescription?: T;
+  xCardImage?: T;
+  competingUrl?: T;
+  contentGap?:
+    | T
+    | {
+        gap?: T;
+        id?: T;
+      };
+  directAnswer?: T;
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
+  keyStatistics?:
+    | T
+    | {
+        text?: T;
+        sourceName?: T;
+        sourceUrl?: T;
+        year?: T;
+        id?: T;
+      };
+  faqSection?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  termDefinitions?:
+    | T
+    | {
+        term?: T;
+        definition?: T;
+        isProprietary?: T;
+        id?: T;
+      };
+  expertQuotes?:
+    | T
+    | {
+        quote?: T;
+        speakerName?: T;
+        credentials?: T;
+        id?: T;
+      };
+  voiceAnswer?: T;
+  speakableCssSelectors?:
+    | T
+    | {
+        selector?: T;
+        id?: T;
+      };
+  conversationalQueryVariants?:
+    | T
+    | {
+        query?: T;
+        id?: T;
+      };
+  targetsSpecificLocation?: T;
+  locationTargets?:
+    | T
+    | {
+        state?: T;
+        city?: T;
+        id?: T;
+      };
+  schemaType?: T;
+  howToSteps?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        image?: T;
+        id?: T;
+      };
+  sameAsEntityUrls?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  articleSection?: T;
+  apaCitation?: T;
+  customJsonLd?: T;
+  legalDisclaimer?: T;
+  abaComplianceVerified?: T;
+  expertReviewer?: T;
+  externalSources?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        credibilityTier?: T;
+        id?: T;
+      };
+  pressMentions?:
+    | T
+    | {
+        source?: T;
+        url?: T;
+        date?: T;
+        id?: T;
+      };
+  ctaOverride?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        primaryLabel?: T;
+        primaryUrl?: T;
+        secondaryLabel?: T;
+        secondaryUrl?: T;
+      };
+  contentUpdateHistory?:
+    | T
+    | {
+        date?: T;
+        summary?: T;
+        updatedBy?: T;
+        id?: T;
+      };
+  targetStates?: T;
+  targetCities?:
+    | T
+    | {
+        city?: T;
+        state?: T;
+        id?: T;
+      };
+  jurisdiction?: T;
+  serviceAreaDescription?: T;
+  localSchemaType?: T;
+  stateSpecificDeadline?: T;
+  stateSpecificExceptions?: T;
+  tollingProvisions?:
+    | T
+    | {
+        state?: T;
+        tollingRule?: T;
+        id?: T;
+      };
+  sgeAnswerability?: T;
+  sgeOptimizedAnswer?: T;
+  uniqueContentSignals?:
+    | T
+    | {
+        signal?: T;
+        description?: T;
+        id?: T;
+      };
+  freshnessSignal?: T;
+  competitorComparison?: T;
+  dominanceScoring?:
+    | T
+    | {
+        seoScore?: T;
+        aeoScore?: T;
+        geoScore?: T;
+        sgeScore?: T;
+        voiceSearchScore?: T;
+        overallDominanceScore?: T;
+        dominanceRank?: T;
+        competitiveAdvantageScore?: T;
+      };
+  topCompetitors?:
+    | T
+    | {
+        url?: T;
+        estimatedScore?: T;
+        yourAdvantage?: T;
+        id?: T;
+      };
+  competitiveGapAnalysis?: T;
+  uniqueAdvantages?:
+    | T
+    | {
+        advantage?: T;
+        id?: T;
+      };
+  performanceMetrics?:
+    | T
+    | {
+        totalFormSubmissions?: T;
+        totalEmailCaptures?: T;
+        averageLeadQualityScore?: T;
+        leadToCaseConversionRate?: T;
+        estimatedRevenue?: T;
+        estimatedProfit?: T;
+        roi?: T;
+        performanceStatus?: T;
+        recommendedAction?: T;
+      };
+  searchEngineSubmission?:
+    | T
+    | {
+        googleSubmitted?: T;
+        googleSubmissionTime?: T;
+        googleSubmissionMessage?: T;
+        bingSubmitted?: T;
+        bingSubmissionTime?: T;
+        bingSubmissionMessage?: T;
+      };
+  primaryEntity?: T;
+  entityDefinition?: T;
+  relatedEntities?:
+    | T
+    | {
+        entity?: T;
+        id?: T;
+      };
+  entityImportance?: T;
+  contentValidation?:
+    | T
+    | {
+        contentLength?: T;
+        h2Count?: T;
+        h3Count?: T;
+        faqCount?: T;
+        validationStatus?: T;
+        validationErrors?:
+          | T
+          | {
+              error?: T;
+              id?: T;
+            };
+      };
+  internalLinks?:
+    | T
+    | {
+        linkedArticleId?: T;
+        anchorText?: T;
+        relevanceScore?: T;
+        id?: T;
+      };
+  contentFreshness?:
+    | T
+    | {
+        lastReviewDate?: T;
+        nextReviewDue?: T;
+        daysOld?: T;
+        freshnessStatus?: T;
+      };
+  featuredSnippetOptimization?:
+    | T
+    | {
+        targetSnippetType?: T;
+        snippetContent?: T;
+        currentSnippetRank?: T;
+        snippetOptimizationScore?: T;
+      };
+  backlinkTracking?:
+    | T
+    | {
+        totalBacklinks?: T;
+        highQualityBacklinks?: T;
+        referringDomains?: T;
+        backlinkGrowth?: T;
+        backlinkLastUpdated?: T;
+      };
+  keywordRankings?:
+    | T
+    | {
+        keyword?: T;
+        currentRank?: T;
+        previousRank?: T;
+        rankChange?: T;
+        searchVolume?: T;
+        lastUpdated?: T;
+        id?: T;
+      };
+  trafficMetrics?:
+    | T
+    | {
+        monthlyVisitors?: T;
+        bounceRate?: T;
+        averageTimeOnPage?: T;
+        scrollDepth?: T;
+        trafficSources?:
+          | T
+          | {
+              source?: T;
+              visitors?: T;
+              percentage?: T;
+              id?: T;
+            };
+      };
+  aiCitationTracking?:
+    | T
+    | {
+        claudeCitations?: T;
+        chatgptCitations?: T;
+        perplexityCitations?: T;
+        totalAiCitations?: T;
+        shareOfVoice?: T;
+        lastUpdated?: T;
+      };
+  conversionFunnel?:
+    | T
+    | {
+        uniqueVisitors?: T;
+        formViews?: T;
+        formSubmissions?: T;
+        emailCaptures?: T;
+        confirmedLeads?: T;
+        confirmedCases?: T;
+        visitorToFormRate?: T;
+        formToLeadRate?: T;
+        leadToCaseRate?: T;
+      };
+  publishedDate?: T;
+  aeoScore?: T;
+  seoScore?: T;
+  readTime?: T;
+  searchIntent?: T;
+  targetSerpFeature?: T;
+  contentConfidence?: T;
+  hideFromSearchEngines?: T;
+  reviewCycle?: T;
+  nextReviewDue?: T;
+  lastFactVerified?: T;
+  contentQualityScore?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -866,6 +1676,99 @@ export interface MarketsPage {
   createdAt?: string | null;
 }
 /**
+ * Site-wide defaults: SEO, CTAs, contact info, legal, and organization schema.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (string | null) | Media;
+  /**
+   * Relative paths to prevent indexing (e.g. /thank-you)
+   */
+  noindexPages?:
+    | {
+        path: string;
+        id?: string | null;
+      }[]
+    | null;
+  primaryCtaLabel?: string | null;
+  primaryCtaHref?: string | null;
+  injuredCtaLabel?: string | null;
+  injuredCtaHref?: string | null;
+  contactEmail?: string | null;
+  brandName?: string | null;
+  brandTagline?: string | null;
+  brandSummary?: string | null;
+  legalDisclaimer?: string | null;
+  privacyPolicyUrl?: string | null;
+  termsUrl?: string | null;
+  orgName?: string | null;
+  orgUrl?: string | null;
+  orgDescription?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Controls the top navigation links and the primary CTA button.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header-nav".
+ */
+export interface HeaderNav {
+  id: string;
+  /**
+   * Order determines display order in the navigation.
+   */
+  navLinks?:
+    | {
+        label: string;
+        href: string;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Controls footer nav groups, social links, and utility links.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-nav".
+ */
+export interface FooterNav {
+  id: string;
+  platformLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  resourceLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  legalLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "markets-page_select".
  */
@@ -875,6 +1778,87 @@ export interface MarketsPageSelect<T extends boolean = true> {
     | {
         question?: T;
         answer?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
+  noindexPages?:
+    | T
+    | {
+        path?: T;
+        id?: T;
+      };
+  primaryCtaLabel?: T;
+  primaryCtaHref?: T;
+  injuredCtaLabel?: T;
+  injuredCtaHref?: T;
+  contactEmail?: T;
+  brandName?: T;
+  brandTagline?: T;
+  brandSummary?: T;
+  legalDisclaimer?: T;
+  privacyPolicyUrl?: T;
+  termsUrl?: T;
+  orgName?: T;
+  orgUrl?: T;
+  orgDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header-nav_select".
+ */
+export interface HeaderNavSelect<T extends boolean = true> {
+  navLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  ctaLabel?: T;
+  ctaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-nav_select".
+ */
+export interface FooterNavSelect<T extends boolean = true> {
+  platformLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  resourceLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  legalLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
         id?: T;
       };
   updatedAt?: T;

@@ -1,7 +1,7 @@
-import Link from 'next/link';
+import Link from 'next/link'
 /**
  * CaseStudySection — Real/realistic case study showing ROI proof
- * 
+ *
  * Shows:
  * - Firm name
  * - Market
@@ -9,42 +9,48 @@ import Link from 'next/link';
  * - Average settlement
  * - Time frame
  * - Quote
- * 
+ *
  * BRAND SYSTEM:
  * - Glass: 4% white bg, 8% white border, 12px radius
  * - Geist for body
  * - JetBrains Mono for labels
  */
 
-import { motion } from "framer-motion";
-import { TrendingUp, DollarSign, Calendar, Users } from "lucide-react";
+import { motion } from 'framer-motion'
+import { TrendingUp, DollarSign, Calendar, Users } from 'lucide-react'
 
 const caseStudies = [
   {
-    firm: "Westside Legal Group",
-    market: "Los Angeles, CA",
+    firm: 'Westside Legal Group',
+    market: 'Los Angeles, CA',
     casesAcquired: 47,
-    avgSettlement: "$285K",
-    timeframe: "6 months",
-    quote: "CasePort transformed our lead flow. We went from 8 cases/month to 28. The quality is unmatched.",
-    author: "Michael Chen",
-    title: "Managing Partner",
+    avgSettlement: '$285K',
+    timeframe: '6 months',
+    quote:
+      'CasePort transformed our lead flow. We went from 8 cases/month to 28. The quality is unmatched.',
+    author: 'Michael Chen',
+    title: 'Managing Partner',
   },
   {
-    firm: "Bay Area Advocates",
-    market: "San Francisco, CA",
+    firm: 'Bay Area Advocates',
+    market: 'San Francisco, CA',
     casesAcquired: 32,
-    avgSettlement: "$310K",
-    timeframe: "4 months",
-    quote: "The infrastructure is world-class. No more guessing on lead quality. Every lead is pre-qualified.",
-    author: "Sarah Martinez",
-    title: "Operations Director",
+    avgSettlement: '$310K',
+    timeframe: '4 months',
+    quote:
+      'The infrastructure is world-class. No more guessing on lead quality. Every lead is pre-qualified.',
+    author: 'Sarah Martinez',
+    title: 'Operations Director',
   },
-];
+]
 
-export default function CaseStudySection() {
+interface props {
+  checkButonClickHandler: () => void
+}
+
+export default function CaseStudySection(props: props) {
   return (
-    <section className="py-20 sm:py-28" style={{ backgroundColor: "oklch(0.06 0.01 250)" }}>
+    <section className="py-20 sm:py-28" style={{ backgroundColor: 'oklch(0.06 0.01 250)' }}>
       <div className="container mx-auto px-5 sm:px-6 lg:px-8 mx-auto px-5 sm:px-6 lg:px-8 max-w-6xl">
         {/* Header */}
         <div className="mb-16 text-center">
@@ -73,7 +79,8 @@ export default function CaseStudySection() {
             transition={{ delay: 0.2 }}
             className="text-[16px] text-[#B0B8C4] max-w-2xl mx-auto"
           >
-            Real results from firms operating within CasePort markets. These aren't projections—they're actual case acquisitions.
+            Real results from firms operating within CasePort markets. These aren't
+            projections—they're actual case acquisitions.
           </motion.p>
         </div>
 
@@ -88,8 +95,8 @@ export default function CaseStudySection() {
               transition={{ delay: idx * 0.1 }}
               className="rounded-[12px] p-8"
               style={{
-                background: "rgba(255, 255, 255, 0.04)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
               }}
             >
               {/* Firm Info */}
@@ -103,7 +110,10 @@ export default function CaseStudySection() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Users size={14} className="text-[#22D3EE]" />
-                    <span className="text-[10px] text-[#6B7280]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <span
+                      className="text-[10px] text-[#6B7280]"
+                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    >
                       CASES
                     </span>
                   </div>
@@ -112,7 +122,10 @@ export default function CaseStudySection() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <DollarSign size={14} className="text-[#F59E0B]" />
-                    <span className="text-[10px] text-[#6B7280]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <span
+                      className="text-[10px] text-[#6B7280]"
+                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    >
                       AVG
                     </span>
                   </div>
@@ -121,7 +134,10 @@ export default function CaseStudySection() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar size={14} className="text-[#10B981]" />
-                    <span className="text-[10px] text-[#6B7280]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <span
+                      className="text-[10px] text-[#6B7280]"
+                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                    >
                       TIME
                     </span>
                   </div>
@@ -154,9 +170,10 @@ export default function CaseStudySection() {
             Want to be the next case study? Your market might be ready.
           </p>
           <button
+            onClick={props.checkButonClickHandler}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-[#030608] transition-all hover:scale-105"
             style={{
-              background: "linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)",
+              background: 'linear-gradient(135deg, #00B4D8 0%, #5BB6C9 40%, #7C5CFF 100%)',
             }}
           >
             Check Your Market
@@ -164,5 +181,5 @@ export default function CaseStudySection() {
         </motion.div>
       </div>
     </section>
-  );
+  )
 }
