@@ -411,7 +411,7 @@ export interface Article {
   /**
    * 50-80 chars. Auto slug.
    */
-  title: string;
+  title?: string | null;
   /**
    * Live reading now counter
    */
@@ -424,30 +424,32 @@ export interface Article {
    * Signal Strength (0-100)
    */
   signalStrength?: number | null;
-  slug: string;
-  author: string | Author;
-  /**
-   * Select the main category for this article
-   */
-  category: string | Category;
-  contentFormat:
-    | 'Pillar Page'
-    | 'Cluster Article'
-    | 'FAQ Article'
-    | 'How-To Guide'
-    | 'News'
-    | 'Research Report'
-    | 'Case Study'
-    | 'Comparison'
-    | 'Definition';
-  heroImage: string | Media;
-  excerpt: string;
+  slug?: string | null;
+  author?: (string | null) | Author;
+  category?: (string | null) | Category;
+  contentFormat?:
+    | (
+        | 'Pillar Page'
+        | 'Cluster Article'
+        | 'FAQ Article'
+        | 'How-To Guide'
+        | 'News'
+        | 'Research Report'
+        | 'Case Study'
+        | 'Comparison'
+        | 'Definition'
+      )
+    | null;
+  heroImage?: (string | null) | Media;
+  excerpt?: string | null;
   subtitle?: string | null;
   executiveSummary?: string | null;
-  keyTakeaways: {
-    point: string;
-    id?: string | null;
-  }[];
+  keyTakeaways?:
+    | {
+        point?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Customizable Table with editable headers and rows for ROI matrix.
    */
@@ -472,7 +474,7 @@ export interface Article {
         }[]
       | null;
   };
-  content: {
+  content?: {
     root: {
       type: string;
       children: {
@@ -486,7 +488,7 @@ export interface Article {
       version: number;
     };
     [k: string]: unknown;
-  };
+  } | null;
   tags?:
     | {
         tag?: string | null;
@@ -494,16 +496,18 @@ export interface Article {
       }[]
     | null;
   relatedArticles?: (string | Article)[] | null;
-  focusKeyword: string;
+  focusKeyword?: string | null;
   keywordDifficulty?: number | null;
   monthlySearchVolume?: number | null;
   currentRankingPosition?: number | null;
-  secondaryKeywords: {
-    keyword?: string | null;
-    id?: string | null;
-  }[];
-  metaTitle: string;
-  metaDescription: string;
+  secondaryKeywords?:
+    | {
+        keyword?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   canonicalUrl?: string | null;
   socialHeadline?: string | null;
   socialDescription?: string | null;
@@ -519,21 +523,25 @@ export interface Article {
         id?: string | null;
       }[]
     | null;
-  directAnswer: string;
-  aiCitationSummary: string;
-  primaryAiQuery: string;
-  keyStatistics: {
-    text: string;
-    sourceName: string;
-    sourceUrl?: string | null;
-    year?: string | null;
-    id?: string | null;
-  }[];
-  faqSection: {
-    question: string;
-    answer: string;
-    id?: string | null;
-  }[];
+  directAnswer?: string | null;
+  aiCitationSummary?: string | null;
+  primaryAiQuery?: string | null;
+  keyStatistics?:
+    | {
+        text: string;
+        sourceName: string;
+        sourceUrl?: string | null;
+        year?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  faqSection?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
   termDefinitions?:
     | {
         term: string;
@@ -550,11 +558,13 @@ export interface Article {
         id?: string | null;
       }[]
     | null;
-  voiceAnswer: string;
-  speakableCssSelectors: {
-    selector?: string | null;
-    id?: string | null;
-  }[];
+  voiceAnswer?: string | null;
+  speakableCssSelectors?:
+    | {
+        selector?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   conversationalQueryVariants?:
     | {
         query?: string | null;
@@ -569,31 +579,35 @@ export interface Article {
         id?: string | null;
       }[]
     | null;
-  schemaType: 'Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle';
+  schemaType?: ('Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle') | null;
   howToSteps?:
     | {
-        name: string;
-        description: string;
+        name?: string | null;
+        description?: string | null;
         image?: (string | null) | Media;
         id?: string | null;
       }[]
     | null;
-  sameAsEntityUrls: {
-    url: string;
-    id?: string | null;
-  }[];
+  sameAsEntityUrls?:
+    | {
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   articleSection?: string | null;
   apaCitation?: string | null;
   customJsonLd?: string | null;
-  legalDisclaimer: 'Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None';
+  legalDisclaimer?: ('Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None') | null;
   abaComplianceVerified?: boolean | null;
   expertReviewer?: string | null;
-  externalSources: {
-    name: string;
-    url?: string | null;
-    credibilityTier?: ('High' | 'Medium' | 'Low') | null;
-    id?: string | null;
-  }[];
+  externalSources?:
+    | {
+        name: string;
+        url?: string | null;
+        credibilityTier?: ('High' | 'Medium' | 'Low') | null;
+        id?: string | null;
+      }[]
+    | null;
   pressMentions?:
     | {
         source?: string | null;
@@ -851,14 +865,21 @@ export interface Article {
     formToLeadRate?: number | null;
     leadToCaseRate?: number | null;
   };
+  /**
+   * Date the article was published
+   */
   publishedDate?: string | null;
+  /**
+   * Last time this article was saved
+   */
+  updatedAt: string;
   aeoScore?: number | null;
   /**
    * Auto-calculated on every save. 0-100. Target 80+ before publishing.
    */
   seoScore?: number | null;
   readTime?: number | null;
-  searchIntent: 'Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational';
+  searchIntent?: ('Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational') | null;
   targetSerpFeature?: string | null;
   contentConfidence?: ('High' | 'Medium' | 'Low') | null;
   hideFromSearchEngines?: boolean | null;
@@ -866,7 +887,6 @@ export interface Article {
   nextReviewDue?: string | null;
   lastFactVerified?: string | null;
   contentQualityScore?: number | null;
-  updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
@@ -1575,6 +1595,7 @@ export interface ArticlesSelect<T extends boolean = true> {
         leadToCaseRate?: T;
       };
   publishedDate?: T;
+  updatedAt?: T;
   aeoScore?: T;
   seoScore?: T;
   readTime?: T;
@@ -1586,7 +1607,6 @@ export interface ArticlesSelect<T extends boolean = true> {
   nextReviewDue?: T;
   lastFactVerified?: T;
   contentQualityScore?: T;
-  updatedAt?: T;
   createdAt?: T;
   _status?: T;
 }

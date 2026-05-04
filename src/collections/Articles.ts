@@ -241,35 +241,77 @@ export const Articles: CollectionConfig = {
         }
         return data
       },
-      // HOOK 1: Content Validation
+      // HOOK 1: Content Validation (only when publishing, not for drafts)
       async ({ data }) => {
         if (!data || data._isSeeding) return
-        const errors: string[] = []
+
+        // Skip validation for drafts — only validate when publishing
+        if (data._status !== 'published') return data
+
+        const issues: string[] = []
+
+        // ── Required field checks ──────────────────────────────────────
+        if (!data.title?.trim()) issues.push('Title is required')
+        else if (data.title.length < 10) issues.push(`Title too short (${data.title.length}/10 chars)`)
+        if (!data.slug?.trim()) issues.push('Slug is required')
+        if (!data.author) issues.push('Author is required — select an author')
+        if (!data.category) issues.push('Category/Content Pillar is required — select one')
+        if (!data.heroImage) issues.push('Hero Image is required — upload one')
+        if (!data.excerpt?.trim()) issues.push('Excerpt is required')
+        else if (data.excerpt.length < 50) issues.push(`Excerpt too short (${data.excerpt.length}/50 chars)`)
+        if (!data.contentFormat) issues.push('Content Format is required — select one')
+        if (!data.focusKeyword?.trim()) issues.push('Focus Keyword is required')
+        if (!data.metaTitle?.trim()) issues.push('Meta Title is required')
+        else if (data.metaTitle.length > 60) issues.push(`Meta Title too long (${data.metaTitle.length}/60 chars)`)
+        if (!data.metaDescription?.trim()) issues.push('Meta Description is required')
+        else if (data.metaDescription.length < 120) issues.push(`Meta Description too short (${data.metaDescription.length}/120 chars)`)
+        if (!data.directAnswer?.trim()) issues.push('Direct Answer (AEO) is required')
+        else if (data.directAnswer.length < 40) issues.push(`Direct Answer: ${data.directAnswer.length}/40 chars`)
+        if (!data.voiceAnswer?.trim()) issues.push('Voice Answer is required')
+        if (!data.schemaType) issues.push('Schema Type is required — select one')
+        if (!data.legalDisclaimer) issues.push('Legal Disclaimer is required')
+
+        // ── Array min rows ─────────────────────────────────────────────
+        const keyTakeaways = data.keyTakeaways || []
+        if (keyTakeaways.length < 3) issues.push(`Key Takeaways: ${keyTakeaways.length}/3 — add ${3 - keyTakeaways.length} more`)
+        const relatedArticles = data.relatedArticles || []
+        if (relatedArticles.length < 3) issues.push(`Related Articles: ${relatedArticles.length}/3 — link ${3 - relatedArticles.length} more articles`)
+        const secondaryKeywords = data.secondaryKeywords || []
+        if (secondaryKeywords.length < 2) issues.push(`Secondary Keywords: ${secondaryKeywords.length}/2 — add ${2 - secondaryKeywords.length} more`)
+        const keyStats = data.keyStatistics || []
+        if (keyStats.length < 2) issues.push(`Key Statistics: ${keyStats.length}/2 — add ${2 - keyStats.length} more`)
+        const faqs = data.faqSection || []
+        if (faqs.length < 5) issues.push(`FAQ items: ${faqs.length}/5 — add ${5 - faqs.length} more`)
+        const sameAsUrls = data.sameAsEntityUrls || []
+        if (sameAsUrls.length < 1) issues.push('At least 1 Same-As URL is required')
+        const extSources = data.externalSources || []
+        if (extSources.length < 1) issues.push('At least 1 External Source is required')
+        const speakable = data.speakableCssSelectors || []
+        if (speakable.length < 1) issues.push('At least 1 Speakable CSS Selector is required')
+
+        // ── Rich text content ──────────────────────────────────────────
         const contentNodes = data.content?.root?.children || []
         const bodyText = extractTextFromRichText(contentNodes)
-
-        if (bodyText.length < 2000) {
-          errors.push('Article must be at least 2000 characters')
+        if (!data.content || bodyText.length < 50) issues.push('Article content is required')
+        else {
+          if (bodyText.length < 2000) issues.push(`Content too short (${bodyText.length}/2000 chars)`)
+          const h2Count = countHeadingsInLexical(contentNodes, 'h2')
+          const h3Count = countHeadingsInLexical(contentNodes, 'h3')
+          if (h2Count < 3) issues.push(`H2 Headings: ${h2Count}/3 — add ${3 - h2Count} more`)
+          if (h3Count < 6) issues.push(`H3 Headings: ${h3Count}/6 — add ${6 - h3Count} more`)
         }
 
-        const h2Count = countHeadingsInLexical(contentNodes, 'h2')
-        const h3Count = countHeadingsInLexical(contentNodes, 'h3')
-
-        if (h2Count < 3) errors.push('Article must have at least 3 H2 headings')
-        if (h3Count < 6) errors.push('Article must have at least 6 H3 headings')
-
-        const faqs = data.faqSection || []
-        if (faqs.length < 5) errors.push('Article must have at least 5 FAQ items')
-
-        const directAnswer = data.directAnswer || ''
-        if (directAnswer.length < 40) errors.push('Direct answer must be at least 40 characters')
-
+        // ── SGE / AI ────────────────────────────────────────────────────
         const sgeAnswer = data.sgeOptimizedAnswer || ''
-        if (sgeAnswer.length < 40)
-          errors.push('SGE optimized answer must be at least 40 characters')
+        if (!sgeAnswer.trim()) issues.push('SGE Optimized Answer is required')
+        else if (sgeAnswer.length < 40) issues.push(`SGE Answer: ${sgeAnswer.length}/40 chars`)
 
-        if (errors.length > 0) {
-          throw new Error(errors.join(', '))
+        // ── GEO ─────────────────────────────────────────────────────────
+        const targetStates = data.targetStates || []
+        if (targetStates.length < 1) issues.push('At least 1 Target State is required in GEO tab')
+
+        if (issues.length > 0) {
+          throw new Error(issues.join(' | '))
         }
 
         return data
@@ -277,9 +319,15 @@ export const Articles: CollectionConfig = {
     ],
     beforeChange: [
       // Existing hook: calculate aeoScore, seoScore, readTime, nextReviewDue
-      async ({ data }) => {
+      async ({ data, operation }) => {
         // Skip if seeding (no full article data yet)
         if (data._isSeeding) return data
+
+        // Auto-set publishedDate on first publish
+        if (operation === 'update' && data._status === 'published' && !data.publishedDate) {
+          data.publishedDate = new Date().toISOString()
+        }
+
         data.aeoScore = await generateAeoScore({ data } as any)
         data.seoScore = await generateSeoScore({ data } as any)
         data.readTime = await calculateReadTime({ data } as any)
@@ -360,7 +408,7 @@ export const Articles: CollectionConfig = {
         // Content Freshness
         const freshness = calculateFreshness(data)
         data.contentFreshness = {
-          ...data.contentFreshness,
+          ...(data.contentFreshness || {}),
           daysOld: freshness.daysOld,
           freshnessStatus: freshness.freshnessStatus,
           nextReviewDue: freshness.nextReviewDue,
@@ -369,7 +417,7 @@ export const Articles: CollectionConfig = {
         // Featured Snippet Score
         const snippetScore = calculateSnippetScore(data)
         data.featuredSnippetOptimization = {
-          ...data.featuredSnippetOptimization,
+          ...(data.featuredSnippetOptimization || {}),
           snippetOptimizationScore: snippetScore,
         }
 
@@ -406,7 +454,7 @@ export const Articles: CollectionConfig = {
         const cases = data.conversionFunnel?.confirmedCases || 0
 
         data.conversionFunnel = {
-          ...data.conversionFunnel,
+          ...(data.conversionFunnel || {}),
           visitorToFormRate: Math.round((forms / visitors) * 100),
           formToLeadRate: forms > 0 ? Math.round((leads / forms) * 100) : 0,
           leadToCaseRate: leads > 0 ? Math.round((cases / leads) * 100) : 0,
@@ -545,7 +593,6 @@ export const Articles: CollectionConfig = {
             {
               name: 'title',
               type: 'text',
-              required: true,
               admin: { description: '50-80 chars. Auto slug.' },
             },
             {
@@ -573,20 +620,17 @@ export const Articles: CollectionConfig = {
                 },
               ],
             },
-            { name: 'slug', type: 'text', unique: true, index: true, required: true },
-            { name: 'author', type: 'relationship', relationTo: 'authors', required: true },
+            { name: 'slug', type: 'text', unique: true, index: true },
+            { name: 'author', type: 'relationship', relationTo: 'authors' },
             {
               name: 'category',
               label: 'Content Pillar',
               type: 'relationship',
               relationTo: 'categories',
-              required: true,
-              admin: { description: 'Select the main category for this article' },
             },
             {
               name: 'contentFormat',
               type: 'select',
-              required: true,
               options: [
                 'Pillar Page',
                 'Cluster Article',
@@ -599,17 +643,14 @@ export const Articles: CollectionConfig = {
                 'Definition',
               ],
             },
-            { name: 'heroImage', type: 'upload', relationTo: 'media', required: true },
-            { name: 'excerpt', type: 'textarea', required: true, minLength: 50, maxLength: 300 },
+            { name: 'heroImage', type: 'upload', relationTo: 'media' },
+            { name: 'excerpt', type: 'textarea', minLength: 50, maxLength: 300 },
             { name: 'subtitle', type: 'text' },
             { name: 'executiveSummary', type: 'textarea' },
             {
               name: 'keyTakeaways',
               type: 'array',
-              required: true,
-              minRows: 3,
-              maxRows: 5,
-              fields: [{ name: 'point', type: 'text', required: true }],
+              fields: [{ name: 'point', type: 'text' }],
             },
             {
               name: 'roiTable',
@@ -669,33 +710,30 @@ export const Articles: CollectionConfig = {
                 },
               ],
             },
-            { name: 'content', type: 'richText', required: true },
+            { name: 'content', type: 'richText' },
             { name: 'tags', type: 'array', fields: [{ name: 'tag', type: 'text' }] },
             {
               name: 'relatedArticles',
               type: 'relationship',
               relationTo: 'articles',
               hasMany: true,
-              minRows: 3,
-              maxRows: 5,
             },
           ],
         },
         {
           label: 'SEO Core',
           fields: [
-            { name: 'focusKeyword', type: 'text', required: true },
+            { name: 'focusKeyword', type: 'text' },
             { name: 'keywordDifficulty', type: 'number', min: 0, max: 100 },
             { name: 'monthlySearchVolume', type: 'number' },
             { name: 'currentRankingPosition', type: 'number' },
             {
               name: 'secondaryKeywords',
               type: 'array',
-              required: true,
               fields: [{ name: 'keyword', type: 'text' }],
             },
-            { name: 'metaTitle', type: 'text', required: true, maxLength: 60 },
-            { name: 'metaDescription', type: 'textarea', required: true, maxLength: 160 },
+            { name: 'metaTitle', type: 'text', maxLength: 60 },
+            { name: 'metaDescription', type: 'textarea', maxLength: 160 },
             { name: 'canonicalUrl', type: 'text' },
             { name: 'socialHeadline', type: 'text' },
             { name: 'socialDescription', type: 'textarea' },
@@ -711,14 +749,12 @@ export const Articles: CollectionConfig = {
         {
           label: 'AEO and AI Citation',
           fields: [
-            { name: 'directAnswer', type: 'textarea', required: true },
-            { name: 'aiCitationSummary', type: 'textarea', required: true },
-            { name: 'primaryAiQuery', type: 'text', required: true },
+            { name: 'directAnswer', type: 'textarea' },
+            { name: 'aiCitationSummary', type: 'textarea' },
+            { name: 'primaryAiQuery', type: 'text' },
             {
               name: 'keyStatistics',
               type: 'array',
-              required: true,
-              minRows: 2,
               fields: [
                 { name: 'text', type: 'text', required: true },
                 { name: 'sourceName', type: 'text', required: true },
@@ -729,8 +765,6 @@ export const Articles: CollectionConfig = {
             {
               name: 'faqSection',
               type: 'array',
-              required: true,
-              minRows: 4,
               fields: [
                 { name: 'question', type: 'text', required: true },
                 { name: 'answer', type: 'textarea', required: true },
@@ -759,17 +793,10 @@ export const Articles: CollectionConfig = {
         {
           label: 'Voice Search',
           fields: [
-            { name: 'voiceAnswer', type: 'textarea', required: true },
+            { name: 'voiceAnswer', type: 'textarea' },
             {
               name: 'speakableCssSelectors',
               type: 'array',
-              required: true,
-              defaultValue: [
-                { selector: 'h1' },
-                { selector: '.direct-answer-block' },
-                { selector: '.key-takeaways' },
-                { selector: '.faq-answer' },
-              ],
               fields: [{ name: 'selector', type: 'text' }],
             },
             {
@@ -795,7 +822,6 @@ export const Articles: CollectionConfig = {
             {
               name: 'schemaType',
               type: 'select',
-              required: true,
               options: ['Article', 'FAQPage', 'HowTo', 'NewsArticle', 'LegalScholarlyArticle'],
             },
             {
@@ -803,16 +829,15 @@ export const Articles: CollectionConfig = {
               type: 'array',
               admin: { condition: (data) => data.schemaType === 'HowTo' },
               fields: [
-                { name: 'name', type: 'text', required: true },
-                { name: 'description', type: 'textarea', required: true },
+                { name: 'name', type: 'text' },
+                { name: 'description', type: 'textarea' },
                 { name: 'image', type: 'upload', relationTo: 'media' },
               ],
             },
             {
               name: 'sameAsEntityUrls',
               type: 'array',
-              required: true,
-              fields: [{ name: 'url', type: 'text', required: true }],
+              fields: [{ name: 'url', type: 'text' }],
             },
             { name: 'articleSection', type: 'text' },
             { name: 'apaCitation', type: 'text' },
@@ -825,7 +850,6 @@ export const Articles: CollectionConfig = {
             {
               name: 'legalDisclaimer',
               type: 'select',
-              required: true,
               options: ['Standard', 'No Legal Advice', 'CasePort Platform', 'None'],
               defaultValue: 'Standard',
             },
@@ -834,7 +858,6 @@ export const Articles: CollectionConfig = {
             {
               name: 'externalSources',
               type: 'array',
-              required: true,
               fields: [
                 { name: 'name', type: 'text', required: true },
                 { name: 'url', type: 'text' },
@@ -1533,7 +1556,8 @@ export const Articles: CollectionConfig = {
     },
 
     // ─── Sidebar Fields ───────────────────────────────────────────────────
-    { name: 'publishedDate', type: 'date', admin: { position: 'sidebar' } },
+    { name: 'publishedDate', type: 'date', admin: { position: 'sidebar', description: 'Date the article was published' } },
+    { name: 'updatedAt', type: 'date', admin: { position: 'sidebar', readOnly: true, description: 'Last time this article was saved' } },
     { name: 'aeoScore', type: 'number', admin: { position: 'sidebar', readOnly: true } },
     {
       name: 'seoScore',
@@ -1549,7 +1573,6 @@ export const Articles: CollectionConfig = {
     {
       name: 'searchIntent',
       type: 'select',
-      required: true,
       admin: { position: 'sidebar' },
       options: ['Informational', 'Commercial Investigation', 'Transactional', 'Navigational'],
     },

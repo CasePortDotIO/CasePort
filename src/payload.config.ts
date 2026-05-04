@@ -39,6 +39,25 @@ export default buildConfig({
       ],
     },
   },
+  hooks: {
+    afterError: [
+      ({ error, result }) => {
+        if (error.message.includes(' | ') && result) {
+          const messages = error.message.split(' | ')
+          const formattedErrors = messages.map((msg: string) => ({ message: msg }))
+          return {
+            response: {
+              ...result,
+              data: { errors: formattedErrors },
+              message: messages[0],
+              status: 400,
+            },
+          }
+        }
+        return
+      },
+    ],
+  },
   globals: [MarketsPage, SiteSettings, HeaderNav, FooterNav],
   collections: [
     Users,
