@@ -465,11 +465,11 @@ export interface Article {
     };
     rows?:
       | {
-          col1: string;
-          col2: string;
-          col3: string;
-          col4: string;
-          col5: string;
+          col1?: string | null;
+          col2?: string | null;
+          col3?: string | null;
+          col4?: string | null;
+          col5?: string | null;
           id?: string | null;
         }[]
       | null;
@@ -528,8 +528,8 @@ export interface Article {
   primaryAiQuery?: string | null;
   keyStatistics?:
     | {
-        text: string;
-        sourceName: string;
+        text?: string | null;
+        sourceName?: string | null;
         sourceUrl?: string | null;
         year?: string | null;
         id?: string | null;
@@ -537,23 +537,23 @@ export interface Article {
     | null;
   faqSection?:
     | {
-        question: string;
-        answer: string;
+        question?: string | null;
+        answer?: string | null;
         id?: string | null;
       }[]
     | null;
   termDefinitions?:
     | {
-        term: string;
-        definition: string;
+        term?: string | null;
+        definition?: string | null;
         isProprietary?: boolean | null;
         id?: string | null;
       }[]
     | null;
   expertQuotes?:
     | {
-        quote: string;
-        speakerName: string;
+        quote?: string | null;
+        speakerName?: string | null;
         credentials?: string | null;
         id?: string | null;
       }[]
@@ -602,7 +602,7 @@ export interface Article {
   expertReviewer?: string | null;
   externalSources?:
     | {
-        name: string;
+        name?: string | null;
         url?: string | null;
         credibilityTier?: ('High' | 'Medium' | 'Low') | null;
         id?: string | null;
@@ -626,9 +626,9 @@ export interface Article {
   };
   contentUpdateHistory?:
     | {
-        date: string;
-        summary: string;
-        updatedBy: string;
+        date?: string | null;
+        summary?: string | null;
+        updatedBy?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -689,12 +689,63 @@ export interface Article {
         | 'WY'
       )[]
     | null;
+  /**
+   * Select all target cities for this article
+   */
   targetCities?:
-    | {
-        city?: string | null;
-        state?: string | null;
-        id?: string | null;
-      }[]
+    | (
+        | 'Houston, TX'
+        | 'Dallas, TX'
+        | 'Austin, TX'
+        | 'San Antonio, TX'
+        | 'Fort Worth, TX'
+        | 'El Paso, TX'
+        | 'Arlington, TX'
+        | 'Corpus Christi, TX'
+        | 'Miami, FL'
+        | 'Tampa, FL'
+        | 'Orlando, FL'
+        | 'Jacksonville, FL'
+        | 'Fort Lauderdale, FL'
+        | 'St. Petersburg, FL'
+        | 'Tallahassee, FL'
+        | 'Los Angeles, CA'
+        | 'San Diego, CA'
+        | 'San Francisco, CA'
+        | 'Riverside, CA'
+        | 'Sacramento, CA'
+        | 'San Jose, CA'
+        | 'Fresno, CA'
+        | 'Long Beach, CA'
+        | 'New York, NY'
+        | 'Brooklyn, NY'
+        | 'Queens, NY'
+        | 'Bronx, NY'
+        | 'Albany, NY'
+        | 'Rochester, NY'
+        | 'Syracuse, NY'
+        | 'Buffalo, NY'
+        | 'Chicago, IL'
+        | 'Springfield, IL'
+        | 'Rockford, IL'
+        | 'Philadelphia, PA'
+        | 'Pittsburgh, PA'
+        | 'Allentown, PA'
+        | 'Harrisburg, PA'
+        | 'Scranton, PA'
+        | 'Reading, PA'
+        | 'Columbus, OH'
+        | 'Cleveland, OH'
+        | 'Cincinnati, OH'
+        | 'Dayton, OH'
+        | 'Toledo, OH'
+        | 'Akron, OH'
+        | 'Atlanta, GA'
+        | 'Augusta, GA'
+        | 'Savannah, GA'
+        | 'Macon, GA'
+        | 'Columbus, GA'
+      )[]
     | null;
   jurisdiction?: string | null;
   serviceAreaDescription?: string | null;
@@ -1407,13 +1458,7 @@ export interface ArticlesSelect<T extends boolean = true> {
         id?: T;
       };
   targetStates?: T;
-  targetCities?:
-    | T
-    | {
-        city?: T;
-        state?: T;
-        id?: T;
-      };
+  targetCities?: T;
   jurisdiction?: T;
   serviceAreaDescription?: T;
   localSchemaType?: T;

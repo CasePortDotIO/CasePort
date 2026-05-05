@@ -79,9 +79,8 @@ const calculateReadTime: FieldHook = async ({ data }) => {
   return Math.ceil(words / 200) || 1
 }
 
-const generateSeoScore: FieldHook = async ({ data }) => {
+const generateSeoScore = async (d: any, heroImageAlt = ''): Promise<number> => {
   let score = 0
-  const d = data || {}
 
   const keyword = (d.focusKeyword ?? '').toLowerCase().trim()
   const title = (d.title ?? '').toLowerCase()
@@ -92,7 +91,8 @@ const generateSeoScore: FieldHook = async ({ data }) => {
   const bodyText = d.content?.root?.children
     ? extractTextFromRichText(d.content.root.children).toLowerCase().slice(0, 300)
     : ''
-  const altText = typeof d.heroImage === 'object' ? (d.heroImage?.alt ?? '') : ''
+  // Use passed heroImageAlt if available, otherwise fall back to inline object check
+  const altText = heroImageAlt ?? (typeof d.heroImage === 'object' ? (d.heroImage?.alt ?? '') : '')
   const related = d.relatedArticles ?? []
   const secondary = d.secondaryKeywords ?? []
 
@@ -320,8 +320,8 @@ export const Articles: CollectionConfig = {
     beforeChange: [
       // Existing hook: calculate aeoScore, seoScore, readTime, nextReviewDue
       async ({ data, operation }) => {
-        // Skip if seeding (no full article data yet)
-        if (data._isSeeding) return data
+        // Skip all processing for drafts — only run on publish
+        if (data._isSeeding || data._status !== 'published') return data
 
         // Auto-set publishedDate on first publish
         if (operation === 'update' && data._status === 'published' && !data.publishedDate) {
@@ -329,18 +329,35 @@ export const Articles: CollectionConfig = {
         }
 
         data.aeoScore = await generateAeoScore({ data } as any)
-        data.seoScore = await generateSeoScore({ data } as any)
+        data.seoScore = await generateSeoScore(data)
         data.readTime = await calculateReadTime({ data } as any)
         data.nextReviewDue = await calculateNextReviewDue({ data } as any)
         return data
       },
       // HOOK 2: Auto-Calculate Scores
       async ({ data, req }) => {
-        if (data._isSeeding) return data
+        // Skip score calculation for drafts — only run when publishing
+        if (data._isSeeding || data._status !== 'published') return data
         const contentNodes = data.content?.root?.children || []
         const h2Count = countHeadingsInLexical(contentNodes, 'h2')
         const h3Count = countHeadingsInLexical(contentNodes, 'h3')
         const bodyText = extractTextFromRichText(contentNodes)
+
+        // Resolve hero image alt text when stored as ObjectId
+        let heroImageAlt = ''
+        if (typeof data.heroImage === 'object' && data.heroImage?.alt) {
+          heroImageAlt = data.heroImage.alt
+        } else if (typeof data.heroImage === 'string') {
+          try {
+            const mediaDoc = await req.payload.findByID({
+              collection: 'media',
+              id: data.heroImage,
+            })
+            heroImageAlt = mediaDoc?.alt ?? ''
+          } catch {
+            // Media lookup failed — alt stays empty
+          }
+        }
 
         // GEO Score
         const geoScore = calculateGeoScore(data)
@@ -351,8 +368,8 @@ export const Articles: CollectionConfig = {
         // Voice Search Score
         const voiceScore = calculateVoiceScore(data)
 
-        // Existing scores (from existing beforeChange hook)
-        const seoScore = data.seoScore || 0
+        // Existing scores — pass resolved alt text
+        const seoScore = await generateSeoScore(data, heroImageAlt)
         const aeoScore = data.aeoScore || 0
 
         // Overall Dominance Score
@@ -447,7 +464,7 @@ export const Articles: CollectionConfig = {
       },
       // HOOK 4: Conversion Funnel Rates
       async ({ data }) => {
-        if (!data) return
+        if (!data || data._status !== 'published') return
         const visitors = data.conversionFunnel?.uniqueVisitors || 1
         const forms = data.conversionFunnel?.formSubmissions || 0
         const leads = data.conversionFunnel?.confirmedLeads || 0
@@ -479,6 +496,7 @@ export const Articles: CollectionConfig = {
       // HOOK 3: Performance Metrics
       // Note: formSubmissions and cases collections must exist for this to work
       async ({ doc, req }) => {
+        if (doc._status !== 'published') return
         try {
           const formSubmissions = await req.payload.find({
             collection: 'formSubmissions' as unknown as any,
@@ -964,11 +982,64 @@ export const Articles: CollectionConfig = {
             },
             {
               name: 'targetCities',
-              type: 'array',
+              type: 'select',
+              hasMany: true,
               label: 'Target Cities',
-              fields: [
-                { name: 'city', type: 'text', label: 'City' },
-                { name: 'state', type: 'text', label: 'State' },
+              admin: {
+                description: 'Select all target cities for this article',
+              },
+              options: [
+                { label: 'Houston, TX', value: 'Houston, TX' },
+                { label: 'Dallas, TX', value: 'Dallas, TX' },
+                { label: 'Austin, TX', value: 'Austin, TX' },
+                { label: 'San Antonio, TX', value: 'San Antonio, TX' },
+                { label: 'Fort Worth, TX', value: 'Fort Worth, TX' },
+                { label: 'El Paso, TX', value: 'El Paso, TX' },
+                { label: 'Arlington, TX', value: 'Arlington, TX' },
+                { label: 'Corpus Christi, TX', value: 'Corpus Christi, TX' },
+                { label: 'Miami, FL', value: 'Miami, FL' },
+                { label: 'Tampa, FL', value: 'Tampa, FL' },
+                { label: 'Orlando, FL', value: 'Orlando, FL' },
+                { label: 'Jacksonville, FL', value: 'Jacksonville, FL' },
+                { label: 'Fort Lauderdale, FL', value: 'Fort Lauderdale, FL' },
+                { label: 'St. Petersburg, FL', value: 'St. Petersburg, FL' },
+                { label: 'Tallahassee, FL', value: 'Tallahassee, FL' },
+                { label: 'Los Angeles, CA', value: 'Los Angeles, CA' },
+                { label: 'San Diego, CA', value: 'San Diego, CA' },
+                { label: 'San Francisco, CA', value: 'San Francisco, CA' },
+                { label: 'Riverside, CA', value: 'Riverside, CA' },
+                { label: 'Sacramento, CA', value: 'Sacramento, CA' },
+                { label: 'San Jose, CA', value: 'San Jose, CA' },
+                { label: 'Fresno, CA', value: 'Fresno, CA' },
+                { label: 'Long Beach, CA', value: 'Long Beach, CA' },
+                { label: 'New York, NY', value: 'New York, NY' },
+                { label: 'Brooklyn, NY', value: 'Brooklyn, NY' },
+                { label: 'Queens, NY', value: 'Queens, NY' },
+                { label: 'Bronx, NY', value: 'Bronx, NY' },
+                { label: 'Albany, NY', value: 'Albany, NY' },
+                { label: 'Rochester, NY', value: 'Rochester, NY' },
+                { label: 'Syracuse, NY', value: 'Syracuse, NY' },
+                { label: 'Buffalo, NY', value: 'Buffalo, NY' },
+                { label: 'Chicago, IL', value: 'Chicago, IL' },
+                { label: 'Springfield, IL', value: 'Springfield, IL' },
+                { label: 'Rockford, IL', value: 'Rockford, IL' },
+                { label: 'Philadelphia, PA', value: 'Philadelphia, PA' },
+                { label: 'Pittsburgh, PA', value: 'Pittsburgh, PA' },
+                { label: 'Allentown, PA', value: 'Allentown, PA' },
+                { label: 'Harrisburg, PA', value: 'Harrisburg, PA' },
+                { label: 'Scranton, PA', value: 'Scranton, PA' },
+                { label: 'Reading, PA', value: 'Reading, PA' },
+                { label: 'Columbus, OH', value: 'Columbus, OH' },
+                { label: 'Cleveland, OH', value: 'Cleveland, OH' },
+                { label: 'Cincinnati, OH', value: 'Cincinnati, OH' },
+                { label: 'Dayton, OH', value: 'Dayton, OH' },
+                { label: 'Toledo, OH', value: 'Toledo, OH' },
+                { label: 'Akron, OH', value: 'Akron, OH' },
+                { label: 'Atlanta, GA', value: 'Atlanta, GA' },
+                { label: 'Augusta, GA', value: 'Augusta, GA' },
+                { label: 'Savannah, GA', value: 'Savannah, GA' },
+                { label: 'Macon, GA', value: 'Macon, GA' },
+                { label: 'Columbus, GA', value: 'Columbus, GA' },
               ],
             },
             { name: 'jurisdiction', type: 'text', label: 'Primary Jurisdiction' },
