@@ -307,8 +307,7 @@ export const Articles: CollectionConfig = {
         else if (sgeAnswer.length < 40) issues.push(`SGE Answer: ${sgeAnswer.length}/40 chars`)
 
         // ── GEO ─────────────────────────────────────────────────────────
-        const targetStates = data.targetStates || []
-        if (targetStates.length < 1) issues.push('At least 1 Target State is required in GEO tab')
+        // targetStates and targetCities are optional — no validation required
 
         if (issues.length > 0) {
           throw new Error(issues.join(' | '))
@@ -328,47 +327,54 @@ export const Articles: CollectionConfig = {
           data.publishedDate = new Date().toISOString()
         }
 
-        data.aeoScore = await generateAeoScore({ data } as any)
-        data.seoScore = await generateSeoScore(data)
-        data.readTime = await calculateReadTime({ data } as any)
-        data.nextReviewDue = await calculateNextReviewDue({ data } as any)
+        try {
+          data.aeoScore = await generateAeoScore({ data } as any)
+          data.seoScore = await generateSeoScore(data)
+          data.readTime = await calculateReadTime({ data } as any)
+          data.nextReviewDue = await calculateNextReviewDue({ data } as any)
+        } catch (err) {
+          console.error('Score calculation error:', err)
+          // Don't crash the publish — keep going without scores
+        }
+
         return data
       },
       // HOOK 2: Auto-Calculate Scores
       async ({ data, req }) => {
         // Skip score calculation for drafts — only run when publishing
         if (data._isSeeding || data._status !== 'published') return data
-        const contentNodes = data.content?.root?.children || []
-        const h2Count = countHeadingsInLexical(contentNodes, 'h2')
-        const h3Count = countHeadingsInLexical(contentNodes, 'h3')
-        const bodyText = extractTextFromRichText(contentNodes)
+        try {
+          const contentNodes = data.content?.root?.children || []
+          const h2Count = countHeadingsInLexical(contentNodes, 'h2')
+          const h3Count = countHeadingsInLexical(contentNodes, 'h3')
+          const bodyText = extractTextFromRichText(contentNodes)
 
-        // Resolve hero image alt text when stored as ObjectId
-        let heroImageAlt = ''
-        if (typeof data.heroImage === 'object' && data.heroImage?.alt) {
-          heroImageAlt = data.heroImage.alt
-        } else if (typeof data.heroImage === 'string') {
-          try {
-            const mediaDoc = await req.payload.findByID({
-              collection: 'media',
-              id: data.heroImage,
-            })
-            heroImageAlt = mediaDoc?.alt ?? ''
-          } catch {
-            // Media lookup failed — alt stays empty
+          // Resolve hero image alt text when stored as ObjectId
+          let heroImageAlt = ''
+          if (typeof data.heroImage === 'object' && data.heroImage?.alt) {
+            heroImageAlt = data.heroImage.alt
+          } else if (typeof data.heroImage === 'string') {
+            try {
+              const mediaDoc = await req.payload.findByID({
+                collection: 'media',
+                id: data.heroImage,
+              })
+              heroImageAlt = mediaDoc?.alt ?? ''
+            } catch {
+              // Media lookup failed — alt stays empty
+            }
           }
-        }
 
-        // GEO Score
-        const geoScore = calculateGeoScore(data)
+          // GEO Score
+          const geoScore = calculateGeoScore(data)
 
-        // SGE Score
-        const sgeScore = calculateSgeScore(data)
+          // SGE Score
+          const sgeScore = calculateSgeScore(data)
 
-        // Voice Search Score
-        const voiceScore = calculateVoiceScore(data)
+          // Voice Search Score
+          const voiceScore = calculateVoiceScore(data)
 
-        // Existing scores — pass resolved alt text
+          // Existing scores — pass resolved alt text
         const seoScore = await generateSeoScore(data, heroImageAlt)
         const aeoScore = data.aeoScore || 0
 
@@ -458,6 +464,10 @@ export const Articles: CollectionConfig = {
             anchorText: article.title,
             relevanceScore: 75,
           }))
+        }
+        } catch (err) {
+          console.error('Hook 2 score calc error:', err)
+          // Don't crash publish — continue without derived scores
         }
 
         return data
