@@ -329,7 +329,6 @@ export const Articles: CollectionConfig = {
 
         try {
           data.aeoScore = await generateAeoScore({ data } as any)
-          data.seoScore = await generateSeoScore(data)
           data.readTime = await calculateReadTime({ data } as any)
           data.nextReviewDue = await calculateNextReviewDue({ data } as any)
         } catch (err) {
@@ -409,6 +408,9 @@ export const Articles: CollectionConfig = {
           dominanceRank,
           competitiveAdvantageScore,
         }
+
+        // Also update the top-level seoScore so sidebar and dominance tab match
+        data.seoScore = seoScore
 
         // Content Quality Score
         data.contentQualityScore = calculateContentQualityScore(data, h2Count, h3Count)
