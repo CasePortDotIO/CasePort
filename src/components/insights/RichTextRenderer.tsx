@@ -2,6 +2,28 @@ import { RichText, defaultJSXConverters } from '@payloadcms/richtext-lexical/rea
 
 const jsxConverters: any = {
   ...defaultJSXConverters,
+  'cta-button': ({ node }: { node: any }) => {
+    const { heading, subHeading, buttonText, buttonUrl } = node
+    return (
+      <div className="cta-block my-12 py-8 px-6 lg:my-16 lg:py-12 lg:px-10 rounded-xl text-left bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
+        <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">
+          {heading || 'Ready to Speak with an Attorney?'}
+        </h3>
+        <p className="text-slate-300 text-base lg:text-lg mb-6">
+          {subHeading || 'Get the legal help you deserve today.'}
+        </p>
+        <a
+          href={buttonUrl || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cta-button cta-button--primary inline-block px-6 py-3 rounded-lg font-bold text-left transition-all cursor-pointer text-base lg:text-lg"
+          style={{ background: 'linear-gradient(to right, #00b5dd, #2684ff)', color: 'white' }}
+        >
+          {buttonText || 'Get Free Consultation'}
+        </a>
+      </div>
+    )
+  },
   heading: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     if (node.tag === 'h2') {
       const id = node.children[0]?.text?.toLowerCase().replace(/\s+/g, '-')

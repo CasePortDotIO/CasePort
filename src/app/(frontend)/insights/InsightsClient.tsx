@@ -659,34 +659,60 @@ function EditorialGrid({
 
         {/* Category Filters */}
         <Reveal delay={0.1}>
-          <div className="flex flex-wrap gap-3 mb-16">
-            <button
-              key="All"
-              onClick={() => setActiveCategory('All')}
-              className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
-                activeCategory === 'All'
-                  ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
-                  : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
-              }`}
-            >
-              All
-            </button>
-            {(fetchedCategories && fetchedCategories.length > 0
-              ? fetchedCategories.map((c) => c.title)
-              : categories
-            ).map((cat) => (
+          <div className="mb-16">
+            {/* Desktop: buttons inline */}
+            <div className="hidden lg:flex flex-wrap gap-3">
               <button
-                key={cat}
-                onClick={() => setActiveCategory(cat as string)}
+                key="All"
+                onClick={() => setActiveCategory('All')}
                 className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
-                  activeCategory === cat
+                  activeCategory === 'All'
                     ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
                     : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
                 }`}
               >
-                {cat}
+                All
               </button>
-            ))}
+              {(fetchedCategories && fetchedCategories.length > 0
+                ? fetchedCategories.map((c) => c.title)
+                : categories
+              ).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat as string)}
+                  className={`px-5 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-300 ${
+                    activeCategory === cat
+                      ? 'bg-cp-cyan/15 text-cp-cyan border border-cp-cyan/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]'
+                      : 'bg-white/[0.03] text-cp-text-muted border border-white/[0.06] hover:border-white/[0.12] hover:text-cp-text-secondary hover:bg-white/[0.05]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            {/* Mobile: dropdown select */}
+            <div className="lg:hidden">
+              <select
+                value={activeCategory}
+                onChange={(e) => setActiveCategory(e.target.value)}
+                className="w-full h-12 px-4 rounded-lg bg-[#0B1120] border border-white/[0.08] text-[14px] text-cp-text-primary appearance-none cursor-pointer focus:outline-none focus:border-cp-cyan/40 transition-all duration-300"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 12px center',
+                }}
+              >
+                <option value="All" className="bg-[#0B1120]">All</option>
+                {(fetchedCategories && fetchedCategories.length > 0
+                  ? fetchedCategories.map((c) => c.title)
+                  : categories
+                ).map((cat) => (
+                  <option key={cat} value={cat} className="bg-[#0B1120]">
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </Reveal>
 
