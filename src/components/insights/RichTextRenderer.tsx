@@ -58,6 +58,19 @@ const jsxConverters: any = {
       </blockquote>
     )
   },
+  list: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
+    const Tag = node.tag === 'ul' ? 'ul' : 'ol'
+    return (
+      <Tag className="text-lg text-slate-800 mb-8 ml-6 list-disc list-outside space-y-2">
+        {nodesToJSX({ nodes: node.children })}
+      </Tag>
+    )
+  },
+  listitem: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
+    return (
+      <li className="text-slate-800 leading-relaxed">{nodesToJSX({ nodes: node.children })}</li>
+    )
+  },
 }
 
 export const CustomRichText = ({ content }: { content: any }) => {

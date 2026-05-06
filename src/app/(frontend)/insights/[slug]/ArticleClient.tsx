@@ -65,12 +65,6 @@ import { toast } from 'sonner'
 
 import { CustomRichText } from '@/components/insights/RichTextRenderer'
 import { LegalDisclaimer } from '@/components/LegalDisclaimer'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
 import { articles } from '@/lib/articles'
 
 /* ─── Reading Progress Bar ─── */
@@ -930,22 +924,21 @@ export default function ArticleClient({
                   <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
                     Frequently Asked Questions
                   </h2>
-                  <Accordion type="single" collapsible className="space-y-4">
+                  <div className="space-y-4">
                     {article.faqSection.map((item: any, idx: number) => (
-                      <AccordionItem
+                      <div
                         key={idx}
-                        value={`faq-${idx}`}
-                        className="faq-item border border-slate-200 rounded-lg px-6 data-[state=open]:bg-cyan-50 transition-colors duration-300"
+                        className="faq-item border border-slate-200 rounded-lg px-6 py-5 bg-white"
                       >
-                        <AccordionTrigger className="text-lg font-semibold text-slate-900 hover:text-cyan-600 transition-colors py-4">
+                        <p className="text-lg font-semibold text-slate-900 mb-3">
                           {item.question}
-                        </AccordionTrigger>
-                        <AccordionContent className="faq-answer text-slate-700 leading-relaxed pb-4">
-                          <p>{item.answer}</p>
-                        </AccordionContent>
-                      </AccordionItem>
+                        </p>
+                        <p className="faq-answer text-slate-700 leading-relaxed">
+                          {item.answer}
+                        </p>
+                      </div>
                     ))}
-                  </Accordion>
+                  </div>
                 </section>
               )}
               {/* Key Statistics */}
