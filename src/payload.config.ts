@@ -6,6 +6,8 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { CTAButtonFeature } from './features/CTAButton/server'
+
 import { Applications } from './collections/Applications'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
@@ -72,7 +74,7 @@ export default buildConfig({
     InjuredLeads,
   ],
   editor: lexicalEditor({
-    features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature()],
+    features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature(), CTAButtonFeature()],
   }),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
