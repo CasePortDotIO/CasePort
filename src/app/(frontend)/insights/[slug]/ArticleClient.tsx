@@ -59,7 +59,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FaLinkedin, FaTwitter } from 'react-icons/fa'
 import { toast } from 'sonner'
 
@@ -471,6 +471,17 @@ export default function ArticleClient({
   const [heroScroll, setHeroScroll] = useState(0)
   const revealed = useScrollReveal()
   const readingDepth = useReadingDepth()
+  const tocRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll TOC to keep active section visible
+  useEffect(() => {
+    if (!activeSection || !tocRef.current) return
+    const tocContainer = tocRef.current
+    const activeItem = tocContainer.querySelector(`[data-section-id="${activeSection}"]`)
+    if (activeItem) {
+      activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [activeSection])
 
   // Create formatted content based on Payload CMS output
   const content = useMemo(() => {
@@ -1394,14 +1405,15 @@ export default function ArticleClient({
             <aside className="hidden lg:block w-72 flex-shrink-0">
               {/* Sticky TOC - Bold & Animated */}
               <div
-                className="sticky top-24 bg-gradient-to-br from-slate-900 to-slate-800 border border-cyan-500/30 rounded-lg p-6 shadow-lg shadow-cyan-500/10 animate-fade-in"
-                style={{ animationDelay: '0.2s' }}
+                className="sticky top-24 bg-gradient-to-br from-slate-900 to-slate-800 border border-cyan-500/30 rounded-lg shadow-lg shadow-cyan-500/10 animate-fade-in overflow-hidden"
+                style={{ animationDelay: '0.2s', maxHeight: 'calc(100vh - 140px)' }}
               >
-                <h4 className="text-base font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-                  <div className="w-1 h-5 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-full" />
-                  On This Page
-                </h4>
-                <nav className="space-y-2">
+                <div ref={tocRef} className="p-5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+                  <h4 className="text-base font-black text-white mb-4 uppercase tracking-widest flex items-center gap-2">
+                    <div className="w-1 h-5 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-full" />
+                    On This Page
+                  </h4>
+                  <nav className="space-y-1">
                   {content?.sections?.map((section: any, idx: number) => {
                     const sectionId = section.heading?.toLowerCase().replace(/\s+/g, '-')
                     const isActive = activeSection === sectionId
@@ -1409,6 +1421,7 @@ export default function ArticleClient({
                       <a
                         key={idx}
                         href={`#${sectionId}`}
+                        data-section-id={sectionId}
                         className={`group flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-300 relative overflow-hidden ${
                           isActive
                             ? 'bg-cyan-500/20 text-cyan-300 font-semibold'
@@ -1441,6 +1454,7 @@ export default function ArticleClient({
                     )
                   })}
                 </nav>
+                </div>
               </div>
 
               {/* Subscribe Widget - With Save Article */}
