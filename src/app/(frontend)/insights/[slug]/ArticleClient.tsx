@@ -356,7 +356,7 @@ function LeakageCalculator() {
       </div>
       <div className="bg-white rounded-lg p-5 lg:p-6 border-l-4 border-red-500">
         <p className="text-xs lg:text-sm text-slate-600 mb-2">Your estimated monthly leakage:</p>
-        <div className="text-3xl lg:text-4xl font-bold text-red-600 mb-2">
+        <div className="text-2xl lg:text-4xl font-bold text-red-600 mb-2">
           ${monthlyCost.toLocaleString()}
         </div>
         <p className="text-xs lg:text-sm text-slate-600">
@@ -436,11 +436,11 @@ function MidArticleCTA({ depth, article }: { depth: number; article?: any }) {
       <section
         id="mid-cta"
         data-reveal
-        className="mb-32 transition-all duration-700 opacity-100 translate-y-0"
+        className="mb-16 lg:mb-24 transition-all duration-700 opacity-100 translate-y-0"
       >
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300">
           <h3 className="text-2xl sm:text-3xl font-bold mb-4">{heading}</h3>
-          <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-relaxed">{body}</p>
+          <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-normal lg:leading-relaxed">{body}</p>
           <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
             <Link
               href={primaryHref}
@@ -582,11 +582,11 @@ export default function ArticleClient({
         </div>
 
         {/* Hero content */}
-        <div className="relative z-10 container mx-auto px-6 lg:px-12 py-24 lg:py-48 mt-16 lg:mt-0 max-w-full overflow-hidden article-header">
+        <div className="relative z-10 container mx-auto px-6 lg:px-12 py-16 lg:py-32 mt-16 lg:mt-0 max-w-full overflow-hidden article-header">
           {/* Breadcrumb */}
           <nav
             aria-label="Breadcrumb"
-            className="flex items-center gap-2 mb-10 lg:mb-12 text-xs lg:text-sm text-gray-400 flex-wrap"
+            className="flex items-center gap-2 mb-6 lg:mb-8 text-xs lg:text-sm text-gray-400 flex-wrap"
           >
             <ol className="flex items-center gap-2">
               <li>
@@ -627,12 +627,12 @@ export default function ArticleClient({
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mb-12 lg:mb-16 max-w-2xl leading-relaxed">
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mb-6 lg:mb-8 max-w-2xl leading-normal lg:leading-relaxed">
             {article?.subtitle}
           </p>
 
           {/* Trust Signals + Author Meta */}
-          <div className="space-y-6 pt-8 border-t border-white/10">
+          <div className="space-y-4 pt-8 border-t border-white/10">
             {/* Trust Badges Row */}
             <div className="flex flex-wrap gap-3 lg:gap-4 text-xs text-gray-300">
               <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
@@ -730,13 +730,13 @@ export default function ArticleClient({
 
       {/* ─── ARTICLE BODY (WHITE SECTION) ─── */}
       <div className="bg-white">
-        <div className="container mx-auto px-6 lg:px-12 py-16 lg:py-40">
-          <div className="flex flex-col lg:flex-row gap-12 lg:items-stretch relative">
+        <div className="container mx-auto px-6 lg:px-12 py-12 lg:py-24">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 lg:items-stretch relative">
             {/* Main reading column */}
             <div className="flex-1 max-w-[720px] mx-auto w-full">
               {/* Direct Answer Block (Critical for AEO/SEO featured snippet) */}
               {article?.directAnswer && (
-                <div className="direct-answer-block bg-blue-50/50 border-l-4 border-cyan-500 p-6 lg:p-8 rounded-r-xl mb-16 relative shadow-sm">
+                <div className="direct-answer-block bg-blue-50/50 border-l-4 border-cyan-500 p-4 lg:p-8 rounded-r-xl mb-12 lg:mb-16 relative shadow-sm">
                   <div className="absolute top-0 right-0 -mt-3 -mr-3 bg-white rounded-full p-1 shadow-md">
                     <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-6 h-6 rounded-full flex items-center justify-center text-white">
                       <Lightbulb size={12} />
@@ -745,7 +745,7 @@ export default function ArticleClient({
                   <h3 className="text-sm font-bold tracking-widest text-cyan-600 uppercase mb-3 space-x-1">
                     Direct Answer
                   </h3>
-                  <p className="text-lg lg:text-xl text-slate-800 leading-relaxed font-medium">
+                  <p className="text-base lg:text-lg xl:text-xl text-slate-800 leading-normal lg:leading-relaxed font-medium">
                     {article.directAnswer}
                   </p>
                 </div>
@@ -757,7 +757,7 @@ export default function ArticleClient({
                   id="executive-summary"
                   data-section
                   data-reveal
-                  className={`mb-32 transition-all duration-700 ${
+                  className={`mb-16 lg:mb-24 transition-all duration-700 ${
                     revealed.has('executive-summary')
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-8'
@@ -765,7 +765,7 @@ export default function ArticleClient({
                 >
                   <div className="border-l-4 border-cyan-500 pl-8 py-4">
                     <h2 className="text-2xl font-bold text-slate-900 mb-6">Executive Summary</h2>
-                    <p className="text-lg text-slate-700 leading-relaxed mb-6">
+                    <p className="text-lg text-slate-700 leading-normal lg:leading-relaxed mb-6">
                       {article?.executiveSummary}
                     </p>
 
@@ -787,24 +787,24 @@ export default function ArticleClient({
                   id="key-takeaways"
                   data-section
                   data-reveal
-                  className={`key-takeaways mb-32 transition-all duration-700 ${
+                  className={`key-takeaways mb-16 lg:mb-24 transition-all duration-700 ${
                     revealed.has('key-takeaways')
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-8'
                   }`}
                 >
-                  <h3 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                  <h3 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-6 lg:mb-8">
                     Key Takeaways
                   </h3>
                   <ul className="space-y-4">
                     {article?.keyTakeaways?.map((takeaway: any, idx: number) => (
                       <li
                         key={idx}
-                        className="flex items-start gap-4 p-6 bg-slate-50 rounded-lg border border-slate-200/50 hover:border-cyan-300/50 hover:bg-cyan-50/30 transition-all duration-300 hover:shadow-md"
+                        className="flex items-start gap-3 lg:gap-4 p-4 lg:p-6 bg-slate-50 rounded-lg border border-slate-200/50 hover:border-cyan-300/50 hover:bg-cyan-50/30 transition-all duration-300 hover:shadow-md"
                         style={{ animationDelay: `${idx * 100}ms` }}
                       >
                         <CheckCircle2 className="text-cyan-600 flex-shrink-0 mt-1" size={20} />
-                        <span className="text-slate-700 leading-relaxed font-medium">
+                        <span className="text-slate-700 leading-normal lg:leading-relaxed font-medium">
                           {typeof takeaway === 'object'
                             ? takeaway?.point || takeaway?.takeaway
                             : takeaway}
@@ -917,23 +917,23 @@ export default function ArticleClient({
                   id="faq"
                   data-section
                   data-reveal
-                  className={`mb-32 transition-all duration-700 ${
+                  className={`mb-16 lg:mb-24 transition-all duration-700 ${
                     revealed.has('faq') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                   }`}
                 >
-                  <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                  <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-6 lg:mb-8">
                     Frequently Asked Questions
                   </h2>
                   <div className="space-y-4">
                     {article.faqSection.map((item: any, idx: number) => (
                       <div
                         key={idx}
-                        className="faq-item border border-slate-200 rounded-lg px-6 py-5 bg-white"
+                        className="faq-item border border-slate-200 rounded-lg px-4 lg:px-6 py-4 lg:py-5 bg-white"
                       >
-                        <p className="text-lg font-semibold text-slate-900 mb-3">
+                        <p className="text-base lg:text-lg font-semibold text-slate-900 mb-2 lg:mb-3">
                           {item.question}
                         </p>
-                        <p className="faq-answer text-slate-700 leading-relaxed">
+                        <p className="faq-answer text-slate-700 leading-normal lg:leading-relaxed">
                           {item.answer}
                         </p>
                       </div>
@@ -943,22 +943,22 @@ export default function ArticleClient({
               )}
               {/* Key Statistics */}
               {article?.keyStatistics?.length > 0 && (
-                <div className="key-statistics mb-32 bg-slate-50 p-8 rounded-xl border border-slate-200">
-                  <h3 className="text-xl font-bold mb-6 text-slate-900">Key Industry Data</h3>
-                  <div className="space-y-6">
+                <div className="key-statistics mb-16 lg:mb-24 bg-slate-50 p-6 lg:p-8 rounded-xl border border-slate-200">
+                  <h3 className="text-lg lg:text-xl font-bold mb-4 lg:mb-6 text-slate-900">Key Industry Data</h3>
+                  <div className="space-y-4">
                     {article.keyStatistics.map((stat: any, i: number) => (
-                      <div key={i} className="stat-item pl-4 border-l-2 border-cyan-500">
-                        <p className="stat-text text-lg text-slate-800 font-medium mb-2">
+                      <div key={i} className="stat-item pl-4 border-l-2 border-cyan-500 min-w-0">
+                        <p className="stat-text text-base lg:text-lg text-slate-800 font-medium mb-2 wrap-break-word">
                           {stat.text || stat.stat}
                         </p>
-                        <p className="stat-source text-sm text-slate-500">
+                        <p className="stat-source text-sm text-slate-500 wrap-break-word">
                           Source:{' '}
                           {stat.sourceUrl ? (
                             <a
                               href={stat.sourceUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-cyan-600 hover:underline"
+                              className="text-cyan-600 hover:underline wrap-break-word"
                             >
                               {stat.sourceName || stat.source}
                             </a>
@@ -975,16 +975,16 @@ export default function ArticleClient({
 
               {/* Expert Quotes */}
               {article?.expertQuotes?.length > 0 && (
-                <div className="mb-32 space-y-12">
+                <div className="mb-16 lg:mb-24 space-y-6">
                   {article.expertQuotes.map((quote: any, i: number) => (
                     <blockquote
                       key={i}
-                      className="expert-quote relative pl-8 py-4 border-l-4 border-blue-500 my-12 bg-white shadow-[0_4px_30px_rgba(0,0,0,0.03)] rounded-r-2xl pr-8"
+                      className="expert-quote relative pl-4 lg:pl-8 py-3 lg:py-4 border-l-4 border-blue-500 my-4 lg:my-8 bg-white shadow-[0_4px_30px_rgba(0,0,0,0.03)] rounded-r-2xl pr-3 lg:pr-8"
                     >
-                      <div className="text-cyan-200 absolute -top-4 -left-6 text-6xl opacity-50 select-none pointer-events-none font-serif">
+                      <div className="text-cyan-200 absolute -top-3 -left-4 text-5xl lg:text-6xl opacity-50 select-none pointer-events-none font-serif">
                         "
                       </div>
-                      <p className="text-2xl text-slate-800 leading-relaxed font-serif italic mb-6">
+                      <p className="text-lg lg:text-2xl text-slate-800 leading-normal lg:leading-relaxed font-serif italic mb-4 lg:mb-6">
                         "{quote.quote}"
                       </p>
                       <cite className="not-italic flex items-center gap-3">
@@ -1005,7 +1005,7 @@ export default function ArticleClient({
 
               {/* Entity Definitions (Glossary) */}
               {article?.entityDefinitions?.length > 0 && (
-                <div className="entity-definitions mb-32 bg-white rounded-2xl border border-slate-200">
+                <div className="entity-definitions mb-16 lg:mb-24 bg-white rounded-2xl border border-slate-200">
                   <div className="bg-slate-50 border-b border-slate-200 px-8 py-6 rounded-t-2xl">
                     <h3 className="text-2xl font-bold text-slate-900">Key Terms & Concepts</h3>
                   </div>
@@ -1013,7 +1013,7 @@ export default function ArticleClient({
                     {article.entityDefinitions.map((item: any, i: number) => (
                       <div key={i} className="px-8 py-6 hover:bg-slate-50/50 transition-colors">
                         <dt className="text-lg font-bold text-cyan-700 mb-2">{item.term}</dt>
-                        <dd className="text-slate-600 leading-relaxed">{item.definition}</dd>
+                        <dd className="text-slate-600 leading-normal lg:leading-relaxed">{item.definition}</dd>
                       </div>
                     ))}
                   </dl>
@@ -1025,11 +1025,11 @@ export default function ArticleClient({
                 <section
                   id="cite"
                   data-reveal
-                  className={`cite-this mb-32 transition-all duration-700 ${
+                  className={`cite-this mb-16 lg:mb-24 transition-all duration-700 ${
                     revealed.has('cite') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                   }`}
                 >
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-8">
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 lg:p-8">
                     <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                       <Lock size={20} className="text-cyan-600" />
                       Cite This Research
@@ -1060,13 +1060,13 @@ export default function ArticleClient({
                   id="continue-reading"
                   data-section
                   data-reveal
-                  className={`related-articles mb-32 transition-all duration-700 ${
+                  className={`related-articles mb-16 lg:mb-24 transition-all duration-700 ${
                     revealed.has('continue-reading')
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-8'
                   }`}
                 >
-                  <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                  <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-6 lg:mb-8">
                     Continue Reading
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1111,13 +1111,13 @@ export default function ArticleClient({
               <section
                 id="comparison"
                 data-reveal
-                className={`mb-32 transition-all duration-700 ${
+                className={`mb-16 lg:mb-24 transition-all duration-700 ${
                   revealed.has('comparison')
                     ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
                 }`}
               >
-                <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+                <h2 className="text-3xl lg:text-5xl font-bold text-slate-900 mb-6 lg:mb-8">
                   The Financial Impact
                 </h2>
                 <div className="overflow-x-auto">
@@ -1175,17 +1175,17 @@ export default function ArticleClient({
               <section
                 id="final-cta"
                 data-reveal
-                className={`mb-32 transition-all duration-700 ${
+                className={`mb-16 lg:mb-24 transition-all duration-700 ${
                   revealed.has('final-cta')
                     ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
                 }`}
               >
                 <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 rounded-xl p-12 text-white border border-cyan-500/30">
-                  <h3 className="text-3xl lg:text-4xl font-bold mb-4">
+                  <h3 className="text-2xl lg:text-4xl font-bold mb-4">
                     Every Day You Don't Fix Your Intake, You're Leaving $480K on the Table.
                   </h3>
-                  <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+                  <p className="text-lg text-gray-300 mb-8 leading-normal lg:leading-relaxed">
                     The question is not whether intake leakage exists in your firm. It does. The
                     question is: how much longer can you afford to wait?
                   </p>
@@ -1213,7 +1213,7 @@ export default function ArticleClient({
               <section
                 id="author-bio"
                 data-reveal
-                className={`mb-32 transition-all duration-700 ${
+                className={`mb-16 lg:mb-24 transition-all duration-700 ${
                   revealed.has('author-bio')
                     ? 'opacity-100 translate-y-0'
                     : 'opacity-0 translate-y-8'
@@ -1255,7 +1255,7 @@ export default function ArticleClient({
                           </div>
                         )}
                       </div>
-                      <p className="text-slate-700 leading-relaxed mb-4">{authorBio}</p>
+                      <p className="text-slate-700 leading-normal lg:leading-relaxed mb-4">{authorBio}</p>
 
                       {/* Credentials from CMS */}
                       {article?.author?.credentials?.length > 0 && (
@@ -1335,11 +1335,11 @@ export default function ArticleClient({
               <section
                 id="end-cta"
                 data-reveal
-                className={`mb-32 transition-all duration-700 ${
+                className={`mb-16 lg:mb-24 transition-all duration-700 ${
                   revealed.has('end-cta') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 }`}
               >
-                <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-6 lg:p-12 text-white border border-cyan-500/30">
                   {(typeof article?.category === 'object'
                     ? article?.category?.title
                     : article?.category) === 'Claimant Education' ? (
@@ -1347,7 +1347,7 @@ export default function ArticleClient({
                       <h3 className="text-3xl font-bold mb-4">
                         Injured in an accident? You deserve qualified legal help.
                       </h3>
-                      <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+                      <p className="text-lg text-gray-300 mb-8 leading-normal lg:leading-relaxed">
                         CasePort connects accident victims with vetted personal injury attorneys who
                         specialise in cases like yours. Free. No obligation.
                       </p>
@@ -1363,7 +1363,7 @@ export default function ArticleClient({
                       <h3 className="text-3xl font-bold mb-4">
                         Stop losing cases to slow intake. Start winning them.
                       </h3>
-                      <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+                      <p className="text-lg text-gray-300 mb-8 leading-normal lg:leading-relaxed">
                         CasePort delivers pre-qualified auto accident case opportunities to approved
                         PI firms in real time — with medical verification complete before delivery.
                         Your market may still be available.
@@ -1476,7 +1476,7 @@ export default function ArticleClient({
                 <h4 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wide">
                   Related Reading
                 </h4>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {relatedArticles.slice(0, 3).map((relatedSlug: string, idx: number) => {
                     const relatedArticle = articles.find((a) => a.slug === relatedSlug)
                     return relatedArticle ? (

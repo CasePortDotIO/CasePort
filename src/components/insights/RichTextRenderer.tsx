@@ -5,18 +5,18 @@ const jsxConverters: any = {
   'cta-button': ({ node }: { node: any }) => {
     const { heading, subHeading, buttonText, buttonUrl } = node
     return (
-      <div className="cta-block my-12 py-8 px-6 lg:my-16 lg:py-12 lg:px-10 rounded-xl text-left bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
-        <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">
+      <div className="cta-block my-8 py-6 px-4 lg:my-12 lg:py-8 lg:px-6 rounded-xl text-left bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 shadow-xl">
+        <h3 className="text-lg lg:text-2xl font-bold text-white mb-2">
           {heading || 'Ready to Speak with an Attorney?'}
         </h3>
-        <p className="text-slate-300 text-base lg:text-lg mb-6">
+        <p className="text-slate-300 text-sm lg:text-lg mb-4 lg:mb-6">
           {subHeading || 'Get the legal help you deserve today.'}
         </p>
         <a
           href={buttonUrl || '#'}
           target="_blank"
           rel="noopener noreferrer"
-          className="cta-button cta-button--primary inline-block px-6 py-3 rounded-lg font-bold text-left transition-all cursor-pointer text-base lg:text-lg"
+          className="cta-button cta-button--primary inline-block px-4 py-2 lg:px-6 lg:py-3 rounded-lg font-bold text-left transition-all cursor-pointer text-sm lg:text-base"
           style={{ background: 'linear-gradient(to right, #00b5dd, #2684ff)', color: 'white' }}
         >
           {buttonText || 'Get Free Consultation'}
@@ -31,7 +31,7 @@ const jsxConverters: any = {
         <h2
           id={id}
           data-section
-          className="text-4xl lg:text-5xl font-bold text-slate-900 mb-12 mt-16 opacity-100 translate-y-0"
+          className="text-3xl lg:text-5xl font-bold text-slate-900 mb-6 lg:mb-12 mt-10 lg:mt-16 opacity-100 translate-y-0"
         >
           {nodesToJSX({ nodes: node.children })}
         </h2>
@@ -39,42 +39,42 @@ const jsxConverters: any = {
     }
     if (node.tag === 'h3') {
       return (
-        <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-6 mt-12">
+        <h3 className="text-xl lg:text-3xl font-bold text-slate-900 mb-4 lg:mb-6 mt-8 lg:mt-12">
           {nodesToJSX({ nodes: node.children })}
         </h3>
       )
     }
     if (node.tag === 'h4') {
       return (
-        <h4 className="text-xl lg:text-2xl font-bold text-slate-900 mb-4 mt-8">
+        <h4 className="text-lg lg:text-2xl font-bold text-slate-900 mb-3 lg:mb-4 mt-6 lg:mt-8">
           {nodesToJSX({ nodes: node.children })}
         </h4>
       )
     }
     if (node.tag === 'h5' || node.tag === 'h6') {
       return (
-        <node.tag className="text-lg lg:text-xl font-bold text-slate-900 mb-4 mt-6">
+        <node.tag className="text-base lg:text-xl font-bold text-slate-900 mb-3 lg:mb-4 mt-4 lg:mt-6">
           {nodesToJSX({ nodes: node.children })}
         </node.tag>
       )
     }
     return (
-      <node.tag className="font-bold text-slate-900 mb-4 mt-6">
+      <node.tag className="font-bold text-slate-900 mb-3 lg:mb-4 mt-4 lg:mt-6">
         {nodesToJSX({ nodes: node.children })}
       </node.tag>
     )
   },
   paragraph: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     return (
-      <p className="text-lg text-slate-800 leading-relaxed mb-8">
+      <p className="text-base lg:text-lg text-slate-800 leading-normal lg:leading-relaxed mb-4 lg:mb-8">
         {nodesToJSX({ nodes: node.children })}
       </p>
     )
   },
   quote: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     return (
-      <blockquote className="my-24 lg:my-32 pl-8 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-50 to-transparent py-8 pr-8 rounded-r-lg">
-        <p className="text-2xl font-semibold text-slate-900 italic">
+      <blockquote className="my-12 lg:my-24 pl-6 lg:pl-8 border-l-4 border-cyan-400 bg-gradient-to-r from-cyan-50 to-transparent py-4 lg:py-8 pr-4 lg:pr-8 rounded-r-lg">
+        <p className="text-lg lg:text-2xl font-semibold text-slate-900 italic">
           {nodesToJSX({ nodes: node.children })}
         </p>
       </blockquote>
@@ -83,14 +83,14 @@ const jsxConverters: any = {
   list: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     const Tag = node.tag === 'ul' ? 'ul' : 'ol'
     return (
-      <Tag className="text-lg text-slate-800 mb-8 ml-6 list-disc list-outside space-y-2">
+      <Tag className="text-base lg:text-lg text-slate-800 mb-4 lg:mb-8 ml-4 lg:ml-6 list-disc list-outside space-y-1 lg:space-y-2">
         {nodesToJSX({ nodes: node.children })}
       </Tag>
     )
   },
   listitem: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
     return (
-      <li className="text-slate-800 leading-relaxed">{nodesToJSX({ nodes: node.children })}</li>
+      <li className="text-slate-800 leading-normal lg:leading-relaxed">{nodesToJSX({ nodes: node.children })}</li>
     )
   },
 }
