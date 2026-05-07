@@ -230,6 +230,14 @@ export const Articles: CollectionConfig = {
     drafts: true,
   },
   hooks: {
+    afterRead: [
+      ({ doc }) => {
+        if (doc.slug) {
+          doc._previewUrl = `/api/preview?slug=${doc.slug}`
+        }
+        return doc
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         // Auto-generate slug from title
@@ -317,10 +325,9 @@ export const Articles: CollectionConfig = {
       },
     ],
     beforeChange: [
-      // Existing hook: calculate aeoScore, seoScore, readTime, nextReviewDue
+      // HOOK 1: Calculate scores on EVERY save (not just publish)
       async ({ data, operation }) => {
-        // Skip all processing for drafts — only run on publish
-        if (data._isSeeding || data._status !== 'published') return data
+        if (data._isSeeding) return data
 
         // Auto-set publishedDate on first publish
         if (operation === 'update' && data._status === 'published' && !data.publishedDate) {
@@ -333,15 +340,13 @@ export const Articles: CollectionConfig = {
           data.nextReviewDue = await calculateNextReviewDue({ data } as any)
         } catch (err) {
           console.error('Score calculation error:', err)
-          // Don't crash the publish — keep going without scores
         }
 
         return data
       },
-      // HOOK 2: Auto-Calculate Scores
+      // HOOK 2: Auto-Calculate Dominance Scores on EVERY save
       async ({ data, req }) => {
-        // Skip score calculation for drafts — only run when publishing
-        if (data._isSeeding || data._status !== 'published') return data
+        if (data._isSeeding) return data
         try {
           const contentNodes = data.content?.root?.children || []
           const h2Count = countHeadingsInLexical(contentNodes, 'h2')
@@ -1639,6 +1644,16 @@ export const Articles: CollectionConfig = {
     },
 
     // ─── Sidebar Fields ───────────────────────────────────────────────────
+    {
+      name: 'previewButton',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '/components/admin/PreviewButton',
+        },
+      },
+    },
     { name: 'publishedDate', type: 'date', admin: { position: 'sidebar', description: 'Date the article was published' } },
     { name: 'updatedAt', type: 'date', admin: { position: 'sidebar', readOnly: true, description: 'Last time this article was saved' } },
     { name: 'aeoScore', type: 'number', admin: { position: 'sidebar', readOnly: true } },

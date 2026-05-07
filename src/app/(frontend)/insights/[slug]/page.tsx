@@ -9,14 +9,24 @@ export const revalidate = 3600
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string; draft?: string }>
 }): Promise<Metadata> {
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
+  const sp = await searchParams
+
+  const isPreview = sp.preview === 'true'
+
+  const query = isPreview
+    ? { slug: { equals: slug } }
+    : { slug: { equals: slug }, _status: { equals: 'published' } }
+
   const { docs } = await payload.find({
     collection: 'articles',
-    where: { slug: { equals: slug } },
+    where: query,
     depth: 2,
   })
   const article: any = docs[0]
@@ -25,7 +35,6 @@ export async function generateMetadata({
   const title = article.metaTitle ?? article.title ?? ''
   const description = article.metaDescription ?? article.excerpt ?? ''
 
-  // Twitter structure
   const twitterImages = article.xCardImage?.url
     ? [article.xCardImage.url]
     : article.socialShareImage?.url
@@ -41,14 +50,14 @@ export async function generateMetadata({
       : article.lastFactVerified || article.updatedAt
 
   return {
-    title,
+    title: isPreview ? `[PREVIEW] ${title}` : title,
     description,
     alternates: {
       canonical:
         article.canonicalUrl ??
         `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'}/insights/${slug}`,
     },
-    robots: article.hideFromSearchEngines ? 'noindex,nofollow' : 'index,follow',
+    robots: isPreview ? 'noindex,nofollow' : (article.hideFromSearchEngines ? 'noindex,nofollow' : 'index,follow'),
     openGraph: {
       title: article.socialHeadline ?? article.metaTitle ?? article.title,
       description: article.socialDescription ?? article.metaDescription ?? article.excerpt,
@@ -73,19 +82,26 @@ export async function generateMetadata({
 
 export default async function InsightsArticlePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string; draft?: string }>
 }) {
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
+  const sp = await searchParams
+
+  const isPreview = sp.preview === 'true'
+
+  const articleQuery = isPreview
+    ? { slug: { equals: slug } }
+    : { slug: { equals: slug }, _status: { equals: 'published' } }
 
   const [{ docs }, navData] = await Promise.all([
     payload.find({
       collection: 'articles',
-      where: {
-        slug: { equals: slug },
-        _status: { equals: 'published' },
-      },
+      where: articleQuery,
+      draft: isPreview,
       depth: 2,
     }),
     fetchNavData(),
@@ -99,7 +115,42 @@ export default async function InsightsArticlePage({
 
   return (
     <>
-      <ArticleClient article={article} {...navData} />
+      {isPreview && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          background: '#f59e0b',
+          color: 'white',
+          padding: '8px 16px',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+        }}>
+          <span>PREVIEW MODE - This article is not published</span>
+          <a
+            href="/api/exit-preview"
+            style={{
+              background: 'white',
+              color: '#f59e0b',
+              padding: '4px 12px',
+              borderRadius: '4px',
+              textDecoration: 'none',
+              fontSize: '12px',
+            }}
+          >
+            Exit Preview
+          </a>
+        </div>
+      )}
+      <div style={isPreview ? { paddingTop: '48px' } : undefined}>
+        <ArticleClient article={article} {...navData} isPreview={isPreview} />
+      </div>
     </>
   )
 }
