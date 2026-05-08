@@ -3,15 +3,11 @@
 export default function PreviewButton() {
   const handlePreview = () => {
     const pathParts = window.location.pathname.split('/').filter(Boolean)
-    // pathParts = ['admin', 'collections', 'articles', '69fa332af76c8b18713a3253']
-    // The document ID is the last segment
     const docId = pathParts[pathParts.length - 1]
     if (docId && docId !== 'collections') {
-      const previewUrl = `http://localhost:3000/api/preview?id=${docId}`
-      console.log('Opening preview:', previewUrl)
+      const previewUrl = `/api/preview?id=${docId}`
       window.open(previewUrl, '_blank')
     } else {
-      console.log('Could not parse URL:', window.location.pathname)
       alert('Could not find article ID. URL: ' + window.location.pathname)
     }
   }
