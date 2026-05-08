@@ -20,7 +20,7 @@ export async function generateMetadata({
 
   const isPreview = sp.preview === 'true'
 
-  const query = isPreview
+  const query: any = isPreview
     ? { slug: { equals: slug } }
     : { slug: { equals: slug }, _status: { equals: 'published' } }
 
@@ -93,7 +93,7 @@ export default async function InsightsArticlePage({
 
   const isPreview = sp.preview === 'true'
 
-  const articleQuery = isPreview
+  const articleQuery: any = isPreview
     ? { slug: { equals: slug } }
     : { slug: { equals: slug }, _status: { equals: 'published' } }
 
