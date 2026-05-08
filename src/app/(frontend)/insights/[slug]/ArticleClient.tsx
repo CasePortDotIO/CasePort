@@ -461,11 +461,13 @@ export default function ArticleClient({
   navLinks = [],
   ctaLabel,
   ctaHref,
+  isPreview = false,
 }: {
   article: any
   navLinks?: NavLink[]
   ctaLabel?: string
   ctaHref?: string
+  isPreview?: boolean
 }) {
   const [activeSection, setActiveSection] = useState<string>('')
   const [heroScroll, setHeroScroll] = useState(0)
