@@ -42,7 +42,9 @@ export async function GET(req: NextRequest) {
     }
 
     const targetSlug = article.slug
-    const frontendUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/insights/${targetSlug}?preview=true&draft=${article.id}`
+    // Use NEXT_PUBLIC_SITE_URL if set, otherwise use the request's origin
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin
+    const frontendUrl = `${siteUrl}/insights/${targetSlug}?preview=true&draft=${article.id}`
 
     return NextResponse.redirect(frontendUrl)
   } catch (error) {
