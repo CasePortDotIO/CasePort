@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-// Exit preview mode
-export async function GET() {
-  const frontendUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  return NextResponse.redirect(`${frontendUrl}/insights`)
+export async function GET(req: NextRequest) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin
+  return NextResponse.redirect(`${siteUrl}/insights`)
 }

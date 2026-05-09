@@ -20,21 +20,22 @@ export default function PreviewButton() {
         style={{
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           gap: '8px',
           padding: '10px 16px',
-          backgroundColor: '#22c55e',
+          background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
           color: 'white',
           border: 'none',
           borderRadius: '6px',
-          fontSize: '14px',
-          fontWeight: 500,
+          fontSize: '13px',
+          fontWeight: 600,
           cursor: 'pointer',
-          transition: 'background-color 0.2s',
           width: '100%',
-          justifyContent: 'center',
+          boxShadow: '0 0 24px rgba(0,212,255,0.2)',
+          transition: 'box-shadow 0.2s',
         }}
-        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
-        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#22c55e')}
+        onMouseOver={(e) => (e.currentTarget.style.boxShadow = '0 0 32px rgba(0,212,255,0.3)')}
+        onMouseOut={(e) => (e.currentTarget.style.boxShadow = '0 0 24px rgba(0,212,255,0.2)')}
       >
         <svg
           width="16"

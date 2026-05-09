@@ -204,8 +204,19 @@ const calculateSnippetScore = (data: any): number => {
 const calculateFreshness = (
   data: any,
 ): { daysOld: number; freshnessStatus: string; nextReviewDue: Date } => {
-  const lastReview = new Date(data.contentFreshness?.lastReviewDate || data.updatedAt)
+  const lastReviewRaw = data.contentFreshness?.lastReviewDate || data.updatedAt
+  const lastReview = new Date(lastReviewRaw)
   const today = new Date()
+
+  // Handle invalid date case (new document with no dates yet)
+  if (isNaN(lastReview.getTime())) {
+    return {
+      daysOld: 0,
+      freshnessStatus: 'fresh',
+      nextReviewDue: new Date(),
+    }
+  }
+
   const daysOld = Math.floor((today.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24))
 
   let freshnessStatus = 'fresh'
