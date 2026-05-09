@@ -44,14 +44,41 @@ export default buildConfig({
   hooks: {
     afterError: [
       ({ error, result }) => {
-        if (error.message.includes(' | ') && result) {
-          const messages = error.message.split(' | ')
+        const errorMessage = error.message || ''
+
+        // Handle validation errors with " | " separator
+        if (errorMessage.includes(' | ') && result) {
+          const messages = errorMessage.split(' | ')
           const formattedErrors = messages.map((msg: string) => ({ message: msg }))
           return {
             response: {
               ...result,
               data: { errors: formattedErrors },
               message: messages[0],
+              status: 400,
+            },
+          }
+        }
+        // Handle MongoDB duplicate key error for slug
+        if (errorMessage.includes('E11000') || errorMessage.includes('duplicate key')) {
+          const formattedErrors = [{ message: 'Slug already exists. Please use a different slug.' }]
+          return {
+            response: {
+              ...result,
+              data: { errors: formattedErrors },
+              message: 'Slug already exists',
+              status: 400,
+            },
+          }
+        }
+        // Handle "The following field is invalid: slug" from Payload field validation
+        if (errorMessage.includes('The following field is invalid: slug')) {
+          const formattedErrors = [{ message: 'Slug already exists. Please use a different slug.' }]
+          return {
+            response: {
+              ...result,
+              data: { errors: formattedErrors },
+              message: 'Slug already exists',
               status: 400,
             },
           }
