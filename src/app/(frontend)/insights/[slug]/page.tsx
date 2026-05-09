@@ -122,7 +122,7 @@ export default async function InsightsArticlePage({
           left: 0,
           right: 0,
           zIndex: 9999,
-          background: '#f59e0b',
+          background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
           color: 'white',
           padding: '8px 16px',
           textAlign: 'center',
@@ -137,11 +137,12 @@ export default async function InsightsArticlePage({
             href="/api/exit-preview"
             style={{
               background: 'white',
-              color: '#f59e0b',
+              color: '#00B4D8',
               padding: '4px 12px',
               borderRadius: '4px',
               textDecoration: 'none',
               fontSize: '12px',
+              fontWeight: 600,
             }}
           >
             Exit Preview
