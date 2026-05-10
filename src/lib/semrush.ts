@@ -57,7 +57,8 @@ export interface TrafficAnalyticsResult {
 
 /**
  * Get keyword overview data - volume, CPC, difficulty, competition
- * Endpoint: /info/keyword_overview/
+ * Uses: type=phrase_all (all databases) or type=phrase_this (one database)
+ * Docs: https://developer.semrush.com/api/seo/keyword-reports/
  */
 export async function getKeywordOverview(keys: string): Promise<KeywordOverviewResult[]> {
   if (!SEMRUSH_API_KEY) {
@@ -66,9 +67,13 @@ export async function getKeywordOverview(keys: string): Promise<KeywordOverviewR
   }
 
   try {
-    const url = `${SEMRUSH_BASE_URL}/info/keyword_overview/?key=${SEMRUSH_API_KEY}&keys=${encodeURIComponent(keys)}&export_columns=phrase,phrasedifficulty,competition,cpc,vol,trend,serp_features`
+    const url = `${SEMRUSH_BASE_URL}/?type=phrase_all&key=${SEMRUSH_API_KEY}&phrase=${encodeURIComponent(keys)}&database=us&display_limit=1&export_columns=keyword,search_volume,cpc,competition,database,date`
     const res = await fetch(url, { next: { revalidate: 86400 } }) // cache 24h
-    if (!res.ok) throw new Error(`Semrush API error: ${res.status}`)
+    if (!res.ok) {
+      const body = await res.text()
+      console.error(`Semrush API error ${res.status}:`, body)
+      throw new Error(`Semrush API error: ${res.status}`)
+    }
     const text = await res.text()
     // Semrush returns CSV-like format: header line then data lines
     const lines = text.trim().split('\n')
@@ -81,13 +86,13 @@ export async function getKeywordOverview(keys: string): Promise<KeywordOverviewR
         const row: any = {}
         headers.forEach((h, idx) => { row[h] = values[idx] })
         results.push({
-          keyword: row.phrase,
-          phrasedifficulty: parseFloat(row.phrasedifficulty) || 0,
-          competition: parseFloat(row.competition) || 0,
-          cpc: parseFloat(row.cpc) || 0,
-          vol: parseFloat(row.vol) || 0,
-          trend: row.trend || '',
-          serp_features: row.serp_features ? row.serp_features.split(',') : [],
+          keyword: row.Keyword || row.keyword || '',
+          phrasedifficulty: 0,
+          competition: parseFloat(row.Competition || row.competition) || 0,
+          cpc: parseFloat(row.CPC || row.Cpc || row.cpc) || 0,
+          vol: parseFloat(row['Search Volume'] || row.search_volume) || 0,
+          trend: '',
+          serp_features: [],
         })
       }
     }
@@ -100,12 +105,13 @@ export async function getKeywordOverview(keys: string): Promise<KeywordOverviewR
 
 /**
  * Get keyword ideas for a seed keyword
- * Endpoint: /info/keyword_questions/
+ * Uses: type=phrase_questions
+ * Docs: https://developer.semrush.com/api/seo/keyword-reports/
  */
 export async function getKeywordQuestions(keyword: string, limit = 10): Promise<string[]> {
   if (!SEMRUSH_API_KEY) return []
   try {
-    const url = `${SEMRUSH_BASE_URL}/info/keyword_questions/?key=${SEMRUSH_API_KEY}&keyword=${encodeURIComponent(keyword)}&type=questions&limit=${limit}`
+    const url = `${SEMRUSH_BASE_URL}/?type=phrase_questions&key=${SEMRUSH_API_KEY}&phrase=${encodeURIComponent(keyword)}&database=us&display_limit=${limit}`
     const res = await fetch(url, { next: { revalidate: 86400 } })
     if (!res.ok) throw new Error(`Semrush API error: ${res.status}`)
     const text = await res.text()
@@ -185,7 +191,7 @@ export async function enrichKeywords(keywords: string[]): Promise<Map<string, Ke
 export async function suggestFaqQuestions(keyword: string, count = 5): Promise<string[]> {
   if (!SEMRUSH_API_KEY) return []
   try {
-    const url = `${SEMRUSH_BASE_URL}/info/keyword_questions/?key=${SEMRUSH_API_KEY}&keyword=${encodeURIComponent(keyword)}&type=questions&limit=${count}`
+    const url = `${SEMRUSH_BASE_URL}/?type=phrase_questions&key=${SEMRUSH_API_KEY}&phrase=${encodeURIComponent(keyword)}&database=us&display_limit=${count}`
     const res = await fetch(url, { next: { revalidate: 86400 } })
     if (!res.ok) throw new Error(`Semrush API error: ${res.status}`)
     const text = await res.text()

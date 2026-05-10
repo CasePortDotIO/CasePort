@@ -67,13 +67,7 @@ export default function KeywordResearchPanel({ formData }: SemanticResearchProps
     }
   }
 
-  const getDifficultyColor = (diff: number) => {
-    if (diff >= 80) return '#ef4444'
-    if (diff >= 60) return '#f59e0b'
-    if (diff >= 40) return '#eab308'
-    return '#22c55e'
-  }
-
+  
   const getVolumeLabel = (vol: number) => {
     if (vol >= 10000) return 'High'
     if (vol >= 1000) return 'Medium'
@@ -182,7 +176,6 @@ export default function KeywordResearchPanel({ formData }: SemanticResearchProps
           }}>
             {[
               { label: 'CPC', value: `$${metrics.cpc.toFixed(2)}` },
-              { label: 'Difficulty', value: `${Math.round(metrics.difficulty)}%` },
               { label: 'Volume', value: getVolumeLabel(metrics.volume) },
             ].map((stat) => (
               <div key={stat.label} style={{
@@ -194,7 +187,7 @@ export default function KeywordResearchPanel({ formData }: SemanticResearchProps
                 <div style={{
                   fontSize: '13px',
                   fontWeight: 700,
-                  color: stat.label === 'Difficulty' ? getDifficultyColor(metrics.difficulty) : '#0f172a',
+                  color: '#0f172a',
                 }}>
                   {stat.value}
                 </div>

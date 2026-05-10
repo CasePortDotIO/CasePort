@@ -27,6 +27,7 @@ import { default as default_c032689c8d3b3593f538782edc040200 } from '../../../co
 import { MarkApplicationsSeen as MarkApplicationsSeen_f5de8d2f34876f4286b86e85ac59d843 } from '@/components/admin/MarkApplicationsSeen'
 import { MarkIntelligenceSeen as MarkIntelligenceSeen_585a13567123a6c801b451d8af611e29 } from '@/components/admin/MarkIntelligenceSeen'
 import { default as default_5f32e6dab79a8c9d0707d0d5893b327a } from '../../../components/admin/PreviewButton'
+import { default as default_abbe2d9404849612e6fbdd9b7144c31d } from '@/components/admin/KeywordResearchPanel'
 import { MarkInjuredLeadsSeen as MarkInjuredLeadsSeen_ad05ed314b22c958e10e8f46b76d0eca } from '@/components/admin/MarkInjuredLeadsSeen'
 import { IntelligenceUnseenBadge as IntelligenceUnseenBadge_1fd28808ad591e47f6c08a7a0e56d02c } from '@/components/admin/IntelligenceUnseenBadge'
 import { InjuredLeadsUnseenBadge as InjuredLeadsUnseenBadge_ae0d41fc200ef1581b81ce289131391a } from '@/components/admin/InjuredLeadsUnseenBadge'
@@ -64,6 +65,7 @@ export const importMap = {
   "@/components/admin/MarkApplicationsSeen#MarkApplicationsSeen": MarkApplicationsSeen_f5de8d2f34876f4286b86e85ac59d843,
   "@/components/admin/MarkIntelligenceSeen#MarkIntelligenceSeen": MarkIntelligenceSeen_585a13567123a6c801b451d8af611e29,
   "/components/admin/PreviewButton#default": default_5f32e6dab79a8c9d0707d0d5893b327a,
+  "@/components/admin/KeywordResearchPanel#default": default_abbe2d9404849612e6fbdd9b7144c31d,
   "@/components/admin/MarkInjuredLeadsSeen#MarkInjuredLeadsSeen": MarkInjuredLeadsSeen_ad05ed314b22c958e10e8f46b76d0eca,
   "@/components/admin/IntelligenceUnseenBadge#IntelligenceUnseenBadge": IntelligenceUnseenBadge_1fd28808ad591e47f6c08a7a0e56d02c,
   "@/components/admin/InjuredLeadsUnseenBadge#InjuredLeadsUnseenBadge": InjuredLeadsUnseenBadge_ae0d41fc200ef1581b81ce289131391a,
