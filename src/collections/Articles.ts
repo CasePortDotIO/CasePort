@@ -490,6 +490,33 @@ export const Articles: CollectionConfig = {
 
         return data
       },
+      // HOOK 3: Semrush Keyword Auto-Enrichment
+      async ({ data }) => {
+        if (data._isSeeding || !data.focusKeyword) return data
+
+        // Only fetch if keyword fields are missing (not already populated)
+        if (typeof data.keywordDifficulty === 'number' && typeof data.monthlySearchVolume === 'number') {
+          return data
+        }
+
+        try {
+          const { getKeywordOverview } = await import('@/lib/semrush')
+          const results = await getKeywordOverview(data.focusKeyword)
+          if (results && results.length > 0) {
+            const kw = results[0]
+            if (typeof data.keywordDifficulty !== 'number') {
+              data.keywordDifficulty = Math.round(kw.phrasedifficulty)
+            }
+            if (typeof data.monthlySearchVolume !== 'number') {
+              data.monthlySearchVolume = kw.vol
+            }
+          }
+        } catch (err) {
+          console.error('Semrush keyword enrichment error:', err)
+        }
+
+        return data
+      },
       // HOOK 4: Conversion Funnel Rates
       async ({ data }) => {
         if (!data || data._status !== 'published') return
@@ -1662,6 +1689,16 @@ export const Articles: CollectionConfig = {
         position: 'sidebar',
         components: {
           Field: '/components/admin/PreviewButton',
+        },
+      },
+    },
+    {
+      name: 'keywordResearch',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '@/components/admin/KeywordResearchPanel',
         },
       },
     },
