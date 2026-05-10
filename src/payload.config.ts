@@ -46,10 +46,10 @@ export default buildConfig({
       ({ error, result }) => {
         const errorMessage = error.message || ''
 
-        // Handle validation errors with " | " separator
+        // Handle validation errors with " | " separator (multiple errors from beforeValidate)
         if (errorMessage.includes(' | ') && result) {
           const messages = errorMessage.split(' | ')
-          const formattedErrors = messages.map((msg: string) => ({ message: msg }))
+          const formattedErrors = messages.map((msg: string) => ({ message: msg.trim() }))
           return {
             response: {
               ...result,
@@ -79,6 +79,18 @@ export default buildConfig({
               ...result,
               data: { errors: formattedErrors },
               message: 'Slug already exists',
+              status: 400,
+            },
+          }
+        }
+        // Handle all other thrown errors (single validation errors without separator)
+        if (errorMessage) {
+          const formattedErrors = [{ message: errorMessage }]
+          return {
+            response: {
+              ...result,
+              data: { errors: formattedErrors },
+              message: errorMessage,
               status: 400,
             },
           }
