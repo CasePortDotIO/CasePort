@@ -1,5 +1,5 @@
 export function generateArticleJsonLd(article: any) {
-  const baseUrl = 'https://caseport.io'
+  const baseUrl = 'https://www.caseport.io'
   const url = article.canonicalUrl || `${baseUrl}/insights/${article.slug}`
   const schemas: any[] = []
 
@@ -14,7 +14,7 @@ export function generateArticleJsonLd(article: any) {
     dateModified: article.updatedAt,
     author: {
       '@type': 'Person',
-      name: article.author?.name || 'CasePort Editorial',
+      name: article.author?.name || 'CasePort Intelligence',
     },
     publisher: {
       '@type': 'Organization',
@@ -30,12 +30,12 @@ export function generateArticleJsonLd(article: any) {
     },
   })
 
-  // 2. FAQ Schema
-  if (article.faqs && article.faqs.length > 0) {
+  // 2. FAQ Schema — uses faqSection field (Payload collection field name)
+  if (article.faqSection && article.faqSection.length > 0) {
     schemas.push({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: article.faqs.map((faq: any) => ({
+      mainEntity: article.faqSection.map((faq: any) => ({
         '@type': 'Question',
         name: faq.question,
         acceptedAnswer: {
