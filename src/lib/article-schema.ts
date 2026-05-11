@@ -3,10 +3,11 @@ export function generateArticleJsonLd(article: any) {
   const url = article.canonicalUrl || `${baseUrl}/insights/${article.slug}`
   const schemas: any[] = []
 
-  // 1. Article Schema
+  // 1. Article Schema — never use FAQPage type here, keep it as Article
+  const articleType = article.schemaType === 'FAQPage' ? 'Article' : (article.schemaType || 'Article')
   schemas.push({
     '@context': 'https://schema.org',
-    '@type': article.schemaType || 'Article',
+    '@type': articleType,
     headline: article.metaTitle || article.title,
     description: article.metaDescription || article.excerpt,
     image: article.openGraph?.ogImage?.url || article.heroImage?.url || [],
@@ -19,9 +20,12 @@ export function generateArticleJsonLd(article: any) {
     publisher: {
       '@type': 'Organization',
       name: 'CasePort',
+      url: `${baseUrl}`,
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/logo.png`,
+        width: 600,
+        height: 60,
       },
     },
     mainEntityOfPage: {
