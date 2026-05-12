@@ -440,7 +440,9 @@ function MidArticleCTA({ depth, article }: { depth: number; article?: any }) {
       >
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-8 lg:p-12 text-white border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300">
           <h3 className="text-2xl sm:text-3xl font-bold mb-4">{heading}</h3>
-          <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-normal lg:leading-relaxed">{body}</p>
+          <p className="text-base sm:text-lg text-gray-300 mb-6 lg:mb-8 leading-normal lg:leading-relaxed">
+            {body}
+          </p>
           <div className="flex flex-col sm:flex-row gap-3 lg:gap-4">
             <Link
               href={primaryHref}
@@ -479,9 +481,13 @@ export default function ArticleClient({
   useEffect(() => {
     if (!activeSection || !tocRef.current) return
     const tocContainer = tocRef.current
-    const activeItem = tocContainer.querySelector(`[data-section-id="${activeSection}"]`)
+    // Use CSS.escape to find the element, then scroll it into view
+    const selector = `[data-section-id="${CSS.escape(activeSection)}"]`
+    const activeItem = tocContainer.querySelector(selector)
     if (activeItem) {
       activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      // Fine-tune: scroll 80px up from nearest position for better visibility
+      tocContainer.scrollTop -= 80
     }
   }, [activeSection])
 
@@ -495,7 +501,7 @@ export default function ArticleClient({
       typeof article.author === 'string'
         ? article.author
         : article.author?.name || 'CasePort Intelligence'
-    const authorRole = article.author?.roles?.[0] || 'Market Exclusivity Division'
+    const authorTitle = article.author?.title || 'Market Exclusivity Division'
     const authorBio =
       article.author?.bio ||
       `The CasePort intelligence team analyzes real-time placement capacity, settlement pipelines, and lead volume metrics across all 46 core territories`
@@ -515,7 +521,7 @@ export default function ArticleClient({
     return {
       title,
       author,
-      authorRole,
+      authorRole: authorTitle,
       authorBio,
       readTime,
       date,
@@ -534,18 +540,24 @@ export default function ArticleClient({
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll('[data-section]')
+      let currentActive = ''
       sections.forEach((section) => {
         const rect = section.getBoundingClientRect()
-        if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-          setActiveSection(section.id)
+        // Section is active when heading top is within top 25% of viewport
+        // This accounts for sticky nav height and ensures correct TOC activation
+        if (rect.top < window.innerHeight * 0.25 && rect.top > -rect.height) {
+          currentActive = section.id
         }
       })
+      if (currentActive && currentActive !== activeSection) {
+        setActiveSection(currentActive)
+      }
       setHeroScroll(window.scrollY)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [activeSection])
 
   if (!article || !content) {
     return <div>Article not found</div>
@@ -957,7 +969,9 @@ export default function ArticleClient({
               {/* Key Statistics */}
               {article?.keyStatistics?.length > 0 && (
                 <div className="key-statistics mb-16 lg:mb-24 bg-slate-50 p-6 lg:p-8 rounded-xl border border-slate-200">
-                  <h3 className="text-lg lg:text-xl font-bold mb-4 lg:mb-6 text-slate-900">Key Industry Data</h3>
+                  <h3 className="text-lg lg:text-xl font-bold mb-4 lg:mb-6 text-slate-900">
+                    Key Industry Data
+                  </h3>
                   <div className="space-y-4">
                     {article.keyStatistics.map((stat: any, i: number) => (
                       <div key={i} className="stat-item pl-4 border-l-2 border-cyan-500 min-w-0">
@@ -1026,7 +1040,9 @@ export default function ArticleClient({
                     {article.entityDefinitions.map((item: any, i: number) => (
                       <div key={i} className="px-8 py-6 hover:bg-slate-50/50 transition-colors">
                         <dt className="text-lg font-bold text-cyan-700 mb-2">{item.term}</dt>
-                        <dd className="text-slate-600 leading-normal lg:leading-relaxed">{item.definition}</dd>
+                        <dd className="text-slate-600 leading-normal lg:leading-relaxed">
+                          {item.definition}
+                        </dd>
                       </div>
                     ))}
                   </dl>
@@ -1268,7 +1284,9 @@ export default function ArticleClient({
                           </div>
                         )}
                       </div>
-                      <p className="text-slate-700 leading-normal lg:leading-relaxed mb-4">{authorBio}</p>
+                      <p className="text-slate-700 leading-normal lg:leading-relaxed mb-4">
+                        {authorBio}
+                      </p>
 
                       {/* Credentials from CMS */}
                       {article?.author?.credentials?.length > 0 && (
@@ -1297,26 +1315,39 @@ export default function ArticleClient({
                       {/* CMS-driven author CTA buttons */}
                       {article?.author?.ctaButtons?.length > 0 && (
                         <div className="flex flex-col sm:flex-row gap-3">
-                          {article.author.ctaButtons.map((btn: any, i: number) => (
-                            <a
-                              key={i}
-                              href={btn.href}
-                              target={btn.href?.startsWith('http') ? '_blank' : undefined}
-                              rel={btn.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                              className={
-                                btn.style === 'secondary'
-                                  ? 'flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm'
-                                  : 'flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm'
-                              }
-                            >
-                              {btn.style === 'secondary' ? (
-                                <ExternalLink size={16} />
-                              ) : (
-                                <MessageSquare size={16} />
-                              )}
-                              {btn.label}
-                            </a>
-                          ))}
+                          {article.author.ctaButtons.map((btn: any, i: number) => {
+                            const hasProtocol =
+                              btn.href?.startsWith('http://') ||
+                              btn.href?.startsWith('https://') ||
+                              btn.href?.startsWith('//')
+                            const isExternal = hasProtocol || btn.href?.startsWith('www.')
+                            // Ensure href has protocol for proper external link behavior
+                            const href = hasProtocol
+                              ? btn.href
+                              : btn.href?.startsWith('www.')
+                                ? `https://${btn.href}`
+                                : btn.href
+                            return (
+                              <a
+                                key={i}
+                                href={href}
+                                target={isExternal ? '_blank' : undefined}
+                                rel={isExternal ? 'noopener noreferrer' : undefined}
+                                className={
+                                  btn.style === 'secondary'
+                                    ? 'flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm'
+                                    : 'flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm'
+                                }
+                              >
+                                {btn.style === 'secondary' ? (
+                                  <ExternalLink size={16} />
+                                ) : (
+                                  <MessageSquare size={16} />
+                                )}
+                                {btn.label}
+                              </a>
+                            )
+                          })}
                         </div>
                       )}
                       {/* Hardcoded buttons — commented out, replaced by CMS ctaButtons above */}
@@ -1410,52 +1441,56 @@ export default function ArticleClient({
                 className="sticky top-24 bg-gradient-to-br from-slate-900 to-slate-800 border border-cyan-500/30 rounded-lg shadow-lg shadow-cyan-500/10 animate-fade-in overflow-hidden"
                 style={{ animationDelay: '0.2s', maxHeight: 'calc(100vh - 140px)' }}
               >
-                <div ref={tocRef} className="p-5 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+                <div
+                  ref={tocRef}
+                  className="p-5 overflow-y-auto"
+                  style={{ maxHeight: 'calc(100vh - 180px)' }}
+                >
                   <h4 className="text-base font-black text-white mb-4 uppercase tracking-widest flex items-center gap-2">
                     <div className="w-1 h-5 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-full" />
                     On This Page
                   </h4>
                   <nav className="space-y-1">
-                  {content?.sections?.map((section: any, idx: number) => {
-                    const sectionId = section.heading?.toLowerCase().replace(/\s+/g, '-')
-                    const isActive = activeSection === sectionId
-                    return (
-                      <a
-                        key={idx}
-                        href={`#${sectionId}`}
-                        data-section-id={sectionId}
-                        className={`group flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-300 relative overflow-hidden ${
-                          isActive
-                            ? 'bg-cyan-500/20 text-cyan-300 font-semibold'
-                            : 'text-slate-300 hover:text-cyan-300 hover:bg-slate-800/50'
-                        }`}
-                      >
-                        {/* Animated left border */}
-                        <div
-                          className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-cyan-600 transition-all duration-300 ${
-                            isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
-                          }`}
-                        />
-
-                        {/* Checkmark indicator */}
-                        <div
-                          className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                    {content?.sections?.map((section: any, idx: number) => {
+                      const sectionId = section.heading?.toLowerCase().replace(/\s+/g, '-')
+                      const isActive = CSS.escape(activeSection) === CSS.escape(sectionId)
+                      return (
+                        <a
+                          key={idx}
+                          href={`#${sectionId}`}
+                          data-section-id={sectionId}
+                          className={`group flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-300 relative overflow-hidden ${
                             isActive
-                              ? 'border-cyan-400 bg-cyan-500/30'
-                              : 'border-slate-500 group-hover:border-cyan-400'
+                              ? 'bg-cyan-500/20 text-cyan-300 font-semibold'
+                              : 'text-slate-300 hover:text-cyan-300 hover:bg-slate-800/50'
                           }`}
                         >
-                          {isActive && <Check size={12} className="text-cyan-300" />}
-                        </div>
+                          {/* Animated left border */}
+                          <div
+                            className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-cyan-400 to-cyan-600 transition-all duration-300 ${
+                              isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'
+                            }`}
+                          />
 
-                        {/* Link text */}
-                        <span className="text-sm font-medium leading-tight group-hover:translate-x-1 transition-transform duration-300">
-                          {section.heading}
-                        </span>
-                      </a>
-                    )
-                  })}
-                </nav>
+                          {/* Checkmark indicator */}
+                          <div
+                            className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                              isActive
+                                ? 'border-cyan-400 bg-cyan-500/30'
+                                : 'border-slate-500 group-hover:border-cyan-400'
+                            }`}
+                          >
+                            {isActive && <Check size={12} className="text-cyan-300" />}
+                          </div>
+
+                          {/* Link text */}
+                          <span className="text-sm font-medium leading-tight group-hover:translate-x-1 transition-transform duration-300">
+                            {section.heading}
+                          </span>
+                        </a>
+                      )
+                    })}
+                  </nav>
                 </div>
               </div>
 

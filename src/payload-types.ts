@@ -596,7 +596,6 @@ export interface Article {
     | null;
   articleSection?: string | null;
   apaCitation?: string | null;
-  customJsonLd?: string | null;
   legalDisclaimer?: ('Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None') | null;
   abaComplianceVerified?: boolean | null;
   expertReviewer?: string | null;
@@ -1419,7 +1418,6 @@ export interface ArticlesSelect<T extends boolean = true> {
       };
   articleSection?: T;
   apaCitation?: T;
-  customJsonLd?: T;
   legalDisclaimer?: T;
   abaComplianceVerified?: T;
   expertReviewer?: T;

@@ -1,12 +1,13 @@
 export function generateArticleJsonLd(article: any) {
-  const baseUrl = 'https://caseport.io'
+  const baseUrl = 'https://www.caseport.io'
   const url = article.canonicalUrl || `${baseUrl}/insights/${article.slug}`
   const schemas: any[] = []
 
-  // 1. Article Schema
+  // 1. Article Schema — never use FAQPage type here, keep it as Article
+  const articleType = article.schemaType === 'FAQPage' ? 'Article' : (article.schemaType || 'Article')
   schemas.push({
     '@context': 'https://schema.org',
-    '@type': article.schemaType || 'Article',
+    '@type': articleType,
     headline: article.metaTitle || article.title,
     description: article.metaDescription || article.excerpt,
     image: article.openGraph?.ogImage?.url || article.heroImage?.url || [],
@@ -14,14 +15,17 @@ export function generateArticleJsonLd(article: any) {
     dateModified: article.updatedAt,
     author: {
       '@type': 'Person',
-      name: article.author?.name || 'CasePort Editorial',
+      name: article.author?.name || 'CasePort Intelligence',
     },
     publisher: {
       '@type': 'Organization',
       name: 'CasePort',
+      url: `${baseUrl}`,
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/logo.png`,
+        width: 600,
+        height: 60,
       },
     },
     mainEntityOfPage: {
@@ -30,12 +34,12 @@ export function generateArticleJsonLd(article: any) {
     },
   })
 
-  // 2. FAQ Schema
-  if (article.faqs && article.faqs.length > 0) {
+  // 2. FAQ Schema — uses faqSection field (Payload collection field name)
+  if (article.faqSection && article.faqSection.length > 0) {
     schemas.push({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: article.faqs.map((faq: any) => ({
+      mainEntity: article.faqSection.map((faq: any) => ({
         '@type': 'Question',
         name: faq.question,
         acceptedAnswer: {

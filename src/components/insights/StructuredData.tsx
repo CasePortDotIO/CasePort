@@ -12,8 +12,13 @@ export default function StructuredData() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'CasePort',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io',
-    logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'}/logo.png`,
+    url: 'https://www.caseport.io',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://www.caseport.io/logo.png',
+      width: 600,
+      height: 60,
+    },
     description:
       'Premium case acquisition system for personal injury law firms. CasePort provides structured, disciplined case flow infrastructure for growth-oriented PI firms.',
     email: 'access@caseport.io',
@@ -60,9 +65,12 @@ export default function StructuredData() {
       publisher: {
         '@type': 'Organization',
         name: 'CasePort',
+        url: 'https://www.caseport.io',
         logo: {
           '@type': 'ImageObject',
           url: 'https://www.caseport.io/logo.png',
+          width: 600,
+          height: 60,
         },
       },
       mainEntityOfPage: `https://www.caseport.io/insights/${article.slug}`,
@@ -86,6 +94,12 @@ export default function StructuredData() {
       '@type': 'Organization',
       name: 'CasePort',
       url: 'https://www.caseport.io',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://www.caseport.io/logo.png',
+        width: 600,
+        height: 60,
+      },
     },
     inLanguage: 'en-US',
     about: [

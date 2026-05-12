@@ -914,7 +914,6 @@ export const Articles: CollectionConfig = {
             },
             { name: 'articleSection', type: 'text' },
             { name: 'apaCitation', type: 'text' },
-            { name: 'customJsonLd', type: 'textarea' },
           ],
         },
         {
