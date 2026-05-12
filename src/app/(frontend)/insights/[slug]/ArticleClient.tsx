@@ -501,7 +501,7 @@ export default function ArticleClient({
       typeof article.author === 'string'
         ? article.author
         : article.author?.name || 'CasePort Intelligence'
-    const authorRole = article.author?.roles?.[0] || 'Market Exclusivity Division'
+    const authorTitle = article.author?.title || 'Market Exclusivity Division'
     const authorBio =
       article.author?.bio ||
       `The CasePort intelligence team analyzes real-time placement capacity, settlement pipelines, and lead volume metrics across all 46 core territories`
@@ -521,7 +521,7 @@ export default function ArticleClient({
     return {
       title,
       author,
-      authorRole,
+      authorRole: authorTitle,
       authorBio,
       readTime,
       date,
@@ -540,19 +540,24 @@ export default function ArticleClient({
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll('[data-section]')
+      let currentActive = ''
       sections.forEach((section) => {
         const rect = section.getBoundingClientRect()
-        if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-          // Store raw section.id - CSS.escape is only needed when querying
-          setActiveSection(section.id)
+        // Section is active when heading top is within top 25% of viewport
+        // This accounts for sticky nav height and ensures correct TOC activation
+        if (rect.top < window.innerHeight * 0.25 && rect.top > -rect.height) {
+          currentActive = section.id
         }
       })
+      if (currentActive && currentActive !== activeSection) {
+        setActiveSection(currentActive)
+      }
       setHeroScroll(window.scrollY)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [activeSection])
 
   if (!article || !content) {
     return <div>Article not found</div>
@@ -1310,26 +1315,39 @@ export default function ArticleClient({
                       {/* CMS-driven author CTA buttons */}
                       {article?.author?.ctaButtons?.length > 0 && (
                         <div className="flex flex-col sm:flex-row gap-3">
-                          {article.author.ctaButtons.map((btn: any, i: number) => (
-                            <a
-                              key={i}
-                              href={btn.href}
-                              target={btn.href?.startsWith('http') ? '_blank' : undefined}
-                              rel={btn.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                              className={
-                                btn.style === 'secondary'
-                                  ? 'flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm'
-                                  : 'flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm'
-                              }
-                            >
-                              {btn.style === 'secondary' ? (
-                                <ExternalLink size={16} />
-                              ) : (
-                                <MessageSquare size={16} />
-                              )}
-                              {btn.label}
-                            </a>
-                          ))}
+                          {article.author.ctaButtons.map((btn: any, i: number) => {
+                            const hasProtocol =
+                              btn.href?.startsWith('http://') ||
+                              btn.href?.startsWith('https://') ||
+                              btn.href?.startsWith('//')
+                            const isExternal = hasProtocol || btn.href?.startsWith('www.')
+                            // Ensure href has protocol for proper external link behavior
+                            const href = hasProtocol
+                              ? btn.href
+                              : btn.href?.startsWith('www.')
+                                ? `https://${btn.href}`
+                                : btn.href
+                            return (
+                              <a
+                                key={i}
+                                href={href}
+                                target={isExternal ? '_blank' : undefined}
+                                rel={isExternal ? 'noopener noreferrer' : undefined}
+                                className={
+                                  btn.style === 'secondary'
+                                    ? 'flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors font-medium text-sm'
+                                    : 'flex items-center justify-center gap-2 px-4 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium text-sm'
+                                }
+                              >
+                                {btn.style === 'secondary' ? (
+                                  <ExternalLink size={16} />
+                                ) : (
+                                  <MessageSquare size={16} />
+                                )}
+                                {btn.label}
+                              </a>
+                            )
+                          })}
                         </div>
                       )}
                       {/* Hardcoded buttons — commented out, replaced by CMS ctaButtons above */}
