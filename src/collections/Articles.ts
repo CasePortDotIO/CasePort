@@ -494,21 +494,32 @@ export const Articles: CollectionConfig = {
       async ({ data }) => {
         if (data._isSeeding || !data.focusKeyword) return data
 
-        // Only fetch if keyword fields are missing (not already populated)
-        if (typeof data.keywordDifficulty === 'number' && typeof data.monthlySearchVolume === 'number') {
-          return data
-        }
-
         try {
-          const { getKeywordOverview } = await import('@/lib/semrush')
-          const results = await getKeywordOverview(data.focusKeyword)
-          if (results && results.length > 0) {
-            const kw = results[0]
-            if (typeof data.keywordDifficulty !== 'number') {
-              data.keywordDifficulty = Math.round(kw.phrasedifficulty)
+          const { getKeywordOverview, getRelatedKeywords } = await import('@/lib/semrush')
+
+          // Only fetch primary metrics if missing
+          if (typeof data.keywordDifficulty !== 'number' || typeof data.monthlySearchVolume !== 'number') {
+            const results = await getKeywordOverview(data.focusKeyword)
+            if (results && results.length > 0) {
+              const kw = results[0]
+              if (typeof data.keywordDifficulty !== 'number') {
+                data.keywordDifficulty = Math.round(kw.phrasedifficulty)
+              }
+              if (typeof data.monthlySearchVolume !== 'number') {
+                data.monthlySearchVolume = kw.vol
+              }
             }
-            if (typeof data.monthlySearchVolume !== 'number') {
-              data.monthlySearchVolume = kw.vol
+          }
+
+          // Auto-populate secondary keywords if not already set
+          if (!data.secondaryKeywords || data.secondaryKeywords.length === 0) {
+            const related = await getRelatedKeywords(data.focusKeyword, 5)
+            if (related.length > 0) {
+              data.secondaryKeywords = related.map((r: any) => ({
+                keyword: r.keyword,
+                volume: r.volume,
+                difficulty: r.difficulty,
+              }))
             }
           }
         } catch (err) {
