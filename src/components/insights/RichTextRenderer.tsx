@@ -93,6 +93,23 @@ const jsxConverters: any = {
       <li className="text-slate-800 leading-normal lg:leading-relaxed">{nodesToJSX({ nodes: node.children })}</li>
     )
   },
+  link: ({ node, nodesToJSX }: { node: any; nodesToJSX: any }) => {
+    // Handle both direct url and nested fields.url from Payload CMS
+    const rawUrl = node.url || node.fields?.url || ''
+    const hasProtocol = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') || rawUrl.startsWith('//') || rawUrl.startsWith('www.')
+    const href = hasProtocol ? rawUrl : (rawUrl.startsWith('www.') ? `https://${rawUrl}` : rawUrl)
+    const isExternal = hasProtocol || rawUrl.startsWith('www.')
+    return (
+      <a
+        href={href || '#'}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
+        className="text-cyan-600 hover:text-cyan-700 underline underline-offset-2 transition-colors"
+      >
+        {nodesToJSX({ nodes: node.children })}
+      </a>
+    )
+  },
 }
 
 export const CustomRichText = ({ content }: { content: any }) => {
