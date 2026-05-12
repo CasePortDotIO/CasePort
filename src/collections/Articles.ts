@@ -619,24 +619,56 @@ export const Articles: CollectionConfig = {
           // If formSubmissions or cases collections don't exist, quietly ignore
         }
       },
-      // HOOK 5: Search Engine Submission
+      // HOOK 5: Search Engine Submission (Bing IndexNow + Google Indexing)
       async ({ doc, req, operation }) => {
         if ((operation === 'create' || operation === 'update') && doc.published === true) {
-          if (!doc.searchEngineSubmission?.googleSubmitted) {
-            // TODO: Call your existing requestGoogleIndex and pingIndexNow functions here
-            // Then update submission tracking
+          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'
+          const articleUrl = `${siteUrl}/insights/${doc.slug}`
+
+          // Submit to Bing IndexNow
+          if (!doc.searchEngineSubmission?.bingSubmitted) {
+            const bingApiKey = process.env.BING_INDEXNOW_API_KEY
+            let bingMessage = 'Not submitted - API key not configured'
+            let bingSuccess = false
+
+            if (bingApiKey) {
+              try {
+                const urlObj = new URL(siteUrl)
+                const host = urlObj.hostname
+
+                const response = await fetch('https://www.bing.com/indexnow', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    host,
+                    key: bingApiKey,
+                    urlList: [articleUrl],
+                  }),
+                })
+
+                if (response.ok) {
+                  bingSuccess = true
+                  bingMessage = `Submitted to Bing IndexNow at ${new Date().toISOString()}`
+                } else {
+                  const errorText = await response.text()
+                  bingMessage = `Bing returned ${response.status}: ${errorText}`
+                }
+              } catch (error) {
+                bingMessage = `Bing submission error: ${error instanceof Error ? error.message : 'Unknown'}`
+              }
+            }
 
             await req.payload.update({
               collection: 'articles',
               id: doc.id,
               data: {
                 searchEngineSubmission: {
-                  googleSubmitted: true,
-                  googleSubmissionTime: new Date().toISOString(),
-                  googleSubmissionMessage: 'Submitted via Indexing API',
-                  bingSubmitted: true,
-                  bingSubmissionTime: new Date().toISOString(),
-                  bingSubmissionMessage: 'Submitted via IndexNow',
+                  googleSubmitted: doc.searchEngineSubmission?.googleSubmitted || false,
+                  googleSubmissionTime: doc.searchEngineSubmission?.googleSubmissionTime || null,
+                  googleSubmissionMessage: doc.searchEngineSubmission?.googleSubmissionMessage || '',
+                  bingSubmitted: bingSuccess,
+                  bingSubmissionTime: bingSuccess ? new Date().toISOString() : null,
+                  bingSubmissionMessage: bingMessage,
                 },
               },
             })
