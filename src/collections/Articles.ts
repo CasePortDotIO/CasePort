@@ -271,36 +271,52 @@ export const Articles: CollectionConfig = {
 
         // ── Required field checks ──────────────────────────────────────
         if (!data.title?.trim()) issues.push('Title is required')
-        else if (data.title.length < 10) issues.push(`Title too short (${data.title.length}/10 chars)`)
+        else if (data.title.length < 10)
+          issues.push(`Title too short (${data.title.length}/10 chars)`)
         if (!data.slug?.trim()) issues.push('Slug is required')
         if (!data.author) issues.push('Author is required — select an author')
         if (!data.category) issues.push('Category/Content Pillar is required — select one')
         if (!data.heroImage) issues.push('Hero Image is required — upload one')
         if (!data.excerpt?.trim()) issues.push('Excerpt is required')
-        else if (data.excerpt.length < 50) issues.push(`Excerpt too short (${data.excerpt.length}/50 chars)`)
+        else if (data.excerpt.length < 50)
+          issues.push(`Excerpt too short (${data.excerpt.length}/50 chars)`)
         if (!data.contentFormat) issues.push('Content Format is required — select one')
         if (!data.focusKeyword?.trim()) issues.push('Focus Keyword is required')
         if (!data.metaTitle?.trim()) issues.push('Meta Title is required')
-        else if (data.metaTitle.length > 60) issues.push(`Meta Title too long (${data.metaTitle.length}/60 chars)`)
+        else if (data.metaTitle.length > 60)
+          issues.push(`Meta Title too long (${data.metaTitle.length}/60 chars)`)
         if (!data.metaDescription?.trim()) issues.push('Meta Description is required')
-        else if (data.metaDescription.length < 120) issues.push(`Meta Description too short (${data.metaDescription.length}/120 chars)`)
+        else if (data.metaDescription.length < 120)
+          issues.push(`Meta Description too short (${data.metaDescription.length}/120 chars)`)
         if (!data.directAnswer?.trim()) issues.push('Direct Answer (AEO) is required')
-        else if (data.directAnswer.length < 40) issues.push(`Direct Answer: ${data.directAnswer.length}/40 chars`)
+        else if (data.directAnswer.length < 40)
+          issues.push(`Direct Answer: ${data.directAnswer.length}/40 chars`)
         if (!data.voiceAnswer?.trim()) issues.push('Voice Answer is required')
         if (!data.schemaType) issues.push('Schema Type is required — select one')
         if (!data.legalDisclaimer) issues.push('Legal Disclaimer is required')
 
         // ── Array min rows ─────────────────────────────────────────────
         const keyTakeaways = data.keyTakeaways || []
-        if (keyTakeaways.length < 3) issues.push(`Key Takeaways: ${keyTakeaways.length}/3 — add ${3 - keyTakeaways.length} more`)
+        if (keyTakeaways.length < 3)
+          issues.push(
+            `Key Takeaways: ${keyTakeaways.length}/3 — add ${3 - keyTakeaways.length} more`,
+          )
         const relatedArticles = data.relatedArticles || []
-        if (relatedArticles.length < 3) issues.push(`Related Articles: ${relatedArticles.length}/3 — link ${3 - relatedArticles.length} more articles`)
+        if (relatedArticles.length < 3)
+          issues.push(
+            `Related Articles: ${relatedArticles.length}/3 — link ${3 - relatedArticles.length} more articles`,
+          )
         const secondaryKeywords = data.secondaryKeywords || []
-        if (secondaryKeywords.length < 2) issues.push(`Secondary Keywords: ${secondaryKeywords.length}/2 — add ${2 - secondaryKeywords.length} more`)
+        if (secondaryKeywords.length < 2)
+          issues.push(
+            `Secondary Keywords: ${secondaryKeywords.length}/2 — add ${2 - secondaryKeywords.length} more`,
+          )
         const keyStats = data.keyStatistics || []
-        if (keyStats.length < 2) issues.push(`Key Statistics: ${keyStats.length}/2 — add ${2 - keyStats.length} more`)
+        if (keyStats.length < 2)
+          issues.push(`Key Statistics: ${keyStats.length}/2 — add ${2 - keyStats.length} more`)
         const faqs = data.faqSection || []
-        if (faqs.length < 5) issues.push(`FAQ items: ${faqs.length}/5 — add ${5 - faqs.length} more`)
+        if (faqs.length < 5)
+          issues.push(`FAQ items: ${faqs.length}/5 — add ${5 - faqs.length} more`)
         const sameAsUrls = data.sameAsEntityUrls || []
         if (sameAsUrls.length < 1) issues.push('At least 1 Same-As URL is required')
         const extSources = data.externalSources || []
@@ -313,7 +329,8 @@ export const Articles: CollectionConfig = {
         const bodyText = extractTextFromRichText(contentNodes)
         if (!data.content || bodyText.length < 50) issues.push('Article content is required')
         else {
-          if (bodyText.length < 2000) issues.push(`Content too short (${bodyText.length}/2000 chars)`)
+          if (bodyText.length < 2000)
+            issues.push(`Content too short (${bodyText.length}/2000 chars)`)
           const h2Count = countHeadingsInLexical(contentNodes, 'h2')
           const h3Count = countHeadingsInLexical(contentNodes, 'h3')
           if (h2Count < 3) issues.push(`H2 Headings: ${h2Count}/3 — add ${3 - h2Count} more`)
@@ -390,99 +407,105 @@ export const Articles: CollectionConfig = {
           const voiceScore = calculateVoiceScore(data)
 
           // Existing scores — pass resolved alt text
-        const seoScore = await generateSeoScore(data, heroImageAlt)
-        const aeoScore = data.aeoScore || 0
+          const seoScore = await generateSeoScore(data, heroImageAlt)
+          const aeoScore = data.aeoScore || 0
 
-        // Overall Dominance Score
-        const overallScore = Math.round(
-          seoScore * 0.25 + aeoScore * 0.25 + geoScore * 0.25 + sgeScore * 0.15 + voiceScore * 0.1,
-        )
-
-        // Dominance Rank
-        let dominanceRank = 'critical'
-        if (overallScore >= 80) dominanceRank = 'dominant'
-        else if (overallScore >= 60) dominanceRank = 'strong'
-        else if (overallScore >= 40) dominanceRank = 'weak'
-
-        // Competitive Advantage Score
-        let competitiveAdvantageScore = 0
-        if (data.competitorAnalysis?.uniqueAdvantages?.length > 0) {
-          competitiveAdvantageScore = Math.min(
-            50 + data.competitorAnalysis.uniqueAdvantages.length * 10,
-            100,
+          // Overall Dominance Score
+          const overallScore = Math.round(
+            seoScore * 0.25 +
+              aeoScore * 0.25 +
+              geoScore * 0.25 +
+              sgeScore * 0.15 +
+              voiceScore * 0.1,
           )
-        }
 
-        // Set dominanceScoring group
-        data.dominanceScoring = {
-          seoScore,
-          aeoScore,
-          geoScore,
-          sgeScore,
-          voiceSearchScore: voiceScore,
-          overallDominanceScore: overallScore,
-          dominanceRank,
-          competitiveAdvantageScore,
-        }
+          // Dominance Rank
+          let dominanceRank = 'critical'
+          if (overallScore >= 80) dominanceRank = 'dominant'
+          else if (overallScore >= 60) dominanceRank = 'strong'
+          else if (overallScore >= 40) dominanceRank = 'weak'
 
-        // Also update the top-level seoScore so sidebar and dominance tab match
-        data.seoScore = seoScore
+          // Competitive Advantage Score
+          let competitiveAdvantageScore = 0
+          if (data.competitorAnalysis?.uniqueAdvantages?.length > 0) {
+            competitiveAdvantageScore = Math.min(
+              50 + data.competitorAnalysis.uniqueAdvantages.length * 10,
+              100,
+            )
+          }
 
-        // Content Quality Score
-        data.contentQualityScore = calculateContentQualityScore(data, h2Count, h3Count)
+          // Set dominanceScoring group
+          data.dominanceScoring = {
+            seoScore,
+            aeoScore,
+            geoScore,
+            sgeScore,
+            voiceSearchScore: voiceScore,
+            overallDominanceScore: overallScore,
+            dominanceRank,
+            competitiveAdvantageScore,
+          }
 
-        // Content Validation
-        data.contentValidation = {
-          contentLength: bodyText.length,
-          h2Count,
-          h3Count,
-          faqCount: data.faqSection?.length || 0,
-          validationStatus:
-            data.contentQualityScore >= 80
-              ? 'pass'
-              : data.contentQualityScore >= 60
-                ? 'warning'
-                : 'fail',
-          validationErrors: [],
-        }
+          // Also update the top-level seoScore so sidebar and dominance tab match
+          data.seoScore = seoScore
 
-        // Content Freshness
-        const freshness = calculateFreshness(data)
-        data.contentFreshness = {
-          ...(data.contentFreshness || {}),
-          daysOld: freshness.daysOld,
-          freshnessStatus: freshness.freshnessStatus,
-          nextReviewDue: freshness.nextReviewDue,
-        }
+          // Content Quality Score
+          data.contentQualityScore = calculateContentQualityScore(data, h2Count, h3Count)
 
-        // Featured Snippet Score
-        const snippetScore = calculateSnippetScore(data)
-        data.featuredSnippetOptimization = {
-          ...(data.featuredSnippetOptimization || {}),
-          snippetOptimizationScore: snippetScore,
-        }
+          // Content Validation
+          data.contentValidation = {
+            contentLength: bodyText.length,
+            h2Count,
+            h3Count,
+            faqCount: data.faqSection?.length || 0,
+            validationStatus:
+              data.contentQualityScore >= 80
+                ? 'pass'
+                : data.contentQualityScore >= 60
+                  ? 'warning'
+                  : 'fail',
+            validationErrors: [],
+          }
 
-        // Auto-generate internal links
-        if (data.id) {
-          const relatedArticles = await req.payload.find({
-            collection: 'articles',
-            where: {
-              and: [
-                { id: { not_equals: data.id } },
-                {
-                  'geoOptimization.targetStates': { in: data.geoOptimization?.targetStates || [] },
-                },
-              ],
-            },
-            limit: 10,
-          })
+          // Content Freshness
+          const freshness = calculateFreshness(data)
+          data.contentFreshness = {
+            ...(data.contentFreshness || {}),
+            daysOld: freshness.daysOld,
+            freshnessStatus: freshness.freshnessStatus,
+            nextReviewDue: freshness.nextReviewDue,
+          }
 
-          data.internalLinks = relatedArticles.docs.map((article: any) => ({
-            linkedArticleId: article.id,
-            anchorText: article.title,
-            relevanceScore: 75,
-          }))
-        }
+          // Featured Snippet Score
+          const snippetScore = calculateSnippetScore(data)
+          data.featuredSnippetOptimization = {
+            ...(data.featuredSnippetOptimization || {}),
+            snippetOptimizationScore: snippetScore,
+          }
+
+          // Auto-generate internal links
+          if (data.id) {
+            const relatedArticles = await req.payload.find({
+              collection: 'articles',
+              where: {
+                and: [
+                  { id: { not_equals: data.id } },
+                  {
+                    'geoOptimization.targetStates': {
+                      in: data.geoOptimization?.targetStates || [],
+                    },
+                  },
+                ],
+              },
+              limit: 10,
+            })
+
+            data.internalLinks = relatedArticles.docs.map((article: any) => ({
+              linkedArticleId: article.id,
+              anchorText: article.title,
+              relevanceScore: 75,
+            }))
+          }
         } catch (err) {
           console.error('Hook 2 score calc error:', err)
           // Don't crash publish — continue without derived scores
@@ -592,28 +615,58 @@ export const Articles: CollectionConfig = {
           // If formSubmissions or cases collections don't exist, quietly ignore
         }
       },
-      // HOOK 5: Search Engine Submission
+      // HOOK 5: Search Engine Submission (Bing IndexNow)
       async ({ doc, req, operation }) => {
-        if ((operation === 'create' || operation === 'update') && doc.published === true) {
-          if (!doc.searchEngineSubmission?.googleSubmitted) {
-            // TODO: Call your existing requestGoogleIndex and pingIndexNow functions here
-            // Then update submission tracking
+        console.log('[HOOK 5] Fired - operation:', operation, 'doc._status:', doc._status, 'bingSubmitted:', doc.searchEngineSubmission?.bingSubmitted)
 
-            await req.payload.update({
-              collection: 'articles',
-              id: doc.id,
-              data: {
-                searchEngineSubmission: {
-                  googleSubmitted: true,
-                  googleSubmissionTime: new Date().toISOString(),
-                  googleSubmissionMessage: 'Submitted via Indexing API',
-                  bingSubmitted: true,
-                  bingSubmissionTime: new Date().toISOString(),
-                  bingSubmissionMessage: 'Submitted via IndexNow',
-                },
-              },
-            })
+        if ((operation === 'create' || operation === 'update') && doc._status === 'published') {
+          // Prevent infinite loop by checking context flag
+          if (req.context?.bingIndexSubmitted) {
+            console.log('[HOOK 5] Skipping - already submitted in this chain')
+            return
           }
+
+          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'
+          const articleUrl = `${siteUrl}/insights/${doc.slug}`
+
+          console.log('[HOOK 5] Submitting to Bing:', articleUrl)
+
+          let bingSuccess = false
+          let bingMessage = 'Not submitted'
+
+          try {
+            const { submitUrlToBing } = await import('@/lib/bing-indexing')
+            const result = await submitUrlToBing(articleUrl, siteUrl)
+            console.log('[HOOK 5] Bing result:', result.success ? 'SUCCESS' : 'FAILED', result.message)
+            bingSuccess = result.success
+            bingMessage = result.message
+          } catch (err) {
+            console.error('[HOOK 5] Bing error:', err)
+            bingMessage = err instanceof Error ? err.message : 'Unknown error'
+          }
+
+          // Update document with result
+          const newContext = { ...req.context, bingIndexSubmitted: true }
+          console.log('[HOOK 5] Updating doc with bingSuccess:', bingSuccess)
+
+          await req.payload.update({
+            collection: 'articles',
+            id: doc.id,
+            data: {
+              searchEngineSubmission: {
+                googleSubmitted: doc.searchEngineSubmission?.googleSubmitted || false,
+                googleSubmissionTime: doc.searchEngineSubmission?.googleSubmissionTime || null,
+                googleSubmissionMessage: doc.searchEngineSubmission?.googleSubmissionMessage || '',
+                bingSubmitted: bingSuccess,
+                bingSubmissionTime: new Date().toISOString(),
+                bingSubmissionMessage: bingMessage,
+              },
+            },
+            context: newContext,
+            overrideAccess: false,
+            req,
+          })
+          console.log('[HOOK 5] Update complete')
         }
       },
       // HOOK 6: Existing Hooks — verify these functions exist in your codebase
@@ -1664,8 +1717,20 @@ export const Articles: CollectionConfig = {
         },
       },
     },
-    { name: 'publishedDate', type: 'date', admin: { position: 'sidebar', description: 'Date the article was published' } },
-    { name: 'updatedAt', type: 'date', admin: { position: 'sidebar', readOnly: true, description: 'Last time this article was saved' } },
+    {
+      name: 'publishedDate',
+      type: 'date',
+      admin: { position: 'sidebar', description: 'Date the article was published' },
+    },
+    {
+      name: 'updatedAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Last time this article was saved',
+      },
+    },
     { name: 'aeoScore', type: 'number', admin: { position: 'sidebar', readOnly: true } },
     {
       name: 'seoScore',

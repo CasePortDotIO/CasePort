@@ -1,4 +1,11 @@
 'use client'
+
+// CSS.escape for handling special characters in CSS selectors
+const cssEscape = (str: string): string => {
+  return str.replace(/[^a-zA-Z0-9_-]/g, (char) => {
+    return '%' + char.charCodeAt(0).toString(16).toUpperCase()
+  }).replace(/%/g, '\\')
+}
 /*
   DESIGN: "The Observatory" — CasePort Insights Article Template (10/10 Apple-Level)
   LAYOUT:  Dark hero (Observatory theme) → Seamless gradient transition → White reading body (NYT/Atlantic style)
@@ -482,7 +489,7 @@ export default function ArticleClient({
     if (!activeSection || !tocRef.current) return
     const tocContainer = tocRef.current
     // Use CSS.escape to find the element, then scroll it into view
-    const selector = `[data-section-id="${CSS.escape(activeSection)}"]`
+    const selector = `[data-section-id="${cssEscape(activeSection)}"]`
     const activeItem = tocContainer.querySelector(selector)
     if (activeItem) {
       activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
@@ -1453,7 +1460,7 @@ export default function ArticleClient({
                   <nav className="space-y-1">
                     {content?.sections?.map((section: any, idx: number) => {
                       const sectionId = section.heading?.toLowerCase().replace(/\s+/g, '-')
-                      const isActive = CSS.escape(activeSection) === CSS.escape(sectionId)
+                      const isActive = cssEscape(activeSection) === CSS.escape(sectionId)
                       return (
                         <a
                           key={idx}
