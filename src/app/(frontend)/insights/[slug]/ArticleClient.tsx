@@ -1460,7 +1460,7 @@ export default function ArticleClient({
                   <nav className="space-y-1">
                     {content?.sections?.map((section: any, idx: number) => {
                       const sectionId = section.heading?.toLowerCase().replace(/\s+/g, '-')
-                      const isActive = cssEscape(activeSection) === CSS.escape(sectionId)
+                      const isActive = cssEscape(activeSection) === cssEscape(sectionId)
                       return (
                         <a
                           key={idx}
