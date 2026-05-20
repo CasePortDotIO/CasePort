@@ -12,6 +12,7 @@ import { Applications } from './collections/Applications'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
+import { GuideCategories } from './collections/GuideCategories'
 import { InjuredLeads } from './collections/InjuredLeads'
 import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Markets } from './collections/Markets'
@@ -108,6 +109,7 @@ export default buildConfig({
     Waitlists,
     IntelligenceBriefs,
     Categories,
+    GuideCategories,
     Authors,
     Articles,
     InjuredLeads,
