@@ -74,6 +74,7 @@ export interface Config {
     waitlists: Waitlist;
     'intelligence-briefs': IntelligenceBrief;
     categories: Category;
+    guideCategories: GuideCategory;
     authors: Author;
     articles: Article;
     'injured-leads': InjuredLead;
@@ -91,6 +92,7 @@ export interface Config {
     waitlists: WaitlistsSelect<false> | WaitlistsSelect<true>;
     'intelligence-briefs': IntelligenceBriefsSelect<false> | IntelligenceBriefsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    guideCategories: GuideCategoriesSelect<false> | GuideCategoriesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'injured-leads': InjuredLeadsSelect<false> | InjuredLeadsSelect<true>;
@@ -348,6 +350,21 @@ export interface Category {
   title: string;
   slug: string;
   description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideCategories".
+ */
+export interface GuideCategory {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  icon?: string | null;
+  heroImage?: (string | null) | Media;
+  displayOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1023,6 +1040,10 @@ export interface PayloadLockedDocument {
         value: string | Category;
       } | null)
     | ({
+        relationTo: 'guideCategories';
+        value: string | GuideCategory;
+      } | null)
+    | ({
         relationTo: 'authors';
         value: string | Author;
       } | null)
@@ -1218,6 +1239,20 @@ export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideCategories_select".
+ */
+export interface GuideCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  icon?: T;
+  heroImage?: T;
+  displayOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import InjuredPage from './InjuredClient'
+import InjuredClient from './TestingInjuredNewClient'
 
 export const metadata: Metadata = {
   title: 'Injured in an Accident? Get Connected to a Personal Injury Lawyer Fast | CasePort',
   description:
-    'Were you injured in an accident? Check if you may have a case. CasePort connects accident victims with qualified personal injury attorneys in their area.',
+    'Were you injured in an accident? Check if you may have a case. CasePort connects accident victims with qualified personal injury attorneys in your area.',
   alternates: {
     canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'}/injured`,
   },
@@ -17,5 +17,5 @@ export const metadata: Metadata = {
 }
 
 export default function InjuredServerPage() {
-  return <InjuredPage />
+  return <InjuredClient />
 }

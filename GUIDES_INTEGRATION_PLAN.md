@@ -37,37 +37,201 @@
 ### GuideArticles Collection (NEW — to create)
 - **NOT extending Articles** — new standalone collection for safety
 - Slug: `guideArticles`
-- Fields (copied from Articles essentials + guide-specific fields):
+- **All fields from Articles are copied here** (SEO, AEO, Voice, Schema, GEO, etc.)
+- Plus guide-specific fields listed below
 
-**Essential fields (from Articles):**
-- `title` — text
-- `slug` — text, unique
-- `author` — relationship to `authors`
-- `heroImage` — upload to `media`
-- `excerpt` — textarea
-- `content` — richText (Lexical)
-- `publishedAt` — datetime (for sorting)
+---
 
-**Guide-specific fields (new):**
-- `guideCategory` — relationship: `guideCategories`
-- `pageType` — select: `category | guide | state | city | faq`
-- `testimonials[]` — array: `{ name, location, settlement, settlementValue, injuryType, caseType, quote, rating, date, caseResolutionTime }`
-- `settlementData` — group: `{ average, successRate, timeline, upfrontCost, minSettlement, maxSettlement, avgSettlement, rangesByInjury[] }`
-- `statuteOfLimitations` — group: `{ years, description, exceptions[], byState[] }`
-- `attorneyComparison[]` — array: `{ label, withoutAttorney, withAttorney }`
-- `targetGeo` — group: `{ state, city, zip }`
-- `difficultyLevel` — select: `beginner | intermediate | advanced`
-- `estimatedCompletionTime` — text
-- `faqSection[]` — array: `{ question, answer }`
-- `directAnswer` — textarea
-- `voiceAnswer` — textarea
-- `keyTakeaways[]` — array: `{ point }`
-- `schemaType` — select: `HowTo | GuidePage | FAQPage | Article`
-- `howToSteps[]` — array: `{ name, description }`
-- `relatedGuides[]` — relationship: `guideArticles`, hasMany
-- `publishedDate` — datetime
-- `metaTitle` — text
-- `metaDescription` — textarea
+#### TAB: Content
+| Field | Type | Notes |
+|-------|------|-------|
+| `title` | text | 50-80 chars |
+| `currentReaders` | number | |
+| `citationCount` | number | |
+| `signalStrength` | number | 0-100 |
+| `slug` | text | indexed, unique |
+| `author` | relationship | → `authors` |
+| `heroImage` | upload | → `media` |
+| `excerpt` | textarea | maxLength 300 |
+| `subtitle` | text | |
+| `executiveSummary` | textarea | |
+| `content` | richText | Lexical |
+| `tags` | array | `{ tag: text }` |
+| `relatedArticles` | relationship | → `articles`, hasMany |
+| `keyTakeaways` | array | `{ point: text }` |
+| `roiTable` | group | `{ enableTable, tableName, headers, rows[] }` |
+
+#### TAB: SEO Core
+| Field | Type | Notes |
+|-------|------|-------|
+| `focusKeyword` | text | |
+| `keywordDifficulty` | number | 0-100 |
+| `monthlySearchVolume` | number | |
+| `currentRankingPosition` | number | |
+| `secondaryKeywords` | array | `{ keyword: text }` |
+| `metaTitle` | text | maxLength 60 |
+| `metaDescription` | textarea | maxLength 160 |
+| `canonicalUrl` | text | |
+| `socialHeadline` | text | |
+| `socialDescription` | textarea | |
+| `socialShareImage` | upload | → `media` |
+| `xCardType` | select | summary_large_image, summary |
+| `xCardTitle` | text | |
+| `xCardDescription` | textarea | |
+| `xCardImage` | upload | → `media` |
+| `competingUrl` | text | |
+| `contentGap` | array | `{ gap: text }` |
+
+#### TAB: AEO and AI Citation
+| Field | Type | Notes |
+|-------|------|-------|
+| `directAnswer` | textarea | |
+| `aiCitationSummary` | textarea | |
+| `primaryAiQuery` | text | |
+| `keyStatistics` | array | `{ text, sourceName, sourceUrl, year }` |
+| `faqSection` | array | `{ question: text, answer: textarea }` |
+| `termDefinitions` | array | `{ term, definition, isProprietary }` |
+| `expertQuotes` | array | `{ quote: textarea, speakerName, credentials }` |
+
+#### TAB: Voice Search
+| Field | Type | Notes |
+|-------|------|-------|
+| `voiceAnswer` | textarea | |
+| `speakableCssSelectors` | array | `{ selector: text }` |
+| `conversationalQueryVariants` | array | `{ query: text }` |
+| `targetsSpecificLocation` | checkbox | |
+| `locationTargets` | array | `{ state: text, city: text }` (conditional) |
+
+#### TAB: Schema
+| Field | Type | Notes |
+|-------|------|-------|
+| `schemaType` | select | Article, FAQPage, HowTo, NewsArticle, LegalScholarlyArticle, **GuidePage** |
+| `howToSteps` | array | `{ name: text, description: textarea, image }` (conditional on HowTo) |
+| `sameAsEntityUrls` | array | `{ url: text }` |
+| `articleSection` | text | |
+| `apaCitation` | text | |
+
+#### TAB: Authority & Compliance
+| Field | Type | Notes |
+|-------|------|-------|
+| `legalDisclaimer` | select | Standard, No Legal Advice, CasePort Platform, None |
+| `abaComplianceVerified` | checkbox | |
+| `expertReviewer` | text | |
+| `expertCredentials` | text | |
+| `expertQuote` | textarea | |
+| `externalSources` | array | `{ name, url, credibilityTier }` |
+| `pressMentions` | array | `{ source, url, date }` |
+| `ctaOverride` | group | `{ heading, body, primaryLabel, primaryUrl, secondaryLabel, secondaryUrl }` |
+| `contentUpdateHistory` | array | `{ date, summary, updatedBy }` |
+
+#### TAB: GEO Optimization
+| Field | Type | Notes |
+|-------|------|-------|
+| `targetStates` | select (hasMany) | 50 US states |
+| `targetCities` | select (hasMany) | ~63 US cities |
+| `jurisdiction` | text | Primary Jurisdiction |
+| `serviceAreaDescription` | textarea | |
+| `localSchemaType` | select | LocalBusiness, Attorney, ServiceArea |
+| `stateSpecificDeadline` | number | Statute of Limitations (years) |
+| `stateSpecificExceptions` | textarea | |
+| `tollingProvisions` | array | `{ state, tollingRule }` |
+
+#### TAB: SGE Optimization
+| Field | Type | Notes |
+|-------|------|-------|
+| `sgeAnswerability` | number | readOnly, 0-100 |
+| `sgeOptimizedAnswer` | textarea | 40-60 words |
+| `uniqueContentSignals` | array | `{ signal, description }` |
+| `freshnessSignal` | select | Breaking News, Recent Update, Evergreen |
+| `competitorComparison` | textarea | |
+
+#### TAB: Dominance Scoring (all readOnly, auto-calculated)
+`seoScore`, `aeoScore`, `geoScore`, `sgeScore`, `voiceSearchScore`, `overallDominanceScore`, `dominanceRank`, `competitiveAdvantageScore`
+
+#### TAB: Competitor Analysis
+| Field | Type | Notes |
+|-------|------|-------|
+| `topCompetitors` | array | `{ url, estimatedScore, yourAdvantage }` |
+| `competitiveGapAnalysis` | textarea | |
+| `uniqueAdvantages` | array | `{ advantage: text }` |
+
+#### TAB: Performance Metrics (all readOnly)
+`totalFormSubmissions`, `totalEmailCaptures`, `averageLeadQualityScore`, `leadToCaseConversionRate`, `estimatedRevenue`, `estimatedProfit`, `roi`, `performanceStatus`, `recommendedAction`
+
+#### TAB: Search Engine Submission (all readOnly)
+`googleSubmitted`, `googleSubmissionTime`, `googleSubmissionMessage`, `bingSubmitted`, `bingSubmissionTime`, `bingSubmissionMessage`
+
+#### TAB: Entity Extraction
+| Field | Type | Notes |
+|-------|------|-------|
+| `primaryEntity` | text | |
+| `entityDefinition` | textarea | |
+| `relatedEntities` | array | `{ entity: text }` |
+| `entityImportance` | select | Critical, Important, Supporting |
+
+#### TAB: Content Validation (all readOnly)
+`contentLength`, `h2Count`, `h3Count`, `faqCount`, `validationStatus`, `validationErrors[]`
+
+#### TAB: Internal Linking
+`internalLinks[]` — `{ linkedArticleId: relationship, anchorText, relevanceScore }`
+
+#### TAB: Content Freshness (all readOnly except `lastReviewDate`)
+`lastReviewDate`, `nextReviewDue`, `daysOld`, `freshnessStatus`
+
+#### TAB: Featured Snippet Optimization
+| Field | Type | Notes |
+|-------|------|-------|
+| `targetSnippetType` | select | Paragraph, List, Table, Definition |
+| `snippetContent` | textarea | 40-60 words |
+| `currentSnippetRank` | number | |
+| `snippetOptimizationScore` | number | readOnly, 0-100 |
+
+#### TAB: Backlink Tracking (all readOnly)
+`totalBacklinks`, `highQualityBacklinks`, `referringDomains`, `backlinkGrowth`, `backlinkLastUpdated`
+
+#### TAB: Keyword Rankings (readOnly)
+`keywordRankings[]` — `{ keyword, currentRank, previousRank, rankChange, searchVolume, lastUpdated }`
+
+#### TAB: Traffic & Engagement (all readOnly)
+`monthlyVisitors`, `bounceRate`, `averageTimeOnPage`, `scrollDepth`, `trafficSources[]`
+
+#### TAB: AI Citation Tracking (all readOnly)
+`claudeCitations`, `chatgptCitations`, `perplexityCitations`, `totalAiCitations`, `shareOfVoice`, `lastUpdated`
+
+#### TAB: Conversion Funnel (all readOnly)
+`uniqueVisitors`, `formViews`, `formSubmissions`, `emailCaptures`, `confirmedLeads`, `confirmedCases`, `visitorToFormRate`, `formToLeadRate`, `leadToCaseRate`
+
+#### SIDEBAR FIELDS (readOnly unless noted)
+| Field | Type | Notes |
+|-------|------|-------|
+| `publishedDate` | date | |
+| `updatedAt` | date | readOnly |
+| `aeoScore` | number | readOnly |
+| `seoScore` | number | readOnly, auto-calc 0-100 |
+| `readTime` | number | readOnly |
+| `searchIntent` | select | Informational, Commercial Investigation, Transactional, Navigational |
+| `targetSerpFeature` | text | |
+| `contentConfidence` | select | High, Medium, Low |
+| `hideFromSearchEngines` | checkbox | |
+| `reviewCycle` | select | 3 Months, 6 Months, 12 Months, Evergreen |
+| `nextReviewDue` | date | readOnly |
+| `lastFactVerified` | date | |
+| `contentQualityScore` | number | readOnly, 0-100 |
+
+---
+
+#### GUIDE-SPECIFIC FIELDS (new — not in Articles)
+| Field | Type | Notes |
+|-------|------|-------|
+| `guideCategory` | relationship | → `guideCategories` |
+| `pageType` | select | `category \| guide \| state \| city \| faq` |
+| `testimonials` | array | `{ name, location, settlement, settlementValue, injuryType, caseType, quote, rating, date, caseResolutionTime }` |
+| `settlementData` | group | `{ average, successRate, timeline, upfrontCost, minSettlement, maxSettlement, avgSettlement, rangesByInjury[] }` |
+| `statuteOfLimitations` | group | `{ years, description, exceptions[], byState[] }` |
+| `attorneyComparison` | array | `{ label, withoutAttorney, withAttorney }` |
+| `difficultyLevel` | select | `beginner \| intermediate \| advanced` |
+| `estimatedCompletionTime` | text | e.g., "5 min read" |
+| `relatedGuides` | relationship | → `guideArticles`, hasMany |
 
 **NOT touching `Articles` collection** — production-safe, unchanged.
 
@@ -84,7 +248,7 @@
 - [ ] `src/app/(frontend)/guide/faq/[slug]/page.tsx` — FAQ page (Server Component)
 
 Each page.tsx:
-1. Server Component that fetches from Payload by slug + contentType/pageType
+1. Server Component that fetches from Payload by slug + pageType
 2. Uses `generateMetadata` for SEO metadata
 3. Uses `revalidate = 3600` for ISR
 4. Returns `notFound()` for invalid slugs

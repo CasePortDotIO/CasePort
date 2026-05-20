@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import SecureCaseCheckForm from '@/components/SecureCaseCheckForm'
 
 const useScrollAnimation = () => {
@@ -47,6 +48,7 @@ const COLORS = {
 
 export default function TestingInjuredNewClient() {
   const [formOpen, setFormOpen] = useState(false)
+  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const visibleElements = useScrollAnimation()
 
@@ -71,7 +73,7 @@ export default function TestingInjuredNewClient() {
       {/* STICKY CTA */}
       {showStickyCTA && (
         <button
-          onClick={() => setFormOpen(true)}
+          onClick={() => router.push('/checkmycase')}
           className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-40 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-white text-sm md:text-base transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 active:shadow-lg animate-fade-in shadow-xl"
           style={{
             backgroundColor: COLORS.terra,
@@ -156,7 +158,7 @@ export default function TestingInjuredNewClient() {
 
           {/* CTA Button */}
           <button
-            onClick={() => setFormOpen(true)}
+            onClick={() => router.push('/checkmycase')}
             className="inline-block px-8 md:px-12 py-4 md:py-5 rounded-full font-bold text-lg transition-all duration-300 hover:scale-102 hover:shadow-xl active:scale-98 active:shadow-md group"
             style={{
               backgroundColor: COLORS.terra,
@@ -989,7 +991,7 @@ export default function TestingInjuredNewClient() {
           </p>
 
           <button
-            onClick={() => setFormOpen(true)}
+            onClick={() => router.push('/checkmycase')}
             className="inline-block px-8 md:px-12 py-4 md:py-5 rounded-full font-bold text-lg transition-all duration-300 hover:scale-102 hover:shadow-xl active:scale-98 active:shadow-md group"
             style={{
               backgroundColor: COLORS.terra,
