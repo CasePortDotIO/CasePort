@@ -12,6 +12,7 @@ import { Applications } from './collections/Applications'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
+import { GuideArticles } from './collections/GuideArticles'
 import { GuideCategories } from './collections/GuideCategories'
 import { InjuredLeads } from './collections/InjuredLeads'
 import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
@@ -110,6 +111,7 @@ export default buildConfig({
     IntelligenceBriefs,
     Categories,
     GuideCategories,
+    GuideArticles,
     Authors,
     Articles,
     InjuredLeads,

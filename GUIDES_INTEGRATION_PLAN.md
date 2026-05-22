@@ -2,6 +2,8 @@
 
 > **Purpose:** This is the authoritative execution plan for integrating `_Guide CoNTENT HUB/` content into CasePort as a dynamic, Payload CMS-driven guide system.
 > **Read this when:** starting work, getting lost, or starting something not on the plan.
+>
+> **⚠️ UI ACCURACY REQUIREMENT:** All guide page templates MUST be pixel-accurate to the `_Guide CoNTENT HUB/*.tsx` reference files. Do NOT simplify or redesign the UI — use the exact structure, sections, class names, and styling from the reference files. Adapt the hardcoded data to use Payload props where needed.
 
 ---
 
@@ -239,13 +241,13 @@
 
 ## What's REQUIRED (Must Have)
 
-### Phase 1 — Route Architecture
-- [ ] Create `src/app/(frontend)/guide/page.tsx` — Hub page (Server Component)
-- [ ] `src/app/(frontend)/guide/[category]/page.tsx` — Category page (Server Component)
-- [ ] `src/app/(frontend)/guide/[category]/[slug]/page.tsx` — Specific guide (Server Component)
-- [ ] `src/app/(frontend)/guide/states/[state]/page.tsx` — State page (Server Component)
-- [ ] `src/app/(frontend)/guide/cities/[city]/page.tsx` — City page (Server Component)
-- [ ] `src/app/(frontend)/guide/faq/[slug]/page.tsx` — FAQ page (Server Component)
+### Phase 1 — Route Architecture ✅ DONE
+- [x] `src/app/(frontend)/guide/page.tsx` — Hub page (Server Component)
+- [x] `src/app/(frontend)/guide/[category]/page.tsx` — Category page (Server Component)
+- [x] `src/app/(frontend)/guide/[category]/[slug]/page.tsx` — Specific guide (Server Component)
+- [x] `src/app/(frontend)/guide/states/[state]/page.tsx` — State page (Server Component)
+- [x] `src/app/(frontend)/guide/cities/[city]/page.tsx` — City page (Server Component)
+- [x] `src/app/(frontend)/guide/faq/[slug]/page.tsx` — FAQ page (Server Component)
 
 Each page.tsx:
 1. Server Component that fetches from Payload by slug + pageType
@@ -254,13 +256,13 @@ Each page.tsx:
 4. Returns `notFound()` for invalid slugs
 5. Passes data to a Client Component for rendering
 
-### Phase 2 — Client Template Components
-- [ ] `GuidesHubClient.tsx` — Hub page client component
-- [ ] `CategoryGuideTemplate.tsx` — Category landing template (from `_Guide CoNTENT HUB/CategoryGuideTemplate.tsx`)
-- [ ] `GuideTemplate.tsx` — Specific guide template (from `_Guide CoNTENT HUB/GuideTemplate.tsx`)
-- [ ] `StatePageTemplate.tsx` — State page template (from `_Guide CoNTENT HUB/StatePage.tsx`)
-- [ ] `CityPageTemplate.tsx` — City page template (from `_Guide CoNTENT HUB/CityPage.tsx`)
-- [ ] `FAQPageTemplate.tsx` — FAQ page template (from `_Guide CoNTENT HUB/FAQPage.tsx`)
+### Phase 2 — Client Template Components ✅ DONE
+- [x] `src/app/(frontend)/guide/GuidesHubClient.tsx` — Hub page client component
+- [x] `src/app/(frontend)/guide/[category]/CategoryGuideClient.tsx` — Category landing template
+- [x] `src/app/(frontend)/guide/[category]/[slug]/GuideArticleClient.tsx` — Specific guide template
+- [x] `src/app/(frontend)/guide/states/[state]/StateGuideClient.tsx` — State page template
+- [x] `src/app/(frontend)/guide/cities/[city]/CityGuideClient.tsx` — City page template
+- [x] `src/app/(frontend)/guide/faq/[slug]/FAQGuideClient.tsx` — FAQ page template
 
 Each template component:
 - Receives data as **props** (no hardcoded data, no direct Payload calls)
@@ -281,9 +283,9 @@ These are reused across multiple templates — build once:
 - [ ] `MobileStickyCTA.tsx` — Mobile sticky call-to-action
 - [ ] `DynamicBreadcrumbs.tsx` — Auto-generated from URL params
 
-### Phase 4 — Type Generation + Verification
-- [ ] Run `npm run generate:types` to update TypeScript types
-- [ ] Run `npm run build` to verify no type errors
+### Phase 4 — Type Generation + Verification ✅ DONE
+- [x] Run `npm run generate:types` to update TypeScript types
+- [x] Run `npm run build` to verify no type errors
 - [ ] Navigate `/guide` → `/guide/car-accident` → `/guide/car-accident/rear-end` to verify
 
 ---

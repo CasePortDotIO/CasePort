@@ -75,6 +75,7 @@ export interface Config {
     'intelligence-briefs': IntelligenceBrief;
     categories: Category;
     guideCategories: GuideCategory;
+    guideArticles: GuideArticle;
     authors: Author;
     articles: Article;
     'injured-leads': InjuredLead;
@@ -93,6 +94,7 @@ export interface Config {
     'intelligence-briefs': IntelligenceBriefsSelect<false> | IntelligenceBriefsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     guideCategories: GuideCategoriesSelect<false> | GuideCategoriesSelect<true>;
+    guideArticles: GuideArticlesSelect<false> | GuideArticlesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'injured-leads': InjuredLeadsSelect<false> | InjuredLeadsSelect<true>;
@@ -367,6 +369,581 @@ export interface GuideCategory {
   displayOrder?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideArticles".
+ */
+export interface GuideArticle {
+  id: string;
+  /**
+   * 50-80 chars. Auto slug.
+   */
+  title?: string | null;
+  currentReaders?: number | null;
+  citationCount?: number | null;
+  signalStrength?: number | null;
+  slug?: string | null;
+  author?: (string | null) | Author;
+  /**
+   * Primary category for this guide
+   */
+  guideCategory?: (string | null) | GuideCategory;
+  /**
+   * Determines which template renders this page
+   */
+  pageType?: ('guide' | 'category' | 'state' | 'city' | 'faq') | null;
+  heroImage?: (string | null) | Media;
+  excerpt?: string | null;
+  subtitle?: string | null;
+  executiveSummary?: string | null;
+  keyTakeaways?:
+    | {
+        point?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  roiTable: {
+    enableTable?: boolean | null;
+    tableName?: string | null;
+    headers: {
+      col1: string;
+      col2: string;
+      col3: string;
+      col4: string;
+      col5: string;
+    };
+    rows?:
+      | {
+          col1?: string | null;
+          col2?: string | null;
+          col3?: string | null;
+          col4?: string | null;
+          col5?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Cross-link to Insights articles
+   */
+  relatedArticles?: (string | Article)[] | null;
+  /**
+   * Cross-link to other guide articles
+   */
+  relatedGuides?: (string | GuideArticle)[] | null;
+  focusKeyword?: string | null;
+  keywordDifficulty?: number | null;
+  monthlySearchVolume?: number | null;
+  currentRankingPosition?: number | null;
+  secondaryKeywords?:
+    | {
+        keyword?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  canonicalUrl?: string | null;
+  socialHeadline?: string | null;
+  socialDescription?: string | null;
+  socialShareImage?: (string | null) | Media;
+  xCardType?: ('summary_large_image' | 'summary') | null;
+  xCardTitle?: string | null;
+  xCardDescription?: string | null;
+  xCardImage?: (string | null) | Media;
+  competingUrl?: string | null;
+  contentGap?:
+    | {
+        gap?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  directAnswer?: string | null;
+  aiCitationSummary?: string | null;
+  primaryAiQuery?: string | null;
+  keyStatistics?:
+    | {
+        text?: string | null;
+        sourceName?: string | null;
+        sourceUrl?: string | null;
+        year?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  faqSection?:
+    | {
+        question?: string | null;
+        answer?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  termDefinitions?:
+    | {
+        term?: string | null;
+        definition?: string | null;
+        isProprietary?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  expertQuotes?:
+    | {
+        quote?: string | null;
+        speakerName?: string | null;
+        credentials?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  voiceAnswer?: string | null;
+  speakableCssSelectors?:
+    | {
+        selector?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  conversationalQueryVariants?:
+    | {
+        query?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  targetsSpecificLocation?: boolean | null;
+  locationTargets?:
+    | {
+        state?: string | null;
+        city?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  schemaType?: ('Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle' | 'GuidePage') | null;
+  howToSteps?:
+    | {
+        name?: string | null;
+        description?: string | null;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  sameAsEntityUrls?:
+    | {
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  articleSection?: string | null;
+  apaCitation?: string | null;
+  legalDisclaimer?: ('Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None') | null;
+  abaComplianceVerified?: boolean | null;
+  expertReviewer?: string | null;
+  expertCredentials?: string | null;
+  expertQuote?: string | null;
+  externalSources?:
+    | {
+        name?: string | null;
+        url?: string | null;
+        credibilityTier?: ('High' | 'Medium' | 'Low') | null;
+        id?: string | null;
+      }[]
+    | null;
+  pressMentions?:
+    | {
+        source?: string | null;
+        url?: string | null;
+        date?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaOverride?: {
+    heading?: string | null;
+    body?: string | null;
+    primaryLabel?: string | null;
+    primaryUrl?: string | null;
+    secondaryLabel?: string | null;
+    secondaryUrl?: string | null;
+  };
+  contentUpdateHistory?:
+    | {
+        date?: string | null;
+        summary?: string | null;
+        updatedBy?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  targetStates?:
+    | (
+        | 'AL'
+        | 'AK'
+        | 'AZ'
+        | 'AR'
+        | 'CA'
+        | 'CO'
+        | 'CT'
+        | 'DE'
+        | 'FL'
+        | 'GA'
+        | 'HI'
+        | 'ID'
+        | 'IL'
+        | 'IN'
+        | 'IA'
+        | 'KS'
+        | 'KY'
+        | 'LA'
+        | 'ME'
+        | 'MD'
+        | 'MA'
+        | 'MI'
+        | 'MN'
+        | 'MS'
+        | 'MO'
+        | 'MT'
+        | 'NE'
+        | 'NV'
+        | 'NH'
+        | 'NJ'
+        | 'NM'
+        | 'NY'
+        | 'NC'
+        | 'ND'
+        | 'OH'
+        | 'OK'
+        | 'OR'
+        | 'PA'
+        | 'RI'
+        | 'SC'
+        | 'SD'
+        | 'TN'
+        | 'TX'
+        | 'UT'
+        | 'VT'
+        | 'VA'
+        | 'WA'
+        | 'WV'
+        | 'WI'
+        | 'WY'
+      )[]
+    | null;
+  targetCities?:
+    | (
+        | 'Houston, TX'
+        | 'Dallas, TX'
+        | 'Austin, TX'
+        | 'San Antonio, TX'
+        | 'Fort Worth, TX'
+        | 'El Paso, TX'
+        | 'Arlington, TX'
+        | 'Corpus Christi, TX'
+        | 'Miami, FL'
+        | 'Tampa, FL'
+        | 'Orlando, FL'
+        | 'Jacksonville, FL'
+        | 'Fort Lauderdale, FL'
+        | 'St. Petersburg, FL'
+        | 'Tallahassee, FL'
+        | 'Los Angeles, CA'
+        | 'San Diego, CA'
+        | 'San Francisco, CA'
+        | 'Riverside, CA'
+        | 'Sacramento, CA'
+        | 'San Jose, CA'
+        | 'Fresno, CA'
+        | 'Long Beach, CA'
+        | 'New York, NY'
+        | 'Brooklyn, NY'
+        | 'Queens, NY'
+        | 'Bronx, NY'
+        | 'Albany, NY'
+        | 'Rochester, NY'
+        | 'Syracuse, NY'
+        | 'Buffalo, NY'
+        | 'Chicago, IL'
+        | 'Springfield, IL'
+        | 'Rockford, IL'
+        | 'Philadelphia, PA'
+        | 'Pittsburgh, PA'
+        | 'Allentown, PA'
+        | 'Harrisburg, PA'
+        | 'Scranton, PA'
+        | 'Reading, PA'
+        | 'Columbus, OH'
+        | 'Cleveland, OH'
+        | 'Cincinnati, OH'
+        | 'Dayton, OH'
+        | 'Toledo, OH'
+        | 'Akron, OH'
+        | 'Atlanta, GA'
+        | 'Augusta, GA'
+        | 'Savannah, GA'
+        | 'Macon, GA'
+        | 'Columbus, GA'
+      )[]
+    | null;
+  jurisdiction?: string | null;
+  serviceAreaDescription?: string | null;
+  localSchemaType?: ('LocalBusiness' | 'Attorney' | 'ServiceArea') | null;
+  stateSpecificDeadline?: number | null;
+  stateSpecificExceptions?: string | null;
+  tollingProvisions?:
+    | {
+        state?: string | null;
+        tollingRule?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  sgeAnswerability?: number | null;
+  sgeOptimizedAnswer?: string | null;
+  uniqueContentSignals?:
+    | {
+        signal?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  freshnessSignal?: ('breaking' | 'recent' | 'evergreen') | null;
+  competitorComparison?: string | null;
+  dominanceScoring?: {
+    seoScore?: number | null;
+    aeoScore?: number | null;
+    geoScore?: number | null;
+    sgeScore?: number | null;
+    voiceSearchScore?: number | null;
+    overallDominanceScore?: number | null;
+    dominanceRank?: ('critical' | 'weak' | 'strong' | 'dominant') | null;
+    competitiveAdvantageScore?: number | null;
+  };
+  topCompetitors?:
+    | {
+        url?: string | null;
+        estimatedScore?: number | null;
+        yourAdvantage?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  competitiveGapAnalysis?: string | null;
+  uniqueAdvantages?:
+    | {
+        advantage?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  performanceMetrics?: {
+    totalFormSubmissions?: number | null;
+    totalEmailCaptures?: number | null;
+    averageLeadQualityScore?: number | null;
+    leadToCaseConversionRate?: number | null;
+    estimatedRevenue?: number | null;
+    estimatedProfit?: number | null;
+    roi?: number | null;
+    performanceStatus?: ('loss' | 'breakeven' | 'profitable' | 'highly_profitable') | null;
+    recommendedAction?: ('remove' | 'optimize' | 'maintain' | 'expand') | null;
+  };
+  searchEngineSubmission?: {
+    googleSubmitted?: boolean | null;
+    googleSubmissionTime?: string | null;
+    googleSubmissionMessage?: string | null;
+    bingSubmitted?: boolean | null;
+    bingSubmissionTime?: string | null;
+    bingSubmissionMessage?: string | null;
+  };
+  primaryEntity?: string | null;
+  entityDefinition?: string | null;
+  relatedEntities?:
+    | {
+        entity?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  entityImportance?: ('critical' | 'important' | 'supporting') | null;
+  contentValidation?: {
+    contentLength?: number | null;
+    h2Count?: number | null;
+    h3Count?: number | null;
+    faqCount?: number | null;
+    validationStatus?: ('pass' | 'warning' | 'fail') | null;
+    validationErrors?:
+      | {
+          error?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  internalLinks?:
+    | {
+        linkedArticleId?: (string | null) | GuideArticle;
+        anchorText?: string | null;
+        relevanceScore?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  contentFreshness?: {
+    lastReviewDate?: string | null;
+    nextReviewDue?: string | null;
+    daysOld?: number | null;
+    freshnessStatus?: ('fresh' | 'current' | 'aging' | 'stale') | null;
+  };
+  featuredSnippetOptimization?: {
+    targetSnippetType?: ('paragraph' | 'list' | 'table' | 'definition') | null;
+    snippetContent?: string | null;
+    currentSnippetRank?: number | null;
+    snippetOptimizationScore?: number | null;
+  };
+  backlinkTracking?: {
+    totalBacklinks?: number | null;
+    highQualityBacklinks?: number | null;
+    referringDomains?: number | null;
+    backlinkGrowth?: number | null;
+    backlinkLastUpdated?: string | null;
+  };
+  keywordRankings?:
+    | {
+        keyword?: string | null;
+        currentRank?: number | null;
+        previousRank?: number | null;
+        rankChange?: number | null;
+        searchVolume?: number | null;
+        lastUpdated?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  trafficMetrics?: {
+    monthlyVisitors?: number | null;
+    bounceRate?: number | null;
+    averageTimeOnPage?: number | null;
+    scrollDepth?: number | null;
+    trafficSources?:
+      | {
+          source?: string | null;
+          visitors?: number | null;
+          percentage?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  aiCitationTracking?: {
+    claudeCitations?: number | null;
+    chatgptCitations?: number | null;
+    perplexityCitations?: number | null;
+    totalAiCitations?: number | null;
+    shareOfVoice?: number | null;
+    lastUpdated?: string | null;
+  };
+  conversionFunnel?: {
+    uniqueVisitors?: number | null;
+    formViews?: number | null;
+    formSubmissions?: number | null;
+    emailCaptures?: number | null;
+    confirmedLeads?: number | null;
+    confirmedCases?: number | null;
+    visitorToFormRate?: number | null;
+    formToLeadRate?: number | null;
+    leadToCaseRate?: number | null;
+  };
+  /**
+   * Reader self-selection
+   */
+  difficultyLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
+  /**
+   * e.g., "5 min read"
+   */
+  estimatedCompletionTime?: string | null;
+  testimonials?:
+    | {
+        name?: string | null;
+        location?: string | null;
+        settlement?: string | null;
+        settlementValue?: string | null;
+        injuryType?: string | null;
+        caseType?: string | null;
+        quote?: string | null;
+        rating?: number | null;
+        date?: string | null;
+        caseResolutionTime?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  settlementData?: {
+    average?: string | null;
+    successRate?: string | null;
+    timeline?: string | null;
+    upfrontCost?: string | null;
+    minSettlement?: string | null;
+    maxSettlement?: string | null;
+    avgSettlement?: string | null;
+    rangesByInjury?:
+      | {
+          injuryType?: string | null;
+          minAmount?: string | null;
+          maxAmount?: string | null;
+          recoveryTime?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  statuteOfLimitations?: {
+    years?: number | null;
+    description?: string | null;
+    exceptions?:
+      | {
+          exception?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    byState?:
+      | {
+          state?: string | null;
+          years?: number | null;
+          notes?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  attorneyComparison?:
+    | {
+        label?: string | null;
+        withoutAttorney?: string | null;
+        withAttorney?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  publishedDate?: string | null;
+  updatedAt: string;
+  aeoScore?: number | null;
+  /**
+   * Auto-calculated on every save. 0-100.
+   */
+  seoScore?: number | null;
+  readTime?: number | null;
+  searchIntent?: ('Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational') | null;
+  targetSerpFeature?: string | null;
+  contentConfidence?: ('High' | 'Medium' | 'Low') | null;
+  hideFromSearchEngines?: boolean | null;
+  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null;
+  nextReviewDue?: string | null;
+  lastFactVerified?: string | null;
+  contentQualityScore?: number | null;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1044,6 +1621,10 @@ export interface PayloadLockedDocument {
         value: string | GuideCategory;
       } | null)
     | ({
+        relationTo: 'guideArticles';
+        value: string | GuideArticle;
+      } | null)
+    | ({
         relationTo: 'authors';
         value: string | Author;
       } | null)
@@ -1255,6 +1836,465 @@ export interface GuideCategoriesSelect<T extends boolean = true> {
   displayOrder?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideArticles_select".
+ */
+export interface GuideArticlesSelect<T extends boolean = true> {
+  title?: T;
+  currentReaders?: T;
+  citationCount?: T;
+  signalStrength?: T;
+  slug?: T;
+  author?: T;
+  guideCategory?: T;
+  pageType?: T;
+  heroImage?: T;
+  excerpt?: T;
+  subtitle?: T;
+  executiveSummary?: T;
+  keyTakeaways?:
+    | T
+    | {
+        point?: T;
+        id?: T;
+      };
+  roiTable?:
+    | T
+    | {
+        enableTable?: T;
+        tableName?: T;
+        headers?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+            };
+        rows?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+              id?: T;
+            };
+      };
+  content?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  relatedArticles?: T;
+  relatedGuides?: T;
+  focusKeyword?: T;
+  keywordDifficulty?: T;
+  monthlySearchVolume?: T;
+  currentRankingPosition?: T;
+  secondaryKeywords?:
+    | T
+    | {
+        keyword?: T;
+        id?: T;
+      };
+  metaTitle?: T;
+  metaDescription?: T;
+  canonicalUrl?: T;
+  socialHeadline?: T;
+  socialDescription?: T;
+  socialShareImage?: T;
+  xCardType?: T;
+  xCardTitle?: T;
+  xCardDescription?: T;
+  xCardImage?: T;
+  competingUrl?: T;
+  contentGap?:
+    | T
+    | {
+        gap?: T;
+        id?: T;
+      };
+  directAnswer?: T;
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
+  keyStatistics?:
+    | T
+    | {
+        text?: T;
+        sourceName?: T;
+        sourceUrl?: T;
+        year?: T;
+        id?: T;
+      };
+  faqSection?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  termDefinitions?:
+    | T
+    | {
+        term?: T;
+        definition?: T;
+        isProprietary?: T;
+        id?: T;
+      };
+  expertQuotes?:
+    | T
+    | {
+        quote?: T;
+        speakerName?: T;
+        credentials?: T;
+        id?: T;
+      };
+  voiceAnswer?: T;
+  speakableCssSelectors?:
+    | T
+    | {
+        selector?: T;
+        id?: T;
+      };
+  conversationalQueryVariants?:
+    | T
+    | {
+        query?: T;
+        id?: T;
+      };
+  targetsSpecificLocation?: T;
+  locationTargets?:
+    | T
+    | {
+        state?: T;
+        city?: T;
+        id?: T;
+      };
+  schemaType?: T;
+  howToSteps?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        image?: T;
+        id?: T;
+      };
+  sameAsEntityUrls?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  articleSection?: T;
+  apaCitation?: T;
+  legalDisclaimer?: T;
+  abaComplianceVerified?: T;
+  expertReviewer?: T;
+  expertCredentials?: T;
+  expertQuote?: T;
+  externalSources?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        credibilityTier?: T;
+        id?: T;
+      };
+  pressMentions?:
+    | T
+    | {
+        source?: T;
+        url?: T;
+        date?: T;
+        id?: T;
+      };
+  ctaOverride?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        primaryLabel?: T;
+        primaryUrl?: T;
+        secondaryLabel?: T;
+        secondaryUrl?: T;
+      };
+  contentUpdateHistory?:
+    | T
+    | {
+        date?: T;
+        summary?: T;
+        updatedBy?: T;
+        id?: T;
+      };
+  targetStates?: T;
+  targetCities?: T;
+  jurisdiction?: T;
+  serviceAreaDescription?: T;
+  localSchemaType?: T;
+  stateSpecificDeadline?: T;
+  stateSpecificExceptions?: T;
+  tollingProvisions?:
+    | T
+    | {
+        state?: T;
+        tollingRule?: T;
+        id?: T;
+      };
+  sgeAnswerability?: T;
+  sgeOptimizedAnswer?: T;
+  uniqueContentSignals?:
+    | T
+    | {
+        signal?: T;
+        description?: T;
+        id?: T;
+      };
+  freshnessSignal?: T;
+  competitorComparison?: T;
+  dominanceScoring?:
+    | T
+    | {
+        seoScore?: T;
+        aeoScore?: T;
+        geoScore?: T;
+        sgeScore?: T;
+        voiceSearchScore?: T;
+        overallDominanceScore?: T;
+        dominanceRank?: T;
+        competitiveAdvantageScore?: T;
+      };
+  topCompetitors?:
+    | T
+    | {
+        url?: T;
+        estimatedScore?: T;
+        yourAdvantage?: T;
+        id?: T;
+      };
+  competitiveGapAnalysis?: T;
+  uniqueAdvantages?:
+    | T
+    | {
+        advantage?: T;
+        id?: T;
+      };
+  performanceMetrics?:
+    | T
+    | {
+        totalFormSubmissions?: T;
+        totalEmailCaptures?: T;
+        averageLeadQualityScore?: T;
+        leadToCaseConversionRate?: T;
+        estimatedRevenue?: T;
+        estimatedProfit?: T;
+        roi?: T;
+        performanceStatus?: T;
+        recommendedAction?: T;
+      };
+  searchEngineSubmission?:
+    | T
+    | {
+        googleSubmitted?: T;
+        googleSubmissionTime?: T;
+        googleSubmissionMessage?: T;
+        bingSubmitted?: T;
+        bingSubmissionTime?: T;
+        bingSubmissionMessage?: T;
+      };
+  primaryEntity?: T;
+  entityDefinition?: T;
+  relatedEntities?:
+    | T
+    | {
+        entity?: T;
+        id?: T;
+      };
+  entityImportance?: T;
+  contentValidation?:
+    | T
+    | {
+        contentLength?: T;
+        h2Count?: T;
+        h3Count?: T;
+        faqCount?: T;
+        validationStatus?: T;
+        validationErrors?:
+          | T
+          | {
+              error?: T;
+              id?: T;
+            };
+      };
+  internalLinks?:
+    | T
+    | {
+        linkedArticleId?: T;
+        anchorText?: T;
+        relevanceScore?: T;
+        id?: T;
+      };
+  contentFreshness?:
+    | T
+    | {
+        lastReviewDate?: T;
+        nextReviewDue?: T;
+        daysOld?: T;
+        freshnessStatus?: T;
+      };
+  featuredSnippetOptimization?:
+    | T
+    | {
+        targetSnippetType?: T;
+        snippetContent?: T;
+        currentSnippetRank?: T;
+        snippetOptimizationScore?: T;
+      };
+  backlinkTracking?:
+    | T
+    | {
+        totalBacklinks?: T;
+        highQualityBacklinks?: T;
+        referringDomains?: T;
+        backlinkGrowth?: T;
+        backlinkLastUpdated?: T;
+      };
+  keywordRankings?:
+    | T
+    | {
+        keyword?: T;
+        currentRank?: T;
+        previousRank?: T;
+        rankChange?: T;
+        searchVolume?: T;
+        lastUpdated?: T;
+        id?: T;
+      };
+  trafficMetrics?:
+    | T
+    | {
+        monthlyVisitors?: T;
+        bounceRate?: T;
+        averageTimeOnPage?: T;
+        scrollDepth?: T;
+        trafficSources?:
+          | T
+          | {
+              source?: T;
+              visitors?: T;
+              percentage?: T;
+              id?: T;
+            };
+      };
+  aiCitationTracking?:
+    | T
+    | {
+        claudeCitations?: T;
+        chatgptCitations?: T;
+        perplexityCitations?: T;
+        totalAiCitations?: T;
+        shareOfVoice?: T;
+        lastUpdated?: T;
+      };
+  conversionFunnel?:
+    | T
+    | {
+        uniqueVisitors?: T;
+        formViews?: T;
+        formSubmissions?: T;
+        emailCaptures?: T;
+        confirmedLeads?: T;
+        confirmedCases?: T;
+        visitorToFormRate?: T;
+        formToLeadRate?: T;
+        leadToCaseRate?: T;
+      };
+  difficultyLevel?: T;
+  estimatedCompletionTime?: T;
+  testimonials?:
+    | T
+    | {
+        name?: T;
+        location?: T;
+        settlement?: T;
+        settlementValue?: T;
+        injuryType?: T;
+        caseType?: T;
+        quote?: T;
+        rating?: T;
+        date?: T;
+        caseResolutionTime?: T;
+        id?: T;
+      };
+  settlementData?:
+    | T
+    | {
+        average?: T;
+        successRate?: T;
+        timeline?: T;
+        upfrontCost?: T;
+        minSettlement?: T;
+        maxSettlement?: T;
+        avgSettlement?: T;
+        rangesByInjury?:
+          | T
+          | {
+              injuryType?: T;
+              minAmount?: T;
+              maxAmount?: T;
+              recoveryTime?: T;
+              id?: T;
+            };
+      };
+  statuteOfLimitations?:
+    | T
+    | {
+        years?: T;
+        description?: T;
+        exceptions?:
+          | T
+          | {
+              exception?: T;
+              id?: T;
+            };
+        byState?:
+          | T
+          | {
+              state?: T;
+              years?: T;
+              notes?: T;
+              id?: T;
+            };
+      };
+  attorneyComparison?:
+    | T
+    | {
+        label?: T;
+        withoutAttorney?: T;
+        withAttorney?: T;
+        id?: T;
+      };
+  publishedDate?: T;
+  updatedAt?: T;
+  aeoScore?: T;
+  seoScore?: T;
+  readTime?: T;
+  searchIntent?: T;
+  targetSerpFeature?: T;
+  contentConfidence?: T;
+  hideFromSearchEngines?: T;
+  reviewCycle?: T;
+  nextReviewDue?: T;
+  lastFactVerified?: T;
+  contentQualityScore?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
