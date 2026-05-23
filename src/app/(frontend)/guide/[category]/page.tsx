@@ -25,16 +25,39 @@ export async function generateMetadata({
   const cat = docs[0]
   if (!cat) return {}
 
+  const title = cat.metaTitle || `${cat.title} Guides | CasePort`
+  const description = cat.metaDescription || cat.description || `Comprehensive ${cat.title} guides for personal injury victims.`
+  const canonicalUrl = cat.canonicalUrl || `${siteUrl}/guide/${categorySlug}`
+
+  const twitterImages: string[] = []
+  if (typeof cat.xCardImage === 'object' && cat.xCardImage?.url) twitterImages.push(cat.xCardImage.url)
+  else if (typeof cat.socialShareImage === 'object' && cat.socialShareImage?.url) twitterImages.push(cat.socialShareImage.url)
+  else if (typeof cat.heroImage === 'object' && cat.heroImage?.url) twitterImages.push(cat.heroImage.url)
+
+  const ogImage = typeof cat.socialShareImage === 'object' && cat.socialShareImage?.url
+    ? [{ url: cat.socialShareImage.url, width: 1200, height: 630 }]
+    : typeof cat.heroImage === 'object' && cat.heroImage?.url
+      ? [{ url: cat.heroImage.url, width: 1200, height: 630 }]
+      : []
+
   return {
-    title: `${cat.title} Guides | CasePort`,
-    description: cat.description || `Comprehensive ${cat.title} guides for personal injury victims.`,
-    alternates: { canonical: `${siteUrl}/guide/${categorySlug}` },
+    title,
+    description,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: `${cat.title} Guides | CasePort`,
-      description: cat.description || `Comprehensive ${cat.title} guides for personal injury victims.`,
-      url: `${siteUrl}/guide/${categorySlug}`,
+      title: cat.socialHeadline || title,
+      description: cat.socialDescription || description,
+      images: ogImage,
       type: 'website',
+      siteName: 'CasePort',
     },
+    twitter: {
+      card: cat.xCardType ?? 'summary_large_image',
+      title: cat.xCardTitle || cat.socialHeadline || title,
+      description: cat.xCardDescription || cat.socialDescription || description,
+      images: twitterImages,
+    },
+    robots: cat.hideFromSearchEngines ? 'noindex,nofollow' : 'index,follow',
   }
 }
 

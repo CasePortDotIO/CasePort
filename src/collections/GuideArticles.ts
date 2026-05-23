@@ -1240,6 +1240,144 @@ export const GuideArticles: CollectionConfig = {
                 { name: 'withAttorney', type: 'textarea' },
               ],
             },
+            // ─── NEW: Article Sections (matching prototype) ───────────────
+            {
+              name: 'whatYouLearn',
+              type: 'array',
+              label: 'What You\'ll Learn (Table of Contents)',
+              fields: [
+                { name: 'icon', type: 'text', label: 'Icon name (AlertCircle, BookOpen, DollarSign, etc.)' },
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'text' },
+              ],
+            },
+            {
+              name: 'immediateSteps',
+              type: 'array',
+              label: 'Immediate Steps Section',
+              fields: [
+                { name: 'step', type: 'number' },
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                { name: 'bullets', type: 'array', fields: [{ name: 'bullet', type: 'text' }] },
+              ],
+            },
+            {
+              name: 'immediateStepsTitle',
+              type: 'text',
+              label: 'Immediate Steps Section Title',
+            },
+            {
+              name: 'immediateStepsSubtitle',
+              type: 'text',
+              label: 'Immediate Steps Section Subtitle',
+            },
+            {
+              name: 'keyFacts',
+              type: 'array',
+              label: 'Key Facts Section',
+              fields: [
+                { name: 'stat', type: 'text' },
+                { name: 'label', type: 'text' },
+                { name: 'description', type: 'text' },
+              ],
+            },
+            {
+              name: 'fiveThingsToKnow',
+              type: 'array',
+              label: '5 Things You Need to Know',
+              fields: [
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'text' },
+              ],
+            },
+            {
+              name: 'liabilityParties',
+              type: 'array',
+              label: 'Potentially Liable Parties',
+              fields: [
+                { name: 'name', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            {
+              name: 'liabilityIntro',
+              type: 'textarea',
+              label: 'Liability Introduction Text',
+            },
+            {
+              name: 'federalRegulations',
+              type: 'array',
+              label: 'Federal Regulations',
+              fields: [
+                { name: 'name', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            {
+              name: 'decisionMatrix',
+              type: 'array',
+              label: 'Decision Matrix (When You Need Attorney)',
+              fields: [
+                { name: 'icon', type: 'text' },
+                { name: 'scenario', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            {
+              name: 'mistakesToAvoid',
+              type: 'array',
+              label: 'Critical Mistakes to Avoid',
+              fields: [
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            {
+              name: 'mathComparison',
+              type: 'group',
+              label: 'The Math Section',
+              fields: [
+                { name: 'title', type: 'text' },
+                { name: 'subtitle', type: 'text' },
+                {
+                  name: 'withoutAttorney',
+                  type: 'group',
+                  fields: [
+                    { name: 'settlement', type: 'number' },
+                    { name: 'costs', type: 'number' },
+                    { name: 'youKeep', type: 'number' },
+                  ],
+                },
+                {
+                  name: 'withAttorney',
+                  type: 'group',
+                  fields: [
+                    { name: 'settlement', type: 'number' },
+                    { name: 'feePercentage', type: 'text' },
+                    { name: 'feeAmount', type: 'number' },
+                    { name: 'youKeep', type: 'number' },
+                    { name: 'increasePercentage', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'stateRanges',
+              type: 'json',
+              label: 'State-by-State Settlement Ranges (JSON object)',
+              admin: { description: 'Object with state abbreviations as keys: {"CA": {min: 25000, max: 75000, avg: 50000}, "TX": {...}}' },
+            },
+            {
+              name: 'ctaHeading',
+              type: 'text',
+              label: 'CTA Section Heading',
+            },
+            {
+              name: 'ctaBody',
+              type: 'textarea',
+              label: 'CTA Section Body Text',
+            },
           ],
         },
       ],
