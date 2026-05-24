@@ -491,15 +491,8 @@ export const GuideArticles: CollectionConfig = {
         {
           label: 'Content',
           fields: [
+            // ─── Basic Info ───────────────────────────────────────────────
             { name: 'title', type: 'text', admin: { description: '50-80 chars. Auto slug.' } },
-            {
-              type: 'row',
-              fields: [
-                { name: 'currentReaders', type: 'number', defaultValue: 1247 },
-                { name: 'citationCount', type: 'number', defaultValue: 47 },
-                { name: 'signalStrength', type: 'number', min: 0, max: 100, defaultValue: 94 },
-              ],
-            },
             { name: 'slug', type: 'text', index: true },
             { name: 'author', type: 'relationship', relationTo: 'authors' },
             {
@@ -516,47 +509,304 @@ export const GuideArticles: CollectionConfig = {
               defaultValue: 'guide',
               admin: { description: 'Determines which template renders this page' },
             },
+            // ─── Media & Summary ─────────────────────────────────────────
             { name: 'heroImage', type: 'upload', relationTo: 'media' },
             { name: 'excerpt', type: 'textarea', maxLength: 300 },
             { name: 'subtitle', type: 'text' },
             { name: 'executiveSummary', type: 'textarea' },
+            // ─── Main Content ────────────────────────────────────────────
+            { name: 'content', type: 'richText' },
+            // ─── AEO & Direct Answer ─────────────────────────────────────
+            { name: 'directAnswer', type: 'textarea', label: 'Direct Answer (AEO)' },
+            { name: 'aiCitationSummary', type: 'textarea', label: 'AI Citation Summary' },
+            { name: 'primaryAiQuery', type: 'text', label: 'Primary AI Query' },
+            // ─── FAQ Section ─────────────────────────────────────────────
+            {
+              name: 'faqSection',
+              type: 'array',
+              fields: [
+                { name: 'question', type: 'text' },
+                { name: 'answer', type: 'textarea' },
+              ],
+            },
+            // ─── Key Statistics ──────────────────────────────────────────
+            {
+              name: 'keyStatistics',
+              type: 'array',
+              fields: [
+                { name: 'text', type: 'text' },
+                { name: 'sourceName', type: 'text' },
+                { name: 'sourceUrl', type: 'text' },
+                { name: 'year', type: 'text' },
+              ],
+            },
+            // ─── Key Takeaways ───────────────────────────────────────────
             {
               name: 'keyTakeaways',
               type: 'array',
               fields: [{ name: 'point', type: 'text' }],
             },
+            // ─── TL;DR Action Plan ─────────────────────────────────────────
             {
-              name: 'roiTable',
-              type: 'group',
+              name: 'whatYouLearn',
+              type: 'array',
+              label: 'What You\'ll Learn (Table of Contents)',
               fields: [
-                { name: 'enableTable', type: 'checkbox', defaultValue: false },
-                { name: 'tableName', type: 'text', defaultValue: 'ROI Calculator Matrix' },
+                { name: 'icon', type: 'text', label: 'Icon name (AlertCircle, BookOpen, DollarSign, etc.)' },
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'text' },
+              ],
+            },
+            // ─── Immediate Steps ────────────────────────────────────────
+            {
+              name: 'immediateStepsTitle',
+              type: 'text',
+              label: 'Immediate Steps Section Title',
+            },
+            {
+              name: 'immediateStepsSubtitle',
+              type: 'text',
+              label: 'Immediate Steps Section Subtitle',
+            },
+            {
+              name: 'immediateSteps',
+              type: 'array',
+              label: 'Immediate Steps Section',
+              fields: [
+                { name: 'step', type: 'number' },
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'textarea' },
+                { name: 'bullets', type: 'array', fields: [{ name: 'bullet', type: 'text' }] },
+              ],
+            },
+            // ─── Attorney Comparison ─────────────────────────────────────
+            {
+              name: 'attorneyComparison',
+              type: 'array',
+              label: 'Attorney Comparison',
+              fields: [
+                { name: 'label', type: 'text' },
+                { name: 'withoutAttorney', type: 'textarea' },
+                { name: 'withAttorney', type: 'textarea' },
+              ],
+            },
+            // ─── Settlement Data ────────────────────────────────────────
+            {
+              name: 'settlementData',
+              type: 'group',
+              label: 'Settlement Data',
+              fields: [
+                { name: 'average', type: 'text' },
+                { name: 'successRate', type: 'text' },
+                { name: 'timeline', type: 'text' },
+                { name: 'upfrontCost', type: 'text' },
+                { name: 'minSettlement', type: 'text' },
+                { name: 'maxSettlement', type: 'text' },
+                { name: 'avgSettlement', type: 'text' },
                 {
-                  name: 'headers',
-                  type: 'group',
-                  fields: [
-                    { name: 'col1', type: 'text', required: true, defaultValue: 'Monthly lead spend' },
-                    { name: 'col2', type: 'text', required: true, defaultValue: 'Leads/month' },
-                    { name: 'col3', type: 'text', required: true, defaultValue: 'Current sign rate' },
-                    { name: 'col4', type: 'text', required: true, defaultValue: 'Additional cases/month at 5-min response' },
-                    { name: 'col5', type: 'text', required: true, defaultValue: 'Additional annual revenue' },
-                  ],
-                },
-                {
-                  name: 'rows',
+                  name: 'rangesByInjury',
                   type: 'array',
+                  label: 'Ranges by Injury Type',
                   fields: [
-                    { name: 'col1', type: 'text' },
-                    { name: 'col2', type: 'text' },
-                    { name: 'col3', type: 'text' },
-                    { name: 'col4', type: 'text' },
-                    { name: 'col5', type: 'text' },
+                    { name: 'injuryType', type: 'text' },
+                    { name: 'minAmount', type: 'text' },
+                    { name: 'maxAmount', type: 'text' },
+                    { name: 'recoveryTime', type: 'text' },
                   ],
                 },
               ],
             },
-            { name: 'content', type: 'richText' },
-            { name: 'tags', type: 'array', fields: [{ name: 'tag', type: 'text' }] },
+            // ─── State Ranges (JSON) ─────────────────────────────────────
+            {
+              name: 'stateRanges',
+              type: 'json',
+              label: 'State-by-State Settlement Ranges',
+              admin: { description: 'JSON object: {"CA": {min: 25000, max: 75000, avg: 50000}, "TX": {...}}' },
+            },
+            // ─── Statute of Limitations ────────────────────────────────
+            {
+              name: 'statuteOfLimitations',
+              type: 'group',
+              label: 'Statute of Limitations',
+              fields: [
+                { name: 'years', type: 'number' },
+                { name: 'description', type: 'textarea' },
+                {
+                  name: 'exceptions',
+                  type: 'array',
+                  fields: [{ name: 'exception', type: 'text' }],
+                },
+                {
+                  name: 'byState',
+                  type: 'array',
+                  label: 'By State',
+                  fields: [
+                    { name: 'state', type: 'text' },
+                    { name: 'years', type: 'number' },
+                    { name: 'notes', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            // ─── Client Testimonials ─────────────────────────────────────
+            {
+              name: 'testimonials',
+              type: 'array',
+              label: 'Client Testimonials',
+              fields: [
+                { name: 'name', type: 'text' },
+                { name: 'location', type: 'text' },
+                { name: 'settlement', type: 'text' },
+                { name: 'settlementValue', type: 'text' },
+                { name: 'injuryType', type: 'text' },
+                { name: 'caseType', type: 'text' },
+                { name: 'quote', type: 'textarea' },
+                { name: 'rating', type: 'number' },
+                { name: 'date', type: 'date' },
+                { name: 'caseResolutionTime', type: 'text' },
+              ],
+            },
+            // ─── Key Facts ───────────────────────────────────────────────
+            {
+              name: 'keyFacts',
+              type: 'array',
+              label: 'Key Facts Section',
+              fields: [
+                { name: 'stat', type: 'text' },
+                { name: 'label', type: 'text' },
+                { name: 'description', type: 'text' },
+              ],
+            },
+            // ─── 5 Things to Know ───────────────────────────────────────
+            {
+              name: 'fiveThingsToKnow',
+              type: 'array',
+              label: '5 Things You Need to Know',
+              fields: [
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'text' },
+              ],
+            },
+            // ─── Liability Section ──────────────────────────────────────
+            {
+              name: 'liabilityIntro',
+              type: 'textarea',
+              label: 'Liability Introduction Text',
+            },
+            {
+              name: 'liabilityParties',
+              type: 'array',
+              label: 'Potentially Liable Parties',
+              fields: [
+                { name: 'name', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            {
+              name: 'federalRegulations',
+              type: 'array',
+              label: 'Federal Regulations',
+              fields: [
+                { name: 'name', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            // ─── Mistakes to Avoid ──────────────────────────────────────
+            {
+              name: 'mistakesToAvoid',
+              type: 'array',
+              label: 'Critical Mistakes to Avoid',
+              fields: [
+                { name: 'title', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            // ─── Decision Matrix ─────────────────────────────────────────
+            {
+              name: 'decisionMatrix',
+              type: 'array',
+              label: 'Decision Matrix (When You Need Attorney)',
+              fields: [
+                { name: 'icon', type: 'text' },
+                { name: 'scenario', type: 'text' },
+                { name: 'description', type: 'textarea' },
+              ],
+            },
+            // ─── Math Comparison ─────────────────────────────────────────
+            {
+              name: 'mathComparison',
+              type: 'group',
+              label: 'The Math Section',
+              fields: [
+                { name: 'title', type: 'text' },
+                { name: 'subtitle', type: 'text' },
+                {
+                  name: 'withoutAttorney',
+                  type: 'group',
+                  fields: [
+                    { name: 'settlement', type: 'number' },
+                    { name: 'costs', type: 'number' },
+                    { name: 'youKeep', type: 'number' },
+                  ],
+                },
+                {
+                  name: 'withAttorney',
+                  type: 'group',
+                  fields: [
+                    { name: 'settlement', type: 'number' },
+                    { name: 'feePercentage', type: 'text' },
+                    { name: 'feeAmount', type: 'number' },
+                    { name: 'youKeep', type: 'number' },
+                    { name: 'increasePercentage', type: 'text' },
+                  ],
+                },
+              ],
+            },
+            // ─── CTA Section ─────────────────────────────────────────────
+            {
+              name: 'ctaHeading',
+              type: 'text',
+              label: 'CTA Section Heading',
+            },
+            {
+              name: 'ctaBody',
+              type: 'textarea',
+              label: 'CTA Section Body Text',
+            },
+            // ─── Difficulty & Time ─────────────────────────────────────
+            {
+              name: 'difficultyLevel',
+              type: 'select',
+              options: [{ label: 'Beginner', value: 'beginner' }, { label: 'Intermediate', value: 'intermediate' }, { label: 'Advanced', value: 'advanced' }],
+              admin: { description: 'Reader self-selection' },
+            },
+            {
+              name: 'estimatedCompletionTime',
+              type: 'text',
+              admin: { description: 'e.g., "5 min read"' },
+            },
+            // ─── Expert Info ────────────────────────────────────────────
+            {
+              name: 'expertQuotes',
+              type: 'array',
+              label: 'Expert Quotes',
+              fields: [
+                { name: 'quote', type: 'textarea' },
+                { name: 'speakerName', type: 'text' },
+                { name: 'credentials', type: 'text' },
+              ],
+            },
+            {
+              name: 'termDefinitions',
+              type: 'array',
+              label: 'Term Definitions',
+              fields: [
+                { name: 'term', type: 'text' },
+                { name: 'definition', type: 'textarea' },
+                { name: 'isProprietary', type: 'checkbox' },
+              ],
+            },
+            // ─── Relationships ──────────────────────────────────────────
             {
               name: 'relatedArticles',
               type: 'relationship',
@@ -571,6 +821,16 @@ export const GuideArticles: CollectionConfig = {
               hasMany: true,
               admin: { description: 'Cross-link to other guide articles' },
             },
+            // ─── Tags ───────────────────────────────────────────────────
+            { name: 'tags', type: 'array', fields: [{ name: 'tag', type: 'text' }] },
+          ],
+        },
+        // ─── GUIDE-SPECIFIC FIELDS (Auto-calculated - not user entry) ────────────
+        {
+          label: 'Guide Metrics',
+          fields: [
+            // These are auto-calculated or backend-calculated fields
+            // User entry fields have been moved to Content tab
           ],
         },
         // ─── SEO Core ───────────────────────────────────────────────────
@@ -596,49 +856,13 @@ export const GuideArticles: CollectionConfig = {
             { name: 'contentGap', type: 'array', fields: [{ name: 'gap', type: 'text' }] },
           ],
         },
-        // ─── AEO and AI Citation ────────────────────────────────────────
+        // ─── AEO and AI Citation (remaining fields - most moved to Content) ───
         {
           label: 'AEO and AI Citation',
           fields: [
-            { name: 'directAnswer', type: 'textarea' },
-            { name: 'aiCitationSummary', type: 'textarea' },
-            { name: 'primaryAiQuery', type: 'text' },
-            {
-              name: 'keyStatistics',
-              type: 'array',
-              fields: [
-                { name: 'text', type: 'text' },
-                { name: 'sourceName', type: 'text' },
-                { name: 'sourceUrl', type: 'text' },
-                { name: 'year', type: 'text' },
-              ],
-            },
-            {
-              name: 'faqSection',
-              type: 'array',
-              fields: [
-                { name: 'question', type: 'text' },
-                { name: 'answer', type: 'textarea' },
-              ],
-            },
-            {
-              name: 'termDefinitions',
-              type: 'array',
-              fields: [
-                { name: 'term', type: 'text' },
-                { name: 'definition', type: 'textarea' },
-                { name: 'isProprietary', type: 'checkbox' },
-              ],
-            },
-            {
-              name: 'expertQuotes',
-              type: 'array',
-              fields: [
-                { name: 'quote', type: 'textarea' },
-                { name: 'speakerName', type: 'text' },
-                { name: 'credentials', type: 'text' },
-              ],
-            },
+            // Note: directAnswer, keyStatistics, faqSection, expertQuotes, termDefinitions,
+            // primaryAiQuery, aiCitationSummary moved to Content tab for better UX
+            // Remaining fields here are supplemental AI/voice optimization fields
           ],
         },
         // ─── Voice Search ───────────────────────────────────────────────
@@ -1149,241 +1373,20 @@ export const GuideArticles: CollectionConfig = {
             },
           ],
         },
-        // ─── GUIDE-SPECIFIC FIELDS ───────────────────────────────────────
-        {
-          label: 'Guide Specific',
-          fields: [
-            {
-              name: 'difficultyLevel',
-              type: 'select',
-              options: [{ label: 'Beginner', value: 'beginner' }, { label: 'Intermediate', value: 'intermediate' }, { label: 'Advanced', value: 'advanced' }],
-              admin: { description: 'Reader self-selection' },
-            },
-            {
-              name: 'estimatedCompletionTime',
-              type: 'text',
-              admin: { description: 'e.g., "5 min read"' },
-            },
-            {
-              name: 'testimonials',
-              type: 'array',
-              label: 'Client Testimonials',
-              fields: [
-                { name: 'name', type: 'text' },
-                { name: 'location', type: 'text' },
-                { name: 'settlement', type: 'text' },
-                { name: 'settlementValue', type: 'text' },
-                { name: 'injuryType', type: 'text' },
-                { name: 'caseType', type: 'text' },
-                { name: 'quote', type: 'textarea' },
-                { name: 'rating', type: 'number' },
-                { name: 'date', type: 'date' },
-                { name: 'caseResolutionTime', type: 'text' },
-              ],
-            },
-            {
-              name: 'settlementData',
-              type: 'group',
-              label: 'Settlement Data',
-              fields: [
-                { name: 'average', type: 'text' },
-                { name: 'successRate', type: 'text' },
-                { name: 'timeline', type: 'text' },
-                { name: 'upfrontCost', type: 'text' },
-                { name: 'minSettlement', type: 'text' },
-                { name: 'maxSettlement', type: 'text' },
-                { name: 'avgSettlement', type: 'text' },
-                {
-                  name: 'rangesByInjury',
-                  type: 'array',
-                  label: 'Ranges by Injury Type',
-                  fields: [
-                    { name: 'injuryType', type: 'text' },
-                    { name: 'minAmount', type: 'text' },
-                    { name: 'maxAmount', type: 'text' },
-                    { name: 'recoveryTime', type: 'text' },
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'statuteOfLimitations',
-              type: 'group',
-              label: 'Statute of Limitations',
-              fields: [
-                { name: 'years', type: 'number' },
-                { name: 'description', type: 'textarea' },
-                {
-                  name: 'exceptions',
-                  type: 'array',
-                  fields: [{ name: 'exception', type: 'text' }],
-                },
-                {
-                  name: 'byState',
-                  type: 'array',
-                  label: 'By State',
-                  fields: [
-                    { name: 'state', type: 'text' },
-                    { name: 'years', type: 'number' },
-                    { name: 'notes', type: 'text' },
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'attorneyComparison',
-              type: 'array',
-              label: 'Attorney Comparison',
-              fields: [
-                { name: 'label', type: 'text' },
-                { name: 'withoutAttorney', type: 'textarea' },
-                { name: 'withAttorney', type: 'textarea' },
-              ],
-            },
-            // ─── NEW: Article Sections (matching prototype) ───────────────
-            {
-              name: 'whatYouLearn',
-              type: 'array',
-              label: 'What You\'ll Learn (Table of Contents)',
-              fields: [
-                { name: 'icon', type: 'text', label: 'Icon name (AlertCircle, BookOpen, DollarSign, etc.)' },
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'text' },
-              ],
-            },
-            {
-              name: 'immediateSteps',
-              type: 'array',
-              label: 'Immediate Steps Section',
-              fields: [
-                { name: 'step', type: 'number' },
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'textarea' },
-                { name: 'bullets', type: 'array', fields: [{ name: 'bullet', type: 'text' }] },
-              ],
-            },
-            {
-              name: 'immediateStepsTitle',
-              type: 'text',
-              label: 'Immediate Steps Section Title',
-            },
-            {
-              name: 'immediateStepsSubtitle',
-              type: 'text',
-              label: 'Immediate Steps Section Subtitle',
-            },
-            {
-              name: 'keyFacts',
-              type: 'array',
-              label: 'Key Facts Section',
-              fields: [
-                { name: 'stat', type: 'text' },
-                { name: 'label', type: 'text' },
-                { name: 'description', type: 'text' },
-              ],
-            },
-            {
-              name: 'fiveThingsToKnow',
-              type: 'array',
-              label: '5 Things You Need to Know',
-              fields: [
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'text' },
-              ],
-            },
-            {
-              name: 'liabilityParties',
-              type: 'array',
-              label: 'Potentially Liable Parties',
-              fields: [
-                { name: 'name', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            {
-              name: 'liabilityIntro',
-              type: 'textarea',
-              label: 'Liability Introduction Text',
-            },
-            {
-              name: 'federalRegulations',
-              type: 'array',
-              label: 'Federal Regulations',
-              fields: [
-                { name: 'name', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            {
-              name: 'decisionMatrix',
-              type: 'array',
-              label: 'Decision Matrix (When You Need Attorney)',
-              fields: [
-                { name: 'icon', type: 'text' },
-                { name: 'scenario', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            {
-              name: 'mistakesToAvoid',
-              type: 'array',
-              label: 'Critical Mistakes to Avoid',
-              fields: [
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            {
-              name: 'mathComparison',
-              type: 'group',
-              label: 'The Math Section',
-              fields: [
-                { name: 'title', type: 'text' },
-                { name: 'subtitle', type: 'text' },
-                {
-                  name: 'withoutAttorney',
-                  type: 'group',
-                  fields: [
-                    { name: 'settlement', type: 'number' },
-                    { name: 'costs', type: 'number' },
-                    { name: 'youKeep', type: 'number' },
-                  ],
-                },
-                {
-                  name: 'withAttorney',
-                  type: 'group',
-                  fields: [
-                    { name: 'settlement', type: 'number' },
-                    { name: 'feePercentage', type: 'text' },
-                    { name: 'feeAmount', type: 'number' },
-                    { name: 'youKeep', type: 'number' },
-                    { name: 'increasePercentage', type: 'text' },
-                  ],
-                },
-              ],
-            },
-            {
-              name: 'stateRanges',
-              type: 'json',
-              label: 'State-by-State Settlement Ranges (JSON object)',
-              admin: { description: 'Object with state abbreviations as keys: {"CA": {min: 25000, max: 75000, avg: 50000}, "TX": {...}}' },
-            },
-            {
-              name: 'ctaHeading',
-              type: 'text',
-              label: 'CTA Section Heading',
-            },
-            {
-              name: 'ctaBody',
-              type: 'textarea',
-              label: 'CTA Section Body Text',
-            },
-          ],
-        },
       ],
     },
 
     // ─── Sidebar Fields ─────────────────────────────────────────────────
+    {
+      name: 'previewButton',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '@/components/admin/GuidePreviewButton',
+        },
+      },
+    },
     { name: 'publishedDate', type: 'date', admin: { position: 'sidebar' } },
     { name: 'updatedAt', type: 'date', admin: { position: 'sidebar', readOnly: true } },
     { name: 'aeoScore', type: 'number', admin: { position: 'sidebar', readOnly: true } },

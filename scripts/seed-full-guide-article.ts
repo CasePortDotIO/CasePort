@@ -143,7 +143,6 @@ async function seedFullGuideArticle() {
         title: 'What To Do After a Car Accident',
         slug: 'car-accident-what-to-do',
         excerpt: 'Step-by-step guide for the first 72 hours after a car accident. Attorney-reviewed action plan.',
-        description: 'What To Do After a Car Accident - The first 72 hours are critical',
         pageType: 'guide',
         guideCategory: category.id,
         _status: 'published',

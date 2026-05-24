@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
+type CollectionSlug = 'articles' | 'guideArticles'
+
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
   const slug = searchParams.get('slug')
   const id = searchParams.get('id')
+  const collectionParam = searchParams.get('collection') || 'articles'
 
   if (!slug && !id) {
     return NextResponse.json(
@@ -14,21 +17,21 @@ export async function GET(req: NextRequest) {
     )
   }
 
+  const collectionSlug: CollectionSlug = collectionParam === 'guideArticles' ? 'guideArticles' : 'articles'
+
   try {
     const payload = await getPayload({ config })
 
     let article: any
     if (id) {
-      // When we have the ID, we can directly fetch by ID with drafts
       article = await payload.findByID({
-        collection: 'articles',
+        collection: collectionSlug,
         id,
         draft: true,
       })
     } else {
-      // For slug-based lookup with drafts, we need to query with both slug and _status
       const result = await payload.find({
-        collection: 'articles',
+        collection: collectionSlug,
         where: {
           slug: { equals: slug },
         },
@@ -42,9 +45,15 @@ export async function GET(req: NextRequest) {
     }
 
     const targetSlug = article.slug
-    // Use NEXT_PUBLIC_SITE_URL if set, otherwise use the request's origin
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin
-    const frontendUrl = `${siteUrl}/insights/${targetSlug}?preview=true&draft=${article.id}`
+
+    let frontendUrl: string
+    if (collectionSlug === 'guideArticles') {
+      const categorySlug = article.guideCategory?.slug || article.guideCategory
+      frontendUrl = `${siteUrl}/guide/${categorySlug}/${targetSlug}?preview=true&draft=${article.id}`
+    } else {
+      frontendUrl = `${siteUrl}/insights/${targetSlug}?preview=true&draft=${article.id}`
+    }
 
     return NextResponse.redirect(frontendUrl)
   } catch (error) {

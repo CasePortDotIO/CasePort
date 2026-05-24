@@ -128,10 +128,10 @@ export default function StateGuideClient({ article, stateName, stateCode }: Stat
                   <div className="bg-[#f0f8f6] border-l-4 border-[#4a8c7e] p-4 rounded">
                     <h3 className="font-semibold text-[#1a4a5a] mb-3">Exceptions & Tolling</h3>
                     <ul className="space-y-2">
-                      {statuteExceptions.map((exception: string, idx: number) => (
+                      {statuteExceptions.map((exc: any, idx: number) => (
                         <li key={idx} className="flex items-start gap-3 text-sm text-[#333]">
                           <CheckCircle size={16} className="text-[#4a8c7e] mt-0.5 flex-shrink-0" />
-                          <span>{exception}</span>
+                          <span>{typeof exc === 'object' ? exc.exception : exc}</span>
                         </li>
                       ))}
                     </ul>

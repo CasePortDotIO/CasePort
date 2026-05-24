@@ -475,9 +475,6 @@ export interface GuideArticle {
    * 50-80 chars. Auto slug.
    */
   title?: string | null;
-  currentReaders?: number | null;
-  citationCount?: number | null;
-  signalStrength?: number | null;
   slug?: string | null;
   author?: (string | null) | Author;
   /**
@@ -492,33 +489,6 @@ export interface GuideArticle {
   excerpt?: string | null;
   subtitle?: string | null;
   executiveSummary?: string | null;
-  keyTakeaways?:
-    | {
-        point?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  roiTable: {
-    enableTable?: boolean | null;
-    tableName?: string | null;
-    headers: {
-      col1: string;
-      col2: string;
-      col3: string;
-      col4: string;
-      col5: string;
-    };
-    rows?:
-      | {
-          col1?: string | null;
-          col2?: string | null;
-          col3?: string | null;
-          col4?: string | null;
-          col5?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
   content?: {
     root: {
       type: string;
@@ -534,9 +504,210 @@ export interface GuideArticle {
     };
     [k: string]: unknown;
   } | null;
-  tags?:
+  directAnswer?: string | null;
+  aiCitationSummary?: string | null;
+  primaryAiQuery?: string | null;
+  faqSection?:
     | {
-        tag?: string | null;
+        question?: string | null;
+        answer?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  keyStatistics?:
+    | {
+        text?: string | null;
+        sourceName?: string | null;
+        sourceUrl?: string | null;
+        year?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  keyTakeaways?:
+    | {
+        point?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  whatYouLearn?:
+    | {
+        icon?: string | null;
+        title?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  immediateStepsTitle?: string | null;
+  immediateStepsSubtitle?: string | null;
+  immediateSteps?:
+    | {
+        step?: number | null;
+        title?: string | null;
+        description?: string | null;
+        bullets?:
+          | {
+              bullet?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  attorneyComparison?:
+    | {
+        label?: string | null;
+        withoutAttorney?: string | null;
+        withAttorney?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  settlementData?: {
+    average?: string | null;
+    successRate?: string | null;
+    timeline?: string | null;
+    upfrontCost?: string | null;
+    minSettlement?: string | null;
+    maxSettlement?: string | null;
+    avgSettlement?: string | null;
+    rangesByInjury?:
+      | {
+          injuryType?: string | null;
+          minAmount?: string | null;
+          maxAmount?: string | null;
+          recoveryTime?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * JSON object: {"CA": {min: 25000, max: 75000, avg: 50000}, "TX": {...}}
+   */
+  stateRanges?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  statuteOfLimitations?: {
+    years?: number | null;
+    description?: string | null;
+    exceptions?:
+      | {
+          exception?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    byState?:
+      | {
+          state?: string | null;
+          years?: number | null;
+          notes?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  testimonials?:
+    | {
+        name?: string | null;
+        location?: string | null;
+        settlement?: string | null;
+        settlementValue?: string | null;
+        injuryType?: string | null;
+        caseType?: string | null;
+        quote?: string | null;
+        rating?: number | null;
+        date?: string | null;
+        caseResolutionTime?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  keyFacts?:
+    | {
+        stat?: string | null;
+        label?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  fiveThingsToKnow?:
+    | {
+        title?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  liabilityIntro?: string | null;
+  liabilityParties?:
+    | {
+        name?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  federalRegulations?:
+    | {
+        name?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  mistakesToAvoid?:
+    | {
+        title?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  decisionMatrix?:
+    | {
+        icon?: string | null;
+        scenario?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  mathComparison?: {
+    title?: string | null;
+    subtitle?: string | null;
+    withoutAttorney?: {
+      settlement?: number | null;
+      costs?: number | null;
+      youKeep?: number | null;
+    };
+    withAttorney?: {
+      settlement?: number | null;
+      feePercentage?: string | null;
+      feeAmount?: number | null;
+      youKeep?: number | null;
+      increasePercentage?: string | null;
+    };
+  };
+  ctaHeading?: string | null;
+  ctaBody?: string | null;
+  /**
+   * Reader self-selection
+   */
+  difficultyLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
+  /**
+   * e.g., "5 min read"
+   */
+  estimatedCompletionTime?: string | null;
+  expertQuotes?:
+    | {
+        quote?: string | null;
+        speakerName?: string | null;
+        credentials?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  termDefinitions?:
+    | {
+        term?: string | null;
+        definition?: string | null;
+        isProprietary?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -548,6 +719,12 @@ export interface GuideArticle {
    * Cross-link to other guide articles
    */
   relatedGuides?: (string | GuideArticle)[] | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   focusKeyword?: string | null;
   keywordDifficulty?: number | null;
   monthlySearchVolume?: number | null;
@@ -572,41 +749,6 @@ export interface GuideArticle {
   contentGap?:
     | {
         gap?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  directAnswer?: string | null;
-  aiCitationSummary?: string | null;
-  primaryAiQuery?: string | null;
-  keyStatistics?:
-    | {
-        text?: string | null;
-        sourceName?: string | null;
-        sourceUrl?: string | null;
-        year?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  faqSection?:
-    | {
-        question?: string | null;
-        answer?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  termDefinitions?:
-    | {
-        term?: string | null;
-        definition?: string | null;
-        isProprietary?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  expertQuotes?:
-    | {
-        quote?: string | null;
-        speakerName?: string | null;
-        credentials?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -954,172 +1096,6 @@ export interface GuideArticle {
     formToLeadRate?: number | null;
     leadToCaseRate?: number | null;
   };
-  /**
-   * Reader self-selection
-   */
-  difficultyLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
-  /**
-   * e.g., "5 min read"
-   */
-  estimatedCompletionTime?: string | null;
-  testimonials?:
-    | {
-        name?: string | null;
-        location?: string | null;
-        settlement?: string | null;
-        settlementValue?: string | null;
-        injuryType?: string | null;
-        caseType?: string | null;
-        quote?: string | null;
-        rating?: number | null;
-        date?: string | null;
-        caseResolutionTime?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  settlementData?: {
-    average?: string | null;
-    successRate?: string | null;
-    timeline?: string | null;
-    upfrontCost?: string | null;
-    minSettlement?: string | null;
-    maxSettlement?: string | null;
-    avgSettlement?: string | null;
-    rangesByInjury?:
-      | {
-          injuryType?: string | null;
-          minAmount?: string | null;
-          maxAmount?: string | null;
-          recoveryTime?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  statuteOfLimitations?: {
-    years?: number | null;
-    description?: string | null;
-    exceptions?:
-      | {
-          exception?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    byState?:
-      | {
-          state?: string | null;
-          years?: number | null;
-          notes?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  attorneyComparison?:
-    | {
-        label?: string | null;
-        withoutAttorney?: string | null;
-        withAttorney?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  whatYouLearn?:
-    | {
-        icon?: string | null;
-        title?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  immediateSteps?:
-    | {
-        step?: number | null;
-        title?: string | null;
-        description?: string | null;
-        bullets?:
-          | {
-              bullet?: string | null;
-              id?: string | null;
-            }[]
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  immediateStepsTitle?: string | null;
-  immediateStepsSubtitle?: string | null;
-  keyFacts?:
-    | {
-        stat?: string | null;
-        label?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  fiveThingsToKnow?:
-    | {
-        title?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  liabilityParties?:
-    | {
-        name?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  liabilityIntro?: string | null;
-  federalRegulations?:
-    | {
-        name?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  decisionMatrix?:
-    | {
-        icon?: string | null;
-        scenario?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  mistakesToAvoid?:
-    | {
-        title?: string | null;
-        description?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  mathComparison?: {
-    title?: string | null;
-    subtitle?: string | null;
-    withoutAttorney?: {
-      settlement?: number | null;
-      costs?: number | null;
-      youKeep?: number | null;
-    };
-    withAttorney?: {
-      settlement?: number | null;
-      feePercentage?: string | null;
-      feeAmount?: number | null;
-      youKeep?: number | null;
-      increasePercentage?: string | null;
-    };
-  };
-  /**
-   * Object with state abbreviations as keys: {"CA": {min: 25000, max: 75000, avg: 50000}, "TX": {...}}
-   */
-  stateRanges?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  ctaHeading?: string | null;
-  ctaBody?: string | null;
   publishedDate?: string | null;
   updatedAt: string;
   aeoScore?: number | null;
@@ -2134,9 +2110,6 @@ export interface GuideCategoriesSelect<T extends boolean = true> {
  */
 export interface GuideArticlesSelect<T extends boolean = true> {
   title?: T;
-  currentReaders?: T;
-  citationCount?: T;
-  signalStrength?: T;
   slug?: T;
   author?: T;
   guideCategory?: T;
@@ -2145,46 +2118,215 @@ export interface GuideArticlesSelect<T extends boolean = true> {
   excerpt?: T;
   subtitle?: T;
   executiveSummary?: T;
+  content?: T;
+  directAnswer?: T;
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
+  faqSection?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  keyStatistics?:
+    | T
+    | {
+        text?: T;
+        sourceName?: T;
+        sourceUrl?: T;
+        year?: T;
+        id?: T;
+      };
   keyTakeaways?:
     | T
     | {
         point?: T;
         id?: T;
       };
-  roiTable?:
+  whatYouLearn?:
     | T
     | {
-        enableTable?: T;
-        tableName?: T;
-        headers?:
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  immediateStepsTitle?: T;
+  immediateStepsSubtitle?: T;
+  immediateSteps?:
+    | T
+    | {
+        step?: T;
+        title?: T;
+        description?: T;
+        bullets?:
           | T
           | {
-              col1?: T;
-              col2?: T;
-              col3?: T;
-              col4?: T;
-              col5?: T;
+              bullet?: T;
+              id?: T;
             };
-        rows?:
+        id?: T;
+      };
+  attorneyComparison?:
+    | T
+    | {
+        label?: T;
+        withoutAttorney?: T;
+        withAttorney?: T;
+        id?: T;
+      };
+  settlementData?:
+    | T
+    | {
+        average?: T;
+        successRate?: T;
+        timeline?: T;
+        upfrontCost?: T;
+        minSettlement?: T;
+        maxSettlement?: T;
+        avgSettlement?: T;
+        rangesByInjury?:
           | T
           | {
-              col1?: T;
-              col2?: T;
-              col3?: T;
-              col4?: T;
-              col5?: T;
+              injuryType?: T;
+              minAmount?: T;
+              maxAmount?: T;
+              recoveryTime?: T;
               id?: T;
             };
       };
-  content?: T;
+  stateRanges?: T;
+  statuteOfLimitations?:
+    | T
+    | {
+        years?: T;
+        description?: T;
+        exceptions?:
+          | T
+          | {
+              exception?: T;
+              id?: T;
+            };
+        byState?:
+          | T
+          | {
+              state?: T;
+              years?: T;
+              notes?: T;
+              id?: T;
+            };
+      };
+  testimonials?:
+    | T
+    | {
+        name?: T;
+        location?: T;
+        settlement?: T;
+        settlementValue?: T;
+        injuryType?: T;
+        caseType?: T;
+        quote?: T;
+        rating?: T;
+        date?: T;
+        caseResolutionTime?: T;
+        id?: T;
+      };
+  keyFacts?:
+    | T
+    | {
+        stat?: T;
+        label?: T;
+        description?: T;
+        id?: T;
+      };
+  fiveThingsToKnow?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  liabilityIntro?: T;
+  liabilityParties?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        id?: T;
+      };
+  federalRegulations?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        id?: T;
+      };
+  mistakesToAvoid?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  decisionMatrix?:
+    | T
+    | {
+        icon?: T;
+        scenario?: T;
+        description?: T;
+        id?: T;
+      };
+  mathComparison?:
+    | T
+    | {
+        title?: T;
+        subtitle?: T;
+        withoutAttorney?:
+          | T
+          | {
+              settlement?: T;
+              costs?: T;
+              youKeep?: T;
+            };
+        withAttorney?:
+          | T
+          | {
+              settlement?: T;
+              feePercentage?: T;
+              feeAmount?: T;
+              youKeep?: T;
+              increasePercentage?: T;
+            };
+      };
+  ctaHeading?: T;
+  ctaBody?: T;
+  difficultyLevel?: T;
+  estimatedCompletionTime?: T;
+  expertQuotes?:
+    | T
+    | {
+        quote?: T;
+        speakerName?: T;
+        credentials?: T;
+        id?: T;
+      };
+  termDefinitions?:
+    | T
+    | {
+        term?: T;
+        definition?: T;
+        isProprietary?: T;
+        id?: T;
+      };
+  relatedArticles?: T;
+  relatedGuides?: T;
   tags?:
     | T
     | {
         tag?: T;
         id?: T;
       };
-  relatedArticles?: T;
-  relatedGuides?: T;
   focusKeyword?: T;
   keywordDifficulty?: T;
   monthlySearchVolume?: T;
@@ -2210,41 +2352,6 @@ export interface GuideArticlesSelect<T extends boolean = true> {
     | T
     | {
         gap?: T;
-        id?: T;
-      };
-  directAnswer?: T;
-  aiCitationSummary?: T;
-  primaryAiQuery?: T;
-  keyStatistics?:
-    | T
-    | {
-        text?: T;
-        sourceName?: T;
-        sourceUrl?: T;
-        year?: T;
-        id?: T;
-      };
-  faqSection?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
-        id?: T;
-      };
-  termDefinitions?:
-    | T
-    | {
-        term?: T;
-        definition?: T;
-        isProprietary?: T;
-        id?: T;
-      };
-  expertQuotes?:
-    | T
-    | {
-        quote?: T;
-        speakerName?: T;
-        credentials?: T;
         id?: T;
       };
   voiceAnswer?: T;
@@ -2506,165 +2613,6 @@ export interface GuideArticlesSelect<T extends boolean = true> {
         formToLeadRate?: T;
         leadToCaseRate?: T;
       };
-  difficultyLevel?: T;
-  estimatedCompletionTime?: T;
-  testimonials?:
-    | T
-    | {
-        name?: T;
-        location?: T;
-        settlement?: T;
-        settlementValue?: T;
-        injuryType?: T;
-        caseType?: T;
-        quote?: T;
-        rating?: T;
-        date?: T;
-        caseResolutionTime?: T;
-        id?: T;
-      };
-  settlementData?:
-    | T
-    | {
-        average?: T;
-        successRate?: T;
-        timeline?: T;
-        upfrontCost?: T;
-        minSettlement?: T;
-        maxSettlement?: T;
-        avgSettlement?: T;
-        rangesByInjury?:
-          | T
-          | {
-              injuryType?: T;
-              minAmount?: T;
-              maxAmount?: T;
-              recoveryTime?: T;
-              id?: T;
-            };
-      };
-  statuteOfLimitations?:
-    | T
-    | {
-        years?: T;
-        description?: T;
-        exceptions?:
-          | T
-          | {
-              exception?: T;
-              id?: T;
-            };
-        byState?:
-          | T
-          | {
-              state?: T;
-              years?: T;
-              notes?: T;
-              id?: T;
-            };
-      };
-  attorneyComparison?:
-    | T
-    | {
-        label?: T;
-        withoutAttorney?: T;
-        withAttorney?: T;
-        id?: T;
-      };
-  whatYouLearn?:
-    | T
-    | {
-        icon?: T;
-        title?: T;
-        description?: T;
-        id?: T;
-      };
-  immediateSteps?:
-    | T
-    | {
-        step?: T;
-        title?: T;
-        description?: T;
-        bullets?:
-          | T
-          | {
-              bullet?: T;
-              id?: T;
-            };
-        id?: T;
-      };
-  immediateStepsTitle?: T;
-  immediateStepsSubtitle?: T;
-  keyFacts?:
-    | T
-    | {
-        stat?: T;
-        label?: T;
-        description?: T;
-        id?: T;
-      };
-  fiveThingsToKnow?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        id?: T;
-      };
-  liabilityParties?:
-    | T
-    | {
-        name?: T;
-        description?: T;
-        id?: T;
-      };
-  liabilityIntro?: T;
-  federalRegulations?:
-    | T
-    | {
-        name?: T;
-        description?: T;
-        id?: T;
-      };
-  decisionMatrix?:
-    | T
-    | {
-        icon?: T;
-        scenario?: T;
-        description?: T;
-        id?: T;
-      };
-  mistakesToAvoid?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        id?: T;
-      };
-  mathComparison?:
-    | T
-    | {
-        title?: T;
-        subtitle?: T;
-        withoutAttorney?:
-          | T
-          | {
-              settlement?: T;
-              costs?: T;
-              youKeep?: T;
-            };
-        withAttorney?:
-          | T
-          | {
-              settlement?: T;
-              feePercentage?: T;
-              feeAmount?: T;
-              youKeep?: T;
-              increasePercentage?: T;
-            };
-      };
-  stateRanges?: T;
-  ctaHeading?: T;
-  ctaBody?: T;
   publishedDate?: T;
   updatedAt?: T;
   aeoScore?: T;
