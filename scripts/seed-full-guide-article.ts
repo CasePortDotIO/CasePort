@@ -146,7 +146,6 @@ async function seedFullGuideArticle() {
         pageType: 'guide',
         guideCategory: category.id,
         _status: 'published',
-        _isSeeding: true,
         difficultyLevel: 'beginner',
         estimatedCompletionTime: '8 min read',
         whatYouLearn: [
