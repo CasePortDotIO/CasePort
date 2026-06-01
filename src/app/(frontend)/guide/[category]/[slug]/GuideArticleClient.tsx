@@ -59,9 +59,31 @@ export default function GuideArticleClient({ article, category, isPreview = fals
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Helper: safely extract string from value that might be {value, label, id} or already a string
+  const toString = (val: any): string => {
+    if (typeof val === 'string') return val
+    if (val === null || val === undefined) return ''
+    if (typeof val === 'number') return String(val)
+    if (Array.isArray(val)) return val.map((item) => toString(item)).filter(Boolean).join(', ')
+    if (val.value) return String(val.value)
+    if (val.label) return String(val.label)
+    return JSON.stringify(val)
+  }
+
+  // Helper: safely convert any array item to string
+  const stringify = (arr: any[]): string[] => arr?.map(toString) || []
+
   // Data fallbacks
   const tldrItems = article.tldrItems || article.actionPlan || article.howToSteps || []
-  const keyTakeaways = article.keyTakeaways?.map((k: any) => k.point || k) || []
+  const directAnswerText = typeof article.directAnswer === 'string'
+    ? article.directAnswer
+    : article.directAnswer?.value || ''
+  const keyTakeaways = article.keyTakeaways?.map((k: any) => {
+    if (typeof k === 'string') return k
+    if (k.point) return k.point
+    if (k.value) return k.value
+    return String(k.value || k.label || '')
+  }) || []
   const faqItems = article.faqSection || []
   const testimonials = article.testimonials || []
   const stateRanges = article.stateRanges ? Object.entries(article.stateRanges).map(([state, data]: [string, any]) => ({
@@ -82,8 +104,31 @@ export default function GuideArticleClient({ article, category, isPreview = fals
   const decisionMatrix = article.decisionMatrix || []
   const mathComparison = article.mathComparison || {}
 
-  const categorySlug = typeof category === 'object' ? category.slug : article.guideCategory?.slug
-  const categoryTitle = typeof category === 'object' ? category.title : article.guideCategory?.title || 'Guide'
+  // targetStates/targetCities can be [{value, label, id}] or just strings - normalize to string[]
+  const targetStates = Array.isArray(article.targetStates)
+    ? article.targetStates.map((s: any) => typeof s === 'string' ? s : s.value || String(s)).filter(Boolean)
+    : []
+  const targetCities = Array.isArray(article.targetCities)
+    ? article.targetCities.map((c: any) => typeof c === 'string' ? c : c.value || String(c)).filter(Boolean)
+    : []
+
+  // Normalize contentUpdateHistory items
+  const contentUpdateHistory = (article.contentUpdateHistory || []).map((log: any) => ({
+    date: toString(log.date),
+    change: toString(log.change),
+  }))
+
+  const categorySlug = typeof category === 'object' && category?.slug
+    ? category.slug
+    : typeof article.guideCategory === 'object' && article.guideCategory?.slug
+      ? article.guideCategory.slug
+      : 'guide'
+
+  const categoryTitle = typeof category === 'object' && category?.title
+    ? category.title
+    : typeof article.guideCategory === 'object' && article.guideCategory?.title
+      ? article.guideCategory.title
+      : 'Guide'
 
   const currentStateRange = (article.stateRanges || {})[selectedState]
 
@@ -109,16 +154,10 @@ export default function GuideArticleClient({ article, category, isPreview = fals
   ]
 
   const authorInfo = {
-    name: article.author?.name || 'Sarah Mitchell, Esq.',
-    credentials: article.author?.credentials || 'Personal Injury Attorney | 15+ years experience | Board Certified',
-    recovered: article.author?.recovered || '$50M+ Recovered',
+    name: toString(article.author?.name) || 'Sarah Mitchell, Esq.',
+    credentials: toString(article.author?.credentials) || 'Personal Injury Attorney | 15+ years experience | Board Certified',
+    recovered: toString(article.author?.recovered) || '$50M+ Recovered',
   }
-
-  const contentUpdateHistory = article.contentUpdateHistory || [
-    { date: '2026-04-28', change: 'Updated settlement ranges based on 2026 Q1 data' },
-    { date: '2026-04-15', change: 'Added new case studies and statute of limitations table' },
-    { date: '2026-04-01', change: 'Initial publication' }
-  ]
 
   return (
     <div style={{ backgroundColor: '#f9f5ef', minHeight: '100vh' }}>
@@ -244,7 +283,7 @@ export default function GuideArticleClient({ article, category, isPreview = fals
                 Direct Answer
               </div>
               <p style={{ margin: 0, color: '#555', lineHeight: '1.8', fontSize: isMobileView ? '18px' : '21px', fontWeight: '500' }}>
-                {article.directAnswer}
+                {directAnswerText}
               </p>
             </div>
           </div>
@@ -256,9 +295,11 @@ export default function GuideArticleClient({ article, category, isPreview = fals
                 TL;DR - {categoryTitle} Action Plan
               </div>
               <ol style={{ margin: 0, paddingLeft: isMobileView ? '16px' : '20px', color: '#555', fontSize: isMobileView ? '17px' : '20px', lineHeight: '1.8', fontWeight: '500' }}>
-                {tldrItems.map((item: any, idx: number) => (
-                  <li key={idx}><strong>{item.action || item.title}:</strong> {item.description || item.timeNote || ''}</li>
-                ))}
+                {tldrItems.map((item: any, idx: number) => {
+                  const title = typeof item === 'string' ? item : (item.action || item.title || '')
+                  const desc = typeof item === 'string' ? '' : (item.description || item.timeNote || '')
+                  return <li key={idx}><strong>{title}:</strong> {desc}</li>
+                })}
               </ol>
             </div>
           </div>
