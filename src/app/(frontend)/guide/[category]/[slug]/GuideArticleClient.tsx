@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ChevronRight, ChevronDown, ChevronUp, CheckCircle2, ArrowRight, AlertCircle, AlertTriangle, CheckCircle, Camera, Phone, FileText, MapPin, Users } from 'lucide-react'
 
@@ -22,11 +22,718 @@ const iconMap: Record<string, any> = {
   Users,
 }
 
+// ─── Block Renderer ──────────────────────────────────────────────────────────
+
+type Block = {
+  blockType: string
+  [key: string]: any
+}
+
+const BlockRenderer = ({ blocks }: { blocks: Block[] }) => {
+  if (!blocks || blocks.length === 0) return null
+
+  const renderBlock = (block: Block, idx: number) => {
+    switch (block.blockType) {
+      // ── Standfirst ───────────────────────────────────────────────
+      case 'standfirst': {
+        return (
+          <div key={idx} id="block-standfirst" style={{ marginBottom: '32px' }}>
+            <p style={{ fontSize: '22px', color: '#555', lineHeight: '1.7', fontWeight: '500', fontStyle: 'italic', borderLeft: '4px solid #c4714a', paddingLeft: '20px' }}>
+              {block.text}
+            </p>
+          </div>
+        )
+      }
+
+      // ── Direct Answer ─────────────────────────────────────────────
+      case 'directAnswer': {
+        return (
+          <div key={idx} id="block-direct-answer" style={{ marginBottom: '56px', animation: 'fadeIn 0.5s ease' }}>
+            <div style={{ backgroundColor: '#f0f8f6', borderLeft: '4px solid #4a8c7e', padding: '28px', borderRadius: '6px' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#1a4a5a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Direct Answer
+              </div>
+              <p style={{ margin: 0, color: '#555', lineHeight: '1.8', fontSize: '21px', fontWeight: '500' }}>
+                {block.text}
+              </p>
+            </div>
+          </div>
+        )
+      }
+
+      // ── QuickActionPlan ───────────────────────────────────────────
+      case 'quickActionPlan': {
+        const items = block.items || []
+        return (
+          <div key={idx} id={`block-quick-action-plan`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Quick Action Plan
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {items.map((item: any, i: number) => (
+                <div key={i} style={{ display: 'flex', gap: '16px', padding: '16px', backgroundColor: 'white', borderLeft: '4px solid #c4714a', borderRadius: '6px' }}>
+                  <div style={{ flexShrink: 0, width: '40px', height: '40px', backgroundColor: '#c4714a', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '14px' }}>
+                    {i + 1}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '12px', color: '#c4714a', fontWeight: '600', marginBottom: '4px' }}>
+                      {item.phase} · {item.timeWindow}
+                    </div>
+                    <div style={{ fontSize: '16px', color: '#1a4a5a', fontWeight: '600', marginBottom: '4px' }}>
+                      {item.text}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      // ── KeyTakeaways ─────────────────────────────────────────────
+      case 'keyTakeaways': {
+        const items = block.items || []
+        return (
+          <div key={idx} id={`block-key-takeaways`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Key Takeaways
+            </h2>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {items.map((item: any, i: number) => {
+                const text = typeof item === 'string' ? item : (item.item || item.point || '')
+                return (
+                  <div key={i} style={{ display: 'flex', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '4px', borderLeft: '3px solid #4a8c7e' }}>
+                    <CheckCircle size={16} style={{ color: '#4a8c7e', flexShrink: 0, marginTop: '2px' }} />
+                    <p style={{ margin: 0, color: '#555', fontSize: '18px', lineHeight: '1.6' }}>{text}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+
+      // ── StepChecklist ────────────────────────────────────────────
+      case 'stepChecklist': {
+        const intro = block.intro || ''
+        const steps = block.steps || []
+        return (
+          <div key={idx} id={`block-step-checklist`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '12px' }}>
+              Step-by-Step Checklist
+            </h2>
+            {intro && <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '24px', fontSize: '16px' }}>{intro}</p>}
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {steps.map((step: any, i: number) => {
+                const bullets = (step.bullets || []).map((b: any) => typeof b === 'string' ? b : b.b)
+                return (
+                  <div key={i} style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #c4714a', borderRadius: '6px' }}>
+                    <div style={{ fontSize: '11px', color: '#c4714a', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      {step.name} {step.timeWindow ? `· ${step.timeWindow}` : ''}
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '20px', color: '#555', fontSize: '18px', lineHeight: '1.8' }}>
+                      {bullets.map((b: string, bi: number) => <li key={bi} style={{ marginBottom: '6px' }}>{b}</li>)}
+                    </ul>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+
+      // ── CitationFact ─────────────────────────────────────────────
+      case 'citationFact': {
+        const facts = block.facts || []
+        return (
+          <div key={idx} id={`block-citation-fact`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Key Statistics
+            </h2>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {facts.map((fact: any, i: number) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', padding: '16px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '18px', color: '#1a4a5a', fontWeight: '600', marginBottom: '4px', lineHeight: '1.6' }}>
+                      {fact.fact}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#999' }}>
+                      Source: {fact.source}
+                      {fact.sourceUrl && <a href={fact.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#4a8c7e', marginLeft: '8px' }}>↗</a>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      // ── StatCallout ──────────────────────────────────────────────
+      case 'statCallout': {
+        return (
+          <div key={idx} id={`block-stat-callout`} style={{ marginBottom: '56px' }}>
+            <div style={{ padding: '32px', backgroundColor: '#f0f8f6', borderLeft: '4px solid #4a8c7e', borderRadius: '6px', textAlign: 'center' }}>
+              <div style={{ fontSize: '48px', fontWeight: '700', color: '#c4714a', marginBottom: '8px' }}>{block.value}</div>
+              <div style={{ fontSize: '16px', color: '#555', marginBottom: '8px' }}>{block.label}</div>
+              <div style={{ fontSize: '13px', color: '#999' }}>{block.source}</div>
+            </div>
+          </div>
+        )
+      }
+
+      // ── Comparison ───────────────────────────────────────────────
+      case 'comparison': {
+        const points = block.points || []
+        return (
+          <div key={idx} id={`block-comparison`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Comparison
+            </h2>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {points.map((point: any, i: number) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', padding: '16px', backgroundColor: 'white', borderLeft: '3px solid #4a8c7e', borderRadius: '4px' }}>
+                  <CheckCircle size={16} style={{ color: '#4a8c7e', flexShrink: 0, marginTop: '3px' }} />
+                  <div>
+                    <div style={{ fontSize: '16px', color: '#555', marginBottom: '4px' }}>{point.stat}</div>
+                    <div style={{ fontSize: '12px', color: '#999' }}>Source: {point.source}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      // ── CaseScenario ─────────────────────────────────────────────
+      case 'caseScenario': {
+        const items = block.items || []
+        return (
+          <div key={idx} id={`block-case-scenario`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Case Scenarios
+            </h2>
+            {block.isIllustrative && (
+              <div style={{ padding: '12px', backgroundColor: '#fff8f0', borderRadius: '4px', marginBottom: '16px', fontSize: '13px', color: '#999' }}>
+                ⚠️ These are illustrative scenarios, not actual case outcomes.
+              </div>
+            )}
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {items.map((item: any, i: number) => (
+                <div key={i} style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '4px' }}>{item.injuryType}</div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#c4714a', marginBottom: '8px' }}>{item.illustrativeRange}</div>
+                  {item.note && <div style={{ fontSize: '14px', color: '#555' }}>{item.note}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      // ── FAQAccordion ────────────────────────────────────────────
+      case 'faqAccordion': {
+        const [openIdx, setOpenIdx] = useState<string>('')
+        const faqs = block.faqs || []
+        return (
+          <div key={idx} id={`block-faq-accordion`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Frequently Asked Questions
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {faqs.map((faq: any, i: number) => {
+                const q = typeof faq === 'string' ? faq : (faq.question || '')
+                const a = typeof faq === 'string' ? '' : (faq.answer || '')
+                const key = `faq-${i}`
+                return (
+                  <div key={i} style={{ backgroundColor: 'white', borderRadius: '4px', borderLeft: '3px solid #c4714a', overflow: 'hidden' }}>
+                    <button
+                      onClick={() => setOpenIdx(openIdx === key ? '' : key)}
+                      style={{ width: '100%', padding: '16px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    >
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a' }}>{q}</span>
+                      {openIdx === key ? <ChevronUp size={16} style={{ color: '#999' }} /> : <ChevronDown size={16} style={{ color: '#999' }} />}
+                    </button>
+                    {openIdx === key && (
+                      <div style={{ padding: '0 16px 16px', fontSize: '13px', color: '#555', lineHeight: '1.6' }}>{a}</div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+
+      // ── PeopleAlsoAsk ────────────────────────────────────────────
+      case 'peopleAlsoAsk': {
+        const items = block.items || []
+        return (
+          <div key={idx} id={`block-people-also-ask`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              People Also Ask
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {items.map((item: any, i: number) => {
+                const q = typeof item === 'string' ? item : (item.q || item.question || '')
+                const a = typeof item === 'string' ? '' : (item.a || item.answer || '')
+                return (
+                  <div key={i} style={{ padding: '16px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '8px' }}>{q}</div>
+                    <div style={{ fontSize: '14px', color: '#555', lineHeight: '1.6' }}>{a}</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+
+      // ── ProtectionPlan ───────────────────────────────────────────
+      case 'protectionPlan': {
+        const steps = block.steps || []
+        return (
+          <div key={idx} id={`block-protection-plan`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Protection Plan
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {steps.map((step: any, i: number) => {
+                const text = typeof step === 'string' ? step : (step.step || step.text || '')
+                return (
+                  <div key={i} style={{ display: 'flex', gap: '12px', padding: '16px', backgroundColor: 'white', borderLeft: '4px solid #c4714a', borderRadius: '6px' }}>
+                    <CheckCircle size={16} style={{ color: '#c4714a', flexShrink: 0, marginTop: '2px' }} />
+                    <span style={{ fontSize: '16px', color: '#555', lineHeight: '1.6' }}>{text}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+
+      // ── CTA ──────────────────────────────────────────────────────
+      case 'cta': {
+        return (
+          <div key={idx} id={`block-cta`} style={{ marginBottom: '56px', padding: '32px', backgroundColor: '#f0f8f6', borderLeft: '4px solid #c4714a', textAlign: 'center', borderRadius: '6px' }}>
+            <h3 style={{ color: '#1a4a5a', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>
+              {block.heading || "Don't Navigate This Alone"}
+            </h3>
+            <p style={{ color: '#555', marginBottom: '20px', lineHeight: '1.6', fontSize: '15px' }}>
+              {block.subcopy || 'The firm that covers your area can help you recover maximum compensation.'}
+            </p>
+            <a
+              href="tel:+18002273669"
+              style={{
+                backgroundColor: '#c4714a',
+                color: 'white',
+                padding: '12px 32px',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                display: 'inline-block'
+              }}
+            >
+              {block.buttonLabel || 'Get a free case review'}
+            </a>
+          </div>
+        )
+      }
+
+      // ── RelatedGuides ────────────────────────────────────────────
+      case 'relatedGuides': {
+        const guides = block.guides || []
+        if (guides.length === 0) return null
+        return (
+          <div key={idx} id={`block-related-guides`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Related Guides
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+              {guides.map((guide: any, i: number) => (
+                <Link key={i} href={`/guide/${guide.slug || '#'}`} style={{ textDecoration: 'none' }}>
+                  <div style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px', cursor: 'pointer' }}>
+                    <h3 style={{ color: '#1a4a5a', fontSize: '16px', fontWeight: '700', margin: 0, marginBottom: '8px' }}>{guide.title}</h3>
+                    {guide.headline && <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.6', margin: '8px 0 0 0' }}>{guide.headline}</p>}
+                    <p style={{ color: '#4a8c7e', fontSize: '13px', fontWeight: '600', margin: '12px 0 0 0' }}>Learn more →</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      // ── Disclaimer ───────────────────────────────────────────────
+      case 'disclaimer': {
+        return (
+          <div key={idx} id={`block-disclaimer`} style={{ marginBottom: '56px', padding: '16px', backgroundColor: '#f9f5ef', borderRadius: '6px', borderLeft: '4px solid #999', fontSize: '13px', color: '#666', lineHeight: '1.6' }}>
+            {block.note || 'This content is for informational purposes only and does not constitute legal advice. CasePort is not a law firm and does not provide legal representation.'}
+          </div>
+        )
+      }
+
+      // ── UpdateLog ────────────────────────────────────────────────
+      case 'updateLog': {
+        const entries = block.entries || []
+        return (
+          <div key={idx} id={`block-update-log`} style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '18px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Update Log
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {entries.map((entry: any, i: number) => {
+                const date = entry.date ? new Date(entry.date).toLocaleDateString() : ''
+                const desc = entry.description || ''
+                return (
+                  <div key={i} style={{ fontSize: '13px', color: '#555' }}>
+                    <span style={{ fontWeight: '600', color: '#1a4a5a' }}>{date}:</span> {desc}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      }
+
+      // ── EntityContext ────────────────────────────────────────────
+      case 'entityContext': {
+        const entities = block.entities || []
+        return null // visual only if needed, skip for now
+      }
+
+      // ── ExpertQuote ──────────────────────────────────────────────
+      case 'expertQuote': {
+        return (
+          <div key={idx} id={`block-expert-quote`} style={{ marginBottom: '56px' }}>
+            <div style={{ padding: '24px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px', marginBottom: '20px' }}>
+              <div style={{ fontSize: '16px', color: '#555', lineHeight: '1.8', fontStyle: 'italic', marginBottom: '16px' }}>
+                &ldquo;{block.quote}&rdquo;
+              </div>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                {block.photo && <div style={{ width: '48px', height: '48px', backgroundColor: '#4a8c7e', borderRadius: '50%' }} />}
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a' }}>{block.speakerName}</div>
+                  {block.credentials && <div style={{ fontSize: '13px', color: '#999' }}>{block.credentials}</div>}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      // ── TermDefinition ─────────────────────────────────────────────
+      case 'termDefinition': {
+        return (
+          <div key={idx} id={`block-term-definition`} style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f9f5ef', borderRadius: '4px' }}>
+            <div style={{ fontSize: '14px', fontWeight: '700', color: '#1a4a5a', marginBottom: '4px' }}>{block.term}</div>
+            <div style={{ fontSize: '14px', color: '#555', lineHeight: '1.6' }}>{block.definition}</div>
+          </div>
+        )
+      }
+
+      // ── RelatedArticleLink ───────────────────────────────────────
+      case 'relatedArticleLink': {
+        if (!block.article) return null
+        const art = typeof block.article === 'object' ? block.article : {}
+        return (
+          <div key={idx} id={`block-related-article`} style={{ marginBottom: '24px' }}>
+            <Link href={`/insights/${art.slug || '#'}`} style={{ textDecoration: 'none' }}>
+              <div style={{ padding: '16px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px' }}>
+                <div style={{ fontSize: '14px', color: '#4a8c7e', fontWeight: '600', marginBottom: '4px' }}>Insights</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: '#1a4a5a', marginBottom: '4px' }}>{block.headline || art.title}</div>
+                {block.metaDescription && <div style={{ fontSize: '13px', color: '#555' }}>{block.metaDescription}</div>}
+              </div>
+            </Link>
+          </div>
+        )
+      }
+
+      // ── RichText ─────────────────────────────────────────────────
+      case 'richText': {
+        const content = block.content?.root?.children || []
+        const renderLexical = (nodes: any[]): React.ReactNode => {
+          return nodes.map((node: any, i: number) => {
+            if (node.type === 'text') {
+              let text = node.text || ''
+              if (node.format & 1) text = <strong key={i}>{text}</strong>
+              if (node.format & 2) text = <em key={i}>{text}</em>
+              if (node.format & 4) text = <u key={i}>{text}</u>
+              return typeof text === 'string' ? text : text
+            }
+            if (node.type === 'paragraph') {
+              return <p key={i} style={{ marginBottom: '12px', lineHeight: '1.8', color: '#555', fontSize: '18px' }}>{renderLexical(node.children || [])}</p>
+            }
+            if (node.type === 'heading') {
+              const tag = node.tag === 'h2' ? 'h2' : node.tag === 'h3' ? 'h3' : node.tag === 'h4' ? 'h4' : 'h2'
+              return <div key={i} style={{ fontSize: tag === 'h2' ? '24px' : tag === 'h3' ? '20px' : '18px', color: '#1a4a5a', fontWeight: '700', marginBottom: '12px', marginTop: '24px' }}>{renderLexical(node.children || [])}</div>
+            }
+            if (node.type === 'linebreak') return <br key={i} />
+            if (node.children) return renderLexical(node.children)
+            return null
+          })
+        }
+        return (
+          <div key={idx} id={`block-rich-text`} style={{ marginBottom: '56px' }}>
+            {renderLexical(content)}
+          </div>
+        )
+      }
+
+      // ── Immediate Actions ────────────────────────────────────────
+      case 'immediateActions': {
+        const steps = block.steps || []
+        return (
+          <div key={idx} id="block-immediate-actions" style={{ marginBottom: '56px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              {block.title || 'Your First 72-Hour Checklist'}
+            </h2>
+            <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '24px', fontSize: '21px' }}>
+              {block.subtitle || 'Follow these steps in order. This checklist protects your health, evidence, and legal rights.'}
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              {steps.slice(0, 2).map((step: any, i: number) => (
+                <div key={i} style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #c4714a', borderRadius: '6px', transition: 'all 0.3s ease' }}>
+                  <div style={{ fontSize: '11px', color: '#c4714a', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Step {step.step || i + 1}
+                  </div>
+                  <h3 style={{ color: '#1a4a5a', fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>{step.title}</h3>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '12px' }}>{step.timeNote || '0-15 min'}</div>
+                  <ul style={{ margin: 0, paddingLeft: '20px', color: '#555', fontSize: '18px', lineHeight: '1.8' }}>
+                    {step.bullets?.map((bullet: any, bIdx: number) => (
+                      <li key={bIdx} style={{ marginBottom: '6px' }}>{typeof bullet === 'string' ? bullet : bullet.bullet}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      // ── Medical Documentation ────────────────────────────────────
+      case 'medicalDocumentation': {
+        return (
+          <div key={idx} id="block-medical-documentation" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Medical Documentation: Why It&apos;s Critical for Your Settlement
+            </h2>
+            <div style={{ display: 'flex', gap: '12px', padding: '16px', backgroundColor: '#fff8f0', borderLeft: '4px solid #c4714a', borderRadius: '6px', marginBottom: '20px' }}>
+              <div>
+                <p style={{ margin: 0, color: '#555', lineHeight: '1.8', fontSize: '21px', fontWeight: '600' }}>
+                  Seek medical evaluation within <strong>24 hours</strong>, even if you feel fine.
+                </p>
+                <p style={{ margin: '8px 0 0 0', color: '#555', lineHeight: '1.8', fontSize: '18px' }}>
+                  Accidents often cause injuries that appear days later (whiplash, internal bleeding, spinal injuries).
+                </p>
+              </div>
+            </div>
+            {block.introText && (
+              <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '16px', fontSize: '16px' }}>
+                {block.introText}
+              </p>
+            )}
+            {block.calloutText && (
+              <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '16px', fontSize: '16px' }}>
+                {block.calloutText}
+              </p>
+            )}
+          </div>
+        )
+      }
+
+      // ── Attorney Comparison ────────────────────────────────────────
+      case 'attorneyComparison': {
+        const rows = block.rows || []
+        const tableRows = rows.length > 0 ? rows : [
+          { factor: 'Average Settlement', withAttorney: '$250,000', withoutAttorney: '$50,000' },
+          { factor: 'Success Rate', withAttorney: '92%', withoutAttorney: '60%' },
+          { factor: 'Time to Settle', withAttorney: '12-18 months', withoutAttorney: '6-24 months' },
+          { factor: 'Upfront Cost', withAttorney: '$0 (Contingency)', withoutAttorney: '$0' },
+        ]
+        return (
+          <div key={idx} id="block-attorney-comparison" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              {block.title || 'Settlement: With Attorney vs. Without (5x Difference)'}
+            </h2>
+            {block.subtitle && <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '20px', fontSize: '16px' }}>{block.subtitle}</p>}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#1a4a5a', color: 'white' }}>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Factor</th>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>With Attorney</th>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Without Attorney</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableRows.map((row: any, i: number) => (
+                    <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#f9f5ef' : 'white', borderBottom: '1px solid #e8e2d8' }}>
+                      <td style={{ padding: '14px', color: '#555', fontWeight: '600', fontSize: '14px' }}>{row.factor}</td>
+                      <td style={{ padding: '14px', color: '#4a8c7e', fontWeight: '600', fontSize: '14px' }}>{row.withAttorney}</td>
+                      <td style={{ padding: '14px', color: '#999', fontWeight: '500', fontSize: '14px' }}>{row.withoutAttorney}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      }
+
+      // ── Settlement Example ────────────────────────────────────────
+      case 'settlementExample': {
+        const examples = block.examples || []
+        const displayExamples = examples.length > 0 ? examples.slice(0, 3) : []
+        return (
+          <div key={idx} id="block-settlement-example" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              {block.title || 'Real Settlement Examples: Actual Cases & Outcomes'}
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              {displayExamples.map((ex: any, i: number) => (
+                <div key={i} style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px' }}>
+                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#c4714a', marginBottom: '8px' }}>
+                    {ex.settlementValue || ex.settlement}
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '4px' }}>
+                    {ex.injuryType || 'Various injuries'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '8px' }}>
+                    Settled in {ex.caseResolutionTime || '12 months'}
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#555' }}>
+                    {ex.quote || ex.description || 'Full settlement recovery'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      // ── Settlement Ranges ─────────────────────────────────────────
+      case 'settlementRanges': {
+        const ranges = block.ranges || []
+        const hasData = ranges.length > 0
+        return (
+          <div key={idx} id="block-settlement-ranges" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              {block.title || 'Settlement Ranges'}
+            </h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#1a4a5a', color: 'white' }}>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>State</th>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Minimum</th>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Maximum</th>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Average</th>
+                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {hasData ? ranges.map((row: any, i: number) => (
+                    <tr key={i} style={{ backgroundColor: i % 2 === 0 ? '#f9f5ef' : 'white', borderBottom: '1px solid #e8e2d8' }}>
+                      <td style={{ padding: '14px', color: '#1a4a5a', fontWeight: '600', fontSize: '14px' }}>{row.state}</td>
+                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.min || '-'}</td>
+                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.max || '-'}</td>
+                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.avg || '-'}</td>
+                      <td style={{ padding: '14px', color: '#888', fontSize: '13px' }}>{row.note || ''}</td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
+                        Add state ranges in the Settlement Ranges block editor.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      }
+
+      // ── Statute of Limitations ───────────────────────────────────
+      case 'statuteLimitations': {
+        const stateRows = block.states || []
+        return (
+          <div key={idx} id="block-statute-limitations" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
+            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
+              Your Statute of Limitations is Ticking
+            </h2>
+            {block.description && (
+              <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '16px', fontSize: '16px' }}>
+                {block.description}
+              </p>
+            )}
+            <div style={{ backgroundColor: '#f0f8f6', borderLeft: '4px solid #c4714a', padding: '28px', marginBottom: '24px', borderRadius: '6px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', display: 'block', marginBottom: '12px' }}>
+                  Select your state:
+                </label>
+                <select
+                  value="california"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid #4a8c7e',
+                    color: '#555',
+                    fontSize: '14px',
+                    fontFamily: 'inherit',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {stateRows.length > 0 ? stateRows.map((r: any, i: number) => (
+                    <option key={i} value={r.state?.toLowerCase().replace(/\s+/g, '-')}>{r.state}</option>
+                  )) : (
+                    <>
+                      <option value="california">California</option>
+                      <option value="texas">Texas</option>
+                      <option value="florida">Florida</option>
+                    </>
+                  )}
+                </select>
+              </div>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: '#c4714a', marginBottom: '12px' }}>
+                Deadline: {block.defaultYears || 2} years from date of injury
+              </div>
+              <div style={{ fontSize: '14px', color: '#555', lineHeight: '1.6' }}>
+                Evidence degrades daily. Contact an attorney immediately to preserve your claim.
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      default:
+        return (
+          <div key={idx} style={{ padding: '12px', backgroundColor: '#fff8f0', borderRadius: '4px', marginBottom: '12px', fontSize: '13px', color: '#999' }}>
+            Unknown block type: {block.blockType}
+          </div>
+        )
+    }
+  }
+
+  return (
+    <>
+      {blocks.map((block, idx) => renderBlock(block, idx))}
+    </>
+  )
+}
+
 export default function GuideArticleClient({ article, category, isPreview = false }: GuideArticleClientProps) {
   const [selectedState, setSelectedState] = useState('california')
   const [expandedFaq, setExpandedFaq] = useState<string>('')
   const [scrollProgress, setScrollProgress] = useState(0)
-  const [activeSection, setActiveSection] = useState('direct-answer')
+  const [activeSection, setActiveSection] = useState('block-direct-answer')
   const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024)
 
   useEffect(() => {
@@ -42,9 +749,12 @@ export default function GuideArticleClient({ article, category, isPreview = fals
       const progress = windowHeight > 0 ? (scrolled / windowHeight) * 100 : 0
       setScrollProgress(progress)
 
-      // Active section tracking
-      const sections = ['direct-answer', 'tldr', 'key-takeaways', 'immediate-actions', 'medical-documentation', 'with-without-attorney', 'settlement-examples', 'settlement-ranges', 'statute-of-limitations', 'people-also-ask', 'faq']
-      for (const sectionId of sections) {
+      // Active section tracking — use IDs from blocks present on the page
+      const sectionIds = blocks
+        .map((block: any) => blockTypeToTocEntry(block.blockType, block))
+        .filter((entry: any): entry is { id: string; title: string } => entry !== null)
+        .map((entry: { id: string; title: string }) => entry.id)
+      for (const sectionId of sectionIds) {
         const element = document.getElementById(sectionId)
         if (element) {
           const rect = element.getBoundingClientRect()
@@ -138,20 +848,44 @@ export default function GuideArticleClient({ article, category, isPreview = fals
   const sidebarWidth = '280px'
   const containerPadding = isMobileView ? '16px' : '40px'
 
-  // Table of Contents
-  const tableOfContents = [
-    { id: 'direct-answer', title: 'Direct Answer' },
-    { id: 'tldr', title: 'TL;DR Action Plan' },
-    { id: 'key-takeaways', title: 'Key Takeaways' },
-    { id: 'immediate-actions', title: 'Immediate Actions' },
-    { id: 'medical-documentation', title: 'Medical Care' },
-    { id: 'with-without-attorney', title: 'Attorney Comparison' },
-    { id: 'settlement-examples', title: 'Case Examples' },
-    { id: 'settlement-ranges', title: 'Settlement Ranges' },
-    { id: 'statute-of-limitations', title: 'Deadline' },
-    { id: 'people-also-ask', title: 'Common Questions' },
-    { id: 'faq', title: 'Full FAQ' }
-  ]
+  // Build Table of Contents dynamically from present blocks
+  const blockTypeToTocEntry = (blockType: string, block: any): { id: string; title: string } | null => {
+    switch (blockType) {
+      case 'directAnswer':     return { id: 'block-direct-answer', title: 'Direct Answer' }
+      case 'quickActionPlan':  return { id: 'block-quick-action-plan', title: 'Quick Action Plan' }
+      case 'keyTakeaways':     return { id: 'block-key-takeaways', title: 'Key Takeaways' }
+      case 'stepChecklist':    return { id: 'block-step-checklist', title: 'Step-by-Step Checklist' }
+      case 'citationFact':     return { id: 'block-citation-fact', title: 'Key Statistics' }
+      case 'statCallout':      return null
+      case 'comparison':       return { id: 'block-comparison', title: 'Comparison' }
+      case 'caseScenario':     return { id: 'block-case-scenario', title: 'Case Scenarios' }
+      case 'faqAccordion':     return { id: 'block-faq-accordion', title: 'Full FAQ' }
+      case 'peopleAlsoAsk':    return { id: 'block-people-also-ask', title: 'Common Questions' }
+      case 'protectionPlan':   return { id: 'block-protection-plan', title: 'Protection Plan' }
+      case 'cta':              return null
+      case 'relatedGuides':    return { id: 'block-related-guides', title: 'Related Guides' }
+      case 'disclaimer':       return null
+      case 'updateLog':        return null
+      case 'entityContext':    return null
+      case 'expertQuote':       return { id: 'block-expert-quote', title: 'Expert Insight' }
+      case 'termDefinition':    return null
+      case 'relatedArticleLink':return null
+      case 'richText':         return null
+      case 'standfirst':       return null
+      case 'immediateActions': return { id: 'block-immediate-actions', title: '72-Hour Checklist' }
+      case 'medicalDocumentation': return { id: 'block-medical-documentation', title: 'Medical Care' }
+      case 'attorneyComparison': return { id: 'block-attorney-comparison', title: 'Attorney Comparison' }
+      case 'settlementExample': return { id: 'block-settlement-example', title: 'Case Examples' }
+      case 'settlementRanges': return { id: 'block-settlement-ranges', title: 'Settlement Ranges' }
+      case 'statuteLimitations': return { id: 'block-statute-limitations', title: 'Deadline' }
+      default: return null
+    }
+  }
+
+  const blocks = article.blocks || []
+  const tableOfContents = blocks
+    .map((block: any) => blockTypeToTocEntry(block.blockType, block))
+    .filter((entry: any): entry is { id: string; title: string } => entry !== null)
 
   const authorInfo = {
     name: toString(article.author?.name) || 'Sarah Mitchell, Esq.',
@@ -276,424 +1010,7 @@ export default function GuideArticleClient({ article, category, isPreview = fals
       <div style={{ display: 'flex', maxWidth: isMobileView ? '100%' : '1400px', margin: '0 auto', gap: isMobileView ? 0 : '80px', padding: containerPadding, justifyContent: 'center', flexDirection: isMobileView ? 'column' : 'row', alignItems: 'flex-start', width: '100%' }}>
         {/* Main Content */}
         <div style={{ flex: isMobileView ? '1 1 100%' : '0 0 auto', width: contentWidth, maxWidth: contentWidth, minWidth: 0 }}>
-          {/* Quick Answer */}
-          <div id="direct-answer" style={{ marginBottom: '56px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ backgroundColor: '#f0f8f6', borderLeft: '4px solid #4a8c7e', padding: '28px', borderRadius: '6px' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#1a4a5a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Direct Answer
-              </div>
-              <p style={{ margin: 0, color: '#555', lineHeight: '1.8', fontSize: isMobileView ? '18px' : '21px', fontWeight: '500' }}>
-                {directAnswerText}
-              </p>
-            </div>
-          </div>
-
-          {/* TL;DR Section */}
-          <div id="tldr" style={{ marginBottom: '56px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ backgroundColor: '#fff8f0', borderLeft: '4px solid #c4714a', padding: '28px', borderRadius: '6px' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#1a4a5a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                TL;DR - {categoryTitle} Action Plan
-              </div>
-              <ol style={{ margin: 0, paddingLeft: isMobileView ? '16px' : '20px', color: '#555', fontSize: isMobileView ? '17px' : '20px', lineHeight: '1.8', fontWeight: '500' }}>
-                {tldrItems.map((item: any, idx: number) => {
-                  const title = typeof item === 'string' ? item : (item.action || item.title || '')
-                  const desc = typeof item === 'string' ? '' : (item.description || item.timeNote || '')
-                  return <li key={idx}><strong>{title}:</strong> {desc}</li>
-                })}
-              </ol>
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* Key Takeaways */}
-          <div id="key-takeaways" style={{ marginBottom: '56px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '18px', fontWeight: '700', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Key Takeaways
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr', gap: '12px' }}>
-              {keyTakeaways.map((takeaway: string, idx: number) => (
-                <div key={idx} style={{ display: 'flex', gap: '12px', padding: '12px', backgroundColor: 'white', borderRadius: '4px', borderLeft: '3px solid #4a8c7e' }}>
-                  <CheckCircle size={16} style={{ color: '#4a8c7e', flexShrink: 0, marginTop: '2px' }} />
-                  <p style={{ margin: 0, color: '#555', fontSize: '18px', lineHeight: '1.6' }}>{takeaway}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* Immediate Actions */}
-          <div id="immediate-actions" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              {article.immediateStepsTitle || 'The 72-Hour Action Plan'}
-            </h2>
-            <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '24px', fontSize: '21px' }}>
-              {article.immediateStepsSubtitle || 'Follow these steps in order. This checklist protects your health, evidence, and legal rights.'}
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr', gap: '16px' }}>
-              {immediateSteps.slice(0, 2).map((step: any, idx: number) => (
-                <div key={idx} style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #c4714a', borderRadius: '6px', transition: 'all 0.3s ease' }}>
-                  <div style={{ fontSize: '11px', color: '#c4714a', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Step {step.step || idx + 1}
-                  </div>
-                  <h3 style={{ color: '#1a4a5a', fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>{step.title}</h3>
-                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '12px' }}>{step.timeNote || '0-15 min'}</div>
-                  <ul style={{ margin: 0, paddingLeft: '20px', color: '#555', fontSize: '18px', lineHeight: '1.8' }}>
-                    {step.bullets?.map((bullet: any, bIdx: number) => (
-                      <li key={bIdx} style={{ marginBottom: '6px' }}>{typeof bullet === 'string' ? bullet : bullet.bullet}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* Medical Documentation */}
-          <div id="medical-documentation" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              Medical Documentation: Why It's Critical for Your Settlement
-            </h2>
-            <div style={{ display: 'flex', gap: '12px', padding: '16px', backgroundColor: '#fff8f0', borderLeft: '4px solid #c4714a', borderRadius: '6px', marginBottom: '20px' }}>
-              <AlertCircle size={20} style={{ color: '#c4714a', flexShrink: 0, marginTop: '2px' }} />
-              <div>
-                <p style={{ margin: 0, color: '#555', lineHeight: '1.8', fontSize: '21px', fontWeight: '600' }}>
-                  Seek medical evaluation within <strong>24 hours</strong>, even if you feel fine.
-                </p>
-                <p style={{ margin: '8px 0 0 0', color: '#555', lineHeight: '1.8', fontSize: '18px' }}>
-                  Accidents often cause injuries that appear days later (whiplash, internal bleeding, spinal injuries).
-                </p>
-              </div>
-            </div>
-            <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '16px', fontSize: '16px' }}>
-              Medical records create a documented link between the accident and your injuries—essential for your settlement claim.
-            </p>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* With/Without Attorney */}
-          <div id="with-without-attorney" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              {categoryTitle} Settlement: With Attorney vs. Without (5x Difference)
-            </h2>
-            <p style={{ color: '#555', lineHeight: '1.8', marginBottom: '20px', fontSize: '16px' }}>
-              Attorneys settle cases for <strong>5x more on average</strong>. Here's why:
-            </p>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#1a4a5a', color: 'white' }}>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Factor</th>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>With Attorney</th>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Without Attorney</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { factor: 'Average Settlement', with: '$250,000', without: '$50,000' },
-                    { factor: 'Success Rate', with: '92%', without: '60%' },
-                    { factor: 'Time to Settle', with: '12-18 months', without: '6-24 months' },
-                    { factor: 'Upfront Cost', with: '$0 (Contingency)', without: '$0' }
-                  ].map((row, idx) => (
-                    <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#f9f5ef' : 'white', borderBottom: '1px solid #e8e2d8' }}>
-                      <td style={{ padding: '14px', color: '#555', fontWeight: '600', fontSize: '14px' }}>{row.factor}</td>
-                      <td style={{ padding: '14px', color: '#4a8c7e', fontWeight: '600', fontSize: '14px' }}>{row.with}</td>
-                      <td style={{ padding: '14px', color: '#999', fontWeight: '500', fontSize: '14px' }}>{row.without}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* Real Settlement Examples */}
-          <div id="settlement-examples" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              Real Settlement Examples: Actual Cases & Outcomes
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '1fr', gap: '16px' }}>
-              {testimonials.length > 0 ? testimonials.slice(0, 3).map((example: any, idx: number) => (
-                <div key={idx} style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px' }}>
-                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#c4714a', marginBottom: '8px' }}>
-                    ${example.settlement || example.settlementValue}
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '4px' }}>
-                    {example.injuryType || 'Various injuries'}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '8px' }}>
-                    Settled in {example.caseResolutionTime || '12 months'}
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#555' }}>
-                    {example.quote || example.description || 'Full settlement recovery'}
-                  </div>
-                </div>
-              )) : [
-                { amount: '$485,000', injury: 'Catastrophic injury', time: '18 months', details: 'Permanent injuries, lifetime care' },
-                { amount: '$275,000', injury: 'Severe injury & trauma', time: '14 months', details: 'Multiple surgeries, ongoing therapy' },
-                { amount: '$125,000', injury: 'Multiple fractures', time: '10 months', details: 'Broken bones and recovery' }
-              ].map((example, idx) => (
-                <div key={idx} style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px' }}>
-                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#c4714a', marginBottom: '8px' }}>{example.amount}</div>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '4px' }}>{example.injury}</div>
-                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '8px' }}>Settled in {example.time}</div>
-                  <div style={{ fontSize: '14px', color: '#555' }}>{example.details}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* Settlement Ranges by State */}
-          <div id="settlement-ranges" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              Settlement Ranges: State-by-State Breakdown
-            </h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#1a4a5a', color: 'white' }}>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>State</th>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Minor</th>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Moderate</th>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Severe</th>
-                    <th style={{ padding: '14px', textAlign: 'left', fontWeight: '600', fontSize: '14px' }}>Catastrophic</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stateRanges.length > 0 ? stateRanges.map((row: any, idx: number) => (
-                    <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#f9f5ef' : 'white', borderBottom: '1px solid #e8e2d8' }}>
-                      <td style={{ padding: '14px', color: '#1a4a5a', fontWeight: '600', fontSize: '14px' }}>{row.state || row.injuryType}</td>
-                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.minAmount || row.range || '$15,000-$35,000'}</td>
-                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.moderateAmount || '-'}</td>
-                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.severeAmount || '-'}</td>
-                      <td style={{ padding: '14px', color: '#4a8c7e', fontWeight: '600', fontSize: '14px' }}>{row.catastrophicAmount || '-'}</td>
-                    </tr>
-                  )) : [
-                    { state: 'California', minor: '$15,000-$35,000', moderate: '$75,000-$150,000', severe: '$250,000-$500,000', catastrophic: '$750,000-$2,000,000+' },
-                    { state: 'Texas', minor: '$12,000-$30,000', moderate: '$60,000-$120,000', severe: '$200,000-$400,000', catastrophic: '$600,000-$1,500,000' },
-                    { state: 'Florida', minor: '$14,000-$32,000', moderate: '$70,000-$140,000', severe: '$220,000-$450,000', catastrophic: '$650,000-$1,800,000' }
-                  ].map((row, idx) => (
-                    <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#f9f5ef' : 'white', borderBottom: '1px solid #e8e2d8' }}>
-                      <td style={{ padding: '14px', color: '#1a4a5a', fontWeight: '600', fontSize: '14px' }}>{row.state}</td>
-                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.minor}</td>
-                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.moderate}</td>
-                      <td style={{ padding: '14px', color: '#555', fontWeight: '500', fontSize: '14px' }}>{row.severe}</td>
-                      <td style={{ padding: '14px', color: '#4a8c7e', fontWeight: '600', fontSize: '14px' }}>{row.catastrophic}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* Statute of Limitations */}
-          <div id="statute-of-limitations" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              Your Statute of Limitations is Ticking
-            </h2>
-            <div style={{ backgroundColor: '#f0f8f6', borderLeft: '4px solid #c4714a', padding: '28px', marginBottom: '24px', borderRadius: '6px' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', display: 'block', marginBottom: '12px' }}>
-                  Select your state:
-                </label>
-                <select
-                  value={selectedState}
-                  onChange={(e) => setSelectedState(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '4px',
-                    border: '1px solid #4a8c7e',
-                    color: '#555',
-                    fontSize: '14px',
-                    fontFamily: 'inherit',
-                    backgroundColor: 'white',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <option value="california">California</option>
-                  <option value="texas">Texas</option>
-                  <option value="florida">Florida</option>
-                </select>
-              </div>
-              <div style={{ fontSize: '16px', fontWeight: '600', color: '#c4714a', marginBottom: '12px' }}>
-                Deadline: {statuteData.years || 2} years from date of injury
-              </div>
-              <div style={{ fontSize: '14px', color: '#555', lineHeight: '1.6' }}>
-                Evidence degrades daily. Contact an attorney immediately to preserve your claim.
-              </div>
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* People Also Ask */}
-          <div id="people-also-ask" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              People Also Ask
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {[
-                { q: 'How much time do I have to file a claim?', a: 'Most states have a 2-3 year statute of limitations, but you should file within 30-90 days to preserve evidence. Contact an attorney immediately.' },
-                { q: 'What damages can I recover?', a: 'Medical expenses, lost wages, pain & suffering, future medical care, and lost earning capacity. Settlements typically range from $50,000-$2,000,000+ depending on injury severity.' },
-                { q: 'Are these cases more serious than other accidents?', a: 'Yes. Serious accidents are 20-30x more damaging, causing significantly more severe injuries and higher settlements.' }
-              ].map((item, idx) => (
-                <div key={idx} style={{ padding: '16px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '4px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '8px' }}>{item.q}</div>
-                  <div style={{ fontSize: '14px', color: '#555', lineHeight: '1.6' }}>{item.a}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* FAQ */}
-          <div id="faq" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              Frequently Asked Questions
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {faqItems.length > 0 ? faqItems.map((item: any, idx: number) => (
-                <div key={idx} style={{ padding: '16px', backgroundColor: 'white', borderRadius: '4px', borderLeft: '3px solid #c4714a' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '8px' }}>{item.question || item.q}</div>
-                  <div style={{ fontSize: '13px', color: '#555', lineHeight: '1.6' }}>{item.answer || item.a}</div>
-                </div>
-              )) : [
-                { q: 'What should I do immediately after an accident?', a: 'Move to safety, call 911, document the scene with photos, exchange information, get witness contact info, and report to police. Do not admit fault.' },
-                { q: 'Do I need an attorney?', a: 'Yes. Attorneys settle cases for 5x more on average. They handle negotiations with insurance companies and maximize your recovery. Most work on contingency (no upfront cost).' },
-                { q: 'How long does a case take?', a: 'Typically 12-18 months with an attorney. Complex cases may take 2-5 years. Settlement timelines depend on injury severity and liability clarity.' }
-              ].map((item, idx) => (
-                <div key={idx} style={{ padding: '16px', backgroundColor: 'white', borderRadius: '4px', borderLeft: '3px solid #c4714a' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '8px' }}>{item.q}</div>
-                  <div style={{ fontSize: '13px', color: '#555', lineHeight: '1.6' }}>{item.a}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Section Divider */}
-          <div style={{ height: '1px', backgroundColor: '#e8e2d8', margin: '56px 0' }} />
-
-          {/* Related Articles */}
-          <div style={{ marginBottom: '56px' }}>
-            <h2 style={{ color: '#1a4a5a', fontSize: '24px', fontWeight: '700', marginBottom: '20px' }}>
-              Related Injury Guides
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: isMobileView ? '1fr' : '2fr', gap: '16px' }}>
-              {[
-                { title: 'Car Accident Guide', description: 'Liability, insurance claims, and settlement expectations', link: '/guide/car-accident' },
-                { title: 'Slip & Fall Guide', description: 'Property owner liability and premises liability laws', link: '/guide/slip-and-fall' },
-                { title: 'Medical Malpractice Guide', description: 'Standard of care and complex damages', link: '/guide/medical-malpractice' },
-                { title: 'Motorcycle Accident Guide', description: 'Bias against riders and catastrophic injury settlements', link: '/guide/motorcycle-accident' }
-              ].map((guide, idx) => (
-                <Link key={idx} href={guide.link} style={{ textDecoration: 'none' }}>
-                  <div style={{ padding: '20px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', borderRadius: '6px', cursor: 'pointer' }}>
-                    <h3 style={{ color: '#1a4a5a', fontSize: '16px', fontWeight: '700', margin: 0, marginBottom: '8px' }}>{guide.title}</h3>
-                    <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.6', margin: '8px 0 0 0' }}>{guide.description}</p>
-                    <p style={{ color: '#4a8c7e', fontSize: '13px', fontWeight: '600', margin: '12px 0 0 0' }}>Learn more →</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Legal Authority */}
-          <div style={{ marginBottom: '56px', padding: '20px', backgroundColor: '#f9f5ef', borderRadius: '6px', borderLeft: '4px solid #999' }}>
-            <h3 style={{ color: '#1a4a5a', fontSize: '14px', fontWeight: '700', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Legal Authority & Citations
-            </h3>
-            <ul style={{ margin: 0, paddingLeft: '20px', color: '#555', fontSize: '13px', lineHeight: '1.8' }}>
-              <li><strong>Federal Motor Carrier Safety Administration (FMCSA)</strong> Regulations 49 CFR Part 390</li>
-              <li><strong>Uniform Commercial Code</strong> § 3-104 (Commercial Liability)</li>
-              <li><strong>State Statute of Limitations Laws</strong> (varies by jurisdiction)</li>
-              <li><strong>Insurance Information Institute (III)</strong> - Accident Data 2025</li>
-              <li><strong>American Bar Association (ABA)</strong> - Personal Injury Law Standards</li>
-            </ul>
-          </div>
-
-          {/* Expert Credentials */}
-          <div style={{ padding: '24px', backgroundColor: 'white', borderLeft: '4px solid #4a8c7e', marginBottom: '56px', borderRadius: '6px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: '#1a4a5a', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              About the Author
-            </div>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <div style={{ width: '60px', height: '60px', backgroundColor: '#4a8c7e', borderRadius: '50%', flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a4a5a', marginBottom: '4px' }}>{authorInfo.name}</div>
-                <div style={{ fontSize: '13px', color: '#555', marginBottom: '8px', lineHeight: '1.6' }}>{authorInfo.credentials}</div>
-                <div style={{ fontSize: '13px', color: '#999' }}>Specializes in accident litigation and has recovered over {authorInfo.recovered} in settlements for clients.</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Update Log */}
-          <div style={{ padding: '20px', backgroundColor: '#f9f5ef', borderLeft: '4px solid #999', marginBottom: '56px', borderRadius: '6px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: '#1a4a5a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Update Log
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {contentUpdateHistory.map((log: any, idx: number) => (
-                <div key={idx} style={{ fontSize: '13px', color: '#555' }}>
-                  <span style={{ fontWeight: '600', color: '#1a4a5a' }}>{log.date}:</span> {log.change}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Final CTA */}
-          <div style={{ padding: '32px', backgroundColor: '#f0f8f6', borderLeft: '4px solid #c4714a', textAlign: 'center', borderRadius: '6px', marginBottom: '40px' }}>
-            <h3 style={{ color: '#1a4a5a', fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>
-              Don't Navigate This Alone
-            </h3>
-            <p style={{ color: '#555', marginBottom: '20px', lineHeight: '1.6', fontSize: '15px' }}>
-              {categoryTitle} cases are complex. Insurance companies have teams of adjusters working to minimize your payout. You need an experienced attorney to fight for maximum compensation.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px', fontSize: '14px', color: '#555' }}>
-              <div>✓ Free case evaluation - no obligation</div>
-              <div>✓ No upfront costs - contingency basis only</div>
-              <div>✓ Expert negotiators who know {categoryTitle.toLowerCase()} law</div>
-            </div>
-            <a
-              href="tel:+18002273669"
-              style={{
-                backgroundColor: '#c4714a',
-                color: 'white',
-                padding: '12px 32px',
-                border: 'none',
-                borderRadius: '4px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                textDecoration: 'none',
-                display: 'inline-block'
-              }}
-            >
-              Get Free Case Evaluation
-            </a>
-            <div style={{ fontSize: '12px', color: '#999', marginTop: '12px' }}>
-              100% Confidential. Your information is protected by attorney-client privilege.
-            </div>
-          </div>
+          <BlockRenderer blocks={article.blocks || []} />
         </div>
 
         {/* Right Sidebar TOC - Hidden on mobile */}
@@ -703,7 +1020,7 @@ export default function GuideArticleClient({ article, category, isPreview = fals
               On This Page
             </div>
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {tableOfContents.map((item) => (
+              {tableOfContents.map((item: { id: string; title: string }) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}

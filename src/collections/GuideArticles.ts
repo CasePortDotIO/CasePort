@@ -1,86 +1,254 @@
 import type { CollectionConfig, FieldHook } from 'payload'
 
-// ─── Lexical Content Helpers ───────────────────────────────────────────────
+import { GUIDE_BLOCKS } from './GuideBlocks'
+import { B2C_BLOCKS } from './TestGuideBlocks'
 
-const extractTextFromRichText = (nodes: any[]): string => {
+// ─── Block Data Extractors ─────────────────────────────────────────────────
+
+type Block = { blockType: string; [key: string]: any }
+
+const getBlocks = (data: any): Block[] => data?.blocks || []
+
+/** Extract plain text from Lexical richText nodes */
+const extractTextFromLexical = (nodes: any[]): string => {
   if (!Array.isArray(nodes)) return ''
   let text = ''
   for (const node of nodes) {
-    if (node.type === 'text' && node.text) {
-      text += node.text + ' '
-    } else if (node.children) {
-      text += extractTextFromRichText(node.children) + ' '
+    if (node.type === 'text' && node.text) text += node.text + ' '
+    else if (node.children) text += extractTextFromLexical(node.children) + ' '
+  }
+  return text
+}
+
+/** Count heading tags in a Lexical node tree */
+const countHeadings = (nodes: any[], tag: string): number => {
+  let count = 0
+  for (const node of nodes) {
+    if (node.type === 'heading' && node.tag === tag) count++
+    if (node.children) count += countHeadings(node.children, tag)
+  }
+  return count
+}
+
+/** Extract all text from all blocks for read-time / keyword scoring */
+const extractTextFromBlocks = (blocks: Block[]): string => {
+  let text = ''
+  for (const block of blocks) {
+    if (block.blockType === 'richText' && block.content?.root?.children) {
+      text += extractTextFromLexical(block.content.root.children) + ' '
+    }
+    if (block.blockType === 'standfirst' && block.text) {
+      text += block.text + ' '
+    }
+    if (block.blockType === 'directAnswer' && block.text) {
+      text += block.text + ' '
+    }
+    if (block.blockType === 'stepChecklist' && block.steps) {
+      for (const s of block.steps) {
+        if (s.name) text += s.name + ' '
+        if (s.bullets) {
+          for (const b of s.bullets) text += (typeof b === 'string' ? b : b.bullet || '') + ' '
+        }
+      }
+    }
+    if (block.blockType === 'protectionPlan' && block.steps) {
+      for (const s of block.steps) text += (typeof s === 'string' ? s : s.step || s.text || '') + ' '
+    }
+    if (block.blockType === 'attorneyComparison' && block.rows) {
+      for (const r of block.rows) {
+        text += (r.factor || '') + ' ' + (r.withAttorney || '') + ' ' + (r.withoutAttorney || '') + ' '
+      }
+    }
+    if (block.blockType === 'settlementExample' && block.examples) {
+      for (const e of block.examples) {
+        text += (e.settlement || '') + ' ' + (e.quote || '') + ' '
+      }
+    }
+    if (block.blockType === 'statuteLimitations') {
+      if (block.description) text += block.description + ' '
+      if (block.states) {
+        for (const s of block.states) text += (s.state || '') + ' ' + (s.notes || '') + ' '
+      }
+    }
+    if (block.blockType === 'expertQuote' && block.quote) text += block.quote + ' '
+    if (block.blockType === 'termDefinition') {
+      text += (block.term || '') + ' ' + (block.definition || '') + ' '
+    }
+    if (block.blockType === 'faqAccordion' && block.faqs) {
+      for (const f of block.faqs) text += (f.question || '') + ' ' + (f.answer || '') + ' '
+    }
+    if (block.blockType === 'peopleAlsoAsk' && block.items) {
+      for (const i of block.items) text += (i.q || i.question || '') + ' ' + (i.a || i.answer || '') + ' '
+    }
+    if (block.blockType === 'medicalDocumentation') {
+      if (block.introText) text += block.introText + ' '
+      if (block.calloutText) text += block.calloutText + ' '
+    }
+    if (block.blockType === 'immediateActions' && block.steps) {
+      for (const s of block.steps) {
+        text += (s.title || '') + ' ' + (s.description || '') + ' '
+      }
+    }
+    if (block.blockType === 'cta') {
+      if (block.heading) text += block.heading + ' '
+      if (block.subcopy) text += block.subcopy + ' '
     }
   }
   return text
 }
 
-const countHeadingsInLexical = (nodes: any[], tag: string): number => {
-  let count = 0
-  for (const node of nodes) {
-    if (node.type === 'heading' && node.tag === tag) count++
-    if (node.children) count += countHeadingsInLexical(node.children, tag)
+/** Extract directAnswer block text */
+const getDirectAnswerFromBlocks = (blocks: Block[]): string => {
+  const b = blocks.find(b => b.blockType === 'directAnswer')
+  return b?.text || ''
+}
+
+/** Extract FAQ items from blocks */
+const getFaqsFromBlocks = (blocks: Block[]): any[] => {
+  const faqs: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'faqAccordion' && Array.isArray(block.faqs)) {
+      faqs.push(...block.faqs)
+    }
   }
-  return count
+  return faqs
+}
+
+/** Extract citation fact sources from blocks */
+const getStatsFromBlocks = (blocks: Block[]): any[] => {
+  const stats: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'citationFact' && Array.isArray(block.facts)) {
+      stats.push(...block.facts)
+    }
+  }
+  return stats
+}
+
+/** Extract expert quotes from blocks */
+const getQuotesFromBlocks = (blocks: Block[]): any[] => {
+  const quotes: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'expertQuote' && block.quote) {
+      quotes.push(block)
+    }
+  }
+  return quotes
+}
+
+/** Extract term definitions from blocks */
+const getTermsFromBlocks = (blocks: Block[]): any[] => {
+  const terms: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'termDefinition' && block.term) {
+      terms.push(block)
+    }
+  }
+  return terms
+}
+
+/** Extract related guides from blocks */
+const getRelatedGuidesFromBlocks = (blocks: Block[]): any[] => {
+  const guides: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'relatedGuides' && Array.isArray(block.guides)) {
+      guides.push(...block.guides)
+    }
+  }
+  return guides
+}
+
+/** Extract entity sameAs URLs from blocks */
+const getSameAsUrlsFromBlocks = (blocks: Block[]): any[] => {
+  const urls: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'entityContext' && Array.isArray(block.entities)) {
+      for (const e of block.entities) {
+        if (e.sameAs) urls.push({ url: e.sameAs })
+      }
+    }
+  }
+  return urls
+}
+
+/** Extract external sources from citationFact blocks */
+const getExternalSourcesFromBlocks = (blocks: Block[]): any[] => {
+  const sources: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'citationFact' && Array.isArray(block.facts)) {
+      for (const f of block.facts) {
+        if (f.source) sources.push({ name: f.source, url: f.sourceUrl || '' })
+      }
+    }
+  }
+  return sources
+}
+
+/** Count headings from all richText blocks */
+const countHeadingsFromBlocks = (blocks: Block[]): { h2: number; h3: number } => {
+  let h2 = 0, h3 = 0
+  for (const block of blocks) {
+    if (block.blockType === 'richText' && block.content?.root?.children) {
+      h2 += countHeadings(block.content.root.children, 'h2')
+      h3 += countHeadings(block.content.root.children, 'h3')
+    }
+  }
+  return { h2, h3 }
 }
 
 // ─── Score Generators ────────────────────────────────────────────────────────
 
-const generateAeoScore: FieldHook = async ({ data }) => {
+const generateAeoScore = async ({ data }: { data: any }): Promise<number> => {
   let score = 0
-  const d = data || {}
+  const blocks = getBlocks(data)
 
-  const directAnswer = d.directAnswer || ''
+  const directAnswer = getDirectAnswerFromBlocks(blocks)
   if (directAnswer.length >= 40) {
-    if (directAnswer.toLowerCase().includes('caseport')) {
-      score += 25
-    } else {
-      score += 12
-    }
+    score += directAnswer.toLowerCase().includes('caseport') ? 25 : 12
   }
 
-  const aiSummary = d.aiCitationSummary || ''
+  const aiSummary = data.aiCitationSummary || ''
   if (aiSummary.length >= 80) score += 15
 
-  const faqs = d.faqSection || []
-  const validFaqs = faqs.filter((f: any) => f.question && f.answer && f.answer.length >= 40).length
+  const faqs = getFaqsFromBlocks(blocks)
+  const validFaqs = faqs.filter((f: any) => f.question && f.answer && (f.answer.length || '') >= 40).length
   if (validFaqs >= 4) score += 20
   else if (validFaqs >= 2) score += 10
   else if (validFaqs === 1) score += 5
 
-  const stats = d.keyStatistics || []
-  const validStats = stats.filter((s: any) => s.text && s.sourceName).length
+  const stats = getStatsFromBlocks(blocks)
+  const validStats = stats.filter((s: any) => s.fact && s.source).length
   if (validStats >= 3) score += 15
   else if (validStats === 2) score += 10
   else if (validStats === 1) score += 5
 
-  const voiceAnswer = d.voiceAnswer || ''
+  const voiceAnswer = data.voiceAnswer || ''
   const words = voiceAnswer.split(' ').filter(Boolean).length
   if (voiceAnswer.length >= 10 && words < 35) score += 10
 
-  const terms = d.termDefinitions || []
+  const terms = getTermsFromBlocks(blocks)
   if (terms.length >= 2) score += 5
 
-  const metaTitle = d.metaTitle || ''
-  const metaDesc = d.metaDescription || ''
+  const metaTitle = data.metaTitle || ''
+  const metaDesc = data.metaDescription || ''
   if (metaTitle.length > 0 && metaDesc.length > 0) score += 5
 
-  const quotes = d.expertQuotes || []
-  const validQuotes = quotes.filter((q: any) => q.speakerName && q.quote).length
-  if (validQuotes >= 1) score += 5
+  const quotes = getQuotesFromBlocks(blocks)
+  if (quotes.length >= 1) score += 5
 
   return score
 }
 
-const calculateReadTime: FieldHook = async ({ data }) => {
-  if (!data?.content?.root?.children) return 0
-  const text = extractTextFromRichText(data.content.root.children)
+const calculateReadTime = async ({ data }: { data: any }): Promise<number> => {
+  const blocks = getBlocks(data)
+  const text = extractTextFromBlocks(blocks)
   const words = text.split(/\s+/).filter(Boolean).length
   return Math.ceil(words / 200) || 1
 }
 
 const generateSeoScore = async (d: any, heroImageAlt = ''): Promise<number> => {
   let score = 0
+  const blocks = getBlocks(d)
 
   const keyword = (d.focusKeyword ?? '').toLowerCase().trim()
   const title = (d.title ?? '').toLowerCase()
@@ -88,11 +256,9 @@ const generateSeoScore = async (d: any, heroImageAlt = ''): Promise<number> => {
   const metaDesc = d.metaDescription ?? ''
   const slug = (d.slug ?? '').toLowerCase()
 
-  const bodyText = d.content?.root?.children
-    ? extractTextFromRichText(d.content.root.children).toLowerCase().slice(0, 300)
-    : ''
+  const bodyText = extractTextFromBlocks(blocks).toLowerCase().slice(0, 300)
   const altText = heroImageAlt ?? (typeof d.heroImage === 'object' ? (d.heroImage?.alt ?? '') : '')
-  const related = d.relatedArticles ?? []
+  const related = getRelatedGuidesFromBlocks(blocks)
   const secondary = d.secondaryKeywords ?? []
 
   const mt = metaTitle.trim().length
@@ -112,15 +278,13 @@ const generateSeoScore = async (d: any, heroImageAlt = ''): Promise<number> => {
   if (secondary.length >= 4) score += 10
   else if (secondary.length >= 2) score += 5
 
-  const fullBody = d.content?.root?.children
-    ? extractTextFromRichText(d.content.root.children).toLowerCase()
-    : ''
+  const fullBody = extractTextFromBlocks(blocks).toLowerCase()
   if (keyword && fullBody.includes(keyword)) score += 5
 
   return Math.min(score, 100)
 }
 
-const calculateNextReviewDue: FieldHook = async ({ data }) => {
+const calculateNextReviewDue = async ({ data }: { data: any }): Promise<string | null> => {
   if (!data?.publishedDate || !data?.reviewCycle) return null
   const pubDate = new Date(data.publishedDate)
   if (isNaN(pubDate.getTime())) return null
@@ -160,11 +324,14 @@ const calculateVoiceScore = (data: any): number => {
 }
 
 const calculateContentQualityScore = (data: any, h2Count: number, h3Count: number): number => {
+  const blocks = getBlocks(data)
   let score = 0
   if (h2Count >= 3) score += 10
   if (h3Count >= 6) score += 10
-  if (data.directAnswer?.length > 40) score += 10
-  if ((data.faqSection?.length || 0) >= 5) score += 10
+  const directAnswer = getDirectAnswerFromBlocks(blocks)
+  if (directAnswer.length > 40) score += 10
+  const faqs = getFaqsFromBlocks(blocks)
+  if (faqs.length >= 5) score += 10
   if (data.sgeOptimization?.sgeOptimizedAnswer?.length > 40) score += 10
   if (data.sgeOptimization?.uniqueContentSignals?.length > 0) score += 5
   if (data.geoOptimization?.targetStates?.length > 0) score += 8
@@ -172,7 +339,8 @@ const calculateContentQualityScore = (data: any, h2Count: number, h3Count: numbe
   if (data.voiceAnswer?.length > 30) score += 10
   if (data.speakableCssSelectors?.length > 0) score += 5
   if (data.expertReviewer) score += 8
-  if ((data.externalSources?.length || 0) > 0) score += 7
+  const sources = getExternalSourcesFromBlocks(blocks)
+  if (sources.length > 0) score += 7
   return Math.min(score, 100)
 }
 
@@ -188,9 +356,7 @@ const calculateSnippetScore = (data: any): number => {
   return Math.min(score, 100)
 }
 
-const calculateFreshness = (
-  data: any,
-): { daysOld: number; freshnessStatus: string; nextReviewDue: Date } => {
+const calculateFreshness = (data: any): { daysOld: number; freshnessStatus: string; nextReviewDue: Date } => {
   const lastReviewRaw = data.contentFreshness?.lastReviewDate || data.updatedAt
   const lastReview = new Date(lastReviewRaw)
   const today = new Date()
@@ -228,6 +394,42 @@ export const GuideArticles: CollectionConfig = {
         if (doc.slug) {
           doc._previewUrl = `/api/preview?slug=${doc.slug}&collection=guideArticles`
         }
+
+        // Sanitize blocks — fix any richText blocks with undefined content
+        const emptyLexical = {
+          root: {
+            children: [{ type: 'paragraph', children: [{ type: 'text', text: '' }] }],
+          },
+        }
+
+        const fixTextNodes = (nodes: any[]): void => {
+          if (!Array.isArray(nodes)) return
+          for (const node of nodes) {
+            if (node.type === 'text') {
+              if (node.format === undefined) node.format = 0
+              if (node.detail === undefined) node.detail = 0
+              if (node.mode === undefined) node.mode = 'normal'
+              if (node.style === undefined) node.style = ''
+              if (node.version === undefined) node.version = 1
+            }
+            if (node.children) fixTextNodes(node.children)
+          }
+        }
+
+        const blocks: Block[] = doc.blocks || []
+        for (const block of blocks) {
+          if (block.blockType === 'richText') {
+            if (!block.content || typeof block.content !== 'object') {
+              block.content = emptyLexical
+            } else if (!block.content.root || !Array.isArray(block.content.root.children)) {
+              block.content = emptyLexical
+            } else {
+              // Fix missing format/detail on text nodes
+              fixTextNodes(block.content.root.children)
+            }
+          }
+        }
+
         return doc
       },
     ],
@@ -246,6 +448,7 @@ export const GuideArticles: CollectionConfig = {
         if (data._status !== 'published') return data
 
         const issues: string[] = []
+        const blocks = getBlocks(data)
 
         if (!data.title?.trim()) issues.push('Title is required')
         else if (data.title.length < 10)
@@ -264,13 +467,10 @@ export const GuideArticles: CollectionConfig = {
         if (!data.metaDescription?.trim()) issues.push('Meta Description is required')
         else if (data.metaDescription.length < 120)
           issues.push(`Meta Description too short (${data.metaDescription.length}/120 chars)`)
-        if (!data.directAnswer?.trim()) issues.push('Direct Answer (AEO) is required')
-        else if (data.directAnswer.length < 40)
-          issues.push(`Direct Answer: ${data.directAnswer.length}/40 chars`)
-        if (!data.voiceAnswer?.trim()) issues.push('Voice Answer is required')
         if (!data.schemaType) issues.push('Schema Type is required')
         if (!data.pageType) issues.push('Page Type is required')
 
+        // Validate fields still at top level
         const keyTakeaways = data.keyTakeaways || []
         if (keyTakeaways.length < 3)
           issues.push(`Key Takeaways: ${keyTakeaways.length}/3 — add ${3 - keyTakeaways.length} more`)
@@ -280,30 +480,36 @@ export const GuideArticles: CollectionConfig = {
         const secondaryKeywords = data.secondaryKeywords || []
         if (secondaryKeywords.length < 2)
           issues.push(`Secondary Keywords: ${secondaryKeywords.length}/2 — add ${2 - secondaryKeywords.length} more`)
-        const keyStats = data.keyStatistics || []
-        if (keyStats.length < 2)
-          issues.push(`Key Statistics: ${keyStats.length}/2 — add ${2 - keyStats.length} more`)
-        const faqs = data.faqSection || []
+
+        // Validate block-based fields
+        const directAnswer = getDirectAnswerFromBlocks(blocks)
+        if (!directAnswer.trim()) issues.push('Direct Answer block is required')
+        else if (directAnswer.length < 40)
+          issues.push(`Direct Answer: ${directAnswer.length}/40 chars`)
+
+        const faqs = getFaqsFromBlocks(blocks)
         if (faqs.length < 4)
           issues.push(`FAQ items: ${faqs.length}/4 — add ${4 - faqs.length} more`)
-        const sameAsUrls = data.sameAsEntityUrls || []
-        if (sameAsUrls.length < 1) issues.push('At least 1 Same-As URL is required')
-        const extSources = data.externalSources || []
-        if (extSources.length < 1) issues.push('At least 1 External Source is required')
-        const speakable = data.speakableCssSelectors || []
-        if (speakable.length < 1) issues.push('At least 1 Speakable CSS Selector is required')
 
-        const contentNodes = data.content?.root?.children || []
-        const bodyText = extractTextFromRichText(contentNodes)
-        if (!data.content || bodyText.length < 50) issues.push('Article content is required')
-        else {
-          if (bodyText.length < 1500)
-            issues.push(`Content too short (${bodyText.length}/1500 chars)`)
-          const h2Count = countHeadingsInLexical(contentNodes, 'h2')
-          const h3Count = countHeadingsInLexical(contentNodes, 'h3')
-          if (h2Count < 3) issues.push(`H2 Headings: ${h2Count}/3 — add ${3 - h2Count} more`)
-          if (h3Count < 4) issues.push(`H3 Headings: ${h3Count}/4 — add ${4 - h3Count} more`)
-        }
+        const stats = getStatsFromBlocks(blocks)
+        if (stats.length < 2)
+          issues.push(`Key Statistics (Citation Fact blocks): ${stats.length}/2 — add ${2 - stats.length} more`)
+
+        const sameAsUrls = getSameAsUrlsFromBlocks(blocks)
+        if (sameAsUrls.length < 1) issues.push('At least 1 Same-As URL is required (add an Entity Context block)')
+
+        const extSources = getExternalSourcesFromBlocks(blocks)
+        if (extSources.length < 1) issues.push('At least 1 External Source is required (add Citation Fact blocks)')
+
+        // Content length from blocks
+        const bodyText = extractTextFromBlocks(blocks)
+        if (bodyText.length < 50) issues.push('Article content is required')
+        else if (bodyText.length < 1500)
+          issues.push(`Content too short (${bodyText.length}/1500 chars)`)
+
+        const { h2, h3 } = countHeadingsFromBlocks(blocks)
+        if (h2 < 3) issues.push(`H2 Headings: ${h2}/3 — add ${3 - h2} more (use Heading in RichText blocks)`)
+        if (h3 < 4) issues.push(`H3 Headings: ${h3}/4 — add ${4 - h3} more`)
 
         const sgeAnswer = data.sgeOptimizedAnswer || ''
         if (!sgeAnswer.trim()) issues.push('SGE Optimized Answer is required')
@@ -317,6 +523,54 @@ export const GuideArticles: CollectionConfig = {
       },
     ],
     beforeChange: [
+      // Sanitize richText blocks before saving — fix undefined content and missing fields
+      ({ data }) => {
+        const fixRichText = (content: any): any => {
+          if (!content || typeof content !== 'object') {
+            return { root: { children: [], type: 'root', format: 0, indent: 0, version: 1 } }
+          }
+          // Fix root node
+          if (!content.root) content.root = { children: [], type: 'root', format: 0, indent: 0, version: 1 }
+          else {
+            if (content.root.type === undefined) content.root.type = 'root'
+            if (content.root.format === undefined) content.root.format = 0
+            if (content.root.indent === undefined) content.root.indent = 0
+            if (content.root.version === undefined) content.root.version = 1
+            if (content.root.direction === undefined) content.root.direction = null
+          }
+
+          const fixNodes = (nodes: any[]): void => {
+            if (!Array.isArray(nodes)) return
+            for (const node of nodes) {
+              if (node.type === 'text') {
+                if (node.format === undefined) node.format = 0
+                if (node.detail === undefined) node.detail = 0
+                if (node.mode === undefined) node.mode = 'normal'
+                if (node.style === undefined) node.style = ''
+                if (node.version === undefined) node.version = 1
+              } else if (node.type === 'paragraph' || node.type === 'heading') {
+                if (node.version === undefined) node.version = 1
+                if (node.format === undefined) node.format = 0
+                if (node.direction === undefined) node.direction = null
+                if (node.indent === undefined) node.indent = 0
+                if (node.type === 'heading' && node.tag === undefined) node.tag = 'h2'
+              }
+              if (node.children) fixNodes(node.children)
+            }
+          }
+
+          if (content.root.children) fixNodes(content.root.children)
+          return content
+        }
+
+        const blocks: Block[] = data?.blocks || []
+        for (const block of blocks) {
+          if (block.blockType === 'richText') {
+            block.content = fixRichText(block.content)
+          }
+        }
+        return data
+      },
       async ({ data, operation }) => {
         if (data._isSeeding) return data
 
@@ -325,9 +579,10 @@ export const GuideArticles: CollectionConfig = {
         }
 
         try {
-          data.aeoScore = await generateAeoScore({ data } as any)
-          data.readTime = await calculateReadTime({ data } as any)
-          data.nextReviewDue = await calculateNextReviewDue({ data } as any)
+          const blocks = getBlocks(data)
+          data.aeoScore = await generateAeoScore({ data })
+          data.readTime = await calculateReadTime({ data })
+          data.nextReviewDue = await calculateNextReviewDue({ data })
         } catch (err) {
           console.error('Score calculation error:', err)
         }
@@ -337,10 +592,9 @@ export const GuideArticles: CollectionConfig = {
       async ({ data, req }) => {
         if (data._isSeeding) return data
         try {
-          const contentNodes = data.content?.root?.children || []
-          const h2Count = countHeadingsInLexical(contentNodes, 'h2')
-          const h3Count = countHeadingsInLexical(contentNodes, 'h3')
-          const bodyText = extractTextFromRichText(contentNodes)
+          const blocks = getBlocks(data)
+          const { h2, h3 } = countHeadingsFromBlocks(blocks)
+          const bodyText = extractTextFromBlocks(blocks)
 
           let heroImageAlt = ''
           if (typeof data.heroImage === 'object' && data.heroImage?.alt) {
@@ -353,7 +607,7 @@ export const GuideArticles: CollectionConfig = {
               })
               heroImageAlt = mediaDoc?.alt ?? ''
             } catch {
-              // Media lookup failed — alt stays empty
+              heroImageAlt = ''
             }
           }
 
@@ -397,13 +651,14 @@ export const GuideArticles: CollectionConfig = {
 
           data.seoScore = seoScore
 
-          data.contentQualityScore = calculateContentQualityScore(data, h2Count, h3Count)
+          data.contentQualityScore = calculateContentQualityScore(data, h2, h3)
 
+          const faqs = getFaqsFromBlocks(blocks)
           data.contentValidation = {
             contentLength: bodyText.length,
-            h2Count,
-            h3Count,
-            faqCount: data.faqSection?.length || 0,
+            h2Count: h2,
+            h3Count: h3,
+            faqCount: faqs.length,
             validationStatus:
               data.contentQualityScore >= 80
                 ? 'pass'
@@ -514,265 +769,46 @@ export const GuideArticles: CollectionConfig = {
             { name: 'excerpt', type: 'textarea', maxLength: 300 },
             { name: 'subtitle', type: 'text' },
             { name: 'executiveSummary', type: 'textarea' },
-            // ─── Main Content ────────────────────────────────────────────
-            { name: 'content', type: 'richText' },
+            // ─── Guide Blocks ──────────────────────────────────────────
+            {
+              name: 'blocks',
+              type: 'blocks',
+              blocks: [
+                ...GUIDE_BLOCKS,
+                ...B2C_BLOCKS,
+              ],
+              admin: {
+                description: 'Add and reorder blocks to structure your article content.',
+              },
+            },
             // ─── AEO & Direct Answer ─────────────────────────────────────
-            { name: 'directAnswer', type: 'textarea', label: 'Direct Answer (AEO)' },
-            { name: 'aiCitationSummary', type: 'textarea', label: 'AI Citation Summary' },
-            { name: 'primaryAiQuery', type: 'text', label: 'Primary AI Query' },
+            // directAnswer, aiCitationSummary, primaryAiQuery — now in DirectAnswer + Standfirst blocks
             // ─── FAQ Section ─────────────────────────────────────────────
-            {
-              name: 'faqSection',
-              type: 'array',
-              fields: [
-                { name: 'question', type: 'text' },
-                { name: 'answer', type: 'textarea' },
-              ],
-            },
+            // faqSection — now in FAQAccordion block
             // ─── Key Statistics ──────────────────────────────────────────
-            {
-              name: 'keyStatistics',
-              type: 'array',
-              fields: [
-                { name: 'text', type: 'text' },
-                { name: 'sourceName', type: 'text' },
-                { name: 'sourceUrl', type: 'text' },
-                { name: 'year', type: 'text' },
-              ],
-            },
-            // ─── Key Takeaways ───────────────────────────────────────────
-            {
-              name: 'keyTakeaways',
-              type: 'array',
-              fields: [{ name: 'point', type: 'text' }],
-            },
-            // ─── TL;DR Action Plan ─────────────────────────────────────────
-            {
-              name: 'whatYouLearn',
-              type: 'array',
-              label: 'What You\'ll Learn (Table of Contents)',
-              fields: [
-                { name: 'icon', type: 'text', label: 'Icon name (AlertCircle, BookOpen, DollarSign, etc.)' },
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'text' },
-              ],
-            },
-            // ─── Immediate Steps ────────────────────────────────────────
-            {
-              name: 'immediateStepsTitle',
-              type: 'text',
-              label: 'Immediate Steps Section Title',
-            },
-            {
-              name: 'immediateStepsSubtitle',
-              type: 'text',
-              label: 'Immediate Steps Section Subtitle',
-            },
-            {
-              name: 'immediateSteps',
-              type: 'array',
-              label: 'Immediate Steps Section',
-              fields: [
-                { name: 'step', type: 'number' },
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'textarea' },
-                { name: 'bullets', type: 'array', fields: [{ name: 'bullet', type: 'text' }] },
-              ],
-            },
-            // ─── Attorney Comparison ─────────────────────────────────────
-            {
-              name: 'attorneyComparison',
-              type: 'array',
-              label: 'Attorney Comparison',
-              fields: [
-                { name: 'label', type: 'text' },
-                { name: 'withoutAttorney', type: 'textarea' },
-                { name: 'withAttorney', type: 'textarea' },
-              ],
-            },
-            // ─── Settlement Data ────────────────────────────────────────
-            {
-              name: 'settlementData',
-              type: 'group',
-              label: 'Settlement Data',
-              fields: [
-                { name: 'average', type: 'text' },
-                { name: 'successRate', type: 'text' },
-                { name: 'timeline', type: 'text' },
-                { name: 'upfrontCost', type: 'text' },
-                { name: 'minSettlement', type: 'text' },
-                { name: 'maxSettlement', type: 'text' },
-                { name: 'avgSettlement', type: 'text' },
-                {
-                  name: 'rangesByInjury',
-                  type: 'array',
-                  label: 'Ranges by Injury Type',
-                  fields: [
-                    { name: 'injuryType', type: 'text' },
-                    { name: 'minAmount', type: 'text' },
-                    { name: 'maxAmount', type: 'text' },
-                    { name: 'recoveryTime', type: 'text' },
-                  ],
-                },
-              ],
-            },
-            // ─── State Ranges (JSON) ─────────────────────────────────────
-            {
-              name: 'stateRanges',
-              type: 'json',
-              label: 'State-by-State Settlement Ranges',
-              admin: { description: 'JSON object: {"CA": {min: 25000, max: 75000, avg: 50000}, "TX": {...}}' },
-            },
-            // ─── Statute of Limitations ────────────────────────────────
-            {
-              name: 'statuteOfLimitations',
-              type: 'group',
-              label: 'Statute of Limitations',
-              fields: [
-                { name: 'years', type: 'number' },
-                { name: 'description', type: 'textarea' },
-                {
-                  name: 'exceptions',
-                  type: 'array',
-                  fields: [{ name: 'exception', type: 'text' }],
-                },
-                {
-                  name: 'byState',
-                  type: 'array',
-                  label: 'By State',
-                  fields: [
-                    { name: 'state', type: 'text' },
-                    { name: 'years', type: 'number' },
-                    { name: 'notes', type: 'text' },
-                  ],
-                },
-              ],
-            },
-            // ─── Client Testimonials ─────────────────────────────────────
-            {
-              name: 'testimonials',
-              type: 'array',
-              label: 'Client Testimonials',
-              fields: [
-                { name: 'name', type: 'text' },
-                { name: 'location', type: 'text' },
-                { name: 'settlement', type: 'text' },
-                { name: 'settlementValue', type: 'text' },
-                { name: 'injuryType', type: 'text' },
-                { name: 'caseType', type: 'text' },
-                { name: 'quote', type: 'textarea' },
-                { name: 'rating', type: 'number' },
-                { name: 'date', type: 'date' },
-                { name: 'caseResolutionTime', type: 'text' },
-              ],
-            },
-            // ─── Key Facts ───────────────────────────────────────────────
-            {
-              name: 'keyFacts',
-              type: 'array',
-              label: 'Key Facts Section',
-              fields: [
-                { name: 'stat', type: 'text' },
-                { name: 'label', type: 'text' },
-                { name: 'description', type: 'text' },
-              ],
-            },
-            // ─── 5 Things to Know ───────────────────────────────────────
-            {
-              name: 'fiveThingsToKnow',
-              type: 'array',
-              label: '5 Things You Need to Know',
-              fields: [
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'text' },
-              ],
-            },
-            // ─── Liability Section ──────────────────────────────────────
-            {
-              name: 'liabilityIntro',
-              type: 'textarea',
-              label: 'Liability Introduction Text',
-            },
-            {
-              name: 'liabilityParties',
-              type: 'array',
-              label: 'Potentially Liable Parties',
-              fields: [
-                { name: 'name', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            {
-              name: 'federalRegulations',
-              type: 'array',
-              label: 'Federal Regulations',
-              fields: [
-                { name: 'name', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            // ─── Mistakes to Avoid ──────────────────────────────────────
-            {
-              name: 'mistakesToAvoid',
-              type: 'array',
-              label: 'Critical Mistakes to Avoid',
-              fields: [
-                { name: 'title', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            // ─── Decision Matrix ─────────────────────────────────────────
-            {
-              name: 'decisionMatrix',
-              type: 'array',
-              label: 'Decision Matrix (When You Need Attorney)',
-              fields: [
-                { name: 'icon', type: 'text' },
-                { name: 'scenario', type: 'text' },
-                { name: 'description', type: 'textarea' },
-              ],
-            },
-            // ─── Math Comparison ─────────────────────────────────────────
-            {
-              name: 'mathComparison',
-              type: 'group',
-              label: 'The Math Section',
-              fields: [
-                { name: 'title', type: 'text' },
-                { name: 'subtitle', type: 'text' },
-                {
-                  name: 'withoutAttorney',
-                  type: 'group',
-                  fields: [
-                    { name: 'settlement', type: 'number' },
-                    { name: 'costs', type: 'number' },
-                    { name: 'youKeep', type: 'number' },
-                  ],
-                },
-                {
-                  name: 'withAttorney',
-                  type: 'group',
-                  fields: [
-                    { name: 'settlement', type: 'number' },
-                    { name: 'feePercentage', type: 'text' },
-                    { name: 'feeAmount', type: 'number' },
-                    { name: 'youKeep', type: 'number' },
-                    { name: 'increasePercentage', type: 'text' },
-                  ],
-                },
-              ],
-            },
-            // ─── CTA Section ─────────────────────────────────────────────
-            {
-              name: 'ctaHeading',
-              type: 'text',
-              label: 'CTA Section Heading',
-            },
-            {
-              name: 'ctaBody',
-              type: 'textarea',
-              label: 'CTA Section Body Text',
-            },
+            // keyStatistics — now in CitationFact block
+            // ─── Expert Info ─────────────────────────────────────────────
+            // expertQuotes — now in ExpertQuote block
+            // ─── Term Definitions ─────────────────────────────────────────
+            // termDefinitions — now in TermDefinition block
+            // ─── Related Articles ─────────────────────────────────────────
+            // relatedArticles (relationship) — now in RelatedArticleLink block
+            // ─── Duplicates removed → use Blocks instead ──────────────────────────────────
+            // REMOVED (use blocks instead):
+            // - whatYouLearn → KeyTakeaways block
+            // - immediateStepsTitle/Subtitle + immediateSteps → StepChecklist block
+            // - attorneyComparison → Comparison block
+            // - settlementData group → SettlementRange + CaseScenario blocks
+            // - stateRanges → SettlementRanges block
+            // - statuteOfLimitations group → StatuteLimitations block
+            // - testimonials → CaseScenario block
+            // - keyFacts → StatCallout block
+            // - fiveThingsToKnow → ProtectionPlan block
+            // - mistakesToAvoid → ProtectionPlan block
+            // - decisionMatrix → (new DecisionMatrix block planned)
+            // - mathComparison group → Comparison block
+            // - ctaHeading + ctaBody → CTA block
+            // ─── Core Fields (kept) ─────────────────────────────────────────────
             // ─── Difficulty & Time ─────────────────────────────────────
             {
               name: 'difficultyLevel',
@@ -785,52 +821,12 @@ export const GuideArticles: CollectionConfig = {
               type: 'text',
               admin: { description: 'e.g., "5 min read"' },
             },
-            // ─── Expert Info ────────────────────────────────────────────
-            {
-              name: 'expertQuotes',
-              type: 'array',
-              label: 'Expert Quotes',
-              fields: [
-                { name: 'quote', type: 'textarea' },
-                { name: 'speakerName', type: 'text' },
-                { name: 'credentials', type: 'text' },
-              ],
-            },
-            {
-              name: 'termDefinitions',
-              type: 'array',
-              label: 'Term Definitions',
-              fields: [
-                { name: 'term', type: 'text' },
-                { name: 'definition', type: 'textarea' },
-                { name: 'isProprietary', type: 'checkbox' },
-              ],
-            },
             // ─── Relationships ──────────────────────────────────────────
-            {
-              name: 'relatedArticles',
-              type: 'relationship',
-              relationTo: 'articles',
-              hasMany: true,
-              admin: { description: 'Cross-link to Insights articles' },
-            },
-            {
-              name: 'relatedGuides',
-              type: 'relationship',
-              relationTo: 'guideArticles',
-              hasMany: true,
-              admin: { description: 'Cross-link to other guide articles' },
-            },
+            // relatedArticles (relationship) — now in RelatedArticleLink block
+            // relatedGuides (relationship) — now in RelatedGuides block
             // ─── Tags ───────────────────────────────────────────────────
+            // NOTE: tags field has no block equivalent yet — kept as-is
             { name: 'tags', type: 'array', fields: [{ name: 'tag', type: 'text' }] },
-          ],
-        },
-        // ─── GUIDE-SPECIFIC FIELDS (Auto-calculated - not user entry) ────────────
-        {
-          label: 'Guide Metrics',
-          fields: [
-            // These are auto-calculated or backend-calculated fields
-            // User entry fields have been moved to Content tab
           ],
         },
         // ─── SEO Core ───────────────────────────────────────────────────
