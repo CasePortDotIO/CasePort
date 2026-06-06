@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 // ─── Guide Article Block Library ────────────────────────────────────────────────
 
@@ -170,6 +171,40 @@ export const StatuteLimitationsBlock: Block = {
   ],
 }
 
+/**
+ * Critical Mistakes Block — "What NOT to Do" section
+ * Critical mistakes that can destroy a personal injury case
+ */
+export const CriticalMistakesBlock: Block = {
+  slug: 'criticalMistakes',
+  labels: { singular: 'Critical Mistakes', plural: 'Critical Mistakes' },
+  fields: [
+    {
+      name: 'mistakes',
+      type: 'array',
+      fields: [
+        { name: 'mistake', type: 'text', required: true, label: 'Mistake' },
+        { name: 'reason', type: 'textarea', label: 'Why It Matters' },
+      ],
+      admin: { description: 'Add one row per critical mistake to avoid' },
+    },
+  ],
+}
+
+/**
+ * End CTA Section Block — Final call-to-action section at end of article
+ */
+export const EndCtaSectionBlock: Block = {
+  slug: 'endCtaSection',
+  labels: { singular: 'End CTA Section', plural: 'End CTA Sections' },
+  fields: [
+    { name: 'heading', type: 'text', defaultValue: "You've Done Everything Right" },
+    { name: 'subcopy', type: 'textarea', defaultValue: 'Now let an attorney protect your rights. Get a free consultation with no obligation.' },
+    { name: 'buttonLabel', type: 'text', defaultValue: 'Call Now: 1-800-227-3669' },
+    { name: 'phoneNumber', type: 'text', defaultValue: '+18002273669' },
+  ],
+}
+
 // ─── Block Registry ────────────────────────────────────────────────────────────
 
 export const GUIDE_BLOCKS: Block[] = [
@@ -179,4 +214,6 @@ export const GUIDE_BLOCKS: Block[] = [
   SettlementExampleBlock,
   SettlementRangesBlock,
   StatuteLimitationsBlock,
+  CriticalMistakesBlock,
+  EndCtaSectionBlock,
 ]

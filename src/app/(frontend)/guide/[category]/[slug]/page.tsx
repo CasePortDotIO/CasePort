@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import GuideArticleClient from './GuideArticleClient'
+import { generateGuideJsonLd } from '@/lib/guide-schema'
 
 export const revalidate = 3600
 
@@ -161,6 +162,17 @@ export default async function GuideArticlePage({
       <div style={isPreview ? { paddingTop: '48px' } : undefined}>
         <GuideArticleClient article={article} category={category} {...navData} isPreview={isPreview} />
       </div>
+      {/* JSON-LD Structured Data */}
+      {(() => {
+        const schemas = generateGuideJsonLd(article, category)
+        return schemas.map((schema: any, i: number) => (
+          <script
+            key={`guide-schema-${i}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        ))
+      })()}
     </>
   )
 }

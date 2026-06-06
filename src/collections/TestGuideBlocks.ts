@@ -26,14 +26,9 @@ const DirectAnswer: Block = {
   fields: [
     {
       name: 'text',
-      type: 'textarea',
+      type: 'richText',
       required: true,
-      validate: (v: string | null | undefined) => {
-        const val = v || ''
-        const a = noForbiddenClaimantLanguage(val)
-        if (a !== true) return a
-        return wordCountInRange(40, 55)(val)
-      },
+      editor: lexicalEditor(),
       admin: { description: role('aeo', '40 to 55 words. Snippet, AI Overview, speakable.') },
     },
     { name: 'speakable', type: 'checkbox', defaultValue: true },

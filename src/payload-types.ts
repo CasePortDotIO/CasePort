@@ -633,6 +633,30 @@ export interface GuideArticle {
           }
         | {
             /**
+             * Add one row per critical mistake to avoid
+             */
+            mistakes?:
+              | {
+                  mistake: string;
+                  reason?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'criticalMistakes';
+          }
+        | {
+            heading?: string | null;
+            subcopy?: string | null;
+            buttonLabel?: string | null;
+            phoneNumber?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'endCtaSection';
+          }
+        | {
+            /**
              * [STR] Lede. Place the focus keyword in the first 300 characters.
              */
             text: string;
@@ -644,7 +668,21 @@ export interface GuideArticle {
             /**
              * [AEO] 40 to 55 words. Snippet, AI Overview, speakable.
              */
-            text: string;
+            text: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
             speakable?: boolean | null;
             id?: string | null;
             blockName?: string | null;
@@ -963,7 +1001,7 @@ export interface GuideArticle {
    */
   difficultyLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
   /**
-   * e.g., "5 min read"
+   * Auto-calculated from content length
    */
   estimatedCompletionTime?: string | null;
   tags?:
@@ -999,6 +1037,14 @@ export interface GuideArticle {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Summary for AI citations and references
+   */
+  aiCitationSummary?: string | null;
+  /**
+   * Primary AI/voice search query this article answers
+   */
+  primaryAiQuery?: string | null;
   voiceAnswer?: string | null;
   speakableCssSelectors?:
     | {
@@ -2478,6 +2524,29 @@ export interface GuideArticlesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        criticalMistakes?:
+          | T
+          | {
+              mistakes?:
+                | T
+                | {
+                    mistake?: T;
+                    reason?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        endCtaSection?:
+          | T
+          | {
+              heading?: T;
+              subcopy?: T;
+              buttonLabel?: T;
+              phoneNumber?: T;
+              id?: T;
+              blockName?: T;
+            };
         standfirst?:
           | T
           | {
@@ -2805,6 +2874,8 @@ export interface GuideArticlesSelect<T extends boolean = true> {
         gap?: T;
         id?: T;
       };
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
   voiceAnswer?: T;
   speakableCssSelectors?:
     | T

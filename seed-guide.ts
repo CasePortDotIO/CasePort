@@ -311,7 +311,26 @@ const run = async () => {
         blockType: 'disclaimer',
         note: 'This content is for informational purposes only and does not constitute legal advice. CasePort is not a law firm and does not provide legal representation.',
       },
-      // 23. Rich Text — optional freeform content (user can add more of these)
+      // 23. Critical Mistakes
+      {
+        blockType: 'criticalMistakes',
+        mistakes: [
+          { mistake: "Don't admit fault or apologize", reason: "Insurance will use this against you. Even 'I'm sorry' can be interpreted as admission of guilt." },
+          { mistake: "Don't post about the accident on social media", reason: "Insurance adjusters monitor social media. Photos, statements, or check-ins can be used to deny your claim." },
+          { mistake: "Don't accept the first settlement offer", reason: "First offers are always low. Attorneys increase settlements 25-40% on average." },
+          { mistake: "Don't delay seeking medical attention", reason: "Gaps in medical treatment reduce your settlement. Insurance uses this to argue injuries aren't serious." },
+          { mistake: "Don't sign anything without an attorney", reason: "Insurance forms contain language that limits your rights. Attorneys review everything." },
+        ],
+      },
+      // 24. End CTA Section
+      {
+        blockType: 'endCtaSection',
+        heading: "You've Done Everything Right",
+        subcopy: 'Now let an attorney protect your rights. Get a free consultation with no obligation.',
+        buttonLabel: 'Call Now: 1-800-227-3669',
+        phoneNumber: '+18002273669',
+      },
+      // 25. Rich Text — optional freeform content (user can add more of these)
       {
         blockType: 'richText',
         content: {

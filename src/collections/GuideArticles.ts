@@ -40,8 +40,8 @@ const extractTextFromBlocks = (blocks: Block[]): string => {
     if (block.blockType === 'standfirst' && block.text) {
       text += block.text + ' '
     }
-    if (block.blockType === 'directAnswer' && block.text) {
-      text += block.text + ' '
+    if (block.blockType === 'directAnswer' && block.text?.root?.children) {
+      text += extractTextFromLexical(block.text.root.children) + ' '
     }
     if (block.blockType === 'stepChecklist' && block.steps) {
       for (const s of block.steps) {
@@ -100,7 +100,13 @@ const extractTextFromBlocks = (blocks: Block[]): string => {
 /** Extract directAnswer block text */
 const getDirectAnswerFromBlocks = (blocks: Block[]): string => {
   const b = blocks.find(b => b.blockType === 'directAnswer')
-  return b?.text || ''
+  if (!b) return ''
+  // Handle Lexical richText format
+  if (b.text?.root?.children) {
+    return extractTextFromLexical(b.text.root.children)
+  }
+  // Fallback for plain text (if someone still uses old data)
+  return typeof b.text === 'string' ? b.text : ''
 }
 
 /** Extract FAQ items from blocks */
@@ -169,6 +175,17 @@ const getSameAsUrlsFromBlocks = (blocks: Block[]): any[] => {
     }
   }
   return urls
+}
+
+/** Extract key takeaways from KeyTakeaways blocks */
+const getKeyTakeawaysFromBlocks = (blocks: Block[]): any[] => {
+  const takeaways: any[] = []
+  for (const block of blocks) {
+    if (block.blockType === 'keyTakeaways' && Array.isArray(block.items)) {
+      takeaways.push(...block.items)
+    }
+  }
+  return takeaways
 }
 
 /** Extract external sources from citationFact blocks */
@@ -471,12 +488,9 @@ export const GuideArticles: CollectionConfig = {
         if (!data.pageType) issues.push('Page Type is required')
 
         // Validate fields still at top level
-        const keyTakeaways = data.keyTakeaways || []
+        const keyTakeaways = getKeyTakeawaysFromBlocks(blocks)
         if (keyTakeaways.length < 3)
           issues.push(`Key Takeaways: ${keyTakeaways.length}/3 — add ${3 - keyTakeaways.length} more`)
-        const relatedGuides = data.relatedGuides || []
-        if (relatedGuides.length < 2)
-          issues.push(`Related Guides: ${relatedGuides.length}/2 — add ${2 - relatedGuides.length} more`)
         const secondaryKeywords = data.secondaryKeywords || []
         if (secondaryKeywords.length < 2)
           issues.push(`Secondary Keywords: ${secondaryKeywords.length}/2 — add ${2 - secondaryKeywords.length} more`)
@@ -495,9 +509,6 @@ export const GuideArticles: CollectionConfig = {
         if (stats.length < 2)
           issues.push(`Key Statistics (Citation Fact blocks): ${stats.length}/2 — add ${2 - stats.length} more`)
 
-        const sameAsUrls = getSameAsUrlsFromBlocks(blocks)
-        if (sameAsUrls.length < 1) issues.push('At least 1 Same-As URL is required (add an Entity Context block)')
-
         const extSources = getExternalSourcesFromBlocks(blocks)
         if (extSources.length < 1) issues.push('At least 1 External Source is required (add Citation Fact blocks)')
 
@@ -508,8 +519,6 @@ export const GuideArticles: CollectionConfig = {
           issues.push(`Content too short (${bodyText.length}/1500 chars)`)
 
         const { h2, h3 } = countHeadingsFromBlocks(blocks)
-        if (h2 < 3) issues.push(`H2 Headings: ${h2}/3 — add ${3 - h2} more (use Heading in RichText blocks)`)
-        if (h3 < 4) issues.push(`H3 Headings: ${h3}/4 — add ${4 - h3} more`)
 
         const sgeAnswer = data.sgeOptimizedAnswer || ''
         if (!sgeAnswer.trim()) issues.push('SGE Optimized Answer is required')
@@ -582,6 +591,7 @@ export const GuideArticles: CollectionConfig = {
           const blocks = getBlocks(data)
           data.aeoScore = await generateAeoScore({ data })
           data.readTime = await calculateReadTime({ data })
+          data.estimatedCompletionTime = `${data.readTime} min read`
           data.nextReviewDue = await calculateNextReviewDue({ data })
         } catch (err) {
           console.error('Score calculation error:', err)
@@ -819,7 +829,7 @@ export const GuideArticles: CollectionConfig = {
             {
               name: 'estimatedCompletionTime',
               type: 'text',
-              admin: { description: 'e.g., "5 min read"' },
+              admin: { description: 'Auto-calculated from content length', readOnly: true },
             },
             // ─── Relationships ──────────────────────────────────────────
             // relatedArticles (relationship) — now in RelatedArticleLink block
@@ -852,13 +862,14 @@ export const GuideArticles: CollectionConfig = {
             { name: 'contentGap', type: 'array', fields: [{ name: 'gap', type: 'text' }] },
           ],
         },
-        // ─── AEO and AI Citation (remaining fields - most moved to Content) ───
+        // ─── AEO and AI Citation ──────────────────────────────────────
         {
           label: 'AEO and AI Citation',
           fields: [
-            // Note: directAnswer, keyStatistics, faqSection, expertQuotes, termDefinitions,
-            // primaryAiQuery, aiCitationSummary moved to Content tab for better UX
-            // Remaining fields here are supplemental AI/voice optimization fields
+            // Note: directAnswer, keyStatistics, faqSection, expertQuotes, termDefinitions
+            // are now in their respective blocks in the Content tab
+            { name: 'aiCitationSummary', type: 'textarea', admin: { description: 'Summary for AI citations and references' } },
+            { name: 'primaryAiQuery', type: 'text', admin: { description: 'Primary AI/voice search query this article answers' } },
           ],
         },
         // ─── Voice Search ───────────────────────────────────────────────
