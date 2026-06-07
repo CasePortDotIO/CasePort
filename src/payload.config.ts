@@ -18,6 +18,7 @@ import { InjuredLeads } from './collections/InjuredLeads'
 import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
+import { SiteLinks } from './collections/SiteLinks'
 import { Users } from './collections/Users'
 import { Waitlists } from './collections/Waitlists'
 
@@ -112,6 +113,7 @@ export default buildConfig({
     Categories,
     GuideCategories,
     GuideArticles,
+    SiteLinks,
     Authors,
     Articles,
     InjuredLeads,

@@ -202,6 +202,12 @@ export const EndCtaSectionBlock: Block = {
     { name: 'subcopy', type: 'textarea', defaultValue: 'Now let an attorney protect your rights. Get a free consultation with no obligation.' },
     { name: 'buttonLabel', type: 'text', defaultValue: 'Call Now: 1-800-227-3669' },
     { name: 'phoneNumber', type: 'text', defaultValue: '+18002273669' },
+    {
+      name: 'siteLink',
+      type: 'relationship',
+      relationTo: 'siteLinks',
+      admin: { description: 'Select which page this CTA button links to' },
+    },
   ],
 }
 

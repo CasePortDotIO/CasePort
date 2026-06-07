@@ -32,11 +32,12 @@ export function TableOfContents({ entries, activeSection, variant = 'dark', onAc
   useEffect(() => {
     if (!activeSection || !tocRef.current) return
     const tocContainer = tocRef.current
-    const selector = `[data-section-id="${cssEscape(activeSection)}"]`
+    // Query the data-section-id attribute directly — no CSS escaping needed
+    // since IDs in DOM are stored as plain strings
+    const selector = `[data-section-id="${activeSection}"]`
     const activeItem = tocContainer.querySelector(selector)
     if (activeItem) {
       activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-      tocContainer.scrollTop -= 80
     }
     if (onActiveChange) onActiveChange(activeSection)
   }, [activeSection, onActiveChange])

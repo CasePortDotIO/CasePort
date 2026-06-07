@@ -254,6 +254,12 @@ const CTA: Block = {
     { name: 'heading', type: 'textarea', validate: noForbiddenClaimantLanguage },
     { name: 'subcopy', type: 'textarea', validate: noForbiddenClaimantLanguage },
     { name: 'buttonLabel', type: 'text', validate: noForbiddenClaimantLanguage },
+    {
+      name: 'siteLink',
+      type: 'relationship',
+      relationTo: 'siteLinks',
+      admin: { description: 'Select which page this CTA button links to' },
+    },
   ],
 }
 

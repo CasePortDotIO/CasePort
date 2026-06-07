@@ -1422,5 +1422,21 @@ export const GuideArticles: CollectionConfig = {
     { name: 'nextReviewDue', type: 'date', admin: { position: 'sidebar', readOnly: true } },
     { name: 'lastFactVerified', type: 'date', admin: { position: 'sidebar' } },
     { name: 'contentQualityScore', type: 'number', admin: { position: 'sidebar', readOnly: true } },
+    // ─── Verified Badge Toggles ────────────────────────────────────────
+    {
+      name: 'showAttorneyReviewedBadge',
+      type: 'checkbox',
+      admin: { position: 'sidebar', description: 'Show Attorney-Reviewed badge on article page' },
+    },
+    {
+      name: 'showABACompliantBadge',
+      type: 'checkbox',
+      admin: { position: 'sidebar', description: 'Show ABA Compliant badge on article page' },
+    },
+    {
+      name: 'showLastUpdatedBadge',
+      type: 'checkbox',
+      admin: { position: 'sidebar', description: 'Show Last Updated badge on article page' },
+    },
   ],
 }

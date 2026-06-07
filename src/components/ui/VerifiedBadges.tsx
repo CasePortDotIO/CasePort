@@ -34,16 +34,19 @@ export function VerifiedBadges({
   lastUpdatedDate,
   className = '',
 }: VerifiedBadgesProps) {
+  const hasAnyBadge = isAttorneyReviewed || isABACompliant || lastUpdatedDate
+  if (!hasAnyBadge) return null
+
   return (
     <div className={`flex flex-wrap items-center gap-3 ${className}`}>
-      {/* Verified label */}
+      {/* Verified label — only show when at least one badge is present */}
       <span className="text-sm font-bold text-slate-800 tracking-tight">
         Verified:
       </span>
 
       {/* Attorney-Reviewed badge */}
       {isAttorneyReviewed && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs font-bold text-white bg-[#3C7A6A]">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold text-white bg-[#3C7A6A]">
           <CheckmarkIcon />
           Attorney-Reviewed
         </span>
@@ -51,7 +54,7 @@ export function VerifiedBadges({
 
       {/* ABA Compliant badge */}
       {isABACompliant && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs font-bold text-white bg-[#3C7A6A]">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold text-white bg-[#3C7A6A]">
           <CheckmarkIcon />
           ABA Compliant
         </span>
@@ -59,7 +62,7 @@ export function VerifiedBadges({
 
       {/* Last Updated badge */}
       {lastUpdatedDate && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-xs font-bold text-white bg-[#C06A45]">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold text-white bg-[#C06A45]">
           <CheckmarkIcon />
           Last Updated: {lastUpdatedDate}
         </span>

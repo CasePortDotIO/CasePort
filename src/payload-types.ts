@@ -76,6 +76,7 @@ export interface Config {
     categories: Category;
     guideCategories: GuideCategory;
     guideArticles: GuideArticle;
+    siteLinks: SiteLink;
     authors: Author;
     articles: Article;
     'injured-leads': InjuredLead;
@@ -95,6 +96,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     guideCategories: GuideCategoriesSelect<false> | GuideCategoriesSelect<true>;
     guideArticles: GuideArticlesSelect<false> | GuideArticlesSelect<true>;
+    siteLinks: SiteLinksSelect<false> | SiteLinksSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'injured-leads': InjuredLeadsSelect<false> | InjuredLeadsSelect<true>;
@@ -651,6 +653,10 @@ export interface GuideArticle {
             subcopy?: string | null;
             buttonLabel?: string | null;
             phoneNumber?: string | null;
+            /**
+             * Select which page this CTA button links to
+             */
+            siteLink?: (string | null) | SiteLink;
             id?: string | null;
             blockName?: string | null;
             blockType: 'endCtaSection';
@@ -883,6 +889,10 @@ export interface GuideArticle {
             heading?: string | null;
             subcopy?: string | null;
             buttonLabel?: string | null;
+            /**
+             * Select which page this CTA button links to
+             */
+            siteLink?: (string | null) | SiteLink;
             id?: string | null;
             blockName?: string | null;
             blockType: 'cta';
@@ -1405,6 +1415,18 @@ export interface GuideArticle {
   nextReviewDue?: string | null;
   lastFactVerified?: string | null;
   contentQualityScore?: number | null;
+  /**
+   * Show Attorney-Reviewed badge on article page
+   */
+  showAttorneyReviewedBadge?: boolean | null;
+  /**
+   * Show ABA Compliant badge on article page
+   */
+  showABACompliantBadge?: boolean | null;
+  /**
+   * Show Last Updated badge on article page
+   */
+  showLastUpdatedBadge?: boolean | null;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
@@ -1456,6 +1478,23 @@ export interface Author {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteLinks".
+ */
+export interface SiteLink {
+  id: string;
+  /**
+   * Display name for this link, e.g. "Check My Case"
+   */
+  name: string;
+  /**
+   * Full URL or path, e.g. "/request-access" or "tel:+18002273669"
+   */
+  url: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -2088,6 +2127,10 @@ export interface PayloadLockedDocument {
         value: string | GuideArticle;
       } | null)
     | ({
+        relationTo: 'siteLinks';
+        value: string | SiteLink;
+      } | null)
+    | ({
         relationTo: 'authors';
         value: string | Author;
       } | null)
@@ -2544,6 +2587,7 @@ export interface GuideArticlesSelect<T extends boolean = true> {
               subcopy?: T;
               buttonLabel?: T;
               phoneNumber?: T;
+              siteLink?: T;
               id?: T;
               blockName?: T;
             };
@@ -2745,6 +2789,7 @@ export interface GuideArticlesSelect<T extends boolean = true> {
               heading?: T;
               subcopy?: T;
               buttonLabel?: T;
+              siteLink?: T;
               id?: T;
               blockName?: T;
             };
@@ -3148,8 +3193,21 @@ export interface GuideArticlesSelect<T extends boolean = true> {
   nextReviewDue?: T;
   lastFactVerified?: T;
   contentQualityScore?: T;
+  showAttorneyReviewedBadge?: T;
+  showABACompliantBadge?: T;
+  showLastUpdatedBadge?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteLinks_select".
+ */
+export interface SiteLinksSelect<T extends boolean = true> {
+  name?: T;
+  url?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
