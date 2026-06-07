@@ -45,7 +45,6 @@ const run = async () => {
       data: {
         name: link.name,
         url: link.url,
-        _isSeeding: true,
       },
     })
     console.log(`  Created "${link.name}" → ${link.url}`)
