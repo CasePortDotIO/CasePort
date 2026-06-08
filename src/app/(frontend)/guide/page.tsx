@@ -1,7 +1,6 @@
 import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import GuidesHubClient from './GuidesHubClient'
 
@@ -36,10 +35,6 @@ export default async function GuideHubPage() {
     }),
     fetchNavData(),
   ])
-
-  if (categories.length === 0) {
-    notFound()
-  }
 
   return <GuidesHubClient categories={categories} {...navData} />
 }

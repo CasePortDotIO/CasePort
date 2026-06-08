@@ -675,21 +675,21 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                         </div>
                         <div
                           style={{
-                              padding: ms('12px', '14px', '16px'),
-                              paddingTop: 0,
+                            padding: ms('12px', '14px', '16px'),
+                            paddingTop: 0,
+                          }}
+                        >
+                          <p
+                            style={{
+                              color: '#555',
+                              margin: 0,
+                              fontSize: ms('11px', '12px', '13px'),
+                              lineHeight: '1.6',
                             }}
                           >
-                            <p
-                              style={{
-                                color: '#555',
-                                margin: 0,
-                                fontSize: ms('11px', '12px', '13px'),
-                                lineHeight: '1.6',
-                              }}
-                            >
-                              {a}
-                            </p>
-                          </div>
+                            {a}
+                          </p>
+                        </div>
                       </div>
                     )
                   })}
@@ -749,7 +749,11 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                           {q}
                         </div>
                         <div
-                          style={{ fontSize: ms('12px', '13px', '14px'), color: '#555', lineHeight: '1.6' }}
+                          style={{
+                            fontSize: ms('12px', '13px', '14px'),
+                            color: '#555',
+                            lineHeight: '1.6',
+                          }}
                         >
                           {a}
                         </div>
@@ -826,7 +830,9 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
           // ── CTA ──────────────────────────────────────────────────────
           case 'cta': {
             const siteLinkUrl = block.siteLink
-              ? (typeof block.siteLink === 'object' ? block.siteLink?.url : block.siteLink)
+              ? typeof block.siteLink === 'object'
+                ? block.siteLink?.url
+                : block.siteLink
               : null
             const ctaHref = siteLinkUrl || 'tel:+18002273669'
             return (
@@ -938,7 +944,13 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {entries.map((entry: any, i: number) => {
-                    const date = entry.date ? new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+                    const date = entry.date
+                      ? new Date(entry.date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })
+                      : ''
                     const desc = entry.description || ''
                     return (
                       <div key={i} style={{ fontSize: '13px', color: '#555' }}>
@@ -1048,7 +1060,9 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                 >
                   {block.term}
                 </div>
-                <div style={{ fontSize: ms('13px', '14px', '18px'), color: '#555', lineHeight: '1.6' }}>
+                <div
+                  style={{ fontSize: ms('13px', '14px', '18px'), color: '#555', lineHeight: '1.6' }}
+                >
                   {block.definition}
                 </div>
               </div>
@@ -2243,7 +2257,9 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
           // ── End CTA Section ───────────────────────────────────────────
           case 'endCtaSection': {
             const siteLinkUrl = block.siteLink
-              ? (typeof block.siteLink === 'object' ? block.siteLink?.url : block.siteLink)
+              ? typeof block.siteLink === 'object'
+                ? block.siteLink?.url
+                : block.siteLink
               : null
             const ctaHref = siteLinkUrl || `tel:${block.phoneNumber || '+18002273669'}`
             return (
