@@ -20,25 +20,50 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ])
 
+  // Helper: coerce any value into a valid Date, falling back to `fallback` if invalid.
+  const toValidDate = (value: unknown, fallback: Date): Date => {
+    if (value instanceof Date) {
+      return Number.isFinite(value.getTime()) ? value : fallback
+    }
+    if (typeof value === 'string' || typeof value === 'number') {
+      const parsed = new Date(value)
+      return Number.isFinite(parsed.getTime()) ? parsed : fallback
+    }
+    return fallback
+  }
+
   const marketUrls: MetadataRoute.Sitemap = markets.map((market) => ({
     url: `${BASE_URL}/markets/${market.slug}`,
-    lastModified: market.updatedAt,
+    lastModified: toValidDate(market.updatedAt, new Date()),
     changeFrequency:
       market.status === 'capped' ? 'weekly' : market.status === 'limited' ? 'weekly' : 'daily',
     priority: market.status === 'capped' ? 0.8 : market.status === 'limited' ? 0.85 : 0.9,
   }))
 
   const articleUrls: MetadataRoute.Sitemap = articles.map((article) => {
-    let lastModified = article.updatedAt
+    let lastModified: Date = toValidDate(article.updatedAt, new Date())
+
+    // Only consider history entries that have a parseable date — a missing or
+    // empty `date` would otherwise produce NaN and crash Date.toISOString().
     if (article.contentUpdateHistory && article.contentUpdateHistory.length > 0) {
-      const dates = article.contentUpdateHistory.map((h: any) => new Date(h.date).getTime())
-      const maxDate = new Date(Math.max(...dates))
-      lastModified = maxDate.toISOString()
+      const historyTimestamps = (article.contentUpdateHistory as Array<{
+        date?: string | number | Date | null
+      }>)
+        .map((h) => {
+          if (h?.date == null || h.date === '') return NaN
+          return new Date(h.date).getTime()
+        })
+        .filter((t): t is number => Number.isFinite(t))
+
+      if (historyTimestamps.length > 0) {
+        const maxTs = Math.max(...historyTimestamps)
+        lastModified = new Date(maxTs)
+      }
     }
 
     return {
       url: `${BASE_URL}/insights/${article.slug}`,
-      lastModified: lastModified,
+      lastModified,
       changeFrequency: 'monthly',
       priority: 0.8,
     }

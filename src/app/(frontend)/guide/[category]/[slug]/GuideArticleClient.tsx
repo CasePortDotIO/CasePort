@@ -2624,10 +2624,10 @@ export default function GuideArticleClient({
           </h1>
           <p
             style={{
-              color: '#ffffff',
-              fontSize: isMobileView ? '13px' : '17px',
+              color: '#e8e2d8',
+              fontSize: isMobileView ? '16px' : '18px',
+              maxWidth: '600px',
               lineHeight: '1.6',
-              wordBreak: 'break-word',
               overflowWrap: 'break-word',
             }}
           >

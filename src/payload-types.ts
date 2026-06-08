@@ -1728,7 +1728,7 @@ export interface Article {
   };
   contentUpdateHistory?:
     | {
-        date?: string | null;
+        date: string;
         summary?: string | null;
         updatedBy?: string | null;
         id?: string | null;

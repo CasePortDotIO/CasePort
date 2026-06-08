@@ -987,7 +987,7 @@ export const Articles: CollectionConfig = {
               name: 'contentUpdateHistory',
               type: 'array',
               fields: [
-                { name: 'date', type: 'date' },
+                { name: 'date', type: 'date', required: true },
                 { name: 'summary', type: 'text' },
                 { name: 'updatedBy', type: 'text' },
               ],
