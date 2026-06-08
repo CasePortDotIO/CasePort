@@ -263,24 +263,6 @@ const CTA: Block = {
   ],
 }
 
-const RelatedGuides: Block = {
-  slug: 'relatedGuides',
-  labels: { singular: 'Related Guides', plural: 'Related Guides' },
-  fields: [
-    {
-      name: 'guides',
-      type: 'array',
-      fields: [
-        { name: 'title', type: 'text' },
-        { name: 'slug', type: 'text' },
-        { name: 'headline', type: 'text' },
-        { name: 'metaDescription', type: 'text' },
-      ],
-      admin: { description: role('str', 'Internal-link authority hub + continued engagement.') },
-    },
-  ],
-}
-
 const AuthorReviewer: Block = {
   slug: 'authorReviewer',
   labels: { singular: 'Author & Reviewer', plural: 'Author & Reviewer' },
@@ -361,11 +343,49 @@ const TermDefinitionBlock: Block = {
   ],
 }
 
-const RelatedArticleLink: Block = {
-  slug: 'relatedArticleLink',
-  labels: { singular: 'Related Article Link', plural: 'Related Article Links' },
+const RelatedGuideArticle: Block = {
+  slug: 'relatedGuideArticle',
+  labels: { singular: 'Related Guide Article', plural: 'Related Guide Articles' },
   fields: [
-    { name: 'article', type: 'relationship', relationTo: 'articles' },
+    {
+      name: 'articles',
+      type: 'array',
+      minRows: 1,
+      maxRows: 10,
+      fields: [
+        {
+          name: 'article',
+          type: 'relationship',
+          relationTo: 'guideArticles',
+          required: true,
+        },
+      ],
+      admin: { description: 'Add one or more guide articles to link' },
+    },
+    { name: 'headline', type: 'text', label: 'Override Headline (optional)' },
+    { name: 'metaDescription', type: 'text', label: 'Meta Description (optional)' },
+  ],
+}
+
+const RelatedGuideCategory: Block = {
+  slug: 'relatedGuideCategory',
+  labels: { singular: 'Related Guide Category', plural: 'Related Guide Categories' },
+  fields: [
+    {
+      name: 'categories',
+      type: 'array',
+      minRows: 1,
+      maxRows: 10,
+      fields: [
+        {
+          name: 'category',
+          type: 'relationship',
+          relationTo: 'guideCategories',
+          required: true,
+        },
+      ],
+      admin: { description: 'Add one or more guide categories to link' },
+    },
     { name: 'headline', type: 'text', label: 'Override Headline (optional)' },
     { name: 'metaDescription', type: 'text', label: 'Meta Description (optional)' },
   ],
@@ -412,47 +432,13 @@ export const B2C_BLOCKS: Block[] = [
   Definition,
   ProtectionPlan,
   CTA,
-  RelatedGuides,
   AuthorReviewer,
   UpdateLog,
   Disclaimer,
   EntityContext,
   ExpertQuote,
   TermDefinitionBlock,
-  RelatedArticleLink,
+  RelatedGuideArticle,
+  RelatedGuideCategory,
   RichText,
 ]
-
-// ─── Testing Collection ────────────────────────────────────────────────────────
-
-export const TestGuideBlocks: CollectionConfig = {
-  slug: 'test-guide-blocks',
-  labels: {
-    singular: 'Test Guide Block',
-    plural: 'Test Guide Blocks',
-  },
-  admin: {
-    description:
-      'Testing ground for Payload blocks architecture. Uses the client reference block library — completely separate from the Lexical editor system.',
-    useAsTitle: 'title',
-  },
-  fields: [
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-      admin: { description: 'Internal title for this test entry' },
-    },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      admin: { description: 'URL slug for testing' },
-    },
-    {
-      name: 'body',
-      type: 'blocks',
-      blocks: B2C_BLOCKS,
-    },
-  ],
-}

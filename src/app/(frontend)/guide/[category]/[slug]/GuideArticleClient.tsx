@@ -8,7 +8,7 @@ import {
   ArrowRight,
   ArrowUp,
   CheckCircle,
-  ChevronRight,
+  ChevronDown,
   FileText,
   MapPin,
   Phone,
@@ -232,9 +232,11 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                 <h2
                   style={{
                     color: '#1a4a5a',
-                    fontSize: ms('18px', '22px', '24px'),
+                    fontSize: ms('14px', '16px', '18px'),
                     fontWeight: '700',
                     marginBottom: ms('12px', '16px', '20px'),
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
                   }}
                 >
                   Key Takeaways
@@ -604,7 +606,6 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
 
           // ── FAQAccordion ────────────────────────────────────────────
           case 'faqAccordion': {
-            const [openIdx, setOpenIdx] = useState<string>('')
             const faqs = block.faqs || []
             return (
               <div
@@ -633,26 +634,21 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                   {faqs.map((faq: any, i: number) => {
                     const q = typeof faq === 'string' ? faq : faq.question || ''
                     const a = typeof faq === 'string' ? '' : faq.answer || ''
-                    const key = `faq-${i}`
                     return (
                       <div
                         key={i}
                         style={{
                           backgroundColor: 'white',
-                          borderRadius: ms('8px', '10px', '12px'),
-                          border: '1px solid #e8e2d8',
+                          borderRadius: '4px',
+                          borderLeft: '3px solid #c4714a',
                           overflow: 'hidden',
                         }}
                       >
-                        <button
-                          onClick={() => setOpenIdx(openIdx === key ? '' : key)}
+                        <div
                           style={{
                             width: '100%',
                             padding: ms('12px 14px', '14px 20px', '16px 24px'),
                             textAlign: 'left',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
@@ -660,44 +656,40 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                         >
                           <span
                             style={{
-                              fontSize: ms('15px', '16px', '18px'),
+                              fontSize: ms('12px', '13px', '14px'),
                               fontWeight: '600',
                               color: '#1a4a5a',
                             }}
                           >
                             {q}
                           </span>
-                          <ChevronRight
-                            size={ms('16px', '18px', '20px')}
+                          <ChevronDown
+                            size={ms('14px', '16px', '18px')}
                             style={{
                               color: '#999',
-                              transform: openIdx === key ? 'rotate(90deg)' : 'rotate(0deg)',
+                              transform: 'rotate(180deg)',
                               transition: 'transform 0.2s ease',
                               flexShrink: 0,
                             }}
                           />
-                        </button>
-                        {openIdx === key && (
-                          <div
-                            style={{
-                              padding: ms('14px', '20px', '24px'),
+                        </div>
+                        <div
+                          style={{
+                              padding: ms('12px', '14px', '16px'),
                               paddingTop: 0,
-                              backgroundColor: '#fafaf8',
-                              borderTop: '1px solid #e8e2d8',
                             }}
                           >
                             <p
                               style={{
                                 color: '#555',
                                 margin: 0,
-                                fontSize: ms('14px', '15px', '18px'),
-                                lineHeight: '1.7',
+                                fontSize: ms('11px', '12px', '13px'),
+                                lineHeight: '1.6',
                               }}
                             >
                               {a}
                             </p>
                           </div>
-                        )}
                       </div>
                     )
                   })}
@@ -748,7 +740,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                       >
                         <div
                           style={{
-                            fontSize: ms('13px', '14px', '18px'),
+                            fontSize: ms('12px', '13px', '14px'),
                             fontWeight: '600',
                             color: '#1a4a5a',
                             marginBottom: '8px',
@@ -757,7 +749,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                           {q}
                         </div>
                         <div
-                          style={{ fontSize: ms('13px', '14px', '18px'), color: '#555', lineHeight: '1.6' }}
+                          style={{ fontSize: ms('12px', '13px', '14px'), color: '#555', lineHeight: '1.6' }}
                         >
                           {a}
                         </div>
@@ -865,7 +857,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                     color: '#555',
                     marginBottom: ms('16px', '20px'),
                     lineHeight: '1.6',
-                    fontSize: ms('13px', '14px', '18px'),
+                    fontSize: ms('12px', '13px', '15px'),
                   }}
                 >
                   {block.subcopy ||
@@ -879,7 +871,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                     padding: ms('10px 20px', '12px 24px', '12px 32px'),
                     border: 'none',
                     borderRadius: '4px',
-                    fontSize: ms('13px', '14px', '18px'),
+                    fontSize: ms('12px', '13px', '14px'),
                     fontWeight: '600',
                     cursor: 'pointer',
                     textDecoration: 'none',
@@ -888,92 +880,6 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                 >
                   {block.buttonLabel || 'Get a free case review'}
                 </a>
-              </div>
-            )
-          }
-
-          // ── RelatedGuides ────────────────────────────────────────────
-          case 'relatedGuides': {
-            const guides = block.guides || []
-            if (guides.length === 0) return null
-            return (
-              <div
-                key={idx}
-                id={`block-related-guides`}
-                data-section
-                style={{ marginBottom: ms('32px', '40px', '56px') }}
-              >
-                <h2
-                  style={{
-                    color: '#1a4a5a',
-                    fontSize: ms('18px', '22px', '24px'),
-                    fontWeight: '700',
-                    marginBottom: ms('12px', '16px', '20px'),
-                  }}
-                >
-                  Related Guides
-                </h2>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobileView
-                      ? '1fr'
-                      : 'repeat(auto-fit, minmax(260px, 1fr)',
-                    gap: ms('12px', '14px', '16px'),
-                  }}
-                >
-                  {guides.map((guide: any, i: number) => (
-                    <Link
-                      key={i}
-                      href={`/guide/${guide.slug || '#'}`}
-                      style={{ textDecoration: 'none' }}
-                    >
-                      <div
-                        style={{
-                          padding: ms('14px', '18px', '20px'),
-                          backgroundColor: 'white',
-                          borderLeft: '4px solid #4a8c7e',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <h3
-                          style={{
-                            color: '#1a4a5a',
-                            fontSize: ms('15px', '16px'),
-                            fontWeight: '700',
-                            margin: 0,
-                            marginBottom: '8px',
-                          }}
-                        >
-                          {guide.title}
-                        </h3>
-                        {guide.headline && (
-                          <p
-                            style={{
-                              color: '#555',
-                              fontSize: ms('13px', '14px', '18px'),
-                              lineHeight: '1.6',
-                              margin: '6px 0 0 0',
-                            }}
-                          >
-                            {guide.headline}
-                          </p>
-                        )}
-                        <p
-                          style={{
-                            color: '#4a8c7e',
-                            fontSize: ms('12px', '13px'),
-                            fontWeight: '600',
-                            margin: '10px 0 0 0',
-                          }}
-                        >
-                          Learn more →
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
               </div>
             )
           }
@@ -1004,28 +910,38 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
           // ── UpdateLog ────────────────────────────────────────────────
           case 'updateLog': {
             const entries = block.entries || []
+            if (entries.length === 0) return null
             return (
               <div
                 key={idx}
                 id={`block-update-log`}
-                style={{ marginBottom: ms('32px', '40px', '56px') }}
+                data-section
+                style={{
+                  padding: '20px',
+                  backgroundColor: '#f9f5ef',
+                  borderLeft: '4px solid #999',
+                  marginBottom: ms('32px', '40px', '56px'),
+                  borderRadius: '6px',
+                }}
               >
-                <h2
+                <div
                   style={{
-                    color: '#1a4a5a',
-                    fontSize: ms('18px', '22px', '24px'),
+                    fontSize: '12px',
                     fontWeight: '700',
-                    marginBottom: ms('12px', '16px', '20px'),
+                    color: '#1a4a5a',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
                   }}
                 >
                   Update Log
-                </h2>
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {entries.map((entry: any, i: number) => {
-                    const date = entry.date ? new Date(entry.date).toLocaleDateString() : ''
+                    const date = entry.date ? new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
                     const desc = entry.description || ''
                     return (
-                      <div key={i} style={{ fontSize: ms('12px', '13px') }}>
+                      <div key={i} style={{ fontSize: '13px', color: '#555' }}>
                         <span style={{ fontWeight: '600', color: '#1a4a5a' }}>{date}:</span> {desc}
                       </div>
                     )
@@ -1185,6 +1101,182 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                     )}
                   </div>
                 </Link>
+              </div>
+            )
+          }
+
+          // ── RelatedGuideArticle ──────────────────────────────────────
+          case 'relatedGuideArticle': {
+            const articles = block.articles || []
+            if (articles.length === 0) return null
+            return (
+              <div
+                key={idx}
+                id={`block-related-guide-article`}
+                data-section
+                style={{ marginBottom: ms('32px', '40px', '56px') }}
+              >
+                <h2
+                  style={{
+                    color: '#1a4a5a',
+                    fontSize: ms('18px', '22px', '24px'),
+                    fontWeight: '700',
+                    marginBottom: ms('12px', '16px', '20px'),
+                  }}
+                >
+                  {block.headline || 'Related Guide Articles'}
+                </h2>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr',
+                    gap: ms('12px', '14px', '16px'),
+                  }}
+                >
+                  {articles.map((item: any, i: number) => {
+                    const art = item.article || item
+                    const title = block.headline || art.title || 'Related Guide'
+                    return (
+                      <Link
+                        key={i}
+                        href={`/guide/${art.guideCategory?.slug || 'guide'}/${art.slug || '#'}`}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <div
+                          style={{
+                            padding: ms('14px', '18px', '20px'),
+                            backgroundColor: 'white',
+                            borderLeft: '4px solid #4a8c7e',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <h3
+                            style={{
+                              color: '#1a4a5a',
+                              fontSize: ms('15px', '16px'),
+                              fontWeight: '700',
+                              margin: 0,
+                              marginBottom: '8px',
+                            }}
+                          >
+                            {title}
+                          </h3>
+                          {block.metaDescription && (
+                            <p
+                              style={{
+                                color: '#555',
+                                fontSize: ms('13px', '14px', '18px'),
+                                lineHeight: '1.6',
+                                margin: '6px 0 0 0',
+                              }}
+                            >
+                              {block.metaDescription}
+                            </p>
+                          )}
+                          <p
+                            style={{
+                              color: '#4a8c7e',
+                              fontSize: ms('12px', '13px'),
+                              fontWeight: '600',
+                              margin: '10px 0 0 0',
+                            }}
+                          >
+                            Learn more →
+                          </p>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          }
+
+          // ── RelatedGuideCategory ─────────────────────────────────────
+          case 'relatedGuideCategory': {
+            const categories = block.categories || []
+            if (categories.length === 0) return null
+            return (
+              <div
+                key={idx}
+                id={`block-related-guide-category`}
+                data-section
+                style={{ marginBottom: ms('32px', '40px', '56px') }}
+              >
+                <h2
+                  style={{
+                    color: '#1a4a5a',
+                    fontSize: ms('18px', '22px', '24px'),
+                    fontWeight: '700',
+                    marginBottom: ms('12px', '16px', '20px'),
+                  }}
+                >
+                  {block.headline || 'Related Guide Categories'}
+                </h2>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobileView ? '1fr' : '1fr 1fr',
+                    gap: ms('12px', '14px', '16px'),
+                  }}
+                >
+                  {categories.map((item: any, i: number) => {
+                    const cat = item.category || item
+                    const title = block.headline || cat.title || 'Related Category'
+                    return (
+                      <Link
+                        key={i}
+                        href={`/guide/${cat.slug || 'guide'}`}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <div
+                          style={{
+                            padding: ms('14px', '18px', '20px'),
+                            backgroundColor: 'white',
+                            borderLeft: '4px solid #c4714a',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <h3
+                            style={{
+                              color: '#1a4a5a',
+                              fontSize: ms('15px', '16px'),
+                              fontWeight: '700',
+                              margin: 0,
+                              marginBottom: '8px',
+                            }}
+                          >
+                            {title}
+                          </h3>
+                          {block.metaDescription && (
+                            <p
+                              style={{
+                                color: '#555',
+                                fontSize: ms('13px', '14px', '18px'),
+                                lineHeight: '1.6',
+                                margin: '6px 0 0 0',
+                              }}
+                            >
+                              {block.metaDescription}
+                            </p>
+                          )}
+                          <p
+                            style={{
+                              color: '#c4714a',
+                              fontSize: ms('12px', '13px'),
+                              fontWeight: '600',
+                              margin: '10px 0 0 0',
+                            }}
+                          >
+                            Explore →
+                          </p>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
               </div>
             )
           }
@@ -1411,7 +1503,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                     <div
                       key={i}
                       style={{
-                        padding: ms('16px', '24px', '32px'),
+                        padding: ms('12px', '16px', '20px'),
                         backgroundColor: 'white',
                         border: '2px solid #e8e2d8',
                         borderRadius: ms('8px', '10px', '12px'),
@@ -1427,8 +1519,8 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                         <div style={{ flexShrink: 0 }}>
                           <div
                             style={{
-                              width: ms('40px', '44px', '48px'),
-                              height: ms('40px', '44px', '48px'),
+                              width: ms('36px', '38px', '40px'),
+                              height: ms('36px', '38px', '40px'),
                               borderRadius: '50%',
                               backgroundColor: '#4a8c7e',
                               display: 'flex',
@@ -1440,7 +1532,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                               style={{
                                 color: 'white',
                                 fontWeight: 'bold',
-                                fontSize: ms('16px', '17px', '18px'),
+                                fontSize: ms('14px', '15px', '16px'),
                               }}
                             >
                               {i + 1}
@@ -1450,7 +1542,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                         <div style={{ flex: 1 }}>
                           <h3
                             style={{
-                              fontSize: ms('18px', '21px', '24px'),
+                              fontSize: ms('14px', '15px', '16px'),
                               fontWeight: 'bold',
                               marginBottom: '10px',
                               color: '#1a4a5a',
@@ -1553,7 +1645,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                       color: '#555',
                       lineHeight: '1.8',
                       marginBottom: ms('12px', '14px', '16px'),
-                      fontSize: ms('14px', '15px', '18px'),
+                      fontSize: ms('13px', '14px', '16px'),
                     }}
                   >
                     {block.introText}
@@ -1565,7 +1657,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                       color: '#555',
                       lineHeight: '1.8',
                       marginBottom: ms('12px', '14px', '16px'),
-                      fontSize: ms('14px', '15px', '18px'),
+                      fontSize: ms('13px', '14px', '16px'),
                     }}
                   >
                     {block.calloutText}
@@ -1622,7 +1714,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                       color: '#555',
                       lineHeight: '1.8',
                       marginBottom: ms('12px', '16px', '20px'),
-                      fontSize: ms('14px', '15px', '18px'),
+                      fontSize: ms('12px', '14px', '16px'),
                     }}
                   >
                     {block.subtitle}
@@ -2360,8 +2452,6 @@ export default function GuideArticleClient({
         return { id: 'block-protection-plan', title: 'Protection Plan' }
       case 'cta':
         return null
-      case 'relatedGuides':
-        return { id: 'block-related-guides', title: 'Related Guides' }
       case 'disclaimer':
         return null
       case 'updateLog':
@@ -2373,6 +2463,10 @@ export default function GuideArticleClient({
       case 'termDefinition':
         return null
       case 'relatedArticleLink':
+        return null
+      case 'relatedGuideArticle':
+        return null
+      case 'relatedGuideCategory':
         return null
       case 'richText':
         return null
@@ -2471,12 +2565,12 @@ export default function GuideArticleClient({
           <span className="hidden sm:inline text-sm font-semibold text-[#1a4a5a]">CasePort</span>
         </Link>
 
-        <a
-          href="tel:+18002273669"
+        <Link
+          href="/checkmycase"
           className="bg-[#c4714a] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-[#d4855e] transition-all shadow-md"
         >
           Free Case Review
-        </a>
+        </Link>
       </nav>
 
       {/* Hero Section with Background Image */}
@@ -2635,6 +2729,15 @@ export default function GuideArticleClient({
                   day: 'numeric',
                   year: 'numeric',
                 })}
+                {article.reviewCycle && (
+                  <span>
+                    {' • '}
+                    {article.reviewCycle === '3months' && 'Updated Quarterly'}
+                    {article.reviewCycle === '6months' && 'Updated Semi-Annually'}
+                    {article.reviewCycle === '12months' && 'Updated Annually'}
+                    {article.reviewCycle === 'evergreen' && 'Evergreen Content'}
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -2671,6 +2774,7 @@ export default function GuideArticleClient({
                 })
               : undefined
           }
+          reviewCycle={article.reviewCycle}
         />
       </div>
 

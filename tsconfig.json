@@ -33,6 +33,7 @@
   ],
   "exclude": [
     "caseport-insights-complete",
+    "caseport-subguide-source",
     "node_modules",
     "HomePage",
     "ForLawFirm",

@@ -4,6 +4,7 @@ interface VerifiedBadgesProps {
   isAttorneyReviewed?: boolean
   isABACompliant?: boolean
   lastUpdatedDate?: string
+  reviewCycle?: string
   className?: string
 }
 
@@ -32,10 +33,22 @@ export function VerifiedBadges({
   isAttorneyReviewed,
   isABACompliant,
   lastUpdatedDate,
+  reviewCycle,
   className = '',
 }: VerifiedBadgesProps) {
   const hasAnyBadge = isAttorneyReviewed || isABACompliant || lastUpdatedDate
   if (!hasAnyBadge) return null
+
+  // Map reviewCycle to human-readable frequency
+  const frequencyLabel = (() => {
+    switch (reviewCycle) {
+      case '3months': return 'Updated Quarterly'
+      case '6months': return 'Updated Semi-Annually'
+      case '12months': return 'Updated Annually'
+      case 'evergreen': return 'Evergreen Content'
+      default: return null
+    }
+  })()
 
   return (
     <div className={`flex flex-wrap items-center gap-3 ${className}`}>
@@ -46,7 +59,19 @@ export function VerifiedBadges({
 
       {/* Attorney-Reviewed badge */}
       {isAttorneyReviewed && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold text-white bg-[#3C7A6A]">
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 10px',
+            borderRadius: '3px',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: 'white',
+            backgroundColor: '#4a8c7e',
+          }}
+        >
           <CheckmarkIcon />
           Attorney-Reviewed
         </span>
@@ -54,7 +79,19 @@ export function VerifiedBadges({
 
       {/* ABA Compliant badge */}
       {isABACompliant && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold text-white bg-[#3C7A6A]">
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 10px',
+            borderRadius: '3px',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: 'white',
+            backgroundColor: '#4a8c7e',
+          }}
+        >
           <CheckmarkIcon />
           ABA Compliant
         </span>
@@ -62,9 +99,23 @@ export function VerifiedBadges({
 
       {/* Last Updated badge */}
       {lastUpdatedDate && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-none text-xs font-bold text-white bg-[#C06A45]">
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 10px',
+            borderRadius: '3px',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: 'white',
+            backgroundColor: '#c4714a',
+          }}
+        >
           <CheckmarkIcon />
-          Last Updated: {lastUpdatedDate}
+          {frequencyLabel
+            ? `${lastUpdatedDate} • ${frequencyLabel}`
+            : `Last Updated: ${lastUpdatedDate}`}
         </span>
       )}
     </div>

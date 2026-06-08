@@ -577,6 +577,16 @@ export const GuideArticles: CollectionConfig = {
           if (block.blockType === 'richText') {
             block.content = fixRichText(block.content)
           }
+          // Auto-populate UpdateLog block with current date on save
+          if (block.blockType === 'updateLog' && Array.isArray(block.entries)) {
+            const today = new Date().toISOString().split('T')[0]
+            const lastEntry = block.entries[block.entries.length - 1]
+            // Only add if no entry exists for today or last entry is different
+            if (!lastEntry || lastEntry.date !== today) {
+              const action = data._status === 'published' ? 'Published' : 'Updated'
+              block.entries.push({ date: today, description: `${action} guide article` })
+            }
+          }
         }
         return data
       },

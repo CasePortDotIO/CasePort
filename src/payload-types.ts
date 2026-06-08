@@ -899,23 +899,6 @@ export interface GuideArticle {
           }
         | {
             /**
-             * [STR] Internal-link authority hub + continued engagement.
-             */
-            guides?:
-              | {
-                  title?: string | null;
-                  slug?: string | null;
-                  headline?: string | null;
-                  metaDescription?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'relatedGuides';
-          }
-        | {
-            /**
              * [STR] Renders the byline from E-E-A-T fields. Badge only with a real barred attorney.
              */
             show?: boolean | null;
@@ -977,12 +960,36 @@ export interface GuideArticle {
             blockType: 'termDefinition';
           }
         | {
-            article?: (string | null) | Article;
+            /**
+             * Add one or more guide articles to link
+             */
+            articles?:
+              | {
+                  article: string | GuideArticle;
+                  id?: string | null;
+                }[]
+              | null;
             headline?: string | null;
             metaDescription?: string | null;
             id?: string | null;
             blockName?: string | null;
-            blockType: 'relatedArticleLink';
+            blockType: 'relatedGuideArticle';
+          }
+        | {
+            /**
+             * Add one or more guide categories to link
+             */
+            categories?:
+              | {
+                  category: string | GuideCategory;
+                  id?: string | null;
+                }[]
+              | null;
+            headline?: string | null;
+            metaDescription?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'relatedGuideCategory';
           }
         | {
             content?: {
@@ -2793,21 +2800,6 @@ export interface GuideArticlesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        relatedGuides?:
-          | T
-          | {
-              guides?:
-                | T
-                | {
-                    title?: T;
-                    slug?: T;
-                    headline?: T;
-                    metaDescription?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
         authorReviewer?:
           | T
           | {
@@ -2867,10 +2859,29 @@ export interface GuideArticlesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-        relatedArticleLink?:
+        relatedGuideArticle?:
           | T
           | {
-              article?: T;
+              articles?:
+                | T
+                | {
+                    article?: T;
+                    id?: T;
+                  };
+              headline?: T;
+              metaDescription?: T;
+              id?: T;
+              blockName?: T;
+            };
+        relatedGuideCategory?:
+          | T
+          | {
+              categories?:
+                | T
+                | {
+                    category?: T;
+                    id?: T;
+                  };
               headline?: T;
               metaDescription?: T;
               id?: T;
