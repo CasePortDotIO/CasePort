@@ -5,23 +5,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm dev          # Start dev server
-pnpm devsafe      # Clean .next cache then start dev server
-pnpm build        # Production build (8GB memory limit)
-pnpm lint         # ESLint
-pnpm test         # Run all tests (integration + e2e)
-pnpm test:int     # Vitest integration tests (tests/int/**/*.int.spec.ts)
-pnpm test:e2e     # Playwright e2e tests (Chromium only)
-pnpm generate:types       # Regenerate Payload TypeScript types
-pnpm generate:importmap   # Regenerate Payload component import map
+npm run dev        # Start dev server
+npm run devsafe   # Clean .next cache then start dev server
+npm run build     # Production build
+npm run lint      # ESLint
+npm test          # Run all tests (integration + e2e)
+npm run test:int  # Vitest integration tests (tests/int/**/*.int.spec.ts)
+npm run test:e2e  # Playwright e2e tests (Chromium only)
+npm run generate:types     # Regenerate Payload TypeScript types
+npm run generate:importmap  # Regenerate Payload component import map
 ```
 
 Run a single Vitest test file:
+
 ```bash
-pnpm vitest run tests/int/path/to/file.int.spec.ts
+npm vitest run tests/int/path/to/file.int.spec.ts
 ```
 
-**Requirements:** Node `^24.x`, pnpm `^9 || ^10`
+**Requirements:** Node `^18 || ^20`, npm
 
 ## Architecture
 
@@ -51,18 +52,18 @@ src/
 
 ### Payload Collections
 
-| Collection | Slug | Notes |
-|---|---|---|
-| Users | `users` | Admin auth |
-| Media | `media` | Vercel Blob storage |
-| Markets | `markets` | 46 US metros with metrics, partner caps, status |
-| Applications | `applications` | Law firm applications with lead scoring/tiers |
-| Waitlists | `waitlists` | Waitlist entries |
-| IntelligenceBriefs | `intelligence-briefs` | AI/voice-search-optimized content |
-| Categories | `categories` | Article categories |
-| Authors | `authors` | Article authors |
-| Articles | `articles` | Main blog/insights content — see below |
-| InjuredLeads | `injured-leads` | Lead capture from injured individuals |
+| Collection         | Slug                  | Notes                                           |
+| ------------------ | --------------------- | ----------------------------------------------- |
+| Users              | `users`               | Admin auth                                      |
+| Media              | `media`               | Vercel Blob storage                             |
+| Markets            | `markets`             | 46 US metros with metrics, partner caps, status |
+| Applications       | `applications`        | Law firm applications with lead scoring/tiers   |
+| Waitlists          | `waitlists`           | Waitlist entries                                |
+| IntelligenceBriefs | `intelligence-briefs` | AI/voice-search-optimized content               |
+| Categories         | `categories`          | Article categories                              |
+| Authors            | `authors`             | Article authors                                 |
+| Articles           | `articles`            | Main blog/insights content — see below          |
+| InjuredLeads       | `injured-leads`       | Lead capture from injured individuals           |
 
 ### Articles Collection
 
@@ -70,17 +71,17 @@ Articles have an extensive AEO/SEO field set: `directAnswer`, `aiCitationSummary
 
 ### Frontend Routes
 
-| Route | Component |
-|---|---|
-| `/` | `LandingPage` |
-| `/insights` | `InsightsClient` |
-| `/insights/[slug]` | `ArticleClient` |
-| `/markets`, `/markets/[slug]` | `MarketsClient`, `CityMarketClient` |
-| `/injured` | `InjuredClient` |
-| `/intelligence` | `IntelligenceClient` |
-| `/personal-injury-leads` | `ForLawFirmsClient` |
-| `/request-access` | `RequestAccessWizard` |
-| `/api/submit-lead` | POST — creates `InjuredLeads` via Local API |
+| Route                         | Component                                         |
+| ----------------------------- | ------------------------------------------------- |
+| `/`                           | `LandingPage`                                     |
+| `/insights`                   | `InsightsClient`                                  |
+| `/insights/[slug]`            | `ArticleClient`                                   |
+| `/markets`, `/markets/[slug]` | `MarketsClient`, `CityMarketClient`               |
+| `/injured`                    | `InjuredClient`                                   |
+| `/intelligence`               | `IntelligenceClient`                              |
+| `/personal-injury-leads`      | `ForLawFirmsClient`                               |
+| `/request-access`             | `RequestAccessWizard`                             |
+| `/api/submit-lead`            | POST — creates `InjuredLeads` via Local API       |
 | `/api/intelligence-subscribe` | POST — creates `IntelligenceBriefs` subscriptions |
 
 ### Key Patterns

@@ -33,6 +33,7 @@
   ],
   "exclude": [
     "caseport-insights-complete",
+    "caseport-subguide-source",
     "node_modules",
     "HomePage",
     "ForLawFirm",
@@ -45,6 +46,9 @@
     "Request Access",
     "seed-all.ts",
     "seed.ts",
-    "injured-complete"
+    "injured-complete",
+    "_Guide CoNTENT HUB",
+    "Injured Updated Version",
+    "files-4"
   ]
 }

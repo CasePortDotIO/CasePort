@@ -74,6 +74,9 @@ export interface Config {
     waitlists: Waitlist;
     'intelligence-briefs': IntelligenceBrief;
     categories: Category;
+    guideCategories: GuideCategory;
+    guideArticles: GuideArticle;
+    siteLinks: SiteLink;
     authors: Author;
     articles: Article;
     'injured-leads': InjuredLead;
@@ -91,6 +94,9 @@ export interface Config {
     waitlists: WaitlistsSelect<false> | WaitlistsSelect<true>;
     'intelligence-briefs': IntelligenceBriefsSelect<false> | IntelligenceBriefsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    guideCategories: GuideCategoriesSelect<false> | GuideCategoriesSelect<true>;
+    guideArticles: GuideArticlesSelect<false> | GuideArticlesSelect<true>;
+    siteLinks: SiteLinksSelect<false> | SiteLinksSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'injured-leads': InjuredLeadsSelect<false> | InjuredLeadsSelect<true>;
@@ -353,6 +359,1086 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideCategories".
+ */
+export interface GuideCategory {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  icon?: string | null;
+  heroImage?: (string | null) | Media;
+  displayOrder?: number | null;
+  /**
+   * Override the default "Your Guide to {Category} Claims" title
+   */
+  heroTitle?: string | null;
+  heroSubtitle?: string | null;
+  whyImportant?: string | null;
+  quickAnswerStats?: {
+    average?: string | null;
+    successRate?: string | null;
+    timeline?: string | null;
+    upfront?: string | null;
+  };
+  credibilitySection?: {
+    recoveredAmount?: string | null;
+    successRate?: string | null;
+    casesWon?: string | null;
+    avgSettlement?: string | null;
+    recoveryNote?: string | null;
+  };
+  testimonials?:
+    | {
+        name?: string | null;
+        location?: string | null;
+        settlement?: string | null;
+        settlementValue?: string | null;
+        injuryType?: string | null;
+        quote?: string | null;
+        rating?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  settlementData?: {
+    rangesByInjury?:
+      | {
+          injuryType?: string | null;
+          settlementAmount?: string | null;
+          minAmount?: string | null;
+          maxAmount?: string | null;
+          recoveryTime?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    attorneyComparison?:
+      | {
+          label?: string | null;
+          withoutAttorney?: string | null;
+          withAttorney?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  statuteOfLimitations?: {
+    description?: string | null;
+    byState?:
+      | {
+          state?: string | null;
+          years?: number | null;
+          notes?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  faqSection?:
+    | {
+        question?: string | null;
+        answer?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  peopleAlsoAsk?:
+    | {
+        question?: string | null;
+        answer?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  canonicalUrl?: string | null;
+  socialHeadline?: string | null;
+  socialDescription?: string | null;
+  socialShareImage?: (string | null) | Media;
+  xCardType?: ('summary_large_image' | 'summary') | null;
+  xCardTitle?: string | null;
+  xCardDescription?: string | null;
+  xCardImage?: (string | null) | Media;
+  /**
+   * 40+ chars. Primary answer for featured snippets and AI citations.
+   */
+  directAnswer?: string | null;
+  aiCitationSummary?: string | null;
+  primaryAiQuery?: string | null;
+  schemaType?: ('GuidePage' | 'FAQPage' | 'CollectionPage') | null;
+  relatedGuides?: (string | GuideArticle)[] | null;
+  hideFromSearchEngines?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideArticles".
+ */
+export interface GuideArticle {
+  id: string;
+  /**
+   * 50-80 chars. Auto slug.
+   */
+  title?: string | null;
+  slug?: string | null;
+  author?: (string | null) | Author;
+  /**
+   * Primary category for this guide
+   */
+  guideCategory?: (string | null) | GuideCategory;
+  /**
+   * Determines which template renders this page
+   */
+  pageType?: ('guide' | 'category' | 'state' | 'city' | 'faq') | null;
+  heroImage?: (string | null) | Media;
+  excerpt?: string | null;
+  subtitle?: string | null;
+  executiveSummary?: string | null;
+  /**
+   * Add and reorder blocks to structure your article content.
+   */
+  blocks?:
+    | (
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            /**
+             * [AEO] Emits HowTo. Steps with actionable checklist items.
+             */
+            steps?:
+              | {
+                  step: number;
+                  title: string;
+                  description?: string | null;
+                  /**
+                   * e.g., "Within 24 hours"
+                   */
+                  timeNote?: string | null;
+                  /**
+                   * Checklist items under this step
+                   */
+                  bullets?:
+                    | {
+                        bullet?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'immediateActions';
+          }
+        | {
+            /**
+             * Context about why medical documentation matters
+             */
+            introText?: string | null;
+            /**
+             * Important highlighted message
+             */
+            calloutText?: string | null;
+            /**
+             * Visual styling for the callout
+             */
+            alertLevel?: ('info' | 'warning' | 'critical') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'medicalDocumentation';
+          }
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            /**
+             * [AEO] Sourced comparison rows. Table snippet + decision aid.
+             */
+            rows?:
+              | {
+                  factor: string;
+                  withAttorney?: string | null;
+                  withoutAttorney?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            summaryEnabled?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'attorneyComparison';
+          }
+        | {
+            title?: string | null;
+            /**
+             * [AEO] Illustrative case scenarios, not actual outcomes.
+             */
+            examples?:
+              | {
+                  settlement?: string | null;
+                  settlementValue?: string | null;
+                  injuryType?: string | null;
+                  caseType?: string | null;
+                  caseResolutionTime?: string | null;
+                  quote?: string | null;
+                  name?: string | null;
+                  location?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'settlementExample';
+          }
+        | {
+            title?: string | null;
+            /**
+             * Add one row per state. Users see a clean table, not JSON.
+             */
+            ranges?:
+              | {
+                  state: string;
+                  min?: string | null;
+                  max?: string | null;
+                  avg?: string | null;
+                  note?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            showCatastrophic?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'settlementRanges';
+          }
+        | {
+            title?: string | null;
+            description?: string | null;
+            defaultYears?: number | null;
+            /**
+             * State-specific deadlines and exceptions
+             */
+            states?:
+              | {
+                  state: string;
+                  years?: number | null;
+                  notes?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Common exceptions to the statute of limitations
+             */
+            exceptions?:
+              | {
+                  exception?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statuteLimitations';
+          }
+        | {
+            /**
+             * Add one row per critical mistake to avoid
+             */
+            mistakes?:
+              | {
+                  mistake: string;
+                  reason?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'criticalMistakes';
+          }
+        | {
+            heading?: string | null;
+            subcopy?: string | null;
+            buttonLabel?: string | null;
+            phoneNumber?: string | null;
+            /**
+             * Select which page this CTA button links to
+             */
+            siteLink?: (string | null) | SiteLink;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'endCtaSection';
+          }
+        | {
+            /**
+             * [STR] Lede. Place the focus keyword in the first 300 characters.
+             */
+            text: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'standfirst';
+          }
+        | {
+            /**
+             * [AEO] 40 to 55 words. Snippet, AI Overview, speakable.
+             */
+            text: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            speakable?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'directAnswer';
+          }
+        | {
+            /**
+             * [AEO] Timed TL;DR. List snippet + felt utility.
+             */
+            items?:
+              | {
+                  phase?: string | null;
+                  timeWindow?: string | null;
+                  text?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'quickActionPlan';
+          }
+        | {
+            /**
+             * [AEO] Exactly 3 for educational pages.
+             */
+            items?:
+              | {
+                  item?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'keyTakeaways';
+          }
+        | {
+            intro?: string | null;
+            /**
+             * [AEO] Emits HowTo. The "give them the script" utility.
+             */
+            steps?:
+              | {
+                  name?: string | null;
+                  timeWindow?: string | null;
+                  bullets?:
+                    | {
+                        b?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'stepChecklist';
+          }
+        | {
+            /**
+             * [GEO] Subject-named, sourced. The LLM-lift weapon. Render in stable elements.
+             */
+            facts?:
+              | {
+                  fact: string;
+                  source: string;
+                  sourceUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'citationFact';
+          }
+        | {
+            value: string;
+            label?: string | null;
+            source: string;
+            sourceUrl?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statCallout';
+          }
+        | {
+            /**
+             * [AEO] Sourced rows only. Table snippet + decision aid.
+             */
+            points?:
+              | {
+                  stat: string;
+                  source: string;
+                  sourceUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'comparison';
+          }
+        | {
+            isIllustrative?: boolean | null;
+            methodologyNote: string;
+            settlements?:
+              | {
+                  severityTier?: string | null;
+                  lowLabel?: string | null;
+                  highLabel?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'settlementRange';
+          }
+        | {
+            isIllustrative?: boolean | null;
+            methodologyNote: string;
+            items?:
+              | {
+                  injuryType?: string | null;
+                  illustrativeRange?: string | null;
+                  note?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'caseScenario';
+          }
+        | {
+            /**
+             * [CONV] State-driven. Renders safe fallback when a row is unverified.
+             */
+            statutes?:
+              | {
+                  state?: string | null;
+                  statuteName?: string | null;
+                  statuteText?: string | null;
+                  statuteUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statuteCard';
+          }
+        | {
+            /**
+             * [AEO] Emits FAQPage.
+             */
+            faqs?:
+              | {
+                  question?: string | null;
+                  answer?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faqAccordion';
+          }
+        | {
+            items?:
+              | {
+                  q?: string | null;
+                  a?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'peopleAlsoAsk';
+          }
+        | {
+            /**
+             * [GEO] Emits DefinedTerm.
+             */
+            term: string;
+            definition: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'definition';
+          }
+        | {
+            /**
+             * [CONV] Next steps and scripts. Reciprocity + habit hook.
+             */
+            steps?:
+              | {
+                  step?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'protectionPlan';
+          }
+        | {
+            heading?: string | null;
+            subcopy?: string | null;
+            buttonLabel?: string | null;
+            /**
+             * Select which page this CTA button links to
+             */
+            siteLink?: (string | null) | SiteLink;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+        | {
+            /**
+             * [STR] Renders the byline from E-E-A-T fields. Badge only with a real barred attorney.
+             */
+            show?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'authorReviewer';
+          }
+        | {
+            entries?:
+              | {
+                  date?: string | null;
+                  description?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'updateLog';
+          }
+        | {
+            /**
+             * [COMP] Non-recommendation. Inherits the Disclosures global. Gate-locked on claimant pages.
+             */
+            note?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'disclaimer';
+          }
+        | {
+            /**
+             * [GEO] about / mentions + sameAs.
+             */
+            entities?:
+              | {
+                  name?: string | null;
+                  sameAs?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'entityContext';
+          }
+        | {
+            quote?: string | null;
+            speakerName?: string | null;
+            credentials?: string | null;
+            photo?: (string | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'expertQuote';
+          }
+        | {
+            term: string;
+            definition: string;
+            isProprietary?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'termDefinition';
+          }
+        | {
+            /**
+             * Add one or more guide articles to link
+             */
+            articles?:
+              | {
+                  article: string | GuideArticle;
+                  id?: string | null;
+                }[]
+              | null;
+            headline?: string | null;
+            metaDescription?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'relatedGuideArticle';
+          }
+        | {
+            /**
+             * Add one or more guide categories to link
+             */
+            categories?:
+              | {
+                  category: string | GuideCategory;
+                  id?: string | null;
+                }[]
+              | null;
+            headline?: string | null;
+            metaDescription?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'relatedGuideCategory';
+          }
+        | {
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richText';
+          }
+      )[]
+    | null;
+  /**
+   * Reader self-selection
+   */
+  difficultyLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
+  /**
+   * Auto-calculated from content length
+   */
+  estimatedCompletionTime?: string | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  focusKeyword?: string | null;
+  keywordDifficulty?: number | null;
+  monthlySearchVolume?: number | null;
+  currentRankingPosition?: number | null;
+  secondaryKeywords?:
+    | {
+        keyword?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  canonicalUrl?: string | null;
+  socialHeadline?: string | null;
+  socialDescription?: string | null;
+  socialShareImage?: (string | null) | Media;
+  xCardType?: ('summary_large_image' | 'summary') | null;
+  xCardTitle?: string | null;
+  xCardDescription?: string | null;
+  xCardImage?: (string | null) | Media;
+  competingUrl?: string | null;
+  contentGap?:
+    | {
+        gap?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Summary for AI citations and references
+   */
+  aiCitationSummary?: string | null;
+  /**
+   * Primary AI/voice search query this article answers
+   */
+  primaryAiQuery?: string | null;
+  voiceAnswer?: string | null;
+  speakableCssSelectors?:
+    | {
+        selector?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  conversationalQueryVariants?:
+    | {
+        query?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  targetsSpecificLocation?: boolean | null;
+  locationTargets?:
+    | {
+        state?: string | null;
+        city?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  schemaType?: ('Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle' | 'GuidePage') | null;
+  howToSteps?:
+    | {
+        name?: string | null;
+        description?: string | null;
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  sameAsEntityUrls?:
+    | {
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  articleSection?: string | null;
+  apaCitation?: string | null;
+  legalDisclaimer?: ('Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None') | null;
+  abaComplianceVerified?: boolean | null;
+  expertReviewer?: string | null;
+  expertCredentials?: string | null;
+  expertQuote?: string | null;
+  externalSources?:
+    | {
+        name?: string | null;
+        url?: string | null;
+        credibilityTier?: ('High' | 'Medium' | 'Low') | null;
+        id?: string | null;
+      }[]
+    | null;
+  pressMentions?:
+    | {
+        source?: string | null;
+        url?: string | null;
+        date?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  ctaOverride?: {
+    heading?: string | null;
+    body?: string | null;
+    primaryLabel?: string | null;
+    primaryUrl?: string | null;
+    secondaryLabel?: string | null;
+    secondaryUrl?: string | null;
+  };
+  contentUpdateHistory?:
+    | {
+        date?: string | null;
+        summary?: string | null;
+        updatedBy?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  targetStates?:
+    | (
+        | 'AL'
+        | 'AK'
+        | 'AZ'
+        | 'AR'
+        | 'CA'
+        | 'CO'
+        | 'CT'
+        | 'DE'
+        | 'FL'
+        | 'GA'
+        | 'HI'
+        | 'ID'
+        | 'IL'
+        | 'IN'
+        | 'IA'
+        | 'KS'
+        | 'KY'
+        | 'LA'
+        | 'ME'
+        | 'MD'
+        | 'MA'
+        | 'MI'
+        | 'MN'
+        | 'MS'
+        | 'MO'
+        | 'MT'
+        | 'NE'
+        | 'NV'
+        | 'NH'
+        | 'NJ'
+        | 'NM'
+        | 'NY'
+        | 'NC'
+        | 'ND'
+        | 'OH'
+        | 'OK'
+        | 'OR'
+        | 'PA'
+        | 'RI'
+        | 'SC'
+        | 'SD'
+        | 'TN'
+        | 'TX'
+        | 'UT'
+        | 'VT'
+        | 'VA'
+        | 'WA'
+        | 'WV'
+        | 'WI'
+        | 'WY'
+      )[]
+    | null;
+  targetCities?:
+    | (
+        | 'Houston, TX'
+        | 'Dallas, TX'
+        | 'Austin, TX'
+        | 'San Antonio, TX'
+        | 'Fort Worth, TX'
+        | 'El Paso, TX'
+        | 'Arlington, TX'
+        | 'Corpus Christi, TX'
+        | 'Miami, FL'
+        | 'Tampa, FL'
+        | 'Orlando, FL'
+        | 'Jacksonville, FL'
+        | 'Fort Lauderdale, FL'
+        | 'St. Petersburg, FL'
+        | 'Tallahassee, FL'
+        | 'Los Angeles, CA'
+        | 'San Diego, CA'
+        | 'San Francisco, CA'
+        | 'Riverside, CA'
+        | 'Sacramento, CA'
+        | 'San Jose, CA'
+        | 'Fresno, CA'
+        | 'Long Beach, CA'
+        | 'New York, NY'
+        | 'Brooklyn, NY'
+        | 'Queens, NY'
+        | 'Bronx, NY'
+        | 'Albany, NY'
+        | 'Rochester, NY'
+        | 'Syracuse, NY'
+        | 'Buffalo, NY'
+        | 'Chicago, IL'
+        | 'Springfield, IL'
+        | 'Rockford, IL'
+        | 'Philadelphia, PA'
+        | 'Pittsburgh, PA'
+        | 'Allentown, PA'
+        | 'Harrisburg, PA'
+        | 'Scranton, PA'
+        | 'Reading, PA'
+        | 'Columbus, OH'
+        | 'Cleveland, OH'
+        | 'Cincinnati, OH'
+        | 'Dayton, OH'
+        | 'Toledo, OH'
+        | 'Akron, OH'
+        | 'Atlanta, GA'
+        | 'Augusta, GA'
+        | 'Savannah, GA'
+        | 'Macon, GA'
+        | 'Columbus, GA'
+      )[]
+    | null;
+  jurisdiction?: string | null;
+  serviceAreaDescription?: string | null;
+  localSchemaType?: ('LocalBusiness' | 'Attorney' | 'ServiceArea') | null;
+  stateSpecificDeadline?: number | null;
+  stateSpecificExceptions?: string | null;
+  tollingProvisions?:
+    | {
+        state?: string | null;
+        tollingRule?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  sgeAnswerability?: number | null;
+  sgeOptimizedAnswer?: string | null;
+  uniqueContentSignals?:
+    | {
+        signal?: string | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  freshnessSignal?: ('breaking' | 'recent' | 'evergreen') | null;
+  competitorComparison?: string | null;
+  dominanceScoring?: {
+    seoScore?: number | null;
+    aeoScore?: number | null;
+    geoScore?: number | null;
+    sgeScore?: number | null;
+    voiceSearchScore?: number | null;
+    overallDominanceScore?: number | null;
+    dominanceRank?: ('critical' | 'weak' | 'strong' | 'dominant') | null;
+    competitiveAdvantageScore?: number | null;
+  };
+  topCompetitors?:
+    | {
+        url?: string | null;
+        estimatedScore?: number | null;
+        yourAdvantage?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  competitiveGapAnalysis?: string | null;
+  uniqueAdvantages?:
+    | {
+        advantage?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  performanceMetrics?: {
+    totalFormSubmissions?: number | null;
+    totalEmailCaptures?: number | null;
+    averageLeadQualityScore?: number | null;
+    leadToCaseConversionRate?: number | null;
+    estimatedRevenue?: number | null;
+    estimatedProfit?: number | null;
+    roi?: number | null;
+    performanceStatus?: ('loss' | 'breakeven' | 'profitable' | 'highly_profitable') | null;
+    recommendedAction?: ('remove' | 'optimize' | 'maintain' | 'expand') | null;
+  };
+  searchEngineSubmission?: {
+    googleSubmitted?: boolean | null;
+    googleSubmissionTime?: string | null;
+    googleSubmissionMessage?: string | null;
+    bingSubmitted?: boolean | null;
+    bingSubmissionTime?: string | null;
+    bingSubmissionMessage?: string | null;
+  };
+  primaryEntity?: string | null;
+  entityDefinition?: string | null;
+  relatedEntities?:
+    | {
+        entity?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  entityImportance?: ('critical' | 'important' | 'supporting') | null;
+  contentValidation?: {
+    contentLength?: number | null;
+    h2Count?: number | null;
+    h3Count?: number | null;
+    faqCount?: number | null;
+    validationStatus?: ('pass' | 'warning' | 'fail') | null;
+    validationErrors?:
+      | {
+          error?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  internalLinks?:
+    | {
+        linkedArticleId?: (string | null) | GuideArticle;
+        anchorText?: string | null;
+        relevanceScore?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  contentFreshness?: {
+    lastReviewDate?: string | null;
+    nextReviewDue?: string | null;
+    daysOld?: number | null;
+    freshnessStatus?: ('fresh' | 'current' | 'aging' | 'stale') | null;
+  };
+  featuredSnippetOptimization?: {
+    targetSnippetType?: ('paragraph' | 'list' | 'table' | 'definition') | null;
+    snippetContent?: string | null;
+    currentSnippetRank?: number | null;
+    snippetOptimizationScore?: number | null;
+  };
+  backlinkTracking?: {
+    totalBacklinks?: number | null;
+    highQualityBacklinks?: number | null;
+    referringDomains?: number | null;
+    backlinkGrowth?: number | null;
+    backlinkLastUpdated?: string | null;
+  };
+  keywordRankings?:
+    | {
+        keyword?: string | null;
+        currentRank?: number | null;
+        previousRank?: number | null;
+        rankChange?: number | null;
+        searchVolume?: number | null;
+        lastUpdated?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  trafficMetrics?: {
+    monthlyVisitors?: number | null;
+    bounceRate?: number | null;
+    averageTimeOnPage?: number | null;
+    scrollDepth?: number | null;
+    trafficSources?:
+      | {
+          source?: string | null;
+          visitors?: number | null;
+          percentage?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  aiCitationTracking?: {
+    claudeCitations?: number | null;
+    chatgptCitations?: number | null;
+    perplexityCitations?: number | null;
+    totalAiCitations?: number | null;
+    shareOfVoice?: number | null;
+    lastUpdated?: string | null;
+  };
+  conversionFunnel?: {
+    uniqueVisitors?: number | null;
+    formViews?: number | null;
+    formSubmissions?: number | null;
+    emailCaptures?: number | null;
+    confirmedLeads?: number | null;
+    confirmedCases?: number | null;
+    visitorToFormRate?: number | null;
+    formToLeadRate?: number | null;
+    leadToCaseRate?: number | null;
+  };
+  publishedDate?: string | null;
+  updatedAt: string;
+  aeoScore?: number | null;
+  /**
+   * Auto-calculated on every save. 0-100.
+   */
+  seoScore?: number | null;
+  readTime?: number | null;
+  searchIntent?: ('Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational') | null;
+  targetSerpFeature?: string | null;
+  contentConfidence?: ('High' | 'Medium' | 'Low') | null;
+  hideFromSearchEngines?: boolean | null;
+  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null;
+  nextReviewDue?: string | null;
+  lastFactVerified?: string | null;
+  contentQualityScore?: number | null;
+  /**
+   * Show Attorney-Reviewed badge on article page
+   */
+  showAttorneyReviewedBadge?: boolean | null;
+  /**
+   * Show ABA Compliant badge on article page
+   */
+  showABACompliantBadge?: boolean | null;
+  /**
+   * Show Last Updated badge on article page
+   */
+  showLastUpdatedBadge?: boolean | null;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "authors".
  */
 export interface Author {
@@ -399,6 +1485,23 @@ export interface Author {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteLinks".
+ */
+export interface SiteLink {
+  id: string;
+  /**
+   * Display name for this link, e.g. "Check My Case"
+   */
+  name: string;
+  /**
+   * Full URL or path, e.g. "/request-access" or "tel:+18002273669"
+   */
+  url: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1023,6 +2126,18 @@ export interface PayloadLockedDocument {
         value: string | Category;
       } | null)
     | ({
+        relationTo: 'guideCategories';
+        value: string | GuideCategory;
+      } | null)
+    | ({
+        relationTo: 'guideArticles';
+        value: string | GuideArticle;
+      } | null)
+    | ({
+        relationTo: 'siteLinks';
+        value: string | SiteLink;
+      } | null)
+    | ({
         relationTo: 'authors';
         value: string | Author;
       } | null)
@@ -1218,6 +2333,890 @@ export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideCategories_select".
+ */
+export interface GuideCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  icon?: T;
+  heroImage?: T;
+  displayOrder?: T;
+  heroTitle?: T;
+  heroSubtitle?: T;
+  whyImportant?: T;
+  quickAnswerStats?:
+    | T
+    | {
+        average?: T;
+        successRate?: T;
+        timeline?: T;
+        upfront?: T;
+      };
+  credibilitySection?:
+    | T
+    | {
+        recoveredAmount?: T;
+        successRate?: T;
+        casesWon?: T;
+        avgSettlement?: T;
+        recoveryNote?: T;
+      };
+  testimonials?:
+    | T
+    | {
+        name?: T;
+        location?: T;
+        settlement?: T;
+        settlementValue?: T;
+        injuryType?: T;
+        quote?: T;
+        rating?: T;
+        id?: T;
+      };
+  settlementData?:
+    | T
+    | {
+        rangesByInjury?:
+          | T
+          | {
+              injuryType?: T;
+              settlementAmount?: T;
+              minAmount?: T;
+              maxAmount?: T;
+              recoveryTime?: T;
+              id?: T;
+            };
+        attorneyComparison?:
+          | T
+          | {
+              label?: T;
+              withoutAttorney?: T;
+              withAttorney?: T;
+              id?: T;
+            };
+      };
+  statuteOfLimitations?:
+    | T
+    | {
+        description?: T;
+        byState?:
+          | T
+          | {
+              state?: T;
+              years?: T;
+              notes?: T;
+              id?: T;
+            };
+      };
+  faqSection?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  peopleAlsoAsk?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  metaTitle?: T;
+  metaDescription?: T;
+  canonicalUrl?: T;
+  socialHeadline?: T;
+  socialDescription?: T;
+  socialShareImage?: T;
+  xCardType?: T;
+  xCardTitle?: T;
+  xCardDescription?: T;
+  xCardImage?: T;
+  directAnswer?: T;
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
+  schemaType?: T;
+  relatedGuides?: T;
+  hideFromSearchEngines?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "guideArticles_select".
+ */
+export interface GuideArticlesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  author?: T;
+  guideCategory?: T;
+  pageType?: T;
+  heroImage?: T;
+  excerpt?: T;
+  subtitle?: T;
+  executiveSummary?: T;
+  blocks?:
+    | T
+    | {
+        immediateActions?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              steps?:
+                | T
+                | {
+                    step?: T;
+                    title?: T;
+                    description?: T;
+                    timeNote?: T;
+                    bullets?:
+                      | T
+                      | {
+                          bullet?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        medicalDocumentation?:
+          | T
+          | {
+              introText?: T;
+              calloutText?: T;
+              alertLevel?: T;
+              id?: T;
+              blockName?: T;
+            };
+        attorneyComparison?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              rows?:
+                | T
+                | {
+                    factor?: T;
+                    withAttorney?: T;
+                    withoutAttorney?: T;
+                    id?: T;
+                  };
+              summaryEnabled?: T;
+              id?: T;
+              blockName?: T;
+            };
+        settlementExample?:
+          | T
+          | {
+              title?: T;
+              examples?:
+                | T
+                | {
+                    settlement?: T;
+                    settlementValue?: T;
+                    injuryType?: T;
+                    caseType?: T;
+                    caseResolutionTime?: T;
+                    quote?: T;
+                    name?: T;
+                    location?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        settlementRanges?:
+          | T
+          | {
+              title?: T;
+              ranges?:
+                | T
+                | {
+                    state?: T;
+                    min?: T;
+                    max?: T;
+                    avg?: T;
+                    note?: T;
+                    id?: T;
+                  };
+              showCatastrophic?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statuteLimitations?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              defaultYears?: T;
+              states?:
+                | T
+                | {
+                    state?: T;
+                    years?: T;
+                    notes?: T;
+                    id?: T;
+                  };
+              exceptions?:
+                | T
+                | {
+                    exception?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        criticalMistakes?:
+          | T
+          | {
+              mistakes?:
+                | T
+                | {
+                    mistake?: T;
+                    reason?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        endCtaSection?:
+          | T
+          | {
+              heading?: T;
+              subcopy?: T;
+              buttonLabel?: T;
+              phoneNumber?: T;
+              siteLink?: T;
+              id?: T;
+              blockName?: T;
+            };
+        standfirst?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+              blockName?: T;
+            };
+        directAnswer?:
+          | T
+          | {
+              text?: T;
+              speakable?: T;
+              id?: T;
+              blockName?: T;
+            };
+        quickActionPlan?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    phase?: T;
+                    timeWindow?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        keyTakeaways?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        stepChecklist?:
+          | T
+          | {
+              intro?: T;
+              steps?:
+                | T
+                | {
+                    name?: T;
+                    timeWindow?: T;
+                    bullets?:
+                      | T
+                      | {
+                          b?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        citationFact?:
+          | T
+          | {
+              facts?:
+                | T
+                | {
+                    fact?: T;
+                    source?: T;
+                    sourceUrl?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        statCallout?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              source?: T;
+              sourceUrl?: T;
+              id?: T;
+              blockName?: T;
+            };
+        comparison?:
+          | T
+          | {
+              points?:
+                | T
+                | {
+                    stat?: T;
+                    source?: T;
+                    sourceUrl?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        settlementRange?:
+          | T
+          | {
+              isIllustrative?: T;
+              methodologyNote?: T;
+              settlements?:
+                | T
+                | {
+                    severityTier?: T;
+                    lowLabel?: T;
+                    highLabel?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        caseScenario?:
+          | T
+          | {
+              isIllustrative?: T;
+              methodologyNote?: T;
+              items?:
+                | T
+                | {
+                    injuryType?: T;
+                    illustrativeRange?: T;
+                    note?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        statuteCard?:
+          | T
+          | {
+              statutes?:
+                | T
+                | {
+                    state?: T;
+                    statuteName?: T;
+                    statuteText?: T;
+                    statuteUrl?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faqAccordion?:
+          | T
+          | {
+              faqs?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        peopleAlsoAsk?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    q?: T;
+                    a?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        definition?:
+          | T
+          | {
+              term?: T;
+              definition?: T;
+              id?: T;
+              blockName?: T;
+            };
+        protectionPlan?:
+          | T
+          | {
+              steps?:
+                | T
+                | {
+                    step?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              heading?: T;
+              subcopy?: T;
+              buttonLabel?: T;
+              siteLink?: T;
+              id?: T;
+              blockName?: T;
+            };
+        authorReviewer?:
+          | T
+          | {
+              show?: T;
+              id?: T;
+              blockName?: T;
+            };
+        updateLog?:
+          | T
+          | {
+              entries?:
+                | T
+                | {
+                    date?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        disclaimer?:
+          | T
+          | {
+              note?: T;
+              id?: T;
+              blockName?: T;
+            };
+        entityContext?:
+          | T
+          | {
+              entities?:
+                | T
+                | {
+                    name?: T;
+                    sameAs?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        expertQuote?:
+          | T
+          | {
+              quote?: T;
+              speakerName?: T;
+              credentials?: T;
+              photo?: T;
+              id?: T;
+              blockName?: T;
+            };
+        termDefinition?:
+          | T
+          | {
+              term?: T;
+              definition?: T;
+              isProprietary?: T;
+              id?: T;
+              blockName?: T;
+            };
+        relatedGuideArticle?:
+          | T
+          | {
+              articles?:
+                | T
+                | {
+                    article?: T;
+                    id?: T;
+                  };
+              headline?: T;
+              metaDescription?: T;
+              id?: T;
+              blockName?: T;
+            };
+        relatedGuideCategory?:
+          | T
+          | {
+              categories?:
+                | T
+                | {
+                    category?: T;
+                    id?: T;
+                  };
+              headline?: T;
+              metaDescription?: T;
+              id?: T;
+              blockName?: T;
+            };
+        richText?:
+          | T
+          | {
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  difficultyLevel?: T;
+  estimatedCompletionTime?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  focusKeyword?: T;
+  keywordDifficulty?: T;
+  monthlySearchVolume?: T;
+  currentRankingPosition?: T;
+  secondaryKeywords?:
+    | T
+    | {
+        keyword?: T;
+        id?: T;
+      };
+  metaTitle?: T;
+  metaDescription?: T;
+  canonicalUrl?: T;
+  socialHeadline?: T;
+  socialDescription?: T;
+  socialShareImage?: T;
+  xCardType?: T;
+  xCardTitle?: T;
+  xCardDescription?: T;
+  xCardImage?: T;
+  competingUrl?: T;
+  contentGap?:
+    | T
+    | {
+        gap?: T;
+        id?: T;
+      };
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
+  voiceAnswer?: T;
+  speakableCssSelectors?:
+    | T
+    | {
+        selector?: T;
+        id?: T;
+      };
+  conversationalQueryVariants?:
+    | T
+    | {
+        query?: T;
+        id?: T;
+      };
+  targetsSpecificLocation?: T;
+  locationTargets?:
+    | T
+    | {
+        state?: T;
+        city?: T;
+        id?: T;
+      };
+  schemaType?: T;
+  howToSteps?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        image?: T;
+        id?: T;
+      };
+  sameAsEntityUrls?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  articleSection?: T;
+  apaCitation?: T;
+  legalDisclaimer?: T;
+  abaComplianceVerified?: T;
+  expertReviewer?: T;
+  expertCredentials?: T;
+  expertQuote?: T;
+  externalSources?:
+    | T
+    | {
+        name?: T;
+        url?: T;
+        credibilityTier?: T;
+        id?: T;
+      };
+  pressMentions?:
+    | T
+    | {
+        source?: T;
+        url?: T;
+        date?: T;
+        id?: T;
+      };
+  ctaOverride?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        primaryLabel?: T;
+        primaryUrl?: T;
+        secondaryLabel?: T;
+        secondaryUrl?: T;
+      };
+  contentUpdateHistory?:
+    | T
+    | {
+        date?: T;
+        summary?: T;
+        updatedBy?: T;
+        id?: T;
+      };
+  targetStates?: T;
+  targetCities?: T;
+  jurisdiction?: T;
+  serviceAreaDescription?: T;
+  localSchemaType?: T;
+  stateSpecificDeadline?: T;
+  stateSpecificExceptions?: T;
+  tollingProvisions?:
+    | T
+    | {
+        state?: T;
+        tollingRule?: T;
+        id?: T;
+      };
+  sgeAnswerability?: T;
+  sgeOptimizedAnswer?: T;
+  uniqueContentSignals?:
+    | T
+    | {
+        signal?: T;
+        description?: T;
+        id?: T;
+      };
+  freshnessSignal?: T;
+  competitorComparison?: T;
+  dominanceScoring?:
+    | T
+    | {
+        seoScore?: T;
+        aeoScore?: T;
+        geoScore?: T;
+        sgeScore?: T;
+        voiceSearchScore?: T;
+        overallDominanceScore?: T;
+        dominanceRank?: T;
+        competitiveAdvantageScore?: T;
+      };
+  topCompetitors?:
+    | T
+    | {
+        url?: T;
+        estimatedScore?: T;
+        yourAdvantage?: T;
+        id?: T;
+      };
+  competitiveGapAnalysis?: T;
+  uniqueAdvantages?:
+    | T
+    | {
+        advantage?: T;
+        id?: T;
+      };
+  performanceMetrics?:
+    | T
+    | {
+        totalFormSubmissions?: T;
+        totalEmailCaptures?: T;
+        averageLeadQualityScore?: T;
+        leadToCaseConversionRate?: T;
+        estimatedRevenue?: T;
+        estimatedProfit?: T;
+        roi?: T;
+        performanceStatus?: T;
+        recommendedAction?: T;
+      };
+  searchEngineSubmission?:
+    | T
+    | {
+        googleSubmitted?: T;
+        googleSubmissionTime?: T;
+        googleSubmissionMessage?: T;
+        bingSubmitted?: T;
+        bingSubmissionTime?: T;
+        bingSubmissionMessage?: T;
+      };
+  primaryEntity?: T;
+  entityDefinition?: T;
+  relatedEntities?:
+    | T
+    | {
+        entity?: T;
+        id?: T;
+      };
+  entityImportance?: T;
+  contentValidation?:
+    | T
+    | {
+        contentLength?: T;
+        h2Count?: T;
+        h3Count?: T;
+        faqCount?: T;
+        validationStatus?: T;
+        validationErrors?:
+          | T
+          | {
+              error?: T;
+              id?: T;
+            };
+      };
+  internalLinks?:
+    | T
+    | {
+        linkedArticleId?: T;
+        anchorText?: T;
+        relevanceScore?: T;
+        id?: T;
+      };
+  contentFreshness?:
+    | T
+    | {
+        lastReviewDate?: T;
+        nextReviewDue?: T;
+        daysOld?: T;
+        freshnessStatus?: T;
+      };
+  featuredSnippetOptimization?:
+    | T
+    | {
+        targetSnippetType?: T;
+        snippetContent?: T;
+        currentSnippetRank?: T;
+        snippetOptimizationScore?: T;
+      };
+  backlinkTracking?:
+    | T
+    | {
+        totalBacklinks?: T;
+        highQualityBacklinks?: T;
+        referringDomains?: T;
+        backlinkGrowth?: T;
+        backlinkLastUpdated?: T;
+      };
+  keywordRankings?:
+    | T
+    | {
+        keyword?: T;
+        currentRank?: T;
+        previousRank?: T;
+        rankChange?: T;
+        searchVolume?: T;
+        lastUpdated?: T;
+        id?: T;
+      };
+  trafficMetrics?:
+    | T
+    | {
+        monthlyVisitors?: T;
+        bounceRate?: T;
+        averageTimeOnPage?: T;
+        scrollDepth?: T;
+        trafficSources?:
+          | T
+          | {
+              source?: T;
+              visitors?: T;
+              percentage?: T;
+              id?: T;
+            };
+      };
+  aiCitationTracking?:
+    | T
+    | {
+        claudeCitations?: T;
+        chatgptCitations?: T;
+        perplexityCitations?: T;
+        totalAiCitations?: T;
+        shareOfVoice?: T;
+        lastUpdated?: T;
+      };
+  conversionFunnel?:
+    | T
+    | {
+        uniqueVisitors?: T;
+        formViews?: T;
+        formSubmissions?: T;
+        emailCaptures?: T;
+        confirmedLeads?: T;
+        confirmedCases?: T;
+        visitorToFormRate?: T;
+        formToLeadRate?: T;
+        leadToCaseRate?: T;
+      };
+  publishedDate?: T;
+  updatedAt?: T;
+  aeoScore?: T;
+  seoScore?: T;
+  readTime?: T;
+  searchIntent?: T;
+  targetSerpFeature?: T;
+  contentConfidence?: T;
+  hideFromSearchEngines?: T;
+  reviewCycle?: T;
+  nextReviewDue?: T;
+  lastFactVerified?: T;
+  contentQualityScore?: T;
+  showAttorneyReviewedBadge?: T;
+  showABACompliantBadge?: T;
+  showLastUpdatedBadge?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteLinks_select".
+ */
+export interface SiteLinksSelect<T extends boolean = true> {
+  name?: T;
+  url?: T;
   updatedAt?: T;
   createdAt?: T;
 }

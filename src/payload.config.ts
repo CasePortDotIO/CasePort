@@ -12,10 +12,13 @@ import { Applications } from './collections/Applications'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
+import { GuideArticles } from './collections/GuideArticles'
+import { GuideCategories } from './collections/GuideCategories'
 import { InjuredLeads } from './collections/InjuredLeads'
 import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Markets } from './collections/Markets'
 import { Media } from './collections/Media'
+import { SiteLinks } from './collections/SiteLinks'
 import { Users } from './collections/Users'
 import { Waitlists } from './collections/Waitlists'
 
@@ -108,6 +111,9 @@ export default buildConfig({
     Waitlists,
     IntelligenceBriefs,
     Categories,
+    GuideCategories,
+    GuideArticles,
+    SiteLinks,
     Authors,
     Articles,
     InjuredLeads,

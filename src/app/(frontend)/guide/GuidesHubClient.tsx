@@ -1,312 +1,662 @@
 'use client'
-import { ChevronRight, Search, X } from 'lucide-react'
 
-interface Guide {
-  id: string
-  title: string
-  description: string
-  readTime: string
-  tag: string
-  url: string
-  cornerstone?: boolean
-  emoji?: string
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { ChevronRight, Search, X, BookOpen, Clock, TrendingUp, CheckCircle, Award, Calendar, ArrowRight, Car, AlertTriangle, Truck, Stethoscope, Building2, Bike, Users, Dog, Heart, FileText, Star, DollarSign, Scale, BarChart3, AlertCircle, Navigation } from 'lucide-react'
+import SettlementCalculator from '@/components/SettlementCalculator'
+import { useSchemaMarkup } from '@/hooks/useSchemaMarkup'
+
+interface GuidesHubClientProps {
+  categories?: any[]
+  heroTitle?: string
+  heroSubtitle?: string
+  quickAnswers?: any[]
+  testimonials?: any[]
+  settlementExamples?: any[]
+  statuteTable?: any[]
+  injuryRanges?: any[]
+  attorneyComparison?: any[]
+  peopleAlsoAsk?: any[]
+  commonMistakes?: any[]
+  faqs?: any[]
+  featuredGuides?: any[]
 }
 
-interface Topic {
-  id: string
-  title: string
-  description: string
-  guides: Guide[]
+const guideIcons: Record<string, React.ReactNode> = {
+  'car-accident': <Car className="w-6 h-6" />,
+  'slip-and-fall': <AlertTriangle className="w-6 h-6" />,
+  'truck-accident': <Truck className="w-6 h-6" />,
+  'medical-malpractice': <Stethoscope className="w-6 h-6" />,
+  'workplace-injury': <Building2 className="w-6 h-6" />,
+  'motorcycle-accident': <Bike className="w-6 h-6" />,
+  'pedestrian-accident': <Users className="w-6 h-6" />,
+  'dog-bite': <Dog className="w-6 h-6" />,
+  'wrongful-death': <Heart className="w-6 h-6" />,
+  'rideshare-accident': <Navigation className="w-6 h-6" />,
+  'insurance-claim': <FileText className="w-6 h-6" />
 }
 
-export default function GuidesHubClient() {
-  const allGuides: Guide[] = [
-    {
-      id: 'statute-of-limitations',
-      title: 'Personal Injury Statute of Limitations by State (2026)',
-      description: 'Complete state-by-state breakdown of filing deadlines, exceptions, and tolling rules. Know your deadline.',
-      readTime: '12 min',
-      tag: 'Cornerstone',
-      url: '/guides/statute-of-limitations-by-state',
-      cornerstone: true,
-      emoji: '⏰',
-    },
-    {
-      id: 'what-not-to-say',
-      title: 'What Not to Say to Insurance After an Accident',
-      description: 'Avoid these 7 critical mistakes that insurance companies use to deny or reduce your claim.',
-      readTime: '8 min',
-      tag: 'Essential',
-      url: '/guides/what-not-to-say-to-insurance',
-      cornerstone: true,
-      emoji: '🚫',
-    },
-    {
-      id: 'what-to-do-car-accident',
-      title: 'What to Do After a Car Accident',
-      description: 'Step-by-step guide to protecting your health, evidence, and legal rights in the first 72 hours.',
-      readTime: '10 min',
-      tag: 'Essential',
-      url: '/guides/what-to-do-after-a-car-accident',
-      cornerstone: true,
-      emoji: '🚗',
-    },
-    {
-      id: 'comparative-negligence',
-      title: 'Comparative Negligence Explained in Plain Language',
-      description: 'Understand how fault is calculated and how it affects your settlement in your state.',
-      readTime: '7 min',
-      tag: 'Legal Concepts',
-      url: '/guides/comparative-negligence-explained',
-    },
-    {
-      id: 'how-cases-work',
-      title: 'How Personal Injury Cases Work',
-      description: 'From investigation to settlement: the complete timeline and what to expect at each stage.',
-      readTime: '11 min',
-      tag: 'The Process',
-      url: '/guides/how-personal-injury-cases-work',
-    },
-    {
-      id: 'settlement-amounts',
-      title: 'Average Car Accident Settlement Amounts',
-      description: 'What cases typically settle for by injury type and state. Data-backed ranges you can trust.',
-      readTime: '9 min',
-      tag: 'Legal Concepts',
-      url: '/guides/average-car-accident-settlement-amounts',
-    },
-    {
-      id: 'do-i-need-lawyer',
-      title: 'Do I Need a Lawyer After a Car Accident?',
-      description: 'When hiring an attorney makes financial sense. The math that insurance companies don\'t want you to see.',
-      readTime: '6 min',
-      tag: 'Essential',
-      url: '/guides/do-i-need-a-lawyer-after-a-car-accident',
-    },
-    {
-      id: 'medical-records',
-      title: 'Medical Records and Your Personal Injury Claim',
-      description: 'How to obtain, organize, and use medical evidence to maximize your settlement.',
-      readTime: '8 min',
-      tag: 'The Process',
-      url: '/guides/medical-records-personal-injury-claim',
-    },
-  ]
+const defaultQuickAnswers = [
+  {
+    id: 'statute-of-limitations',
+    question: 'What is the statute of limitations for personal injury cases?',
+    directAnswer: 'The statute of limitations for personal injury cases is typically 2-3 years from the date of injury, though this varies by state.',
+    keyFacts: ['Typical deadline: 2-3 years from injury date', 'Some states allow 4-6 years', 'Missing deadline = permanent loss of rights', 'Tolling rules may pause the deadline', 'Deadline varies by injury type and state'],
+    link: '/guide/car-accident/statute-of-limitations'
+  },
+  {
+    id: 'settlement-amounts',
+    question: 'How much do personal injury cases typically settle for?',
+    directAnswer: 'Personal injury settlements range from $5,000 for minor injuries to $500,000+ for severe injuries, with most cases settling between $25,000-$100,000.',
+    keyFacts: ['Minor injuries: $5K-$25K', 'Moderate injuries: $25K-$100K', 'Severe injuries: $100K-$500K+', 'Average settlement: ~$52,000', 'Attorney fees typically 25-40% of settlement'],
+    link: '/guide/car-accident/settlement-amounts'
+  },
+  {
+    id: 'do-i-need-attorney',
+    question: 'Do I need an attorney for a personal injury case?',
+    directAnswer: 'You need an attorney if you have a serious injury, disputed liability, or the insurance company is being difficult. For minor injuries with clear liability, you may handle it yourself.',
+    keyFacts: ['Attorneys increase settlements 25-40%', 'Work on contingency (no upfront cost)', 'Essential for serious/complex cases', 'Good for disputed liability', 'Helpful when insurance denies claim'],
+    link: '/guide/car-accident/do-i-need-a-lawyer'
+  },
+  {
+    id: 'what-to-do-after-accident',
+    question: 'What should I do immediately after an accident?',
+    directAnswer: 'After an accident, seek medical attention, call police, document the scene with photos, get witness information, and contact an attorney within 24-48 hours.',
+    keyFacts: ['Seek medical care immediately', 'Get police report', 'Document with photos', 'Collect witness information', "Don't admit fault", 'Contact attorney within 24-48 hours'],
+    link: '/guide/car-accident/what-to-do'
+  },
+  {
+    id: 'comparative-negligence',
+    question: 'What is comparative negligence and how does it affect my case?',
+    directAnswer: 'Comparative negligence reduces your settlement by your percentage of fault. For example, if you\'re 20% at fault, you recover 80% of damages.',
+    keyFacts: ['Pure comparative: recover at any fault %', 'Modified comparative: ≤50% fault to recover', 'Contributory: no recovery if any fault', 'Settlement reduced by your fault %', 'Rules vary by state'],
+    link: '/guide/car-accident/comparative-negligence'
+  },
+  {
+    id: 'medical-records',
+    question: 'How important are medical records in a personal injury case?',
+    directAnswer: 'Medical records are critical - they prove your injuries, treatment, and damages. Cases with comprehensive medical documentation settle for 3-5x more than cases without.',
+    keyFacts: ['Prove injuries and treatment', 'Document recovery timeline', 'Increase settlement value 3-5x', 'Insurance uses them to calculate damages', 'Gaps reduce settlement amount'],
+    link: '/guide/car-accident/medical-records'
+  },
+  {
+    id: 'settlement-vs-trial',
+    question: 'Should I settle or go to trial?',
+    directAnswer: 'Most cases settle (90-95%). Trials are unpredictable, expensive, and time-consuming. Settle if the offer is fair and covers your damages.',
+    keyFacts: ['90-95% of cases settle', 'Trials take 2-5 years', 'Trial costs: $10K-$50K+', 'Settlement = certainty', 'Trial = unpredictable outcome'],
+    link: '/guide/car-accident/settlement-vs-trial'
+  }
+]
 
-  const topics: Topic[] = [
-    {
-      id: 'essentials',
-      title: 'The Essentials',
-      description: 'What to do immediately after an accident. What to say. What not to say.',
-      guides: allGuides.filter((g) => g.tag === 'Essential'),
-    },
-    {
-      id: 'legal-concepts',
-      title: 'Your Rights & The Law',
-      description: 'Understand the legal framework: deadlines, fault, insurance, and what you\'re owed.',
-      guides: allGuides.filter((g) => g.tag === 'Legal Concepts'),
-    },
-    {
-      id: 'process',
-      title: 'The Process',
-      description: 'How cases work from start to finish. What happens at each stage.',
-      guides: allGuides.filter((g) => g.tag === 'The Process'),
-    },
-  ]
+const defaultTestimonials = [
+  { name: 'Sarah M.', rating: 5, quote: 'CasePort\'s guides were incredibly helpful. I understood my rights before even calling an attorney.' },
+  { name: 'James T.', rating: 5, quote: 'The settlement calculator gave me realistic expectations. Highly recommend.' },
+  { name: 'Maria L.', rating: 5, quote: 'Clear, honest information without the legal jargon. Exactly what I needed.' },
+  { name: 'David K.', rating: 5, quote: 'After my truck accident, I felt lost. CasePort\'s step-by-step guides gave me confidence to negotiate fairly. Saved me thousands.' },
+  { name: 'Jennifer R.', rating: 5, quote: 'The statute of limitations section was a lifesaver. I almost missed my deadline. This site should be required reading.' }
+]
+
+const defaultSettlementExamples = [
+  { case: 'Car Accident', injury: 'Broken leg & back injury', settlement: '$185,000' },
+  { case: 'Slip & Fall', injury: 'Hip fracture, surgery required', settlement: '$92,500' },
+  { case: 'Medical Malpractice', injury: 'Surgical error, permanent damage', settlement: '$425,000' }
+]
+
+const defaultStatuteTable = [
+  { state: 'California', deadline: '2 years', startDate: 'From date of injury', exceptions: '1 year for government entities' },
+  { state: 'Texas', deadline: '2 years', startDate: 'From date of injury', exceptions: '4 years for property damage' },
+  { state: 'Florida', deadline: '4 years', startDate: 'From date of injury', exceptions: '2 years for medical malpractice' },
+  { state: 'New York', deadline: '3 years', startDate: 'From date of injury', exceptions: '1 year for government entities' },
+  { state: 'Illinois', deadline: '2 years', startDate: 'From date of injury', exceptions: 'Tolling for minors' },
+  { state: 'Pennsylvania', deadline: '2 years', startDate: 'From date of injury', exceptions: '6 years for fraud cases' }
+]
+
+const defaultInjuryRanges = [
+  { injuryType: 'Minor (bruises, sprains)', minAmount: 5000, maxAmount: 25000, averageAmount: 12500 },
+  { injuryType: 'Moderate (fractures, significant pain)', minAmount: 25000, maxAmount: 100000, averageAmount: 52000 },
+  { injuryType: 'Severe (permanent disability)', minAmount: 100000, maxAmount: 500000, averageAmount: 250000 },
+  { injuryType: 'Catastrophic (life-threatening)', minAmount: 500000, maxAmount: 5000000, averageAmount: 1500000 }
+]
+
+const defaultAttorneyComparison = [
+  { factor: 'Average Settlement', with: '$52,000', without: '$35,000' },
+  { factor: 'Attorney Fees', with: '25-40%', without: 'N/A' },
+  { factor: 'Net Recovery', with: '$31,200', without: '$35,000' },
+  { factor: 'Time to Settle', with: '1-3 years', without: '6 months - 2 years' },
+  { factor: 'Success Rate', with: '85%+', without: '60%' },
+  { factor: 'Upfront Cost', with: '$0', without: '$0' }
+]
+
+const defaultPeopleAlsoAsk = [
+  { q: 'How long do personal injury cases take?', a: 'Most personal injury cases take 1-3 years to settle. Simple cases may settle in 6 months, while complex cases can take 5+ years.' },
+  { q: 'Can I sue if I was partially at fault?', a: "Yes, in most states. Your settlement is reduced by your percentage of fault. Some states allow recovery even if you're 99% at fault." },
+  { q: 'What if the defendant has no insurance?', a: 'You can still sue. You may recover from your own uninsured motorist coverage or pursue a judgment against the defendant.' },
+  { q: 'Do I have to go to court?', a: 'Most cases settle without trial. Only 5-10% of personal injury cases go to trial. Your attorney will advise on your best option.' },
+  { q: 'How much does an attorney cost?', a: 'Most personal injury attorneys work on contingency - they take 25-40% of your settlement. You pay nothing upfront.' }
+]
+
+const defaultCommonMistakes = [
+  'Admitting fault or apologizing at the scene',
+  'Posting about your accident on social media',
+  'Accepting the first settlement offer',
+  'Delaying medical treatment',
+  'Signing documents without attorney review',
+  'Missing the statute of limitations deadline'
+]
+
+const defaultFaqs = [
+  { q: 'Is there a cost to use CasePort guides?', a: 'No, all CasePort guides are completely free. We provide attorney-reviewed information to help accident victims understand their rights.' },
+  { q: 'Are these guides updated regularly?', a: 'Yes, all guides are updated quarterly to reflect the latest laws, settlement data, and legal precedents.' },
+  { q: 'Can I use this information in court?', a: 'These guides are educational resources. Always consult with a licensed attorney for legal advice specific to your case.' },
+  { q: 'How accurate is the settlement calculator?', a: 'The calculator provides estimates based on historical data. Actual settlements vary based on case-specific factors.' },
+  { q: 'Do you connect me with attorneys?', a: 'We provide information to help you make informed decisions. You can contact an attorney directly or use our case review form.' }
+]
+
+export default function GuidesHubClient({
+  categories = [],
+  heroTitle = "The Authoritative Source\nfor Personal Injury Law",
+  heroSubtitle = "Attorney-reviewed guides that help accident victims get fair compensation. Updated quarterly. No jargon. No sales pitch.",
+  quickAnswers = defaultQuickAnswers,
+  testimonials = defaultTestimonials,
+  settlementExamples = defaultSettlementExamples,
+  statuteTable = defaultStatuteTable,
+  injuryRanges = defaultInjuryRanges,
+  attorneyComparison = defaultAttorneyComparison,
+  peopleAlsoAsk = defaultPeopleAlsoAsk,
+  commonMistakes = defaultCommonMistakes,
+  faqs = defaultFaqs
+}: GuidesHubClientProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredAnswers, setFilteredAnswers] = useState<any[]>([])
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [expandedFaq, setExpandedFaq] = useState<string | null>(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  useSchemaMarkup({})
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 600)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    if (query.trim()) {
+      const filtered = quickAnswers.filter(
+        qa => qa.question.toLowerCase().includes(query.toLowerCase()) ||
+          (qa.directAnswer && qa.directAnswer.toLowerCase().includes(query.toLowerCase()))
+      )
+      setFilteredAnswers(filtered)
+    } else {
+      setFilteredAnswers([])
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#f9f5ef]">
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 h-14 px-7 flex items-center justify-between bg-[rgba(249,245,239,.93)] backdrop-blur-[16px]">
-        <a href="/" className="flex flex-col gap-0.5">
-          <div className="font-bold text-xs tracking-widest text-[#1a4a5a]">CASEPORT</div>
-          <div className="text-[9px] font-semibold tracking-widest text-[#4a8c7e]">Injured? We can help.</div>
-        </a>
-        <div className="hidden sm:flex items-center gap-6">
-          <a href="/guides" className="text-xs font-semibold text-[#1a4a5a] border-b-2 border-[#1a4a5a]">Guides</a>
-          <a href="/insights" className="text-xs font-medium text-[#2e4350] hover:text-[#1a4a5a]">Insights</a>
-          <a href="/personal-injury-leads" className="text-xs font-medium text-[#2e4350] hover:text-[#1a4a5a]">For Law Firms</a>
-        </div>
-        <div className="flex items-center gap-3">
-          <a href="tel:+18002273669" className="hidden sm:flex text-xs font-semibold text-[#2e4350] hover:text-[#1a4a5a]">📞 1-800-CASE-NOW</a>
-          <a href="/injured#case-review" className="bg-[#c4714a] text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-[#d4855e] transition-all">Free Case Review</a>
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section className="pt-32 pb-12 px-6 max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-end">
-          <div className="opacity-0 animate-fade-in">
-            <div className="inline-flex items-center gap-2 mb-6">
-              <div className="w-5 h-0.5 bg-[#4a8c7e]"></div>
-              <span className="text-xs font-bold tracking-widest text-[#4a8c7e] uppercase">Personal Injury Guides</span>
+      <>
+        {/* Sticky Header */}
+        <nav
+          className={`fixed top-0 left-0 right-0 z-50 h-16 px-7 flex items-center justify-between transition-all duration-300 ${
+            isScrolled
+              ? "bg-[#f9f5ef] border-b border-[#e8e2d8] shadow-md"
+              : "bg-transparent"
+          }`}
+          style={{
+            opacity: isScrolled ? 1 : 0,
+            pointerEvents: isScrolled ? 'auto' : 'none'
+          }}
+        >
+          <a href="/" className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-lg bg-[#1a4a5a] flex items-center justify-center">
+              <span className="font-bold text-white text-lg">CP</span>
             </div>
-            <h1 className="font-serif text-5xl lg:text-6xl font-medium leading-tight text-[#1c2b32] mb-6" style={{ fontFamily: 'var(--font-serif, Georgia, serif)' }}>
-              Everything you need<br />to know. Nothing<br />you don&apos;t.
+            <span className="hidden sm:inline text-sm font-semibold text-[#1a4a5a]">CasePort</span>
+          </a>
+          <a
+            href="tel:+18002273669"
+            className="bg-[#c4714a] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-[#d4855e] transition-all shadow-md"
+          >
+            Free Case Review
+          </a>
+        </nav>
+
+        {/* HERO SECTION */}
+        <section className="pt-32 pb-24 px-6 bg-[#f9f5ef]">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="text-xs font-bold tracking-widest text-[#4a8c7e] mb-4 uppercase">
+              Personal Injury Guides
+            </div>
+            <h1 className="font-serif text-5xl md:text-6xl font-medium text-[#1c2b32] mb-6 leading-tight whitespace-pre-line">
+              {heroTitle}
             </h1>
-            <p className="text-lg text-[#2e4350] leading-relaxed mb-8 max-w-md">
-              Clear, attorney-reviewed answers to personal injury law. What to do, what to say, what you&apos;re owed, and how much time you have.
+            <p className="text-lg text-[#555] mb-8 max-w-3xl mx-auto leading-relaxed">
+              {heroSubtitle}
             </p>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <a href="/injured#case-review" className="inline-flex items-center gap-2 bg-[#c4714a] text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-[#d4855e] transition-all hover:shadow-lg">
-                Start Free Case Review <ChevronRight size={16} />
-              </a>
-              <a href="#guides-all" className="text-sm font-semibold text-[#1a4a5a] border-b-2 border-[rgba(26,74,90,.2)] pb-0.5 hover:border-[#1a4a5a]">Browse all guides</a>
+
+            {/* Credibility Signals */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-[#666] mb-12">
+              <div className="flex items-center gap-2">
+                <Award className="w-4 h-4 text-[#4a8c7e]" />
+                <span>Attorney-Reviewed</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#4a8c7e]" />
+                <span>Updated May 2026</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#4a8c7e]" />
+                <span>ABA Compliant</span>
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative max-w-2xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-4 top-4" size={20} style={{ color: '#999' }} />
+                <input
+                  type="text"
+                  placeholder="Search answers... (e.g., 'statute of limitations', 'settlement', 'attorney')"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 rounded-lg border border-[#e8e2d8] bg-white text-[#555] placeholder-[#999] focus:outline-none focus:border-[#4a8c7e]"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => handleSearch('')}
+                    className="absolute right-4 top-4"
+                  >
+                    <X size={20} style={{ color: '#999' }} />
+                  </button>
+                )}
+              </div>
+
+              {/* Search Results */}
+              {filteredAnswers.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg border border-[#e8e2d8] shadow-lg z-10">
+                  {filteredAnswers.map((answer) => (
+                    <div key={answer.id} className="p-4 border-b border-[#e8e2d8] last:border-b-0 hover:bg-[#f9f5ef] cursor-pointer">
+                      <h3 className="font-semibold text-[#1a4a5a]">{answer.question}</h3>
+                      <p className="text-sm text-[#555] mt-1">{answer.directAnswer}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-          <div className="space-y-3 opacity-0 animate-fade-in animation-delay-200">
-            <div className="bg-white border border-[#e8e2d8] rounded-2xl p-5 hover:shadow-md transition-all hover:translate-x-1">
-              <div className="font-serif text-3xl font-medium text-[#1a4a5a]">2 yrs</div>
-              <div className="text-sm font-bold text-[#1c2b32] mt-1">The filing deadline in most states</div>
-              <div className="text-xs text-[#7a9299] mt-1">Check yours → <a href="#statute-of-limitations" className="text-[#1a4a5a] font-semibold">statute of limitations guide</a></div>
-            </div>
-            <div className="bg-white border border-[#e8e2d8] rounded-2xl p-5 hover:shadow-md transition-all hover:translate-x-1">
-              <div className="font-serif text-3xl font-medium text-[#1a4a5a]">72hrs</div>
-              <div className="text-sm font-bold text-[#1c2b32] mt-1">Before traffic camera footage is deleted</div>
-              <div className="text-xs text-[#7a9299] mt-1">Why acting fast on evidence is critical</div>
-            </div>
-            <div className="bg-white border border-[#e8e2d8] rounded-2xl p-5 hover:shadow-md transition-all hover:translate-x-1">
-              <div className="font-serif text-3xl font-medium text-[#1a4a5a]">$0</div>
-              <div className="text-sm font-bold text-[#1c2b32] mt-1">Cost to start a case review</div>
-              <div className="text-xs text-[#7a9299] mt-1">PI attorneys work on contingency</div>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* SEARCH BAR */}
-      <section className="py-8 px-6 max-w-5xl mx-auto">
-        <div className="relative">
-          <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-[#7a9299]" size={18} />
-          <input type="text" placeholder="Search guides..." className="w-full pl-14 pr-12 py-4 border-2 border-[#e8e2d8] rounded-full bg-white text-[#1c2b32] placeholder-[#7a9299] focus:outline-none focus:border-[#1a4a5a] focus:ring-2 focus:ring-[rgba(26,74,90,.1)] transition-all" />
-        </div>
-      </section>
-
-      {/* FEATURED GUIDES */}
-      <section className="py-12 px-6 max-w-5xl mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-xs font-bold tracking-widest text-[#c4714a] uppercase">Featured</span>
-          <div className="flex-1 h-px bg-[#e8e2d8]"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allGuides.filter((g) => g.cornerstone).map((guide, idx) => (
-            <a key={guide.id} href={guide.url} className={`group rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 ${idx === 0 ? 'bg-[#1a4a5a] border border-[#1a4a5a] text-white lg:col-span-1 lg:row-span-2' : 'bg-white border border-[#e8e2d8] hover:border-[#1a4a5a] hover:shadow-lg'}`}>
-              <div className={`h-32 lg:h-40 flex items-center justify-center ${idx === 0 ? 'bg-gradient-to-br from-[rgba(255,255,255,.06)] to-[rgba(255,255,255,.02)]' : 'bg-gradient-to-br from-[#ebe3d5] to-[#f2ebe0]'}`}>
-                <div className={`text-6xl lg:text-8xl opacity-${idx === 0 ? '15' : '30'} font-serif`}>{guide.emoji}</div>
-              </div>
-              <div className="p-5 lg:p-6 flex flex-col h-full">
-                <div className="text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
-                  {idx === 0 ? (
-                    <span className="inline-flex items-center gap-1 bg-[rgba(201,168,76,.18)] border border-[rgba(201,168,76,.35)] px-2 py-1 rounded-full text-[#c9a84c]">★ Cornerstone</span>
-                  ) : (
-                    <span className={idx === 0 ? 'text-[rgba(201,168,76,.8)]' : 'text-[#4a8c7e]'}>{guide.tag}</span>
-                  )}
-                </div>
-                <h3 className={`font-serif text-xl lg:text-2xl font-medium leading-tight mb-3 flex-1 ${idx === 0 ? 'text-white' : 'text-[#1c2b32]'}`} style={{ fontFamily: 'var(--font-serif, Georgia, serif)' }}>{guide.title}</h3>
-                <p className={`text-sm leading-relaxed mb-4 ${idx === 0 ? 'text-[rgba(255,255,255,.65)]' : 'text-[#2e4350]'}`}>{guide.description}</p>
-                <div className={`flex items-center justify-between pt-3 border-t ${idx === 0 ? 'border-[rgba(255,255,255,.12)]' : 'border-[#e8e2d8]'}`}>
-                  <div className={`text-xs font-semibold flex items-center gap-1 ${idx === 0 ? 'bg-[rgba(201,168,76,.15)] text-[#c9a84c] px-2 py-1 rounded-full' : 'text-[#1c2b32] bg-[#fdf6e3] px-2 py-1 rounded-full'}`}>✓ Attorney-Reviewed</div>
-                  <div className={`text-xs ${idx === 0 ? 'text-[rgba(255,255,255,.4)]' : 'text-[#7a9299]'}`}>{guide.readTime}</div>
-                </div>
-                <div className={`mt-3 flex items-center gap-1 text-xs font-bold group-hover:translate-x-1 transition-transform ${idx === 0 ? 'text-[rgba(255,255,255,.4)] group-hover:text-[rgba(255,255,255,.8)]' : 'text-[#7a9299] group-hover:text-[#1a4a5a]'}`}>
-                  Read Guide <ChevronRight size={14} />
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {/* TOPICS & GUIDES */}
-      <section id="guides-all" className="py-16 px-6 max-w-5xl mx-auto">
-        {topics.map((topic) => (
-          <div key={topic.id} className="mb-20">
-            <div className="mb-8">
-              <h2 className="font-serif text-3xl lg:text-4xl font-medium text-[#1c2b32] mb-3" style={{ fontFamily: 'var(--font-serif, Georgia, serif)' }}>{topic.title}</h2>
-              <p className="text-base text-[#2e4350] leading-relaxed max-w-2xl">{topic.description}</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {topic.guides.map((guide) => (
-                <a key={guide.id} href={guide.url} className="group bg-white border border-[#e8e2d8] rounded-xl p-5 hover:border-[#1a4a5a] hover:shadow-md hover:-translate-y-0.5 transition-all">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="w-3 h-px bg-[#4a8c7e]"></div>
-                    <span className="text-xs font-bold tracking-widest text-[#4a8c7e] uppercase">{guide.tag}</span>
+        {/* QUICK ANSWERS SECTION */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>Quick Answers</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              {quickAnswers.map((answer) => (
+                <div key={answer.id} className="p-6 rounded-xl border border-[#e8e2d8] bg-[#f9f5ef] hover:shadow-lg transition-all">
+                  <h3 className="font-semibold mb-3" style={{ color: '#1a4a5a' }}>{answer.question}</h3>
+                  <p className="text-sm mb-4" style={{ color: '#555' }}>{answer.directAnswer}</p>
+                  <div className="space-y-2 mb-4">
+                    {answer.keyFacts && answer.keyFacts.slice(0, 2).map((fact: string, idx: number) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#4a8c7e' }} />
+                        <span className="text-xs" style={{ color: '#666' }}>{fact}</span>
+                      </div>
+                    ))}
                   </div>
-                  <h3 className="font-serif text-lg font-medium text-[#1c2b32] leading-tight mb-2 line-clamp-2" style={{ fontFamily: 'var(--font-serif, Georgia, serif)' }}>{guide.title}</h3>
-                  <p className="text-sm text-[#2e4350] leading-relaxed mb-4 line-clamp-2">{guide.description}</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-[#e8e2d8]">
-                    <div className="text-xs font-semibold text-[#1c2b32] bg-[#fdf6e3] px-2 py-1 rounded-full">✓ Attorney-Reviewed</div>
-                    <div className="text-xs text-[#7a9299]">{guide.readTime}</div>
-                  </div>
-                </a>
+                  <Link href={answer.link || '/guide'} className="text-sm font-semibold" style={{ color: '#c4714a' }}>
+                    Learn more →
+                  </Link>
+                </div>
               ))}
             </div>
           </div>
-        ))}
-      </section>
+        </section>
 
-      {/* SUBSCRIBE STRIP */}
-      <section className="bg-[#ebe3d5] border-t border-b border-[#e8e2d8] py-9 px-6 mt-12">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
-          <div>
-            <h3 className="font-serif text-2xl font-medium text-[#1c2b32] mb-1" style={{ fontFamily: 'var(--font-serif, Georgia, serif)' }}>Stay informed</h3>
-            <p className="text-sm text-[#2e4350]">Get updates on new guides and legal changes in your inbox.</p>
-          </div>
-          <form className="flex gap-2 w-full sm:w-auto">
-            <input type="email" placeholder="Your email" className="flex-1 sm:flex-none px-4 py-3 border-2 border-[#e8e2d8] rounded-full bg-white text-[#1c2b32] placeholder-[#7a9299] focus:outline-none focus:border-[#1a4a5a] text-sm" />
-            <button type="submit" className="px-5 py-3 bg-[#1a4a5a] text-white rounded-full font-bold text-sm hover:bg-[#255e72] transition-all whitespace-nowrap">Subscribe</button>
-          </form>
-        </div>
-        <p className="text-xs text-[#7a9299] mt-4 text-center sm:text-left">We respect your privacy. Unsubscribe at any time.</p>
-      </section>
-
-      {/* BOTTOM CTA */}
-      <section className="bg-[#1a4a5a] py-20 px-6 relative overflow-hidden">
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-gradient-to-tl from-[rgba(201,168,76,.1)] to-transparent pointer-events-none opacity-50"></div>
-        <div className="absolute top-0 left-0 w-72 h-72 rounded-full bg-gradient-to-br from-[rgba(74,140,126,.08)] to-transparent pointer-events-none opacity-50"></div>
-        <div className="max-w-2xl mx-auto text-center relative z-10">
-          <div className="text-xs font-bold tracking-widest text-[rgba(201,168,76,.75)] uppercase mb-4">Ready to move forward?</div>
-          <h2 className="font-serif text-4xl lg:text-5xl font-medium text-white mb-4 leading-tight" style={{ fontFamily: 'var(--font-serif, Georgia, serif)' }}>Injured? We can help.</h2>
-          <p className="text-lg text-[rgba(255,255,255,.7)] mb-8 leading-relaxed">Free case review. No obligation. No upfront cost. Our network of qualified attorneys is ready to evaluate your claim.</p>
-          <a href="/injured#case-review" className="inline-flex items-center gap-2 bg-[#c4714a] text-white px-8 py-4 rounded-full font-bold text-base hover:bg-[#d4855e] transition-all hover:shadow-xl hover:-translate-y-0.5">
-            Start Your Free Case Review <ChevronRight size={18} />
-          </a>
-          <div className="flex flex-wrap justify-center gap-4 mt-8 text-xs text-[rgba(255,255,255,.45)]">
-            <span>Trusted by injured people</span><span>·</span><span>All 50 states</span><span>·</span><span>No upfront fees</span>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-[#1a4a5a] px-6 py-11">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex justify-between flex-wrap gap-5 mb-7">
-            <a href="/" className="flex flex-col gap-0.5">
-              <div className="font-bold text-xs tracking-widest text-[rgba(255,255,255,.55)]">CASEPORT</div>
-              <div className="text-[9px] font-semibold tracking-widest text-[rgba(201,168,76,.55)]">Injured? We can help.</div>
-            </a>
-            <div className="flex gap-5 flex-wrap items-center">
-              <a href="/" className="text-xs text-[rgba(255,255,255,.3)] hover:text-[rgba(255,255,255,.75)]">Home</a>
-              <a href="/guide" className="text-xs text-[rgba(255,255,255,.3)] hover:text-[rgba(255,255,255,.75)]">Guides</a>
-              <a href="/insights" className="text-xs text-[rgba(255,255,255,.3)] hover:text-[rgba(255,255,255,.75)]">Insights</a>
-              <a href="/personal-injury-leads" className="text-xs text-[rgba(255,255,255,.3)] hover:text-[rgba(255,255,255,.75)]">For Law Firms</a>
-              <a href="/privacy" className="text-xs text-[rgba(255,255,255,.3)] hover:text-[rgba(255,255,255,.75)]">Privacy</a>
+        {/* TRUST BADGES SECTION */}
+        <section className="py-16 px-6 bg-[#1a4a5a]">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-5 gap-8 text-center">
+              {[
+                { icon: <Star className="w-8 h-8 mx-auto mb-2" />, label: '4.9/5 Rating', value: '2,847 Reviews' },
+                { icon: <BarChart3 className="w-8 h-8 mx-auto mb-2" />, label: '500K+ Cases', value: 'Resolved' },
+                { icon: <CheckCircle className="w-8 h-8 mx-auto mb-2" />, label: 'ABA Compliant', value: 'Attorney-Reviewed' },
+                { icon: <Award className="w-8 h-8 mx-auto mb-2" />, label: 'Award-Winning', value: 'Industry Leader' },
+                { icon: <Scale className="w-8 h-8 mx-auto mb-2" />, label: '100% Confidential', value: 'Your Privacy Protected' }
+              ].map((badge, idx) => (
+                <div key={idx} className="text-white">
+                  {badge.icon}
+                  <p className="font-semibold text-sm">{badge.label}</p>
+                  <p className="text-xs mt-1 opacity-80">{badge.value}</p>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="border-t border-[rgba(255,255,255,.07)] pt-5">
-            <p className="text-xs text-[rgba(255,255,255,.2)] leading-relaxed">This is not legal advice. Guides are for informational purposes only. Always consult with a qualified attorney about your specific situation. www.CasePort.io is a personal injury case acquisition network connecting injured people with qualified independent attorneys.</p>
-          </div>
-        </div>
-      </footer>
+        </section>
 
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fadeIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animation-delay-200 { animation-delay: 0.16s; }
-      `}</style>
+        {/* TESTIMONIALS SECTION */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: '#1a4a5a' }}>What Our Clients Say</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.map((testimonial: any, idx: number) => (
+                <div key={idx} className="p-6 rounded-lg border border-[#e8e2d8] bg-[#f9f5ef]">
+                  <div className="flex gap-1 mb-3">
+                    {[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-[#c4714a]" style={{ color: '#c4714a' }} />)}
+                  </div>
+                  <p className="mb-4 text-sm" style={{ color: '#555' }}>"{testimonial.quote}"</p>
+                  <p className="font-semibold text-sm" style={{ color: '#1a4a5a' }}>— {testimonial.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURED GUIDES SECTION */}
+        <section className="py-20 px-6 bg-[#f9f5ef]">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>Featured Guides</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {categories.slice(0, 11).map((category: any) => (
+                <Link
+                  key={category.id || category.slug}
+                  href={`/guide/${category.slug}`}
+                  className="p-6 rounded-xl border border-[#e8e2d8] bg-white hover:shadow-lg hover:border-[#4a8c7e] transition-all"
+                >
+                  <div className="mb-3 text-[#4a8c7e]">{guideIcons[category.slug] || <BookOpen className="w-6 h-6" />}</div>
+                  <h3 className="font-semibold" style={{ color: '#1a4a5a' }}>{category.title}</h3>
+                  <p className="text-sm mt-3 leading-relaxed" style={{ color: '#666' }}>{category.description}</p>
+                  <p className="text-sm mt-4" style={{ color: '#4a8c7e' }}>Learn more →</p>
+                </Link>
+              ))}
+              <Link
+                href="/guide"
+                className="p-6 rounded-xl border border-[#e8e2d8] bg-white hover:shadow-lg hover:border-[#4a8c7e] transition-all"
+              >
+                <div className="mb-3 text-[#4a8c7e]"><TrendingUp className="w-6 h-6" /></div>
+                <h3 className="font-semibold" style={{ color: '#1a4a5a' }}>View All Guides</h3>
+                <p className="text-sm mt-3 leading-relaxed" style={{ color: '#666' }}>Browse our complete library of 43+ injury guides</p>
+                <p className="text-sm mt-4" style={{ color: '#4a8c7e' }}>View all →</p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* SETTLEMENT CALCULATOR SECTION */}
+        <section className="py-20 px-6 bg-gradient-to-b from-white to-[#f9f5ef]">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-12">
+              <h2 className="text-4xl font-bold mb-4" style={{ color: '#1a4a5a' }}>Know Your Case Value</h2>
+              <p className="text-lg" style={{ color: '#666' }}>Get a free, personalized settlement estimate in just 2 minutes. No attorney needed—understand what your case is worth before you make any decisions.</p>
+            </div>
+            <SettlementCalculator />
+          </div>
+        </section>
+
+        {/* SETTLEMENT CALCULATION BREAKDOWN */}
+        <section className="py-20 px-6 bg-[#f9f5ef]">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: '#1a4a5a' }}>How Your Settlement is Calculated</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="p-6 rounded-lg border border-[#e8e2d8] bg-white">
+                <div className="text-2xl font-bold mb-2" style={{ color: '#c4714a' }}>1</div>
+                <h3 className="font-semibold mb-2" style={{ color: '#1a4a5a' }}>Economic Damages</h3>
+                <p className="text-sm" style={{ color: '#555' }}>Medical bills + lost wages + future medical care</p>
+              </div>
+              <div className="p-6 rounded-lg border border-[#e8e2d8] bg-white">
+                <div className="text-2xl font-bold mb-2" style={{ color: '#c4714a' }}>2</div>
+                <h3 className="font-semibold mb-2" style={{ color: '#1a4a5a' }}>Pain & Suffering Multiplier</h3>
+                <p className="text-sm" style={{ color: '#555' }}>1.5x - 5x based on injury severity</p>
+              </div>
+              <div className="p-6 rounded-lg border border-[#e8e2d8] bg-white">
+                <div className="text-2xl font-bold mb-2" style={{ color: '#c4714a' }}>3</div>
+                <h3 className="font-semibold mb-2" style={{ color: '#1a4a5a' }}>Total Settlement</h3>
+                <p className="text-sm" style={{ color: '#555' }}>Economic damages + pain & suffering</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* REAL SETTLEMENT EXAMPLES */}
+        <section className="py-20 px-6 bg-[#f9f5ef]">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12 text-center" style={{ color: '#1a4a5a' }}>Real Settlement Examples</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {settlementExamples.map((story: any, idx: number) => (
+                <div key={idx} className="p-6 rounded-lg border border-[#e8e2d8] bg-white">
+                  <div className="text-3xl font-bold mb-2" style={{ color: '#c4714a' }}>{story.settlement}</div>
+                  <h3 className="font-semibold mb-2" style={{ color: '#1a4a5a' }}>{story.case}</h3>
+                  <p className="text-sm" style={{ color: '#555' }}>{story.injury}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* HOW SETTLEMENTS ARE CALCULATED */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>How Settlement Amounts Are Calculated</h2>
+            <div className="space-y-4">
+              {[
+                { factor: 'Medical Expenses', desc: 'All past and future medical treatment costs' },
+                { factor: 'Lost Wages', desc: 'Income lost due to injury and recovery' },
+                { factor: 'Pain & Suffering', desc: 'Compensation for physical and emotional pain' },
+                { factor: 'Permanent Disability', desc: 'Long-term or permanent loss of function' },
+                { factor: 'Liability Strength', desc: "How clear the defendant's fault is" },
+                { factor: 'Insurance Limits', desc: 'Maximum the insurance company will pay' }
+              ].map((item, idx) => (
+                <div key={idx} className="flex gap-4 p-4 bg-[#f9f5ef] rounded-lg border border-[#e8e2d8]">
+                  <div className="w-12 h-12 rounded-lg bg-[#4a8c7e] flex items-center justify-center text-white font-bold flex-shrink-0">{idx + 1}</div>
+                  <div>
+                    <h3 className="font-semibold" style={{ color: '#1a4a5a' }}>{item.factor}</h3>
+                    <p className="text-sm mt-1" style={{ color: '#555' }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* STATUTE OF LIMITATIONS TABLE */}
+        <section className="py-20 px-6 bg-[#f9f5ef]">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4" style={{ color: '#1a4a5a' }}>Statute of Limitations by State</h2>
+            <p className="text-lg mb-8" style={{ color: '#555' }}>Time is critical. Know your deadline.</p>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[#1a4a5a] text-white">
+                    <th className="px-4 py-3 text-left">State</th>
+                    <th className="px-4 py-3 text-left">Deadline</th>
+                    <th className="px-4 py-3 text-left">Starts From</th>
+                    <th className="px-4 py-3 text-left">Exceptions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {statuteTable.map((row: any, idx: number) => (
+                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f5ef]'}>
+                      <td className="px-4 py-3 font-semibold" style={{ color: '#1a4a5a' }}>{row.state}</td>
+                      <td className="px-4 py-3" style={{ color: '#555' }}>{row.deadline}</td>
+                      <td className="px-4 py-3 text-sm" style={{ color: '#555' }}>{row.startDate}</td>
+                      <td className="px-4 py-3 text-sm" style={{ color: '#555' }}>{row.exceptions}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* SETTLEMENT RANGES */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>Settlement Ranges by Injury Type</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {injuryRanges.map((range: any, idx: number) => (
+                <div key={idx} className="p-6 rounded-lg border border-[#e8e2d8] bg-[#f9f5ef]">
+                  <h3 className="font-semibold mb-4" style={{ color: '#1a4a5a' }}>{range.injuryType}</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm" style={{ color: '#555' }}>Range:</span>
+                      <span className="font-semibold" style={{ color: '#c4714a' }}>${(range.minAmount / 1000).toFixed(0)}K - ${(range.maxAmount / 1000).toFixed(0)}K</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm" style={{ color: '#555' }}>Average:</span>
+                      <span className="font-semibold" style={{ color: '#1a4a5a' }}>${(range.averageAmount / 1000).toFixed(0)}K</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* WITH vs WITHOUT ATTORNEY */}
+        <section className="py-20 px-6 bg-[#f9f5ef]">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>With Attorney vs. Without Attorney</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[#1a4a5a] text-white">
+                    <th className="px-4 py-3 text-left">Factor</th>
+                    <th className="px-4 py-3 text-left">With Attorney</th>
+                    <th className="px-4 py-3 text-left">Without Attorney</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {attorneyComparison.map((row: any, idx: number) => (
+                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f0f8f6]'}>
+                      <td className="px-4 py-3 font-semibold" style={{ color: '#1a4a5a' }}>{row.factor}</td>
+                      <td className="px-4 py-3" style={{ color: '#555' }}>{row.with}</td>
+                      <td className="px-4 py-3" style={{ color: '#555' }}>{row.without}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* PEOPLE ALSO ASK */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>People Also Ask</h2>
+            <div className="space-y-4" itemScope itemType="https://schema.org/FAQPage">
+              {peopleAlsoAsk.map((item: any, idx: number) => (
+                <div key={idx} className="rounded-lg border border-[#e8e2d8] p-4 bg-[#f9f5ef]" itemProp="mainEntity" itemScope itemType="https://schema.org/Question">
+                  <h3 className="font-semibold" style={{ color: '#1a4a5a' }} itemProp="name">{item.q}</h3>
+                  <p className="mt-2 text-sm" style={{ color: '#555' }} itemProp="acceptedAnswer" itemScope itemType="https://schema.org/Answer"><span itemProp="text">{item.a}</span></p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* COMMON MISTAKES */}
+        <section className="py-20 px-6 bg-[#f9f5ef]">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>Common Mistakes to Avoid</h2>
+            <div className="space-y-4">
+              {commonMistakes.map((mistake: string, idx: number) => (
+                <div key={idx} className="p-4 bg-white rounded-lg border border-[#e8e2d8] flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#c4714a' }} />
+                  <span style={{ color: '#555' }}>{mistake}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="py-20 px-6 bg-white">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>Frequently Asked Questions</h2>
+            <div className="space-y-4">
+              {faqs.map((item: any, idx: number) => (
+                <div key={idx} className="rounded-lg border border-[#e8e2d8] overflow-hidden">
+                  <button
+                    onClick={() => setExpandedFaq(expandedFaq === item.q ? null : item.q)}
+                    className="w-full p-4 bg-[#f9f5ef] hover:bg-[#f0f8f6] transition-all flex items-center justify-between"
+                  >
+                    <h3 className="font-semibold text-left" style={{ color: '#1a4a5a' }}>{item.q}</h3>
+                    <ChevronRight className={`w-5 h-5 transition-transform ${expandedFaq === item.q ? 'rotate-90' : ''}`} style={{ color: '#4a8c7e' }} />
+                  </button>
+                  {expandedFaq === item.q && (
+                    <div className="p-4 bg-white border-t border-[#e8e2d8]">
+                      <p style={{ color: '#555' }}>{item.a}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA SECTION */}
+        <section className="py-24 px-6 bg-[#1a4a5a]">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-4 text-white">
+              Ready to Discuss Your Case?
+            </h2>
+            <p className="text-lg mb-8 text-gray-200">
+              Get a free consultation with an attorney. No upfront cost. We work on contingency.
+            </p>
+            <a
+              href="tel:+18002273669"
+              className="inline-flex items-center gap-2 bg-[#c4714a] text-white px-8 py-4 rounded-lg font-bold hover:bg-[#d4855e] transition-all shadow-lg"
+            >
+              Call Now: 1-800-227-3669
+              <ArrowRight size={20} />
+            </a>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-12 px-6 bg-[#0f2e3a]">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-8 mb-8">
+              <div>
+                <h3 className="font-semibold mb-4 text-white">CasePort</h3>
+                <p className="text-sm text-gray-400">The authoritative source for personal injury law. Attorney-reviewed.</p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-4 text-white">Guides</h4>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li><a href="/guide/car-accident" className="hover:text-white transition">Car Accident</a></li>
+                  <li><a href="/guide/slip-and-fall" className="hover:text-white transition">Slip & Fall</a></li>
+                  <li><a href="/guide/truck-accident" className="hover:text-white transition">Truck Accident</a></li>
+                  <li><a href="/guide/medical-malpractice" className="hover:text-white transition">Medical Malpractice</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-4 text-white">More Guides</h4>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li><a href="/guide/workplace-injury" className="hover:text-white transition">Workplace Injury</a></li>
+                  <li><a href="/guide/motorcycle-accident" className="hover:text-white transition">Motorcycle Accident</a></li>
+                  <li><a href="/guide/pedestrian-accident" className="hover:text-white transition">Pedestrian Accident</a></li>
+                  <li><a href="/guide/dog-bite" className="hover:text-white transition">Dog Bite</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-4 text-white">Contact</h4>
+                <ul className="space-y-2 text-sm text-gray-400">
+                  <li><a href="tel:+18002273669" className="hover:text-white transition">1-800-227-3669</a></li>
+                  <li><a href="/guide/wrongful-death" className="hover:text-white transition">Wrongful Death</a></li>
+                  <li><a href="/guide/rideshare-accident" className="hover:text-white transition">Rideshare Accident</a></li>
+                  <li><a href="/guide/insurance-claim" className="hover:text-white transition">Insurance Claims</a></li>
+                </ul>
+              </div>
+            </div>
+            <div className="border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
+              <p>&copy; 2026 CasePort.io. All rights reserved. Attorney-Reviewed. ABA Compliant.</p>
+            </div>
+          </div>
+        </footer>
+      </>
     </div>
   )
 }
