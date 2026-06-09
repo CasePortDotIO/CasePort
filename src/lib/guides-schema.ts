@@ -11,6 +11,49 @@ const getFaqsFromBlocks = (blocks: Block[]): any[] => {
   return faqs
 }
 
+/**
+ * Validates the emitted JSON-LD schemas.
+ * Throws if the page would generate Google Search Console errors:
+ *   - more than one FAQPage (Google flags as "Duplicate field FAQPage")
+ *   - any FAQPage without mainEntity (Google flags as "Missing field mainEntity")
+ *
+ * Called automatically at the end of generateGuideJsonLd so the build fails
+ * the moment a future content edit re-introduces either bug, instead of
+ * silently shipping broken structured data to production.
+ */
+function assertValidSchemas(schemas: any[]): void {
+  if (!Array.isArray(schemas) || schemas.length === 0) return
+
+  const faqPageCount = schemas.filter((s) => s?.['@type'] === 'FAQPage').length
+  if (faqPageCount > 1) {
+    throw new Error(
+      `[guide-schema] generateGuideJsonLd emitted ${faqPageCount} FAQPage schemas. ` +
+        `Google Search Console will report "Duplicate field FAQPage" as a critical issue. ` +
+        `Only one FAQPage schema is allowed per page.`,
+    )
+  }
+
+  for (const s of schemas) {
+    if (s?.['@type'] === 'FAQPage') {
+      if (!s.mainEntity || !Array.isArray(s.mainEntity) || s.mainEntity.length === 0) {
+        throw new Error(
+          `[guide-schema] FAQPage schema is missing required "mainEntity" field ` +
+            `(it must contain the Question/Answer array). Google will report ` +
+            `"Missing field mainEntity" as a critical issue.`,
+        )
+      }
+      for (const q of s.mainEntity) {
+        if (!q?.name) {
+          throw new Error(
+            `[guide-schema] FAQPage.mainEntity contains a Question without a "name" field. ` +
+              `Each Question needs a name and acceptedAnswer.`,
+          )
+        }
+      }
+    }
+  }
+}
+
 export function generateGuideJsonLd(article: any, category: any) {
   const baseUrl = 'https://www.caseport.io'
   const categorySlug = typeof category === 'object' ? category?.slug : 'guide'
@@ -18,7 +61,15 @@ export function generateGuideJsonLd(article: any, category: any) {
   const schemas: any[] = []
 
   // 1. Article/Guide Schema
-  const articleType = article.schemaType || 'Article'
+  //    If the editor picked schemaType === 'FAQPage', DO NOT emit the main schema
+  //    as FAQPage — the FAQPage block below already produces a proper one with
+  //    mainEntity. Emitting both causes Google to flag a "Duplicate field FAQPage".
+  //    Fall back to 'Article' for the main schema in that case.
+  const blocks = article.blocks || []
+  const faqs = getFaqsFromBlocks(blocks)
+  const requestedType = article.schemaType || 'Article'
+  const articleType = requestedType === 'FAQPage' && faqs.length > 0 ? 'Article' : requestedType
+
   schemas.push({
     '@context': 'https://schema.org',
     '@type': articleType,
@@ -42,9 +93,7 @@ export function generateGuideJsonLd(article: any, category: any) {
     },
   })
 
-  // 2. FAQ Schema from FAQAccordion blocks
-  const blocks = article.blocks || []
-  const faqs = getFaqsFromBlocks(blocks)
+  // 2. FAQ Schema from FAQAccordion blocks — always emits with proper mainEntity
   if (faqs.length > 0) {
     schemas.push({
       '@context': 'https://schema.org',
@@ -120,6 +169,11 @@ export function generateGuideJsonLd(article: any, category: any) {
       },
     ],
   })
+
+  // Hard guard against Google Search Console errors. The build will fail here
+  // if a future content edit re-introduces a duplicate FAQPage or one without
+  // mainEntity — better to catch it at build time than in production.
+  assertValidSchemas(schemas)
 
   return schemas
 }
