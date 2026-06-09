@@ -42,49 +42,49 @@ const defaultQuickAnswers = [
     question: 'What is the statute of limitations for personal injury cases?',
     directAnswer: 'The statute of limitations for personal injury cases is typically 2-3 years from the date of injury, though this varies by state.',
     keyFacts: ['Typical deadline: 2-3 years from injury date', 'Some states allow 4-6 years', 'Missing deadline = permanent loss of rights', 'Tolling rules may pause the deadline', 'Deadline varies by injury type and state'],
-    link: '/guide/car-accident/statute-of-limitations'
+    link: '/guides/car-accident/statute-of-limitations'
   },
   {
     id: 'settlement-amounts',
     question: 'How much do personal injury cases typically settle for?',
     directAnswer: 'Personal injury settlements range from $5,000 for minor injuries to $500,000+ for severe injuries, with most cases settling between $25,000-$100,000.',
     keyFacts: ['Minor injuries: $5K-$25K', 'Moderate injuries: $25K-$100K', 'Severe injuries: $100K-$500K+', 'Average settlement: ~$52,000', 'Attorney fees typically 25-40% of settlement'],
-    link: '/guide/car-accident/settlement-amounts'
+    link: '/guides/car-accident/settlement-amounts'
   },
   {
     id: 'do-i-need-attorney',
     question: 'Do I need an attorney for a personal injury case?',
     directAnswer: 'You need an attorney if you have a serious injury, disputed liability, or the insurance company is being difficult. For minor injuries with clear liability, you may handle it yourself.',
     keyFacts: ['Attorneys increase settlements 25-40%', 'Work on contingency (no upfront cost)', 'Essential for serious/complex cases', 'Good for disputed liability', 'Helpful when insurance denies claim'],
-    link: '/guide/car-accident/do-i-need-a-lawyer'
+    link: '/guides/car-accident/do-i-need-a-lawyer'
   },
   {
     id: 'what-to-do-after-accident',
     question: 'What should I do immediately after an accident?',
     directAnswer: 'After an accident, seek medical attention, call police, document the scene with photos, get witness information, and contact an attorney within 24-48 hours.',
     keyFacts: ['Seek medical care immediately', 'Get police report', 'Document with photos', 'Collect witness information', "Don't admit fault", 'Contact attorney within 24-48 hours'],
-    link: '/guide/car-accident/what-to-do'
+    link: '/guides/car-accident/what-to-do'
   },
   {
     id: 'comparative-negligence',
     question: 'What is comparative negligence and how does it affect my case?',
     directAnswer: 'Comparative negligence reduces your settlement by your percentage of fault. For example, if you\'re 20% at fault, you recover 80% of damages.',
     keyFacts: ['Pure comparative: recover at any fault %', 'Modified comparative: ≤50% fault to recover', 'Contributory: no recovery if any fault', 'Settlement reduced by your fault %', 'Rules vary by state'],
-    link: '/guide/car-accident/comparative-negligence'
+    link: '/guides/car-accident/comparative-negligence'
   },
   {
     id: 'medical-records',
     question: 'How important are medical records in a personal injury case?',
     directAnswer: 'Medical records are critical - they prove your injuries, treatment, and damages. Cases with comprehensive medical documentation settle for 3-5x more than cases without.',
     keyFacts: ['Prove injuries and treatment', 'Document recovery timeline', 'Increase settlement value 3-5x', 'Insurance uses them to calculate damages', 'Gaps reduce settlement amount'],
-    link: '/guide/car-accident/medical-records'
+    link: '/guides/car-accident/medical-records'
   },
   {
     id: 'settlement-vs-trial',
     question: 'Should I settle or go to trial?',
     directAnswer: 'Most cases settle (90-95%). Trials are unpredictable, expensive, and time-consuming. Settle if the offer is fair and covers your damages.',
     keyFacts: ['90-95% of cases settle', 'Trials take 2-5 years', 'Trial costs: $10K-$50K+', 'Settlement = certainty', 'Trial = unpredictable outcome'],
-    link: '/guide/car-accident/settlement-vs-trial'
+    link: '/guides/car-accident/settlement-vs-trial'
   }
 ]
 
@@ -306,7 +306,7 @@ export default function GuidesHubClient({
                       </div>
                     ))}
                   </div>
-                  <Link href={answer.link || '/guide'} className="text-sm font-semibold" style={{ color: '#c4714a' }}>
+                  <Link href={answer.link || '/guides'} className="text-sm font-semibold" style={{ color: '#c4714a' }}>
                     Learn more →
                   </Link>
                 </div>
@@ -362,7 +362,7 @@ export default function GuidesHubClient({
               {categories.slice(0, 11).map((category: any) => (
                 <Link
                   key={category.id || category.slug}
-                  href={`/guide/${category.slug}`}
+                  href={`/guides/${category.slug}`}
                   className="p-6 rounded-xl border border-[#e8e2d8] bg-white hover:shadow-lg hover:border-[#4a8c7e] transition-all"
                 >
                   <div className="mb-3 text-[#4a8c7e]">{guideIcons[category.slug] || <BookOpen className="w-6 h-6" />}</div>
@@ -372,7 +372,7 @@ export default function GuidesHubClient({
                 </Link>
               ))}
               <Link
-                href="/guide"
+                href="/guides"
                 className="p-6 rounded-xl border border-[#e8e2d8] bg-white hover:shadow-lg hover:border-[#4a8c7e] transition-all"
               >
                 <div className="mb-3 text-[#4a8c7e]"><TrendingUp className="w-6 h-6" /></div>
@@ -626,28 +626,28 @@ export default function GuidesHubClient({
               <div>
                 <h4 className="font-semibold mb-4 text-white">Guides</h4>
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="/guide/car-accident" className="hover:text-white transition">Car Accident</a></li>
-                  <li><a href="/guide/slip-and-fall" className="hover:text-white transition">Slip & Fall</a></li>
-                  <li><a href="/guide/truck-accident" className="hover:text-white transition">Truck Accident</a></li>
-                  <li><a href="/guide/medical-malpractice" className="hover:text-white transition">Medical Malpractice</a></li>
+                  <li><a href="/guides/car-accident" className="hover:text-white transition">Car Accident</a></li>
+                  <li><a href="/guides/slip-and-fall" className="hover:text-white transition">Slip & Fall</a></li>
+                  <li><a href="/guides/truck-accident" className="hover:text-white transition">Truck Accident</a></li>
+                  <li><a href="/guides/medical-malpractice" className="hover:text-white transition">Medical Malpractice</a></li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold mb-4 text-white">More Guides</h4>
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="/guide/workplace-injury" className="hover:text-white transition">Workplace Injury</a></li>
-                  <li><a href="/guide/motorcycle-accident" className="hover:text-white transition">Motorcycle Accident</a></li>
-                  <li><a href="/guide/pedestrian-accident" className="hover:text-white transition">Pedestrian Accident</a></li>
-                  <li><a href="/guide/dog-bite" className="hover:text-white transition">Dog Bite</a></li>
+                  <li><a href="/guides/workplace-injury" className="hover:text-white transition">Workplace Injury</a></li>
+                  <li><a href="/guides/motorcycle-accident" className="hover:text-white transition">Motorcycle Accident</a></li>
+                  <li><a href="/guides/pedestrian-accident" className="hover:text-white transition">Pedestrian Accident</a></li>
+                  <li><a href="/guides/dog-bite" className="hover:text-white transition">Dog Bite</a></li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold mb-4 text-white">Contact</h4>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li><a href="tel:+18002273669" className="hover:text-white transition">1-800-227-3669</a></li>
-                  <li><a href="/guide/wrongful-death" className="hover:text-white transition">Wrongful Death</a></li>
-                  <li><a href="/guide/rideshare-accident" className="hover:text-white transition">Rideshare Accident</a></li>
-                  <li><a href="/guide/insurance-claim" className="hover:text-white transition">Insurance Claims</a></li>
+                  <li><a href="/guides/wrongful-death" className="hover:text-white transition">Wrongful Death</a></li>
+                  <li><a href="/guides/rideshare-accident" className="hover:text-white transition">Rideshare Accident</a></li>
+                  <li><a href="/guides/insurance-claim" className="hover:text-white transition">Insurance Claims</a></li>
                 </ul>
               </div>
             </div>

@@ -133,24 +133,24 @@ const quickAnswers: QuickAnswer[] = [
 ]
 
 const featuredGuidesData = [
-  { title: 'Car Accident - Rear-End', link: '/guide/car-accident/rear-end', key: 'car-accident', description: 'Rear-end collision liability, settlement ranges by state, and why you need an attorney. Get the facts immediately.' },
-  { title: 'Car Accident - T-Bone', link: '/guide/car-accident/t-bone', key: 'car-accident', description: 'T-bone collision injuries, liability rules, and catastrophic damage settlements. Understand your rights.' },
-  { title: 'Car Accident - Hit & Run', link: '/guide/car-accident/hit-and-run', key: 'car-accident', description: 'Hit-and-run claims, uninsured motorist coverage, and recovery without finding the driver. Know your options.' },
-  { title: 'Car Accident - Intersection', link: '/guide/car-accident/intersection', key: 'car-accident', description: 'Intersection collision liability, traffic signal rules, and settlement expectations. Protect your claim.' },
-  { title: 'Car Accident - Parking Lot', link: '/guide/car-accident/parking-lot', key: 'car-accident', description: 'Parking lot accident liability, comparative negligence, and quick settlements. Handle minor collisions right.' },
-  { title: 'Car Accident - Multi-Vehicle', link: '/guide/car-accident/multi-vehicle', key: 'car-accident', description: 'Pile-up liability, multiple defendants, and complex settlement negotiations. Maximize your recovery.' },
-  { title: 'Car Accident (General)', link: '/guide/car-accident', key: 'car-accident', description: 'Understand liability, insurance claims, and settlement expectations after a motor vehicle collision. Learn what damages you can recover.' },
-  { title: 'Slip & Fall', link: '/guide/slip-and-fall', key: 'slip-and-fall', description: 'Property owner liability, premises liability laws, and how to prove negligence. Get the facts before negotiating.' },
-  { title: 'Motorcycle Accident', link: '/guide/motorcycle-accident', key: 'motorcycle-accident', description: 'Bias against riders, insurance tactics, and catastrophic injury settlements. Know the landscape.' },
-  { title: 'Truck Accident', link: '/guide/truck-accident', key: 'truck-accident', description: 'Commercial liability, federal regulations, and why truck accidents settle for more. Discover your rights.' },
-  { title: 'Medical Malpractice', link: '/guide/medical-malpractice', key: 'medical-malpractice', description: 'Standard of care, expert testimony requirements, and complex damages. Navigate medical negligence claims.' },
-  { title: 'Workplace Injury', link: '/guide/workplace-injury', key: 'workplace-injury', description: "Workers' compensation vs personal injury lawsuits. Understand your options and maximum recovery." },
-  { title: 'Pedestrian Accident', link: '/guide/pedestrian-accident', key: 'pedestrian-accident', description: 'Right-of-way laws, hit-and-run claims, and serious injury settlements. Protect your interests.' },
-  { title: 'Dog Bite', link: '/guide/dog-bite', key: 'dog-bite', description: 'Strict liability laws, insurance coverage, and scarring/disfigurement damages. Learn your claim value.' },
-  { title: 'Wrongful Death', link: '/guide/wrongful-death', key: 'wrongful-death', description: "Surviving family compensation, punitive damages, and filing deadlines. Honor your loved one's memory." },
-  { title: 'Rideshare Accident', link: '/guide/rideshare-accident', key: 'rideshare-accident', description: 'Uber/Lyft liability, insurance coverage gaps, and passenger rights. Understand platform accountability.' },
-  { title: 'Insurance Claims', link: '/guide/insurance-claim', key: 'insurance-claim', description: 'Claim process, denial tactics, and appeal strategies. Fight back against unfair denials.' },
-  { title: 'View All Guides', link: '/guide', key: 'all-guides', description: 'Browse our complete library of 43+ injury guides with real settlement data, state-specific laws, and AI-optimized content.' },
+  { title: 'Car Accident - Rear-End', link: '/guides/car-accident/rear-end', key: 'car-accident', description: 'Rear-end collision liability, settlement ranges by state, and why you need an attorney. Get the facts immediately.' },
+  { title: 'Car Accident - T-Bone', link: '/guides/car-accident/t-bone', key: 'car-accident', description: 'T-bone collision injuries, liability rules, and catastrophic damage settlements. Understand your rights.' },
+  { title: 'Car Accident - Hit & Run', link: '/guides/car-accident/hit-and-run', key: 'car-accident', description: 'Hit-and-run claims, uninsured motorist coverage, and recovery without finding the driver. Know your options.' },
+  { title: 'Car Accident - Intersection', link: '/guides/car-accident/intersection', key: 'car-accident', description: 'Intersection collision liability, traffic signal rules, and settlement expectations. Protect your claim.' },
+  { title: 'Car Accident - Parking Lot', link: '/guides/car-accident/parking-lot', key: 'car-accident', description: 'Parking lot accident liability, comparative negligence, and quick settlements. Handle minor collisions right.' },
+  { title: 'Car Accident - Multi-Vehicle', link: '/guides/car-accident/multi-vehicle', key: 'car-accident', description: 'Pile-up liability, multiple defendants, and complex settlement negotiations. Maximize your recovery.' },
+  { title: 'Car Accident (General)', link: '/guides/car-accident', key: 'car-accident', description: 'Understand liability, insurance claims, and settlement expectations after a motor vehicle collision. Learn what damages you can recover.' },
+  { title: 'Slip & Fall', link: '/guides/slip-and-fall', key: 'slip-and-fall', description: 'Property owner liability, premises liability laws, and how to prove negligence. Get the facts before negotiating.' },
+  { title: 'Motorcycle Accident', link: '/guides/motorcycle-accident', key: 'motorcycle-accident', description: 'Bias against riders, insurance tactics, and catastrophic injury settlements. Know the landscape.' },
+  { title: 'Truck Accident', link: '/guides/truck-accident', key: 'truck-accident', description: 'Commercial liability, federal regulations, and why truck accidents settle for more. Discover your rights.' },
+  { title: 'Medical Malpractice', link: '/guides/medical-malpractice', key: 'medical-malpractice', description: 'Standard of care, expert testimony requirements, and complex damages. Navigate medical negligence claims.' },
+  { title: 'Workplace Injury', link: '/guides/workplace-injury', key: 'workplace-injury', description: "Workers' compensation vs personal injury lawsuits. Understand your options and maximum recovery." },
+  { title: 'Pedestrian Accident', link: '/guides/pedestrian-accident', key: 'pedestrian-accident', description: 'Right-of-way laws, hit-and-run claims, and serious injury settlements. Protect your interests.' },
+  { title: 'Dog Bite', link: '/guides/dog-bite', key: 'dog-bite', description: 'Strict liability laws, insurance coverage, and scarring/disfigurement damages. Learn your claim value.' },
+  { title: 'Wrongful Death', link: '/guides/wrongful-death', key: 'wrongful-death', description: "Surviving family compensation, punitive damages, and filing deadlines. Honor your loved one's memory." },
+  { title: 'Rideshare Accident', link: '/guides/rideshare-accident', key: 'rideshare-accident', description: 'Uber/Lyft liability, insurance coverage gaps, and passenger rights. Understand platform accountability.' },
+  { title: 'Insurance Claims', link: '/guides/insurance-claim', key: 'insurance-claim', description: 'Claim process, denial tactics, and appeal strategies. Fight back against unfair denials.' },
+  { title: 'View All Guides', link: '/guides', key: 'all-guides', description: 'Browse our complete library of 43+ injury guides with real settlement data, state-specific laws, and AI-optimized content.' },
 ]
 
 export default function GuideTestingClient({ guides, faqItems }: GuidesHubClientProps) {
@@ -333,20 +333,20 @@ export default function GuideTestingClient({ guides, faqItems }: GuidesHubClient
                 <a
                   href={
                     answer.id === 'statute-of-limitations'
-                      ? '/guide/car-accident/statute-of-limitations'
+                      ? '/guides/car-accident/statute-of-limitations'
                       : answer.id === 'settlement-amounts'
-                        ? '/guide/car-accident/settlement-amounts'
+                        ? '/guides/car-accident/settlement-amounts'
                         : answer.id === 'do-i-need-attorney'
-                          ? '/guide/car-accident/do-i-need-a-lawyer'
+                          ? '/guides/car-accident/do-i-need-a-lawyer'
                           : answer.id === 'what-to-do-after-accident'
-                            ? '/guide/car-accident/what-to-do'
+                            ? '/guides/car-accident/what-to-do'
                             : answer.id === 'comparative-negligence'
-                              ? '/guide/car-accident/what-to-do'
+                              ? '/guides/car-accident/what-to-do'
                               : answer.id === 'medical-records'
-                                ? '/guide/car-accident/what-to-do'
+                                ? '/guides/car-accident/what-to-do'
                                 : answer.id === 'settlement-vs-trial'
-                                  ? '/guide/car-accident/settlement-amounts'
-                                  : '/guide'
+                                  ? '/guides/car-accident/settlement-amounts'
+                                  : '/guides'
                   }
                   className="text-sm font-semibold"
                   style={{ color: '#c4714a' }}
@@ -921,22 +921,22 @@ export default function GuideTestingClient({ guides, faqItems }: GuidesHubClient
               <h4 className="font-semibold mb-4 text-white">Guides</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a href="/guide/car-accident" className="hover:text-white transition">
+                  <a href="/guides/car-accident" className="hover:text-white transition">
                     Car Accident
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/slip-and-fall" className="hover:text-white transition">
+                  <a href="/guides/slip-and-fall" className="hover:text-white transition">
                     Slip & Fall
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/truck-accident" className="hover:text-white transition">
+                  <a href="/guides/truck-accident" className="hover:text-white transition">
                     Truck Accident
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/medical-malpractice" className="hover:text-white transition">
+                  <a href="/guides/medical-malpractice" className="hover:text-white transition">
                     Medical Malpractice
                   </a>
                 </li>
@@ -946,22 +946,22 @@ export default function GuideTestingClient({ guides, faqItems }: GuidesHubClient
               <h4 className="font-semibold mb-4 text-white">More Guides</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <a href="/guide/workplace-injury" className="hover:text-white transition">
+                  <a href="/guides/workplace-injury" className="hover:text-white transition">
                     Workplace Injury
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/motorcycle-accident" className="hover:text-white transition">
+                  <a href="/guides/motorcycle-accident" className="hover:text-white transition">
                     Motorcycle Accident
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/pedestrian-accident" className="hover:text-white transition">
+                  <a href="/guides/pedestrian-accident" className="hover:text-white transition">
                     Pedestrian Accident
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/dog-bite" className="hover:text-white transition">
+                  <a href="/guides/dog-bite" className="hover:text-white transition">
                     Dog Bite
                   </a>
                 </li>
@@ -976,17 +976,17 @@ export default function GuideTestingClient({ guides, faqItems }: GuidesHubClient
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/wrongful-death" className="hover:text-white transition">
+                  <a href="/guides/wrongful-death" className="hover:text-white transition">
                     Wrongful Death
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/rideshare-accident" className="hover:text-white transition">
+                  <a href="/guides/rideshare-accident" className="hover:text-white transition">
                     Rideshare Accident
                   </a>
                 </li>
                 <li>
-                  <a href="/guide/insurance-claim" className="hover:text-white transition">
+                  <a href="/guides/insurance-claim" className="hover:text-white transition">
                     Insurance Claims
                   </a>
                 </li>

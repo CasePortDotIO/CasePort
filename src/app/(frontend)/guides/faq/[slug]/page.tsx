@@ -28,11 +28,11 @@ export async function generateMetadata({
   return {
     title: article?.metaTitle ?? article?.title ?? 'FAQ | CasePort',
     description: article?.metaDescription ?? article?.excerpt ?? 'Frequently asked questions about personal injury claims.',
-    alternates: { canonical: `${siteUrl}/guide/faq/${slug}` },
+    alternates: { canonical: `${siteUrl}/guides/faq/${slug}` },
     openGraph: {
       title: article?.socialHeadline ?? article?.title ?? 'FAQ | CasePort',
       description: article?.socialDescription ?? article?.excerpt ?? 'Frequently asked questions about personal injury claims.',
-      url: `${siteUrl}/guide/faq/${slug}`,
+      url: `${siteUrl}/guides/faq/${slug}`,
       type: 'website',
     },
   }

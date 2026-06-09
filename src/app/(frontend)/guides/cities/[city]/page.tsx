@@ -29,11 +29,11 @@ export async function generateMetadata({
   return {
     title: article?.metaTitle ?? `Personal Injury Guide | ${cityName} | CasePort`,
     description: article?.metaDescription ?? `Learn about personal injury claims, statute of limitations, and settlement ranges in ${cityName}.`,
-    alternates: { canonical: `${siteUrl}/guide/cities/${city}` },
+    alternates: { canonical: `${siteUrl}/guides/cities/${city}` },
     openGraph: {
       title: article?.socialHeadline ?? `Personal Injury Guide | ${cityName} | CasePort`,
       description: article?.socialDescription ?? `Learn about personal injury claims in ${cityName}.`,
-      url: `${siteUrl}/guide/cities/${city}`,
+      url: `${siteUrl}/guides/cities/${city}`,
       type: 'website',
     },
   }

@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     let frontendUrl: string
     if (collectionSlug === 'guideArticles') {
       const categorySlug = article.guideCategory?.slug || article.guideCategory
-      frontendUrl = `${siteUrl}/guide/${categorySlug}/${targetSlug}?preview=true&draft=${article.id}`
+      frontendUrl = `${siteUrl}/guides/${categorySlug}/${targetSlug}?preview=true&draft=${article.id}`
     } else {
       frontendUrl = `${siteUrl}/insights/${targetSlug}?preview=true&draft=${article.id}`
     }

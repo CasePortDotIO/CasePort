@@ -14,7 +14,7 @@ const getFaqsFromBlocks = (blocks: Block[]): any[] => {
 export function generateGuideJsonLd(article: any, category: any) {
   const baseUrl = 'https://www.caseport.io'
   const categorySlug = typeof category === 'object' ? category?.slug : 'guide'
-  const url = article.canonicalUrl || `${baseUrl}/guide/${categorySlug}/${article.slug}`
+  const url = article.canonicalUrl || `${baseUrl}/guides/${categorySlug}/${article.slug}`
   const schemas: any[] = []
 
   // 1. Article/Guide Schema
@@ -104,13 +104,13 @@ export function generateGuideJsonLd(article: any, category: any) {
         '@type': 'ListItem',
         position: 2,
         name: 'Guides',
-        item: `${baseUrl}/guide`,
+        item: `${baseUrl}/guides`,
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: category?.title || 'Guide',
-        item: `${baseUrl}/guide/${categorySlug}`,
+        item: `${baseUrl}/guides/${categorySlug}`,
       },
       {
         '@type': 'ListItem',

@@ -1153,7 +1153,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                     return (
                       <Link
                         key={i}
-                        href={`/guide/${art.guideCategory?.slug || 'guide'}/${art.slug || '#'}`}
+                        href={`/guides/${art.guideCategory?.slug || 'guide'}/${art.slug || '#'}`}
                         style={{ textDecoration: 'none' }}
                       >
                         <div
@@ -1241,7 +1241,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                     return (
                       <Link
                         key={i}
-                        href={`/guide/${cat.slug || 'guide'}`}
+                        href={`/guides/${cat.slug || 'guide'}`}
                         style={{ textDecoration: 'none' }}
                       >
                         <div
@@ -2673,14 +2673,14 @@ export default function GuideArticleClient({
           aria-label="Breadcrumb"
         >
           <Link
-            href="/guide"
+            href="/guides"
             style={{ color: '#1a4a5a', textDecoration: 'none', fontWeight: '500' }}
           >
             Guides
           </Link>
           <span>/</span>
           <Link
-            href={`/guide/${categorySlug}`}
+            href={`/guides/${categorySlug}`}
             style={{ color: '#1a4a5a', textDecoration: 'none', fontWeight: '500' }}
           >
             {categoryTitle}

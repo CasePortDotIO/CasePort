@@ -127,7 +127,7 @@ export default function CategoryGuideClient({ category, articles }: CategoryGuid
               <ol className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-white/70">
                 <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
                 <li className="text-white/50"><ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" /></li>
-                <li><Link href="/guide" className="hover:text-white transition-colors">Guides</Link></li>
+                <li><Link href="/guides" className="hover:text-white transition-colors">Guides</Link></li>
                 <li className="text-white/50"><ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" /></li>
                 <li className="text-white font-medium">{categoryTitle}</li>
               </ol>
@@ -502,7 +502,7 @@ export default function CategoryGuideClient({ category, articles }: CategoryGuid
               {articles.slice(0, 3).map((article: any, idx: number) => (
                 <Link
                   key={idx}
-                  href={`/guide/${categorySlug}/${article.slug}`}
+                  href={`/guides/${categorySlug}/${article.slug}`}
                   className="bg-white p-6 rounded-lg border border-[#e8e2d8] hover:border-[#c4714a] transition-colors block"
                 >
                   <h4 className="text-base font-semibold text-[#1a4a5a] mb-2">{article.title}</h4>
@@ -515,7 +515,7 @@ export default function CategoryGuideClient({ category, articles }: CategoryGuid
             </div>
           )}
 
-          <Link href="/guide" className="block bg-[#1a4a5a] text-white p-6 rounded-lg hover:bg-[#2d6a7a] transition-colors">
+          <Link href="/guides" className="block bg-[#1a4a5a] text-white p-6 rounded-lg hover:bg-[#2d6a7a] transition-colors">
               <div className="flex items-center justify-between">
                 <div className="text-left">
                   <h4 className="font-semibold mb-1">Browse All {categoryTitle} Guides</h4>

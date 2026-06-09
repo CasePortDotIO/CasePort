@@ -25,9 +25,9 @@ export const GuideCategories: CollectionConfig = {
       async ({ doc }) => {
         try {
           const { revalidatePath } = await import('next/cache')
-          revalidatePath('/guide')
+          revalidatePath('/guides')
           if (doc.slug) {
-            revalidatePath(`/guide/${doc.slug}`)
+            revalidatePath(`/guides/${doc.slug}`)
           }
         } catch {
           // If we are not in a Next.js server context, quietly ignore

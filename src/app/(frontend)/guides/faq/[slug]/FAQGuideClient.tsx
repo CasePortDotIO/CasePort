@@ -68,10 +68,10 @@ export default function FAQGuideClient({ article }: FAQGuideClientProps) {
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 bg-white pt-14 md:hidden">
           <div className="p-4 space-y-4">
-            <Link href="/guide" className="block py-2 text-[#1a4a5a] font-medium">All Guides</Link>
-            <Link href="/guide/states" className="block py-2 text-[#1a4a5a] font-medium">State Guides</Link>
-            <Link href="/guide/cities" className="block py-2 text-[#1a4a5a] font-medium">City Guides</Link>
-            <Link href="/guide/faq" className="block py-2 text-[#1a4a5a] font-medium">FAQ</Link>
+            <Link href="/guides" className="block py-2 text-[#1a4a5a] font-medium">All Guides</Link>
+            <Link href="/guides/states" className="block py-2 text-[#1a4a5a] font-medium">State Guides</Link>
+            <Link href="/guides/cities" className="block py-2 text-[#1a4a5a] font-medium">City Guides</Link>
+            <Link href="/guides/faq" className="block py-2 text-[#1a4a5a] font-medium">FAQ</Link>
           </div>
         </div>
       )}
@@ -81,9 +81,9 @@ export default function FAQGuideClient({ article }: FAQGuideClientProps) {
         <div className="max-w-3xl mx-auto px-7">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-[#4a8c7e] mb-8">
-            <Link href="/guide" className="hover:text-[#1a4a5a]">Guides</Link>
+            <Link href="/guides" className="hover:text-[#1a4a5a]">Guides</Link>
             <ChevronRight size={16} />
-            <Link href="/guide/faq" className="hover:text-[#1a4a5a]">FAQ</Link>
+            <Link href="/guides/faq" className="hover:text-[#1a4a5a]">FAQ</Link>
             <ChevronRight size={16} />
             <span className="text-[#1a4a5a] font-semibold">Question</span>
           </div>
@@ -190,7 +190,7 @@ export default function FAQGuideClient({ article }: FAQGuideClientProps) {
             <div>
               <h3 className="font-bold text-lg mb-3">Quick Links</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/guide" className="text-[#e8e2d8] hover:text-white">Guides</Link></li>
+                <li><Link href="/guides" className="text-[#e8e2d8] hover:text-white">Guides</Link></li>
                 <li><Link href="/" className="text-[#e8e2d8] hover:text-white">Home</Link></li>
                 <li><a href="tel:+18002273669" className="text-[#e8e2d8] hover:text-white">Call Us</a></li>
               </ul>

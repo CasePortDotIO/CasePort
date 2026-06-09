@@ -27,7 +27,7 @@ export async function generateMetadata({
 
   const title = cat.metaTitle || `${cat.title} Guides | CasePort`
   const description = cat.metaDescription || cat.description || `Comprehensive ${cat.title} guides for personal injury victims.`
-  const canonicalUrl = cat.canonicalUrl || `${siteUrl}/guide/${categorySlug}`
+  const canonicalUrl = cat.canonicalUrl || `${siteUrl}/guides/${categorySlug}`
 
   const twitterImages: string[] = []
   if (typeof cat.xCardImage === 'object' && cat.xCardImage?.url) twitterImages.push(cat.xCardImage.url)

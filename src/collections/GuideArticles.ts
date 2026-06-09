@@ -732,22 +732,22 @@ export const GuideArticles: CollectionConfig = {
       async ({ doc }) => {
         try {
           const { revalidatePath } = await import('next/cache')
-          revalidatePath('/guide')
+          revalidatePath('/guides')
           if (doc.slug) {
-            revalidatePath(`/guide/${doc.slug}`)
+            revalidatePath(`/guides/${doc.slug}`)
           }
           if (doc.pageType === 'state' && doc.targetStates?.length) {
             for (const state of doc.targetStates) {
-              revalidatePath(`/guide/states/${state}`)
+              revalidatePath(`/guides/states/${state}`)
             }
           }
           if (doc.pageType === 'city' && doc.targetCities?.length) {
             for (const city of doc.targetCities) {
-              revalidatePath(`/guide/cities/${city}`)
+              revalidatePath(`/guides/cities/${city}`)
             }
           }
           if (doc.pageType === 'faq') {
-            revalidatePath(`/guide/faq/${doc.slug}`)
+            revalidatePath(`/guides/faq/${doc.slug}`)
           }
         } catch {
           // If we are not in a Next.js server context, quietly ignore

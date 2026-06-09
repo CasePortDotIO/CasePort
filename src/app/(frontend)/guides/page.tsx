@@ -12,12 +12,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Personal Injury Guides | CasePort',
     description:
       'Comprehensive guides on personal injury law, statute of limitations, settlement ranges, and your legal rights. Written by attorneys, updated quarterly.',
-    alternates: { canonical: `${siteUrl}/guide` },
+    alternates: { canonical: `${siteUrl}/guides` },
     openGraph: {
       title: 'Personal Injury Guides | CasePort',
       description:
         'Comprehensive guides on personal injury law, statute of limitations, settlement ranges, and your legal rights.',
-      url: `${siteUrl}/guide`,
+      url: `${siteUrl}/guides`,
       type: 'website',
     },
   }

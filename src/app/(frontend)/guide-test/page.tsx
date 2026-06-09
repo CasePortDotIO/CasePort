@@ -232,12 +232,12 @@ export default function GuideTestPage() {
           }}
           aria-label="Breadcrumb"
         >
-          <Link href="/guide" style={{ color: '#1a4a5a', textDecoration: 'none', fontWeight: '500' }}>
+          <Link href="/guides" style={{ color: '#1a4a5a', textDecoration: 'none', fontWeight: '500' }}>
             Guides
           </Link>
           <span>/</span>
           <Link
-            href="/guide/truck-accident"
+            href="/guides/truck-accident"
             style={{ color: '#1a4a5a', textDecoration: 'none', fontWeight: '500' }}
           >
             Truck Accident
@@ -1254,15 +1254,15 @@ export default function GuideTestPage() {
               {[
                 {
                   title: 'Do I Need a Lawyer After a Truck Accident?',
-                  url: '/guide/truck-accident/do-i-need-a-lawyer',
+                  url: '/guides/truck-accident/do-i-need-a-lawyer',
                 },
                 {
                   title: 'Truck Accident Settlement Amounts',
-                  url: '/guide/truck-accident/settlement-amounts',
+                  url: '/guides/truck-accident/settlement-amounts',
                 },
                 {
                   title: 'Statute of Limitations for Truck Accidents',
-                  url: '/guide/truck-accident/statute-of-limitations',
+                  url: '/guides/truck-accident/statute-of-limitations',
                 },
               ].map((article, idx) => (
                 <Link
@@ -1525,22 +1525,22 @@ export default function GuideTestPage() {
                   title: 'Car Accident Guide',
                   description:
                     'Liability, insurance claims, and settlement expectations after a motor vehicle collision',
-                  link: '/guide/car-accident',
+                  link: '/guides/car-accident',
                 },
                 {
                   title: 'Slip & Fall Guide',
                   description: 'Property owner liability, premises liability laws, and how to prove negligence',
-                  link: '/guide/slip-and-fall',
+                  link: '/guides/slip-and-fall',
                 },
                 {
                   title: 'Medical Malpractice Guide',
                   description: 'Standard of care, expert testimony requirements, and complex damages',
-                  link: '/guide/medical-malpractice',
+                  link: '/guides/medical-malpractice',
                 },
                 {
                   title: 'Motorcycle Accident Guide',
                   description: 'Bias against riders, insurance tactics, and catastrophic injury settlements',
-                  link: '/guide/motorcycle-accident',
+                  link: '/guides/motorcycle-accident',
                 },
               ].map((guide, idx) => (
                 <Link

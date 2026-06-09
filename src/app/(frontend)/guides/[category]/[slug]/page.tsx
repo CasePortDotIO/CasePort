@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import GuideArticleClient from './GuideArticleClient'
-import { generateGuideJsonLd } from '@/lib/guide-schema'
+import { generateGuideJsonLd } from '@/lib/guides-schema'
 
 export const revalidate = 3600
 
@@ -63,7 +63,7 @@ export async function generateMetadata({
     title: isPreview ? `[PREVIEW] ${title}` : title,
     description,
     alternates: {
-      canonical: article.canonicalUrl ?? `${siteUrl}/guide/${categorySlug}/${slug}`,
+      canonical: article.canonicalUrl ?? `${siteUrl}/guides/${categorySlug}/${slug}`,
     },
     robots: isPreview ? 'noindex,nofollow' : (article.hideFromSearchEngines ? 'noindex,nofollow' : 'index,follow'),
     openGraph: {

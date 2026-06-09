@@ -42,11 +42,11 @@ export async function generateMetadata({
   return {
     title: article?.metaTitle ?? `Personal Injury Guide | ${stateName} | CasePort`,
     description: article?.metaDescription ?? `Learn about personal injury claims, statute of limitations, and settlement ranges in ${stateName}.`,
-    alternates: { canonical: `${siteUrl}/guide/states/${state}` },
+    alternates: { canonical: `${siteUrl}/guides/states/${state}` },
     openGraph: {
       title: article?.socialHeadline ?? `Personal Injury Guide | ${stateName} | CasePort`,
       description: article?.socialDescription ?? `Learn about personal injury claims in ${stateName}.`,
-      url: `${siteUrl}/guide/states/${state}`,
+      url: `${siteUrl}/guides/states/${state}`,
       type: 'website',
     },
   }

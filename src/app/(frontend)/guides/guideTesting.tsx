@@ -256,7 +256,7 @@ const GuideTesting = () => {
                     </div>
                   ))}
                 </div>
-                <a href={answer.id === 'statute-of-limitations' ? '/guide/guide-testing/faq' : answer.id === 'settlement-amounts' ? '/guide/guide-testing/article' : answer.id === 'do-i-need-attorney' ? '/guide/guide-testing/article' : answer.id === 'what-to-do-after-accident' ? '/guide/guide-testing/article' : answer.id === 'comparative-negligence' ? '/guide/guide-testing/article' : answer.id === 'medical-records' ? '/guide/guide-testing/article' : answer.id === 'settlement-vs-trial' ? '/guide/guide-testing/article' : '/guide/guide-testing'} className="text-sm font-semibold" style={{ color: '#c4714a' }}>
+                <a href={answer.id === 'statute-of-limitations' ? '/guides/guides-testing/faq' : answer.id === 'settlement-amounts' ? '/guides/guides-testing/article' : answer.id === 'do-i-need-attorney' ? '/guides/guides-testing/article' : answer.id === 'what-to-do-after-accident' ? '/guides/guides-testing/article' : answer.id === 'comparative-negligence' ? '/guides/guides-testing/article' : answer.id === 'medical-records' ? '/guides/guides-testing/article' : answer.id === 'settlement-vs-trial' ? '/guides/guides-testing/article' : '/guides/guides-testing'} className="text-sm font-semibold" style={{ color: '#c4714a' }}>
                   Learn more →
                 </a>
               </div>
@@ -316,24 +316,24 @@ const GuideTesting = () => {
           <h2 className="text-3xl font-bold mb-12" style={{ color: '#1a4a5a' }}>Featured Guides</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { title: 'Car Accident - Rear-End', link: '/guide/guide-testing/car-accident/rear-end', key: 'car-accident', description: 'Rear-end collision liability, settlement ranges by state, and why you need an attorney. Get the facts immediately.' },
-              { title: 'Car Accident - T-Bone', link: '/guide/guide-testing/car-accident/t-bone', key: 'car-accident', description: 'T-bone collision injuries, liability rules, and catastrophic damage settlements. Understand your rights.' },
-              { title: 'Car Accident - Hit & Run', link: '/guide/guide-testing/car-accident/rear-end', key: 'car-accident', description: 'Hit-and-run claims, uninsured motorist coverage, and recovery without finding the driver. Know your options.' },
-              { title: 'Car Accident - Intersection', link: '/guide/guide-testing/car-accident/rear-end', key: 'car-accident', description: 'Intersection collision liability, traffic signal rules, and settlement expectations. Protect your claim.' },
-              { title: 'Car Accident - Parking Lot', link: '/guide/guide-testing/car-accident/rear-end', key: 'car-accident', description: 'Parking lot accident liability, comparative negligence, and quick settlements. Handle minor collisions right.' },
-              { title: 'Car Accident - Multi-Vehicle', link: '/guide/guide-testing/car-accident/rear-end', key: 'car-accident', description: 'Pile-up liability, multiple defendants, and complex settlement negotiations. Maximize your recovery.' },
-              { title: 'Car Accident (General)', link: '/guide/guide-testing/car-accident', key: 'car-accident', description: 'Understand liability, insurance claims, and settlement expectations after a motor vehicle collision. Learn what damages you can recover.' },
-              { title: 'Slip & Fall', link: '/guide/guide-testing/slip-and-fall', key: 'slip-and-fall', description: 'Property owner liability, premises liability laws, and how to prove negligence. Get the facts before negotiating.' },
-              { title: 'Motorcycle Accident', link: '/guide/guide-testing/motorcycle-accident', key: 'motorcycle-accident', description: 'Bias against riders, insurance tactics, and catastrophic injury settlements. Know the landscape.' },
-              { title: 'Truck Accident', link: '/guide/guide-testing/truck-accident', key: 'truck-accident', description: 'Commercial liability, federal regulations, and why truck accidents settle for more. Discover your rights.' },
-              { title: 'Medical Malpractice', link: '/guide/guide-testing/medical-malpractice', key: 'medical-malpractice', description: 'Standard of care, expert testimony requirements, and complex damages. Navigate medical negligence claims.' },
-              { title: 'Workplace Injury', link: '/guide/guide-testing/workplace-injury', key: 'workplace-injury', description: 'Workers\'s compensation vs personal injury lawsuits. Understand your options and maximum recovery.' },
-              { title: 'Pedestrian Accident', link: '/guide/guide-testing/pedestrian-accident', key: 'pedestrian-accident', description: 'Right-of-way laws, hit-and-run claims, and serious injury settlements. Protect your interests.' },
-              { title: 'Dog Bite', link: '/guide/guide-testing/dog-bite', key: 'dog-bite', description: 'Strict liability laws, insurance coverage, and scarring/disfigurement damages. Learn your claim value.' },
-              { title: 'Wrongful Death', link: '/guide/guide-testing/wrongful-death', key: 'wrongful-death', description: 'Surviving family compensation, punitive damages, and filing deadlines. Honor your loved one\'s memory.' },
-              { title: 'Rideshare Accident', link: '/guide/guide-testing/rideshare-accident', key: 'rideshare-accident', description: 'Uber/Lyft liability, insurance coverage gaps, and passenger rights. Understand platform accountability.' },
-              { title: 'Insurance Claims', link: '/guide/guide-testing/insurance-claim', key: 'insurance-claim', description: 'Claim process, denial tactics, and appeal strategies. Fight back against unfair denials.' },
-              { title: 'View All Guides', link: '/guide/guide-testing', key: 'all-guides', description: 'Browse our complete library of 43+ injury guides with real settlement data, state-specific laws, and AI-optimized content.' }
+              { title: 'Car Accident - Rear-End', link: '/guides/guides-testing/car-accident/rear-end', key: 'car-accident', description: 'Rear-end collision liability, settlement ranges by state, and why you need an attorney. Get the facts immediately.' },
+              { title: 'Car Accident - T-Bone', link: '/guides/guides-testing/car-accident/t-bone', key: 'car-accident', description: 'T-bone collision injuries, liability rules, and catastrophic damage settlements. Understand your rights.' },
+              { title: 'Car Accident - Hit & Run', link: '/guides/guides-testing/car-accident/rear-end', key: 'car-accident', description: 'Hit-and-run claims, uninsured motorist coverage, and recovery without finding the driver. Know your options.' },
+              { title: 'Car Accident - Intersection', link: '/guides/guides-testing/car-accident/rear-end', key: 'car-accident', description: 'Intersection collision liability, traffic signal rules, and settlement expectations. Protect your claim.' },
+              { title: 'Car Accident - Parking Lot', link: '/guides/guides-testing/car-accident/rear-end', key: 'car-accident', description: 'Parking lot accident liability, comparative negligence, and quick settlements. Handle minor collisions right.' },
+              { title: 'Car Accident - Multi-Vehicle', link: '/guides/guides-testing/car-accident/rear-end', key: 'car-accident', description: 'Pile-up liability, multiple defendants, and complex settlement negotiations. Maximize your recovery.' },
+              { title: 'Car Accident (General)', link: '/guides/guides-testing/car-accident', key: 'car-accident', description: 'Understand liability, insurance claims, and settlement expectations after a motor vehicle collision. Learn what damages you can recover.' },
+              { title: 'Slip & Fall', link: '/guides/guides-testing/slip-and-fall', key: 'slip-and-fall', description: 'Property owner liability, premises liability laws, and how to prove negligence. Get the facts before negotiating.' },
+              { title: 'Motorcycle Accident', link: '/guides/guides-testing/motorcycle-accident', key: 'motorcycle-accident', description: 'Bias against riders, insurance tactics, and catastrophic injury settlements. Know the landscape.' },
+              { title: 'Truck Accident', link: '/guides/guides-testing/truck-accident', key: 'truck-accident', description: 'Commercial liability, federal regulations, and why truck accidents settle for more. Discover your rights.' },
+              { title: 'Medical Malpractice', link: '/guides/guides-testing/medical-malpractice', key: 'medical-malpractice', description: 'Standard of care, expert testimony requirements, and complex damages. Navigate medical negligence claims.' },
+              { title: 'Workplace Injury', link: '/guides/guides-testing/workplace-injury', key: 'workplace-injury', description: 'Workers\'s compensation vs personal injury lawsuits. Understand your options and maximum recovery.' },
+              { title: 'Pedestrian Accident', link: '/guides/guides-testing/pedestrian-accident', key: 'pedestrian-accident', description: 'Right-of-way laws, hit-and-run claims, and serious injury settlements. Protect your interests.' },
+              { title: 'Dog Bite', link: '/guides/guides-testing/dog-bite', key: 'dog-bite', description: 'Strict liability laws, insurance coverage, and scarring/disfigurement damages. Learn your claim value.' },
+              { title: 'Wrongful Death', link: '/guides/guides-testing/wrongful-death', key: 'wrongful-death', description: 'Surviving family compensation, punitive damages, and filing deadlines. Honor your loved one\'s memory.' },
+              { title: 'Rideshare Accident', link: '/guides/guides-testing/rideshare-accident', key: 'rideshare-accident', description: 'Uber/Lyft liability, insurance coverage gaps, and passenger rights. Understand platform accountability.' },
+              { title: 'Insurance Claims', link: '/guides/guides-testing/insurance-claim', key: 'insurance-claim', description: 'Claim process, denial tactics, and appeal strategies. Fight back against unfair denials.' },
+              { title: 'View All Guides', link: '/guides/guides-testing', key: 'all-guides', description: 'Browse our complete library of 43+ injury guides with real settlement data, state-specific laws, and AI-optimized content.' }
             ].map((guide, idx) => (
               <a key={idx} href={guide.link} className="p-6 rounded-xl border border-[#e8e2d8] bg-white hover:shadow-lg hover:border-[#4a8c7e] transition-all">
                 <div className="mb-3 text-[#4a8c7e]">{guideIcons[guide.key]}</div>
@@ -630,28 +630,28 @@ const GuideTesting = () => {
             <div>
               <h4 className="font-semibold mb-4 text-white">Guides</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="/guide/guide-testing/car-accident" className="hover:text-white transition">Car Accident</a></li>
-                <li><a href="/guide/guide-testing/slip-and-fall" className="hover:text-white transition">Slip & Fall</a></li>
-                <li><a href="/guide/guide-testing/truck-accident" className="hover:text-white transition">Truck Accident</a></li>
-                <li><a href="/guide/guide-testing/medical-malpractice" className="hover:text-white transition">Medical Malpractice</a></li>
+                <li><a href="/guides/guides-testing/car-accident" className="hover:text-white transition">Car Accident</a></li>
+                <li><a href="/guides/guides-testing/slip-and-fall" className="hover:text-white transition">Slip & Fall</a></li>
+                <li><a href="/guides/guides-testing/truck-accident" className="hover:text-white transition">Truck Accident</a></li>
+                <li><a href="/guides/guides-testing/medical-malpractice" className="hover:text-white transition">Medical Malpractice</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-white">More Guides</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="/guide/guide-testing/workplace-injury" className="hover:text-white transition">Workplace Injury</a></li>
-                <li><a href="/guide/guide-testing/motorcycle-accident" className="hover:text-white transition">Motorcycle Accident</a></li>
-                <li><a href="/guide/guide-testing/pedestrian-accident" className="hover:text-white transition">Pedestrian Accident</a></li>
-                <li><a href="/guide/guide-testing/dog-bite" className="hover:text-white transition">Dog Bite</a></li>
+                <li><a href="/guides/guides-testing/workplace-injury" className="hover:text-white transition">Workplace Injury</a></li>
+                <li><a href="/guides/guides-testing/motorcycle-accident" className="hover:text-white transition">Motorcycle Accident</a></li>
+                <li><a href="/guides/guides-testing/pedestrian-accident" className="hover:text-white transition">Pedestrian Accident</a></li>
+                <li><a href="/guides/guides-testing/dog-bite" className="hover:text-white transition">Dog Bite</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-white">Contact</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="tel:+18002273669" className="hover:text-white transition">1-800-227-3669</a></li>
-                <li><a href="/guide/guide-testing/wrongful-death" className="hover:text-white transition">Wrongful Death</a></li>
-                <li><a href="/guide/guide-testing/rideshare-accident" className="hover:text-white transition">Rideshare Accident</a></li>
-                <li><a href="/guide/guide-testing/insurance-claim" className="hover:text-white transition">Insurance Claims</a></li>
+                <li><a href="/guides/guides-testing/wrongful-death" className="hover:text-white transition">Wrongful Death</a></li>
+                <li><a href="/guides/guides-testing/rideshare-accident" className="hover:text-white transition">Rideshare Accident</a></li>
+                <li><a href="/guides/guides-testing/insurance-claim" className="hover:text-white transition">Insurance Claims</a></li>
               </ul>
             </div>
           </div>
