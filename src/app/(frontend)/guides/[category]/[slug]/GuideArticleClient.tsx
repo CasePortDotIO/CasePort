@@ -915,7 +915,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
 
           // ── UpdateLog ────────────────────────────────────────────────
           case 'updateLog': {
-            const entries = block.entries || []
+            const entries = (block.entries || []).slice(-3)
             if (entries.length === 0) return null
             return (
               <div
@@ -967,6 +967,62 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
           case 'entityContext': {
             const entities = block.entities || []
             return null
+          }
+
+          // ── LegalAuthority ───────────────────────────────────────────
+          case 'legalAuthority': {
+            const heading = block.heading || 'Legal Authority & Citations'
+            const items = block.items || []
+            if (items.length === 0) return null
+            return (
+              <div
+                key={idx}
+                id="block-legal-authority"
+                data-section
+                style={{
+                  marginBottom: ms('32px', '40px', '56px'),
+                  padding: '20px',
+                  backgroundColor: '#f9f5ef',
+                  borderRadius: '6px',
+                  borderLeft: '4px solid #999',
+                }}
+              >
+                <h3
+                  style={{
+                    color: '#1a4a5a',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    marginBottom: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  {heading}
+                </h3>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: '20px',
+                    color: '#555',
+                    fontSize: '13px',
+                    lineHeight: '1.8',
+                  }}
+                >
+                  {items.map((item: any, i: number) => (
+                    <li key={i}>
+                      {item.url ? (
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ color: '#1a4a5a' }}>
+                          <strong>{item.sourceName || ''}</strong>
+                        </a>
+                      ) : (
+                        <strong>{item.sourceName || ''}</strong>
+                      )}
+                      {item.description ? ` — ${item.description}` : ''}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
           }
 
           // ── ExpertQuote ──────────────────────────────────────────────
@@ -1039,6 +1095,8 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
 
           // ── TermDefinition ─────────────────────────────────────────────
           case 'termDefinition': {
+            const terms = block.terms || []
+            if (terms.length === 0) return null
             return (
               <div
                 key={idx}
@@ -1050,21 +1108,25 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                   borderRadius: '4px',
                 }}
               >
-                <div
-                  style={{
-                    fontSize: ms('13px', '14px', '18px'),
-                    fontWeight: '700',
-                    color: '#1a4a5a',
-                    marginBottom: '4px',
-                  }}
-                >
-                  {block.term}
-                </div>
-                <div
-                  style={{ fontSize: ms('13px', '14px', '18px'), color: '#555', lineHeight: '1.6' }}
-                >
-                  {block.definition}
-                </div>
+                {terms.map((item: any, i: number) => (
+                  <div key={i} style={{ marginBottom: i < terms.length - 1 ? '12px' : 0 }}>
+                    <div
+                      style={{
+                        fontSize: ms('13px', '14px', '18px'),
+                        fontWeight: '700',
+                        color: '#1a4a5a',
+                        marginBottom: '4px',
+                      }}
+                    >
+                      {item.term}
+                    </div>
+                    <div
+                      style={{ fontSize: ms('13px', '14px', '18px'), color: '#555', lineHeight: '1.6' }}
+                    >
+                      {item.definition}
+                    </div>
+                  </div>
+                ))}
               </div>
             )
           }
@@ -2474,6 +2536,8 @@ export default function GuideArticleClient({
         return null
       case 'entityContext':
         return null
+      case 'legalAuthority':
+        return { id: 'block-legal-authority', title: 'Legal Authority' }
       case 'expertQuote':
         return { id: 'block-expert-quote', title: 'Expert Insight' }
       case 'termDefinition':

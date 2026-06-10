@@ -497,171 +497,6 @@ export interface GuideArticle {
   blocks?:
     | (
         | {
-            title?: string | null;
-            subtitle?: string | null;
-            /**
-             * [AEO] Emits HowTo. Steps with actionable checklist items.
-             */
-            steps?:
-              | {
-                  step: number;
-                  title: string;
-                  description?: string | null;
-                  /**
-                   * e.g., "Within 24 hours"
-                   */
-                  timeNote?: string | null;
-                  /**
-                   * Checklist items under this step
-                   */
-                  bullets?:
-                    | {
-                        bullet?: string | null;
-                        id?: string | null;
-                      }[]
-                    | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'immediateActions';
-          }
-        | {
-            /**
-             * Context about why medical documentation matters
-             */
-            introText?: string | null;
-            /**
-             * Important highlighted message
-             */
-            calloutText?: string | null;
-            /**
-             * Visual styling for the callout
-             */
-            alertLevel?: ('info' | 'warning' | 'critical') | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'medicalDocumentation';
-          }
-        | {
-            title?: string | null;
-            subtitle?: string | null;
-            /**
-             * [AEO] Sourced comparison rows. Table snippet + decision aid.
-             */
-            rows?:
-              | {
-                  factor: string;
-                  withAttorney?: string | null;
-                  withoutAttorney?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            summaryEnabled?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'attorneyComparison';
-          }
-        | {
-            title?: string | null;
-            /**
-             * [AEO] Illustrative case scenarios, not actual outcomes.
-             */
-            examples?:
-              | {
-                  settlement?: string | null;
-                  settlementValue?: string | null;
-                  injuryType?: string | null;
-                  caseType?: string | null;
-                  caseResolutionTime?: string | null;
-                  quote?: string | null;
-                  name?: string | null;
-                  location?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'settlementExample';
-          }
-        | {
-            title?: string | null;
-            /**
-             * Add one row per state. Users see a clean table, not JSON.
-             */
-            ranges?:
-              | {
-                  state: string;
-                  min?: string | null;
-                  max?: string | null;
-                  avg?: string | null;
-                  note?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            showCatastrophic?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'settlementRanges';
-          }
-        | {
-            title?: string | null;
-            description?: string | null;
-            defaultYears?: number | null;
-            /**
-             * State-specific deadlines and exceptions
-             */
-            states?:
-              | {
-                  state: string;
-                  years?: number | null;
-                  notes?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Common exceptions to the statute of limitations
-             */
-            exceptions?:
-              | {
-                  exception?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'statuteLimitations';
-          }
-        | {
-            /**
-             * Add one row per critical mistake to avoid
-             */
-            mistakes?:
-              | {
-                  mistake: string;
-                  reason?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'criticalMistakes';
-          }
-        | {
-            heading?: string | null;
-            subcopy?: string | null;
-            buttonLabel?: string | null;
-            phoneNumber?: string | null;
-            /**
-             * Select which page this CTA button links to
-             */
-            siteLink?: (string | null) | SiteLink;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'endCtaSection';
-          }
-        | {
             /**
              * [STR] Lede. Place the focus keyword in the first 300 characters.
              */
@@ -943,6 +778,23 @@ export interface GuideArticle {
             blockType: 'entityContext';
           }
         | {
+            /**
+             * [STR] Section heading.
+             */
+            heading?: string | null;
+            items?:
+              | {
+                  sourceName: string;
+                  url?: string | null;
+                  description?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'legalAuthority';
+          }
+        | {
             quote?: string | null;
             speakerName?: string | null;
             credentials?: string | null;
@@ -952,8 +804,13 @@ export interface GuideArticle {
             blockType: 'expertQuote';
           }
         | {
-            term: string;
-            definition: string;
+            terms?:
+              | {
+                  term: string;
+                  definition: string;
+                  id?: string | null;
+                }[]
+              | null;
             isProprietary?: boolean | null;
             id?: string | null;
             blockName?: string | null;
@@ -1010,6 +867,171 @@ export interface GuideArticle {
             id?: string | null;
             blockName?: string | null;
             blockType: 'richText';
+          }
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            /**
+             * [AEO] Emits HowTo. Steps with actionable checklist items.
+             */
+            steps?:
+              | {
+                  step: number;
+                  title: string;
+                  description?: string | null;
+                  /**
+                   * e.g., "Within 24 hours"
+                   */
+                  timeNote?: string | null;
+                  /**
+                   * Checklist items under this step
+                   */
+                  bullets?:
+                    | {
+                        bullet?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'immediateActions';
+          }
+        | {
+            /**
+             * Context about why medical documentation matters
+             */
+            introText?: string | null;
+            /**
+             * Important highlighted message
+             */
+            calloutText?: string | null;
+            /**
+             * Visual styling for the callout
+             */
+            alertLevel?: ('info' | 'warning' | 'critical') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'medicalDocumentation';
+          }
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            /**
+             * [AEO] Sourced comparison rows. Table snippet + decision aid.
+             */
+            rows?:
+              | {
+                  factor: string;
+                  withAttorney?: string | null;
+                  withoutAttorney?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            summaryEnabled?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'attorneyComparison';
+          }
+        | {
+            title?: string | null;
+            /**
+             * [AEO] Illustrative case scenarios, not actual outcomes.
+             */
+            examples?:
+              | {
+                  settlement?: string | null;
+                  settlementValue?: string | null;
+                  injuryType?: string | null;
+                  caseType?: string | null;
+                  caseResolutionTime?: string | null;
+                  quote?: string | null;
+                  name?: string | null;
+                  location?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'settlementExample';
+          }
+        | {
+            title?: string | null;
+            /**
+             * Add one row per state. Users see a clean table, not JSON.
+             */
+            ranges?:
+              | {
+                  state: string;
+                  min?: string | null;
+                  max?: string | null;
+                  avg?: string | null;
+                  note?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            showCatastrophic?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'settlementRanges';
+          }
+        | {
+            title?: string | null;
+            description?: string | null;
+            defaultYears?: number | null;
+            /**
+             * State-specific deadlines and exceptions
+             */
+            states?:
+              | {
+                  state: string;
+                  years?: number | null;
+                  notes?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Common exceptions to the statute of limitations
+             */
+            exceptions?:
+              | {
+                  exception?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statuteLimitations';
+          }
+        | {
+            /**
+             * Add one row per critical mistake to avoid
+             */
+            mistakes?:
+              | {
+                  mistake: string;
+                  reason?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'criticalMistakes';
+          }
+        | {
+            heading?: string | null;
+            subcopy?: string | null;
+            buttonLabel?: string | null;
+            phoneNumber?: string | null;
+            /**
+             * Select which page this CTA button links to
+             */
+            siteLink?: (string | null) | SiteLink;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'endCtaSection';
           }
       )[]
     | null;
@@ -2464,140 +2486,6 @@ export interface GuideArticlesSelect<T extends boolean = true> {
   blocks?:
     | T
     | {
-        immediateActions?:
-          | T
-          | {
-              title?: T;
-              subtitle?: T;
-              steps?:
-                | T
-                | {
-                    step?: T;
-                    title?: T;
-                    description?: T;
-                    timeNote?: T;
-                    bullets?:
-                      | T
-                      | {
-                          bullet?: T;
-                          id?: T;
-                        };
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        medicalDocumentation?:
-          | T
-          | {
-              introText?: T;
-              calloutText?: T;
-              alertLevel?: T;
-              id?: T;
-              blockName?: T;
-            };
-        attorneyComparison?:
-          | T
-          | {
-              title?: T;
-              subtitle?: T;
-              rows?:
-                | T
-                | {
-                    factor?: T;
-                    withAttorney?: T;
-                    withoutAttorney?: T;
-                    id?: T;
-                  };
-              summaryEnabled?: T;
-              id?: T;
-              blockName?: T;
-            };
-        settlementExample?:
-          | T
-          | {
-              title?: T;
-              examples?:
-                | T
-                | {
-                    settlement?: T;
-                    settlementValue?: T;
-                    injuryType?: T;
-                    caseType?: T;
-                    caseResolutionTime?: T;
-                    quote?: T;
-                    name?: T;
-                    location?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        settlementRanges?:
-          | T
-          | {
-              title?: T;
-              ranges?:
-                | T
-                | {
-                    state?: T;
-                    min?: T;
-                    max?: T;
-                    avg?: T;
-                    note?: T;
-                    id?: T;
-                  };
-              showCatastrophic?: T;
-              id?: T;
-              blockName?: T;
-            };
-        statuteLimitations?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              defaultYears?: T;
-              states?:
-                | T
-                | {
-                    state?: T;
-                    years?: T;
-                    notes?: T;
-                    id?: T;
-                  };
-              exceptions?:
-                | T
-                | {
-                    exception?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        criticalMistakes?:
-          | T
-          | {
-              mistakes?:
-                | T
-                | {
-                    mistake?: T;
-                    reason?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        endCtaSection?:
-          | T
-          | {
-              heading?: T;
-              subcopy?: T;
-              buttonLabel?: T;
-              phoneNumber?: T;
-              siteLink?: T;
-              id?: T;
-              blockName?: T;
-            };
         standfirst?:
           | T
           | {
@@ -2840,6 +2728,21 @@ export interface GuideArticlesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        legalAuthority?:
+          | T
+          | {
+              heading?: T;
+              items?:
+                | T
+                | {
+                    sourceName?: T;
+                    url?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         expertQuote?:
           | T
           | {
@@ -2853,8 +2756,13 @@ export interface GuideArticlesSelect<T extends boolean = true> {
         termDefinition?:
           | T
           | {
-              term?: T;
-              definition?: T;
+              terms?:
+                | T
+                | {
+                    term?: T;
+                    definition?: T;
+                    id?: T;
+                  };
               isProprietary?: T;
               id?: T;
               blockName?: T;
@@ -2891,6 +2799,140 @@ export interface GuideArticlesSelect<T extends boolean = true> {
           | T
           | {
               content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        immediateActions?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              steps?:
+                | T
+                | {
+                    step?: T;
+                    title?: T;
+                    description?: T;
+                    timeNote?: T;
+                    bullets?:
+                      | T
+                      | {
+                          bullet?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        medicalDocumentation?:
+          | T
+          | {
+              introText?: T;
+              calloutText?: T;
+              alertLevel?: T;
+              id?: T;
+              blockName?: T;
+            };
+        attorneyComparison?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              rows?:
+                | T
+                | {
+                    factor?: T;
+                    withAttorney?: T;
+                    withoutAttorney?: T;
+                    id?: T;
+                  };
+              summaryEnabled?: T;
+              id?: T;
+              blockName?: T;
+            };
+        settlementExample?:
+          | T
+          | {
+              title?: T;
+              examples?:
+                | T
+                | {
+                    settlement?: T;
+                    settlementValue?: T;
+                    injuryType?: T;
+                    caseType?: T;
+                    caseResolutionTime?: T;
+                    quote?: T;
+                    name?: T;
+                    location?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        settlementRanges?:
+          | T
+          | {
+              title?: T;
+              ranges?:
+                | T
+                | {
+                    state?: T;
+                    min?: T;
+                    max?: T;
+                    avg?: T;
+                    note?: T;
+                    id?: T;
+                  };
+              showCatastrophic?: T;
+              id?: T;
+              blockName?: T;
+            };
+        statuteLimitations?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              defaultYears?: T;
+              states?:
+                | T
+                | {
+                    state?: T;
+                    years?: T;
+                    notes?: T;
+                    id?: T;
+                  };
+              exceptions?:
+                | T
+                | {
+                    exception?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        criticalMistakes?:
+          | T
+          | {
+              mistakes?:
+                | T
+                | {
+                    mistake?: T;
+                    reason?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        endCtaSection?:
+          | T
+          | {
+              heading?: T;
+              subcopy?: T;
+              buttonLabel?: T;
+              phoneNumber?: T;
+              siteLink?: T;
               id?: T;
               blockName?: T;
             };
