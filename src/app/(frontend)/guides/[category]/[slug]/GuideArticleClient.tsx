@@ -834,7 +834,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                 ? block.siteLink?.url
                 : block.siteLink
               : null
-            const ctaHref = siteLinkUrl || 'tel:+18002273669'
+            const ctaHref = siteLinkUrl || '/checkmycase'
             return (
               <div
                 key={idx}
@@ -2323,7 +2323,7 @@ function BlockRenderer({ blocks, isMobileView, isTablet }: BlockRendererProps) {
                 ? block.siteLink?.url
                 : block.siteLink
               : null
-            const ctaHref = siteLinkUrl || `tel:${block.phoneNumber || '+18002273669'}`
+            const ctaHref = siteLinkUrl || '/checkmycase'
             return (
               <div
                 key={idx}

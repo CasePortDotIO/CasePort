@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { CATEGORY_BLOCKS } from './CategoryBlocks'
 
 export const GuideCategories: CollectionConfig = {
   slug: 'guideCategories',
@@ -81,118 +82,14 @@ export const GuideCategories: CollectionConfig = {
       type: 'text',
       label: 'Hero Subtitle',
     },
+    // ─── Category Blocks ────────────────────────────────────────────────
     {
-      name: 'whyImportant',
-      type: 'textarea',
-      label: 'Why This Matters – intro text',
-    },
-    // ─── Quick Answer Stats ────────────────────────────────────────────
-    {
-      name: 'quickAnswerStats',
-      type: 'group',
-      label: 'Quick Answer Stats',
-      fields: [
-        { name: 'average', type: 'text', label: 'Average Settlement' },
-        { name: 'successRate', type: 'text', label: 'Success Rate' },
-        { name: 'timeline', type: 'text', label: 'Timeline' },
-        { name: 'upfront', type: 'text', label: 'Upfront Cost' },
-      ],
-    },
-    // ─── Credibility Section ────────────────────────────────────────────
-    {
-      name: 'credibilitySection',
-      type: 'group',
-      label: 'Credibility Section',
-      fields: [
-        { name: 'recoveredAmount', type: 'text', label: 'Total Recovered (e.g. $1.8B+)' },
-        { name: 'successRate', type: 'text', label: 'Success Rate %' },
-        { name: 'casesWon', type: 'text', label: 'Cases Won (e.g. 4,500+)' },
-        { name: 'avgSettlement', type: 'text', label: 'Avg Settlement' },
-        { name: 'recoveryNote', type: 'text', label: 'Recovery Note (e.g. "5x more than going it alone")' },
-      ],
-    },
-    // ─── Testimonials ───────────────────────────────────────────────────
-    {
-      name: 'testimonials',
-      type: 'array',
-      label: 'Client Testimonials',
-      fields: [
-        { name: 'name', type: 'text' },
-        { name: 'location', type: 'text' },
-        { name: 'settlement', type: 'text' },
-        { name: 'settlementValue', type: 'text' },
-        { name: 'injuryType', type: 'text' },
-        { name: 'quote', type: 'textarea' },
-        { name: 'rating', type: 'number' },
-      ],
-    },
-    // ─── Settlement Data ────────────────────────────────────────────────
-    {
-      name: 'settlementData',
-      type: 'group',
-      label: 'Settlement Data',
-      fields: [
-        {
-          name: 'rangesByInjury',
-          type: 'array',
-          label: 'Ranges by Injury Type',
-          fields: [
-            { name: 'injuryType', type: 'text' },
-            { name: 'settlementAmount', type: 'text' },
-            { name: 'minAmount', type: 'text' },
-            { name: 'maxAmount', type: 'text' },
-            { name: 'recoveryTime', type: 'text' },
-          ],
-        },
-        {
-          name: 'attorneyComparison',
-          type: 'array',
-          label: 'Attorney Comparison Rows',
-          fields: [
-            { name: 'label', type: 'text' },
-            { name: 'withoutAttorney', type: 'textarea' },
-            { name: 'withAttorney', type: 'textarea' },
-          ],
-        },
-      ],
-    },
-    // ─── Statute of Limitations ────────────────────────────────────────
-    {
-      name: 'statuteOfLimitations',
-      type: 'group',
-      label: 'Statute of Limitations',
-      fields: [
-        { name: 'description', type: 'textarea', label: 'Description' },
-        {
-          name: 'byState',
-          type: 'array',
-          label: 'By State',
-          fields: [
-            { name: 'state', type: 'text' },
-            { name: 'years', type: 'number' },
-            { name: 'notes', type: 'text' },
-          ],
-        },
-      ],
-    },
-    // ─── FAQ Section ────────────────────────────────────────────────────
-    {
-      name: 'faqSection',
-      type: 'array',
-      label: 'FAQs',
-      fields: [
-        { name: 'question', type: 'text' },
-        { name: 'answer', type: 'textarea' },
-      ],
-    },
-    {
-      name: 'peopleAlsoAsk',
-      type: 'array',
-      label: 'People Also Ask',
-      fields: [
-        { name: 'question', type: 'text' },
-        { name: 'answer', type: 'textarea' },
-      ],
+      name: 'blocks',
+      type: 'blocks',
+      blocks: CATEGORY_BLOCKS,
+      admin: {
+        description: 'Add, remove, and reorder sections for this category page.',
+      },
     },
     // ─── SEO Core ────────────────────────────────────────────────────────
     {

@@ -92,6 +92,7 @@ export default async function CategoryGuidePage({
     <CategoryGuideClient
       category={category}
       articles={articles}
+      blocks={category.blocks || []}
       {...navData}
     />
   )

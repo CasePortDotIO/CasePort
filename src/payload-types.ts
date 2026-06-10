@@ -374,76 +374,130 @@ export interface GuideCategory {
    */
   heroTitle?: string | null;
   heroSubtitle?: string | null;
-  whyImportant?: string | null;
-  quickAnswerStats?: {
-    average?: string | null;
-    successRate?: string | null;
-    timeline?: string | null;
-    upfront?: string | null;
-  };
-  credibilitySection?: {
-    recoveredAmount?: string | null;
-    successRate?: string | null;
-    casesWon?: string | null;
-    avgSettlement?: string | null;
-    recoveryNote?: string | null;
-  };
-  testimonials?:
-    | {
-        name?: string | null;
-        location?: string | null;
-        settlement?: string | null;
-        settlementValue?: string | null;
-        injuryType?: string | null;
-        quote?: string | null;
-        rating?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  settlementData?: {
-    rangesByInjury?:
-      | {
-          injuryType?: string | null;
-          settlementAmount?: string | null;
-          minAmount?: string | null;
-          maxAmount?: string | null;
-          recoveryTime?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    attorneyComparison?:
-      | {
-          label?: string | null;
-          withoutAttorney?: string | null;
-          withAttorney?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  statuteOfLimitations?: {
-    description?: string | null;
-    byState?:
-      | {
-          state?: string | null;
-          years?: number | null;
-          notes?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  faqSection?:
-    | {
-        question?: string | null;
-        answer?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  peopleAlsoAsk?:
-    | {
-        question?: string | null;
-        answer?: string | null;
-        id?: string | null;
-      }[]
+  /**
+   * Add, remove, and reorder sections for this category page.
+   */
+  blocks?:
+    | (
+        | {
+            average?: string | null;
+            successRate?: string | null;
+            timeline?: string | null;
+            upfront?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryQuickAnswerStats';
+          }
+        | {
+            recoveredAmount?: string | null;
+            successRate?: string | null;
+            casesWon?: string | null;
+            avgSettlement?: string | null;
+            recoveryNote?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryCredibility';
+          }
+        | {
+            /**
+             * [STR] Main body text for the Why This Matters section.
+             */
+            intro?: string | null;
+            /**
+             * Left-bordered callout boxes below the intro.
+             */
+            points?:
+              | {
+                  heading: string;
+                  body?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryWhyImportant';
+          }
+        | {
+            items?:
+              | {
+                  name?: string | null;
+                  location?: string | null;
+                  settlement?: string | null;
+                  quote?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryTestimonials';
+          }
+        | {
+            items?:
+              | {
+                  injuryType?: string | null;
+                  settlementAmount?: string | null;
+                  minAmount?: string | null;
+                  maxAmount?: string | null;
+                  recoveryTime?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categorySettlementBreakdown';
+          }
+        | {
+            items?:
+              | {
+                  label?: string | null;
+                  withoutAttorney?: string | null;
+                  withAttorney?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryAttorneyComparison';
+          }
+        | {
+            description?: string | null;
+            byState?:
+              | {
+                  state: string;
+                  years?: number | null;
+                  notes?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryStatuteDeadlines';
+          }
+        | {
+            items?:
+              | {
+                  question: string;
+                  answer: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryFAQ';
+          }
+        | {
+            items?:
+              | {
+                  question: string;
+                  answer: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryPeopleAlsoAsk';
+          }
+      )[]
     | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -2371,84 +2425,130 @@ export interface GuideCategoriesSelect<T extends boolean = true> {
   displayOrder?: T;
   heroTitle?: T;
   heroSubtitle?: T;
-  whyImportant?: T;
-  quickAnswerStats?:
+  blocks?:
     | T
     | {
-        average?: T;
-        successRate?: T;
-        timeline?: T;
-        upfront?: T;
-      };
-  credibilitySection?:
-    | T
-    | {
-        recoveredAmount?: T;
-        successRate?: T;
-        casesWon?: T;
-        avgSettlement?: T;
-        recoveryNote?: T;
-      };
-  testimonials?:
-    | T
-    | {
-        name?: T;
-        location?: T;
-        settlement?: T;
-        settlementValue?: T;
-        injuryType?: T;
-        quote?: T;
-        rating?: T;
-        id?: T;
-      };
-  settlementData?:
-    | T
-    | {
-        rangesByInjury?:
+        categoryQuickAnswerStats?:
           | T
           | {
-              injuryType?: T;
-              settlementAmount?: T;
-              minAmount?: T;
-              maxAmount?: T;
-              recoveryTime?: T;
+              average?: T;
+              successRate?: T;
+              timeline?: T;
+              upfront?: T;
               id?: T;
+              blockName?: T;
             };
-        attorneyComparison?:
+        categoryCredibility?:
           | T
           | {
-              label?: T;
-              withoutAttorney?: T;
-              withAttorney?: T;
+              recoveredAmount?: T;
+              successRate?: T;
+              casesWon?: T;
+              avgSettlement?: T;
+              recoveryNote?: T;
               id?: T;
+              blockName?: T;
             };
-      };
-  statuteOfLimitations?:
-    | T
-    | {
-        description?: T;
-        byState?:
+        categoryWhyImportant?:
           | T
           | {
-              state?: T;
-              years?: T;
-              notes?: T;
+              intro?: T;
+              points?:
+                | T
+                | {
+                    heading?: T;
+                    body?: T;
+                    id?: T;
+                  };
               id?: T;
+              blockName?: T;
             };
-      };
-  faqSection?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
-        id?: T;
-      };
-  peopleAlsoAsk?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
-        id?: T;
+        categoryTestimonials?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    name?: T;
+                    location?: T;
+                    settlement?: T;
+                    quote?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        categorySettlementBreakdown?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    injuryType?: T;
+                    settlementAmount?: T;
+                    minAmount?: T;
+                    maxAmount?: T;
+                    recoveryTime?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        categoryAttorneyComparison?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    label?: T;
+                    withoutAttorney?: T;
+                    withAttorney?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        categoryStatuteDeadlines?:
+          | T
+          | {
+              description?: T;
+              byState?:
+                | T
+                | {
+                    state?: T;
+                    years?: T;
+                    notes?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        categoryFAQ?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        categoryPeopleAlsoAsk?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
       };
   metaTitle?: T;
   metaDescription?: T;
