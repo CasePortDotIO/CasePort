@@ -234,7 +234,7 @@ const run = async () => {
     collection: 'guideCategories',
     id: category.id,
     data: {
-      blocks,
+      blocks: blocks as any,
       heroTitle: 'Your Complete Guide to Car Accident Claims',
       heroSubtitle:
         'From the first 72 hours after your accident to the moment you receive your settlement — everything you need to know, written by attorneys who have won millions for clients.',

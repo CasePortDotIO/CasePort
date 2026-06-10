@@ -34,7 +34,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en">
       <head>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-SBN7G1VHGV"

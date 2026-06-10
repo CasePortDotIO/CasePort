@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
@@ -12,9 +12,46 @@ interface CategoryGuideClientProps {
   footerNav?: any
 }
 
+function useScrollReveal(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const rect = el.getBoundingClientRect()
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setIsVisible(true)
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold },
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isVisible }
+}
+
 export default function CategoryGuideClient({ category, articles, blocks }: CategoryGuideClientProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+
+  // Fire immediately, before first paint — no animation
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual'
+    }
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,7 +94,13 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
       </nav>
 
       {/* Hero Section */}
-      <div className="relative w-full h-screen min-h-[500px] sm:min-h-[600px] flex items-end overflow-hidden bg-black">
+      {(() => {
+        const heroReveal = useScrollReveal(0.05)
+        return (
+          <div
+            ref={heroReveal.ref}
+            className={`relative w-full h-screen min-h-[500px] sm:min-h-[600px] flex items-end overflow-hidden bg-black transition-all duration-700 ${heroReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          >
         {heroImageUrl && (
           <img src={heroImageUrl} alt={`${categoryTitle} scene`} className="absolute inset-0 w-full h-full object-cover" />
         )}
@@ -102,6 +145,8 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           </div>
         </div>
       </div>
+        )
+      })()}
 
       {/* ── Block Renderer ─────────────────────────────────────────── */}
       {blocks.map((block: any, idx: number) => {
@@ -110,9 +155,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── Quick Answer Stats ─────────────────────────────────────
           case 'categoryQuickAnswerStats': {
             const { average, successRate, timeline, upfront } = block
+            const quickReveal = useScrollReveal()
             if (!average && !successRate && !timeline && !upfront) return null
             return (
-              <div key={idx} id="quick-answer" className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef] border-b border-[#e8e2d8]">
+              <div
+                ref={quickReveal.ref}
+                id="quick-answer"
+                className={`py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef] border-b border-[#e8e2d8] transition-all duration-700 ${quickReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-5xl mx-auto">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
                     {average && (
@@ -148,9 +198,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── Credibility / Track Record ─────────────────────────────
           case 'categoryCredibility': {
             const { recoveredAmount, successRate, casesWon, avgSettlement, recoveryNote } = block
+            const credReveal = useScrollReveal()
             if (!recoveredAmount && !successRate && !casesWon && !avgSettlement) return null
             return (
-              <div key={idx} id="credibility" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white">
+              <div
+                ref={credReveal.ref}
+                id="credibility"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-700 ${credReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-5xl mx-auto">
                   <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
                     <div>
@@ -188,9 +243,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── Why This Matters ────────────────────────────────────────
           case 'categoryWhyImportant': {
             const { intro, points } = block
+            const whyReveal = useScrollReveal()
             if (!intro && (!points || points.length === 0)) return null
             return (
-              <div key={idx} id="why-matters" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef]">
+              <div
+                ref={whyReveal.ref}
+                id="why-matters"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef] transition-all duration-700 ${whyReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-3xl mx-auto">
                   <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-8 leading-tight">
                     Why Your Case Is Worth More Than You Think
@@ -216,9 +276,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── Client Testimonials ─────────────────────────────────────
           case 'categoryTestimonials': {
             const items = block.items || []
+            const testReveal = useScrollReveal()
             if (items.length === 0) return null
             return (
-              <div key={idx} id="testimonials" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white">
+              <div
+                ref={testReveal.ref}
+                id="testimonials"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-700 ${testReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-5xl mx-auto">
                   <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-4 leading-tight">
                     Real People. Real Money. Real Relief.
@@ -250,9 +315,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── Settlement Breakdown Table ──────────────────────────────
           case 'categorySettlementBreakdown': {
             const items = block.items || []
+            const settleReveal = useScrollReveal()
             if (items.length === 0) return null
             return (
-              <div key={idx} id="settlement-breakdown" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef]">
+              <div
+                ref={settleReveal.ref}
+                id="settlement-breakdown"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef] transition-all duration-700 ${settleReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-5xl mx-auto">
                   <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-8 leading-tight">
                     Settlement Breakdown by Injury Type
@@ -287,9 +357,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── Attorney Comparison ─────────────────────────────────────
           case 'categoryAttorneyComparison': {
             const items = block.items || []
+            const attnyReveal = useScrollReveal()
             if (items.length === 0) return null
             return (
-              <div key={idx} id="attorney-comparison" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white">
+              <div
+                ref={attnyReveal.ref}
+                id="attorney-comparison"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-700 ${attnyReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-4xl mx-auto">
                   <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-16 leading-tight">
                     Here's the Truth: You Need an Attorney
@@ -328,9 +403,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           case 'categoryStatuteDeadlines': {
             const { description, byState } = block
             const states = byState || []
+            const statuteReveal = useScrollReveal()
             if (states.length === 0) return null
             return (
-              <div key={idx} id="urgency" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#1a4a5a] to-[#2d6a7a] text-white">
+              <div
+                ref={statuteReveal.ref}
+                id="urgency"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#1a4a5a] to-[#2d6a7a] text-white transition-all duration-700 ${statuteReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-3xl mx-auto">
                   <h2 className="text-4xl sm:text-5xl font-sans font-bold mb-6 leading-tight">
                     Your Deadline is Real. And It's Ticking.
@@ -358,9 +438,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── FAQ Accordion ───────────────────────────────────────────
           case 'categoryFAQ': {
             const items = block.items || []
+            const faqReveal = useScrollReveal()
             if (items.length === 0) return null
             return (
-              <div key={idx} id="faq" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef]">
+              <div
+                ref={faqReveal.ref}
+                id="faq"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef] transition-all duration-700 ${faqReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-3xl mx-auto">
                   <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-12 leading-tight">
                     Frequently Asked Questions
@@ -389,9 +474,14 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           // ── People Also Ask ─────────────────────────────────────────
           case 'categoryPeopleAlsoAsk': {
             const items = block.items || []
+            const paaReveal = useScrollReveal()
             if (items.length === 0) return null
             return (
-              <div key={idx} id="people-also-ask" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white">
+              <div
+                ref={paaReveal.ref}
+                id="people-also-ask"
+                className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-700 ${paaReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              >
                 <div className="max-w-3xl mx-auto">
                   <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-12 leading-tight">
                     People Also Ask
@@ -420,26 +510,42 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
       })}
 
       {/* Final CTA */}
-      <div id="final-cta" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-8 leading-tight">
-            You've Read This Far. You're Ready.
-          </h2>
-          <p className="text-lg text-[#666] mb-12 leading-relaxed font-light">
-            You know you deserve to get paid. You know an attorney can help. You know the deadline is real.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/checkmycase"
-              className="inline-flex items-center justify-center bg-[#c4714a] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#d4855e] transition-all shadow-lg hover:shadow-xl min-h-[48px]">
-              Get Your Free Consultation
-            </a>
+      {(() => {
+        const ctaReveal = useScrollReveal()
+        return (
+          <div
+            ref={ctaReveal.ref}
+            id="final-cta"
+            className={`py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white transition-all duration-700 ${ctaReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          >
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-4xl sm:text-5xl font-sans font-bold text-[#1a4a5a] mb-8 leading-tight">
+                You've Read This Far. You're Ready.
+              </h2>
+              <p className="text-lg text-[#666] mb-12 leading-relaxed font-light">
+                You know you deserve to get paid. You know an attorney can help. You know the deadline is real.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/checkmycase"
+                  className="inline-flex items-center justify-center bg-[#c4714a] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[#d4855e] transition-all shadow-lg hover:shadow-xl min-h-[48px]">
+                  Get Your Free Consultation
+                </a>
+              </div>
+              <p className="text-sm text-[#999] mt-8">Available 24/7. Confidential. No pressure.</p>
+            </div>
           </div>
-          <p className="text-sm text-[#999] mt-8">Available 24/7. Confidential. No pressure.</p>
-        </div>
-      </div>
+        )
+      })()}
 
       {/* Guides Section */}
-      <div id="guides" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef]">
+      {(() => {
+        const guidesReveal = useScrollReveal()
+        return (
+          <div
+            ref={guidesReveal.ref}
+            id="guides"
+            className={`py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#f9f5ef] transition-all duration-700 ${guidesReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          >
         <div className="max-w-4xl mx-auto">
           <h3 className="text-2xl font-sans font-bold text-[#1a4a5a] mb-8">Want to Learn More?</h3>
 
@@ -472,6 +578,8 @@ export default function CategoryGuideClient({ category, articles, blocks }: Cate
           </Link>
         </div>
       </div>
+        )
+      })()}
 
       {/* Mobile Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t-2 border-[#c4714a] shadow-2xl px-4 py-4 flex items-center justify-between gap-3">
