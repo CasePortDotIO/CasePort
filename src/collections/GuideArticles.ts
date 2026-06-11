@@ -1,7 +1,6 @@
 import type { CollectionConfig, FieldHook } from 'payload'
 
 import { GUIDE_BLOCKS } from './GuideBlocks'
-import { B2C_BLOCKS } from './TestGuideBlocks'
 
 // ─── Block Data Extractors ─────────────────────────────────────────────────
 
@@ -586,6 +585,10 @@ export const GuideArticles: CollectionConfig = {
               const action = data._status === 'published' ? 'Published' : 'Updated'
               block.entries.push({ date: today, description: `${action} guide article` })
             }
+            // Keep only the last 3 entries
+            if (block.entries.length > 3) {
+              block.entries = block.entries.slice(-3)
+            }
           }
         }
         return data
@@ -793,10 +796,7 @@ export const GuideArticles: CollectionConfig = {
             {
               name: 'blocks',
               type: 'blocks',
-              blocks: [
-                ...GUIDE_BLOCKS,
-                ...B2C_BLOCKS,
-              ],
+              blocks: GUIDE_BLOCKS,
               admin: {
                 description: 'Add and reorder blocks to structure your article content.',
               },

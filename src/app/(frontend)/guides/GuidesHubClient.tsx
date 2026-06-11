@@ -217,7 +217,7 @@ export default function GuidesHubClient({
             <span className="hidden sm:inline text-sm font-semibold text-[#1a4a5a]">CasePort</span>
           </a>
           <a
-            href="tel:+18002273669"
+            href="/checkmycase"
             className="bg-[#c4714a] text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-[#d4855e] transition-all shadow-md"
           >
             Free Case Review
@@ -606,7 +606,7 @@ export default function GuidesHubClient({
               Get a free consultation with an attorney. No upfront cost. We work on contingency.
             </p>
             <a
-              href="tel:+18002273669"
+              href="/checkmycase"
               className="inline-flex items-center gap-2 bg-[#c4714a] text-white px-8 py-4 rounded-lg font-bold hover:bg-[#d4855e] transition-all shadow-lg"
             >
               Call Now: 1-800-227-3669
@@ -644,7 +644,7 @@ export default function GuidesHubClient({
               <div>
                 <h4 className="font-semibold mb-4 text-white">Contact</h4>
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="tel:+18002273669" className="hover:text-white transition">1-800-227-3669</a></li>
+                  <li><a href="/checkmycase" className="hover:text-white transition">1-800-227-3669</a></li>
                   <li><a href="/guides/wrongful-death" className="hover:text-white transition">Wrongful Death</a></li>
                   <li><a href="/guides/rideshare-accident" className="hover:text-white transition">Rideshare Accident</a></li>
                   <li><a href="/guides/insurance-claim" className="hover:text-white transition">Insurance Claims</a></li>
