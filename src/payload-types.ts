@@ -2125,25 +2125,71 @@ export interface Article {
  */
 export interface InjuredLead {
   id: string;
+  submissionId?: string | null;
+  caseScore?: number | null;
+  routingStatus?: string | null;
+  urgencyLevel?: ('urgent' | 'soon' | 'standard') | null;
+  incidentType: string;
+  incidentDate?: string | null;
+  incidentDaysSince?: number | null;
+  solFlag?: boolean | null;
+  solExpired?: boolean | null;
+  incidentState: string;
+  incidentCity?: string | null;
+  inMarket?: boolean | null;
+  outOfMarket?: boolean | null;
+  liabilityStatus?: string | null;
+  liabilityFlag?: ('confirmed' | 'disputed' | 'unsure') | null;
+  compNegFlag?: boolean | null;
+  medicalTreatment?: string | null;
+  treatmentLevel?: ('er' | 'urgentCare' | 'specialist' | 'primaryCare' | 'none') | null;
+  treatmentTypes?:
+    | {
+        type?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  treatmentSeveritySignal?: ('high' | 'moderate' | 'low') | null;
+  providerName?: string | null;
+  providerType?: string | null;
+  providerCity?: string | null;
+  providerUnknown?: boolean | null;
+  treatmentOngoing?: boolean | null;
+  awaitingTreatment?: boolean | null;
+  treatmentRecency?: string | null;
+  injuryTypes?:
+    | {
+        type?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  injurySeverityIndex?: number | null;
+  lifeImpact?: string | null;
+  impactLevel?: ('serious' | 'moderate' | 'minimal') | null;
+  atFaultInsurance?: string | null;
+  ownUMCoverage?: string | null;
+  reportFiled?: boolean | null;
+  priorAttorney?: boolean | null;
+  priorSettlement?: boolean | null;
   firstName: string;
-  lastName: string;
   phone: string;
+  phoneVerified?: boolean | null;
   email?: string | null;
-  accidentDate?: string | null;
-  state?: string | null;
-  county?: string | null;
-  accidentType?: string | null;
-  role?: string | null;
-  medicalCare?: string | null;
-  fault?: string | null;
-  otherPartyInsurance?: string | null;
-  hasLawyer?: string | null;
-  preferredContact?: string | null;
-  canTalkNow?: string | null;
-  hasDocuments?: string | null;
+  preferredContactTime?:
+    | {
+        time?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  consentGiven?: boolean | null;
+  consentTimestamp?: string | null;
+  hipaaSignature?: string | null;
+  hipaaSignatureMode?: ('draw' | 'type') | null;
+  hipaaSignedAt?: string | null;
+  submittedAt?: string | null;
   seen?: boolean | null;
   /**
-   * Documents explicitly uploaded by the user during this form submission.
+   * Documents uploaded by the user during form submission.
    */
   uploadedDocuments?: (string | Media)[] | null;
   updatedAt: string;
@@ -3799,22 +3845,68 @@ export interface ArticlesSelect<T extends boolean = true> {
  * via the `definition` "injured-leads_select".
  */
 export interface InjuredLeadsSelect<T extends boolean = true> {
+  submissionId?: T;
+  caseScore?: T;
+  routingStatus?: T;
+  urgencyLevel?: T;
+  incidentType?: T;
+  incidentDate?: T;
+  incidentDaysSince?: T;
+  solFlag?: T;
+  solExpired?: T;
+  incidentState?: T;
+  incidentCity?: T;
+  inMarket?: T;
+  outOfMarket?: T;
+  liabilityStatus?: T;
+  liabilityFlag?: T;
+  compNegFlag?: T;
+  medicalTreatment?: T;
+  treatmentLevel?: T;
+  treatmentTypes?:
+    | T
+    | {
+        type?: T;
+        id?: T;
+      };
+  treatmentSeveritySignal?: T;
+  providerName?: T;
+  providerType?: T;
+  providerCity?: T;
+  providerUnknown?: T;
+  treatmentOngoing?: T;
+  awaitingTreatment?: T;
+  treatmentRecency?: T;
+  injuryTypes?:
+    | T
+    | {
+        type?: T;
+        id?: T;
+      };
+  injurySeverityIndex?: T;
+  lifeImpact?: T;
+  impactLevel?: T;
+  atFaultInsurance?: T;
+  ownUMCoverage?: T;
+  reportFiled?: T;
+  priorAttorney?: T;
+  priorSettlement?: T;
   firstName?: T;
-  lastName?: T;
   phone?: T;
+  phoneVerified?: T;
   email?: T;
-  accidentDate?: T;
-  state?: T;
-  county?: T;
-  accidentType?: T;
-  role?: T;
-  medicalCare?: T;
-  fault?: T;
-  otherPartyInsurance?: T;
-  hasLawyer?: T;
-  preferredContact?: T;
-  canTalkNow?: T;
-  hasDocuments?: T;
+  preferredContactTime?:
+    | T
+    | {
+        time?: T;
+        id?: T;
+      };
+  consentGiven?: T;
+  consentTimestamp?: T;
+  hipaaSignature?: T;
+  hipaaSignatureMode?: T;
+  hipaaSignedAt?: T;
+  submittedAt?: T;
   seen?: T;
   uploadedDocuments?: T;
   updatedAt?: T;
