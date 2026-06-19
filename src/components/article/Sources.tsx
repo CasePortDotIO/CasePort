@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Icon } from "@/components/Icon";
-import { SITE_URL } from "@/lib/accidents-constants";
+import { Icon } from '@/components/Icon'
+import { SITE_URL } from '@/lib/accidents-constants'
+import { useState } from 'react'
 
 const SRC_LEGAL: [string, string][] = [
-  ["National Highway Traffic Safety Administration (NHTSA)", "https://www.nhtsa.gov/"],
-  ["Insurance Information Institute", "https://www.iii.org/"],
-  ["American Bar Association", "https://www.americanbar.org/"],
-  ["Insurance Research Council", "https://www.insurance-research.org/"],
-];
+  ['National Highway Traffic Safety Administration (NHTSA)', 'https://www.nhtsa.gov/'],
+  ['Insurance Information Institute', 'https://www.iii.org/'],
+  ['American Bar Association', 'https://www.americanbar.org/'],
+  ['Insurance Research Council', 'https://www.insurance-research.org/'],
+]
 const SRC_MED: [string, string][] = [
-  ["Centers for Disease Control and Prevention (CDC)", "https://www.cdc.gov/"],
-  ["National Institutes of Health (NIH / MedlinePlus)", "https://medlineplus.gov/"],
-  ["NHTSA — Traffic Safety Facts", "https://www.nhtsa.gov/"],
-  ["American Medical Association", "https://www.ama-assn.org/"],
-];
+  ['Centers for Disease Control and Prevention (CDC)', 'https://www.cdc.gov/'],
+  ['National Institutes of Health (NIH / MedlinePlus)', 'https://medlineplus.gov/'],
+  ['NHTSA — Traffic Safety Facts', 'https://www.nhtsa.gov/'],
+  ['American Medical Association', 'https://www.ama-assn.org/'],
+]
 
 /**
  * "Sources & Citations" — on every article page, before the final CTA. Real
@@ -27,19 +27,19 @@ export function Sources({
   citeTitle,
   citeUrl,
 }: {
-  medical?: boolean;
-  citeTitle: string;
-  citeUrl: string;
+  medical?: boolean
+  citeTitle: string
+  citeUrl: string
 }) {
-  const [copied, setCopied] = useState(false);
-  const src = medical ? SRC_MED : SRC_LEGAL;
-  const cite = `CasePort. "${citeTitle}." CasePort, 2026. ${SITE_URL}${citeUrl}`;
+  const [copied, setCopied] = useState(false)
+  const src = medical ? SRC_MED : SRC_LEGAL
+  const cite = `CasePort. "${citeTitle}." CasePort, 2026. ${SITE_URL}${citeUrl}`
 
   const copy = () => {
-    const done = () => setCopied(true);
-    if (navigator.clipboard) navigator.clipboard.writeText(cite).then(done, done);
-    else done();
-  };
+    const done = () => setCopied(true)
+    if (navigator.clipboard) navigator.clipboard.writeText(cite).then(done, done)
+    else done()
+  }
 
   return (
     <section className="section bg-white sources-sec">
@@ -63,12 +63,12 @@ export function Sources({
             <span className="sources-cite-label">Cite this page</span>
             <code id="citeText">{cite}</code>
             <button className="sources-copy" id="citeCopy" onClick={copy}>
-              <Icon name={copied ? "check2" : "file"} />
-              {copied ? "Copied" : "Copy"}
+              <Icon name={copied ? 'check2' : 'file'} />
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
