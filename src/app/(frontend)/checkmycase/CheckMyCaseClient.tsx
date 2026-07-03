@@ -888,28 +888,83 @@ export default function CheckMyCaseClient() {
     }
 
     const timestamp = new Date().toISOString()
-    updateForm({
+    const submissionId = `CP-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+
+    // Calculate score
+    const score = calculateScore()
+
+    // Build submission data
+    const submissionData = {
+      ...fd,
       consentTimestamp: timestamp,
       submittedAt: timestamp,
-      submissionId: `CP-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+      submissionId,
       hipaaSignatureMode: sigMode,
       hipaaSignedAt: timestamp,
       hipaaSignature: sigMode === 'draw' ? 'captured' : sigTyped,
-    })
-
-    await new Promise(r => setTimeout(r, 1600))
-
-    const score = calculateScore()
-    updateForm({ caseScore: score })
-
-    const secs = fd.urgencyLevel === 'urgent' ? 900 : fd.urgencyLevel === 'soon' ? 14400 : 86400
-    const countdownEl = document.getElementById('countdownTimer')
-    if (countdownEl) {
-      countdownEl.textContent = fmtSecs(secs)
+      caseScore: score,
+      phoneVerified: true, // OTP was verified
     }
 
-    goTo('s-confirm')
-    clearDraft()
+    // Create FormData for file upload
+    const formData = new FormData()
+
+    // Add all text fields
+    Object.entries(submissionData).forEach(([key, value]) => {
+      if (value === null || value === undefined) return
+      if (key === 'uploadedFiles') return // Handle separately
+
+      if (Array.isArray(value)) {
+        // Handle array fields
+        value.forEach(item => {
+          if (typeof item === 'object' && item !== null && 'type' in item) {
+            formData.append(key, item.type)
+          } else if (typeof item === 'string') {
+            formData.append(key, item)
+          }
+        })
+      } else if (typeof value === 'boolean') {
+        formData.append(key, value ? 'true' : 'false')
+      } else if (typeof value === 'number') {
+        formData.append(key, String(value))
+      } else {
+        formData.append(key, String(value))
+      }
+    })
+
+    // Add uploaded files
+    for (const file of uploadedFiles) {
+      formData.append('documents', file)
+    }
+
+    try {
+      // Submit to API
+      const response = await fetch('/api/submit-lead', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit case')
+      }
+
+      const secs = fd.urgencyLevel === 'urgent' ? 900 : fd.urgencyLevel === 'soon' ? 14400 : 86400
+      const countdownEl = document.getElementById('countdownTimer')
+      if (countdownEl) {
+        countdownEl.textContent = fmtSecs(secs)
+      }
+
+      goTo('s-confirm')
+      clearDraft()
+    } catch (error) {
+      console.error('Submission error:', error)
+      // Re-enable button on error
+      if (btn) {
+        btn.classList.remove('loading')
+        btn.disabled = false
+      }
+      if (sigErrEl) sigErrEl.textContent = 'Failed to submit. Please try again.'
+    }
   }
 
   const onDrop = (e: React.DragEvent) => {

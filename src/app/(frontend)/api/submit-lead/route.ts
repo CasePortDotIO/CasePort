@@ -20,6 +20,16 @@ export async function POST(req: Request) {
       }
     })
 
+    // Handle array fields (treatmentTypes, injuryTypes, preferredContactTime)
+    // These come as repeated form fields - need to group them
+    const arrayFields = ['treatmentTypes', 'injuryTypes', 'preferredContactTime']
+    for (const field of arrayFields) {
+      const values = formData.getAll(field)
+      if (values.length > 0) {
+        data[field] = values.map(v => typeof v === 'string' ? { type: v } : v)
+      }
+    }
+
     // Upload each attached file securely to the Media collection
     for (const file of files) {
       if (file instanceof File) {
@@ -49,10 +59,30 @@ export async function POST(req: Request) {
       data.uploadedDocuments = uploadedMediaIds
     }
 
+    // Convert numeric strings to numbers where appropriate
+    if (data.caseScore) data.caseScore = parseInt(data.caseScore, 10)
+    if (data.incidentDaysSince) data.incidentDaysSince = parseInt(data.incidentDaysSince, 10)
+    if (data.injurySeverityIndex) data.injurySeverityIndex = parseInt(data.injurySeverityIndex, 10)
+
+    // Convert checkbox strings to booleans
+    data.solFlag = data.solFlag === 'true'
+    data.solExpired = data.solExpired === 'true'
+    data.inMarket = data.inMarket === 'true'
+    data.outOfMarket = data.outOfMarket === 'true'
+    data.compNegFlag = data.compNegFlag === 'true'
+    data.providerUnknown = data.providerUnknown === 'true'
+    data.treatmentOngoing = data.treatmentOngoing === 'true'
+    data.awaitingTreatment = data.awaitingTreatment === 'true'
+    data.priorAttorney = data.priorAttorney === 'true'
+    data.priorSettlement = data.priorSettlement === 'true'
+    data.phoneVerified = data.phoneVerified === 'true'
+    data.consentGiven = data.consentGiven === 'true'
+    data.reportFiled = data.reportFiled === 'true'
+
     // Submit Lead Data
     const lead = await payload.create({
       collection: 'injured-leads',
-      data: data as any, // Typecast since dynamic string mapping satisfies our schema
+      data: data as any,
     })
 
     return Response.json(lead, { status: 201 })
