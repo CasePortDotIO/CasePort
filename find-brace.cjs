@@ -1,5 +1,5 @@
 const fs = require('fs');
-const data = fs.readFileSync('src/app/(frontend)/guides/[category]/[slug]/GuideArticleClient.tsx', 'utf8');
+const data = fs.readFileSync('src/app/(frontend)/guide/[category]/[slug]/GuideArticleClient.tsx', 'utf8');
 let depth = 0;
 let inStr = false, strChar = '';
 const lines = data.split('\n');

@@ -17,9 +17,7 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  const collectionSlug: CollectionSlug =
-    collectionParam === 'guideArticles' ? 'guideArticles'
-    : 'articles'
+  const collectionSlug: CollectionSlug = collectionParam === 'guideArticles' ? 'guideArticles' : 'articles'
 
   try {
     const payload = await getPayload({ config })
