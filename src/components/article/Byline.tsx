@@ -1,4 +1,4 @@
-import { Icon } from "@/components/Icon";
+import { Icon } from '@/components/Icon'
 
 /** Byline under the H1 (or after a dark hero subtitle). Mirrors the source byline. */
 export function Byline({
@@ -6,22 +6,24 @@ export function Byline({
   isMedical = false,
   minutes,
   onDark = false,
+  updatedDate,
 }: {
-  reviewerName: string;
-  isMedical?: boolean;
-  minutes: number;
-  onDark?: boolean;
+  reviewerName: string
+  isMedical?: boolean
+  minutes: number
+  onDark?: boolean
+  updatedDate?: string
 }) {
   return (
-    <div className={"byline" + (onDark ? " on-dark" : "")}>
+    <div className={'byline' + (onDark ? ' on-dark' : '')}>
       <span className="byline-rev">
         <Icon name="shield" />
-        {isMedical ? "Medically reviewed" : "Reviewed"} by <b>{reviewerName}</b>
+        {isMedical ? 'Medically reviewed' : 'Reviewed'} by&nbsp;&nbsp;<b>{reviewerName}</b>
       </span>
       <span className="byline-sep">·</span>
       <span className="byline-meta">
         <Icon name="cal" />
-        Updated June 2026
+        Updated {updatedDate || 'June 2026'}
       </span>
       <span className="byline-sep">·</span>
       <span className="byline-meta">
@@ -29,5 +31,5 @@ export function Byline({
         {minutes} min read
       </span>
     </div>
-  );
+  )
 }

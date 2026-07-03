@@ -20,6 +20,9 @@ export function Capsule({
   facts,
   table,
   container = "container-4",
+  authorName,
+  authorRole,
+  updatedDate,
 }: {
   label?: string;
   heading?: string;
@@ -27,6 +30,9 @@ export function Capsule({
   facts?: [string, string][];
   table?: CapsuleTable;
   container?: string;
+  authorName?: string;
+  authorRole?: string;
+  updatedDate?: string;
 }) {
   return (
     <section className="section bg-white" style={{ paddingTop: "3rem", paddingBottom: "3rem" }}>
@@ -82,11 +88,11 @@ export function Capsule({
           <div className="cap-foot">
             <span className="ci">
               <Icon name="award" />
-              Reviewed by {reviewer.name}, {reviewer.title}
+              Reviewed by {authorName || reviewer.name}, {authorRole || reviewer.title}
             </span>
             <span className="ci">
               <Icon name="cal" />
-              Updated June 2026
+              Updated {updatedDate || 'June 2026'}
             </span>
           </div>
         </div>

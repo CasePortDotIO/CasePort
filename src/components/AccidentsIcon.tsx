@@ -1,5 +1,5 @@
-import { createElement, type CSSProperties } from "react";
-import { ICONS } from "./icons.generated";
+import { createElement, type CSSProperties } from 'react'
+import { ICONS } from './icons.generated'
 
 /**
  * Renders one of the brand SVG glyphs as real SVG child elements (no
@@ -11,12 +11,12 @@ export function Icon({
   className,
   style,
 }: {
-  name: string;
-  className?: string;
-  style?: CSSProperties;
+  name: string
+  className?: string
+  style?: CSSProperties
 }) {
-  const els = ICONS[name] || ICONS.check;
-  const fill = name === "star" ? "currentColor" : "none";
+  const els = ICONS[name] || ICONS.check
+  const fill = name === 'star' ? 'currentColor' : 'none'
   return (
     <svg
       viewBox="0 0 24 24"
@@ -31,5 +31,5 @@ export function Icon({
     >
       {els.map((el, i) => createElement(el.t, { key: i, ...el.a }))}
     </svg>
-  );
+  )
 }

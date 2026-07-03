@@ -12,8 +12,8 @@ import { Applications } from './collections/Applications'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
-import { GuideArticles } from './collections/GuideArticles'
-import { GuideCategories } from './collections/GuideCategories'
+import { GuideNew } from './collections/GuideNew'
+import { GuideNewCategories } from './collections/GuideNewCategories'
 import { InjuredLeads } from './collections/InjuredLeads'
 import { IntelligenceBriefs } from './collections/IntelligenceBriefs'
 import { Markets } from './collections/Markets'
@@ -111,8 +111,8 @@ export default buildConfig({
     Waitlists,
     IntelligenceBriefs,
     Categories,
-    GuideCategories,
-    GuideArticles,
+    GuideNew,
+    GuideNewCategories,
     SiteLinks,
     Authors,
     Articles,
@@ -130,13 +130,16 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
-    vercelBlobStorage({
-      enabled: !!process.env.BLOB_READ_WRITE_TOKEN,
-      collections: {
-        media: true,
-      },
-      token:
-        process.env.BLOB_READ_WRITE_TOKEN || 'vercel_blob_rw_12345_123456789012345678901234567890',
-    }),
+    ...(process.env.BLOB_READ_WRITE_TOKEN
+      ? [
+          vercelBlobStorage({
+            enabled: true,
+            collections: {
+              media: true,
+            },
+            token: process.env.BLOB_READ_WRITE_TOKEN,
+          }),
+        ]
+      : []),
   ],
 })

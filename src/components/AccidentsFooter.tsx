@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { accidentTypeOrder, accidentTypes } from "@/data";
+import Link from 'next/link'
+import { accidentTypeOrder, accidentTypes } from '@/data'
 
 /** Footer. Mirrors source `CP.ui.footer()`. */
 export function Footer() {
@@ -7,7 +7,7 @@ export function Footer() {
     <li key={k}>
       <Link href={`/accidents/${k}`}>{accidentTypes[k].category}</Link>
     </li>
-  ));
+  ))
 
   return (
     <footer className="footer">
@@ -16,33 +16,33 @@ export function Footer() {
           <div>
             <div className="footer-mark">
               <span className="nav-mark">CP</span>
-              <span className="nav-name" style={{ color: "#fff" }}>
+              <span className="nav-name" style={{ color: '#fff' }}>
                 CASEPORT
               </span>
             </div>
             <p>
-              The definitive source for accident law by state. Attorney-reviewed.
-              ABA compliant. State-specific negligence rules, city-level guides,
-              and step-by-step first-hour actions.
+              The definitive source for accident law by state. Attorney-reviewed. ABA compliant.
+              State-specific negligence rules, city-level guides, and step-by-step first-hour
+              actions.
             </p>
           </div>
           <div>
             <h4>Guides</h4>
             <ul>
               <li>
-                <Link href="/guide">Guides Hub</Link>
+                <Link href="/guides">Guides Hub</Link>
               </li>
               <li>
-                <Link href="/guide/dealing-with-insurance">Dealing With Insurance</Link>
+                <Link href="/guides/dealing-with-insurance">Dealing With Insurance</Link>
               </li>
               <li>
-                <Link href="/guide/how-contingency-fees-work">Contingency Fees</Link>
+                <Link href="/guides/how-contingency-fees-work">Contingency Fees</Link>
               </li>
               <li>
-                <Link href="/guide/faq">Injury Claim FAQ</Link>
+                <Link href="/guides/faq">Injury Claim FAQ</Link>
               </li>
               <li>
-                <Link href="/guide/glossary">Glossary</Link>
+                <Link href="/guides/glossary">Glossary</Link>
               </li>
             </ul>
           </div>
@@ -59,9 +59,7 @@ export function Footer() {
                 <Link href="/injuries/traumatic-brain-injury">Brain Injury (TBI)</Link>
               </li>
               <li>
-                <Link href="/injuries/delayed-symptoms-after-car-accident">
-                  Delayed Symptoms
-                </Link>
+                <Link href="/injuries/delayed-symptoms-after-car-accident">Delayed Symptoms</Link>
               </li>
             </ul>
           </div>
@@ -73,24 +71,16 @@ export function Footer() {
             <h4>Resources</h4>
             <ul>
               <li>
-                <Link href="/accidents/statute-of-limitations">
-                  Statute of Limitations
-                </Link>
+                <Link href="/accidents/statute-of-limitations">Statute of Limitations</Link>
               </li>
               <li>
-                <Link href="/accidents/contributory-negligence">
-                  Negligence Rules
-                </Link>
+                <Link href="/accidents/contributory-negligence">Negligence Rules</Link>
               </li>
               <li>
-                <Link href="/accidents/evidence-preservation">
-                  Evidence Preservation
-                </Link>
+                <Link href="/accidents/evidence-preservation">Evidence Preservation</Link>
               </li>
               <li>
-                <Link href="/accidents/settlement-calculation">
-                  Settlement Calculation
-                </Link>
+                <Link href="/accidents/settlement-calculation">Settlement Calculation</Link>
               </li>
               <li>
                 <Link href="/accidents/resources">All Resources &amp; Deadlines</Link>
@@ -116,17 +106,14 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>
-            &copy; 2026 CasePort.io. All rights reserved. Attorney-Reviewed. ABA
-            Compliant.
-          </p>
+          <p>&copy; 2026 CasePort.io. All rights reserved. Attorney-Reviewed. ABA Compliant.</p>
           <p className="disc">
-            This page provides general information about personal injury law. It is
-            not legal advice and does not create an attorney-client relationship.
-            Prior results do not guarantee future outcomes.
+            This page provides general information about personal injury law. It is not legal advice
+            and does not create an attorney-client relationship. Prior results do not guarantee
+            future outcomes.
           </p>
         </div>
       </div>
     </footer>
-  );
+  )
 }
