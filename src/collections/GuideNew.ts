@@ -1,8 +1,8 @@
-import type { CollectionConfig, FieldHook } from 'payload'
+import type { CollectionConfig } from 'payload'
 
-import { GUIDE_BLOCKS } from './GuideBlocks'
+import { GUIDEARTICLE_BLOCKS } from './GuideArticleBlocks'
 
-// ─── Block Data Extractors ─────────────────────────────────────────────────
+// ─── Block Data Extractors ─────────────────────────────────────────────────────
 
 type Block = { blockType: string; [key: string]: any }
 
@@ -69,7 +69,7 @@ const extractTextFromBlocks = (blocks: Block[]): string => {
         for (const s of block.states) text += (s.state || '') + ' ' + (s.notes || '') + ' '
       }
     }
-    if (block.blockType === 'expertQuote' && block.quote) text += block.quote + ' '
+    if (block.blockType === 'expert' && block.quote) text += block.quote + ' '
     if (block.blockType === 'termDefinition') {
       text += (block.term || '') + ' ' + (block.definition || '') + ' '
     }
@@ -88,9 +88,58 @@ const extractTextFromBlocks = (blocks: Block[]): string => {
         text += (s.title || '') + ' ' + (s.description || '') + ' '
       }
     }
-    if (block.blockType === 'cta') {
+    if (block.blockType === 'endCtaSection') {
       if (block.heading) text += block.heading + ' '
       if (block.subcopy) text += block.subcopy + ' '
+    }
+    if (block.blockType === 'caseScenario') {
+      if (block.scenario) text += block.scenario + ' '
+    }
+    if (block.blockType === 'keyTakeaways' && block.items) {
+      for (const i of block.items) text += (typeof i === 'string' ? i : i.item || '') + ' '
+    }
+    if (block.blockType === 'citationFact' && block.facts) {
+      for (const f of block.facts) text += (f.fact || '') + ' '
+    }
+    if (block.blockType === 'glossaryBrowser' && block.terms) {
+      for (const t of block.terms) text += (t.term || '') + ' ' + (t.definition || '') + ' '
+    }
+    if (block.blockType === 'faqGroup' && block.items) {
+      for (const i of block.items) text += (i.q || '') + ' ' + (i.a || '') + ' '
+    }
+    // ─── article* block types ────────────────────────────────────────────────
+    if (block.blockType === 'articleDirectAnswer' && block.text) {
+      text += typeof block.text === 'string' ? block.text : extractTextFromLexical(block.text?.root?.children || []) + ' '
+    }
+    if (block.blockType === 'articleKeyTakeaways' && Array.isArray(block.items)) {
+      for (const i of block.items) text += (typeof i === 'string' ? i : i.fact || '') + ' '
+    }
+    if (block.blockType === 'articleFAQ' && Array.isArray(block.items)) {
+      for (const i of block.items) text += (i.question || '') + ' ' + (i.answerText || i.answer || '') + ' '
+    }
+    if (block.blockType === 'articleSources' && Array.isArray(block.sources)) {
+      for (const s of block.sources) text += (s.name || '') + ' '
+    }
+    if (block.blockType === 'articleTimelineSteps' && Array.isArray(block.steps)) {
+      for (const s of block.steps) text += (s.stepName || '') + ' ' + (s.stepDescription || '') + ' '
+    }
+    if (block.blockType === 'articleSettlementTable' && Array.isArray(block.rows)) {
+      for (const r of block.rows) text += (r.severity || '') + ' ' + (r.description || '') + ' ' + (r.range || '') + ' '
+    }
+    if (block.blockType === 'articleProseContent' && Array.isArray(block.sections)) {
+      for (const s of block.sections) text += (s.heading || '') + ' ' + (s.body || '') + ' '
+    }
+    if (block.blockType === 'articleStatuteBars' && Array.isArray(block.bars)) {
+      for (const b of block.bars) text += (b.deadline || '') + ' ' + (b.states || '') + ' '
+    }
+    if (block.blockType === 'articleExpert') {
+      if (block.quote) text += block.quote + ' '
+      if (block.reviewerName) text += block.reviewerName + ' '
+      if (block.credentials) text += block.credentials + ' '
+    }
+    if (block.blockType === 'articleCTA') {
+      if (block.title) text += block.title + ' '
+      if (block.subtitle) text += block.subtitle + ' '
     }
   }
   return text
@@ -98,13 +147,14 @@ const extractTextFromBlocks = (blocks: Block[]): string => {
 
 /** Extract directAnswer block text */
 const getDirectAnswerFromBlocks = (blocks: Block[]): string => {
-  const b = blocks.find(b => b.blockType === 'directAnswer')
+  // Check both legacy directAnswer and articleDirectAnswer
+  const b = blocks.find(b => b.blockType === 'directAnswer' || b.blockType === 'articleDirectAnswer')
   if (!b) return ''
   // Handle Lexical richText format
   if (b.text?.root?.children) {
     return extractTextFromLexical(b.text.root.children)
   }
-  // Fallback for plain text (if someone still uses old data)
+  // Fallback for plain text (used by articleDirectAnswer)
   return typeof b.text === 'string' ? b.text : ''
 }
 
@@ -114,6 +164,14 @@ const getFaqsFromBlocks = (blocks: Block[]): any[] => {
   for (const block of blocks) {
     if (block.blockType === 'faqAccordion' && Array.isArray(block.faqs)) {
       faqs.push(...block.faqs)
+    }
+    if (block.blockType === 'faqGroup' && Array.isArray(block.items)) {
+      faqs.push(...block.items)
+    }
+    if (block.blockType === 'articleFAQ' && Array.isArray(block.items)) {
+      for (const item of block.items) {
+        faqs.push({ question: item.question, answer: item.answerText || item.answer })
+      }
     }
   }
   return faqs
@@ -126,6 +184,13 @@ const getStatsFromBlocks = (blocks: Block[]): any[] => {
     if (block.blockType === 'citationFact' && Array.isArray(block.facts)) {
       stats.push(...block.facts)
     }
+    if (block.blockType === 'statTiles' && Array.isArray(block.stats)) {
+      stats.push(...block.stats)
+    }
+    // articleSources uses a 'sources' array
+    if (block.blockType === 'articleSources' && Array.isArray(block.sources)) {
+      stats.push(...block.sources)
+    }
   }
   return stats
 }
@@ -134,7 +199,8 @@ const getStatsFromBlocks = (blocks: Block[]): any[] => {
 const getQuotesFromBlocks = (blocks: Block[]): any[] => {
   const quotes: any[] = []
   for (const block of blocks) {
-    if (block.blockType === 'expertQuote' && block.quote) {
+    // Check both legacy 'expert' and articleExpert
+    if ((block.blockType === 'expert' || block.blockType === 'articleExpert') && block.quote) {
       quotes.push(block)
     }
   }
@@ -148,6 +214,11 @@ const getTermsFromBlocks = (blocks: Block[]): any[] => {
     if (block.blockType === 'termDefinition' && block.term) {
       terms.push(block)
     }
+    if (block.blockType === 'glossaryBrowser' && Array.isArray(block.terms)) {
+      for (const t of block.terms) {
+        terms.push({ term: t.term, definition: t.definition })
+      }
+    }
   }
   return terms
 }
@@ -158,6 +229,9 @@ const getRelatedGuidesFromBlocks = (blocks: Block[]): any[] => {
   for (const block of blocks) {
     if (block.blockType === 'relatedGuides' && Array.isArray(block.guides)) {
       guides.push(...block.guides)
+    }
+    if (block.blockType === 'relatedGuideCategory' && Array.isArray(block.categories)) {
+      guides.push(...block.categories)
     }
   }
   return guides
@@ -180,7 +254,8 @@ const getSameAsUrlsFromBlocks = (blocks: Block[]): any[] => {
 const getKeyTakeawaysFromBlocks = (blocks: Block[]): any[] => {
   const takeaways: any[] = []
   for (const block of blocks) {
-    if (block.blockType === 'keyTakeaways' && Array.isArray(block.items)) {
+    // Check both legacy keyTakeaways and articleKeyTakeaways
+    if ((block.blockType === 'keyTakeaways' || block.blockType === 'articleKeyTakeaways') && Array.isArray(block.items)) {
       takeaways.push(...block.items)
     }
   }
@@ -196,11 +271,17 @@ const getExternalSourcesFromBlocks = (blocks: Block[]): any[] => {
         if (f.source) sources.push({ name: f.source, url: f.sourceUrl || '' })
       }
     }
+    // articleSources has 'sources' array with name/url
+    if (block.blockType === 'articleSources' && Array.isArray(block.sources)) {
+      for (const s of block.sources) {
+        if (s.name) sources.push({ name: s.name, url: s.url || '' })
+      }
+    }
   }
   return sources
 }
 
-/** Count headings from all richText blocks */
+/** Count headings from all richText blocks + articleProseContent sections */
 const countHeadingsFromBlocks = (blocks: Block[]): { h2: number; h3: number } => {
   let h2 = 0, h3 = 0
   for (const block of blocks) {
@@ -208,11 +289,17 @@ const countHeadingsFromBlocks = (blocks: Block[]): { h2: number; h3: number } =>
       h2 += countHeadings(block.content.root.children, 'h2')
       h3 += countHeadings(block.content.root.children, 'h3')
     }
+    // articleProseContent has sections[].heading
+    if (block.blockType === 'articleProseContent' && Array.isArray(block.sections)) {
+      for (const s of block.sections) {
+        if (s.heading) h2++
+      }
+    }
   }
   return { h2, h3 }
 }
 
-// ─── Score Generators ────────────────────────────────────────────────────────
+// ─── Score Generators ──────────────────────────────────────────────────────────
 
 const generateAeoScore = async ({ data }: { data: any }): Promise<number> => {
   let score = 0
@@ -233,7 +320,7 @@ const generateAeoScore = async ({ data }: { data: any }): Promise<number> => {
   else if (validFaqs === 1) score += 5
 
   const stats = getStatsFromBlocks(blocks)
-  const validStats = stats.filter((s: any) => s.fact && s.source).length
+  const validStats = stats.filter((s: any) => (s.fact && s.source) || (s.value && s.label)).length
   if (validStats >= 3) score += 15
   else if (validStats === 2) score += 10
   else if (validStats === 1) score += 5
@@ -273,7 +360,7 @@ const generateSeoScore = async (d: any, heroImageAlt = ''): Promise<number> => {
   const slug = (d.slug ?? '').toLowerCase()
 
   const bodyText = extractTextFromBlocks(blocks).toLowerCase().slice(0, 300)
-  const altText = heroImageAlt ?? (typeof d.heroImage === 'object' ? (d.heroImage?.alt ?? '') : '')
+  const altText = heroImageAlt ?? ''
   const related = getRelatedGuidesFromBlocks(blocks)
   const secondary = d.secondaryKeywords ?? []
 
@@ -315,19 +402,19 @@ const calculateNextReviewDue = async ({ data }: { data: any }): Promise<string |
 
 const calculateGeoScore = (data: any): number => {
   let score = 0
-  if (data.geoOptimization?.targetStates?.length > 0) score += 30
-  if (data.geoOptimization?.targetCities?.length > 0) score += 20
-  if (data.geoOptimization?.stateSpecificDeadline) score += 20
-  if (data.geoOptimization?.tollingProvisions?.length > 0) score += 30
+  if (data.targetStates?.length > 0) score += 30
+  if (data.targetCities?.length > 0) score += 20
+  if (data.stateSpecificDeadline) score += 20
+  if (data.tollingProvisions?.length > 0) score += 30
   return Math.min(score, 100)
 }
 
 const calculateSgeScore = (data: any): number => {
   let score = 0
-  if (data.sgeOptimization?.sgeOptimizedAnswer?.length > 40) score += 40
-  if (data.sgeOptimization?.uniqueContentSignals?.length > 0) score += 30
-  if (data.sgeOptimization?.freshnessSignal) score += 20
-  if (data.sgeOptimization?.competitorComparison) score += 10
+  if (data.sgeOptimizedAnswer?.length > 40) score += 40
+  if (data.uniqueContentSignals?.length > 0) score += 30
+  if (data.freshnessSignal) score += 20
+  if (data.competitorComparison) score += 10
   return Math.min(score, 100)
 }
 
@@ -348,10 +435,10 @@ const calculateContentQualityScore = (data: any, h2Count: number, h3Count: numbe
   if (directAnswer.length > 40) score += 10
   const faqs = getFaqsFromBlocks(blocks)
   if (faqs.length >= 5) score += 10
-  if (data.sgeOptimization?.sgeOptimizedAnswer?.length > 40) score += 10
-  if (data.sgeOptimization?.uniqueContentSignals?.length > 0) score += 5
-  if (data.geoOptimization?.targetStates?.length > 0) score += 8
-  if (data.geoOptimization?.stateSpecificDeadline) score += 7
+  if (data.sgeOptimizedAnswer?.length > 40) score += 10
+  if (data.uniqueContentSignals?.length > 0) score += 5
+  if (data.targetStates?.length > 0) score += 8
+  if (data.stateSpecificDeadline) score += 7
   if (data.voiceAnswer?.length > 30) score += 10
   if (data.speakableCssSelectors?.length > 0) score += 5
   if (data.expertReviewer) score += 8
@@ -395,7 +482,7 @@ const calculateFreshness = (data: any): { daysOld: number; freshnessStatus: stri
 
 // ─── Collection Config ─────────────────────────────────────────────────────────
 
-export const GuideArticles: CollectionConfig = {
+export const GuideNew: CollectionConfig = {
   slug: 'guideArticles',
   admin: {
     useAsTitle: 'title',
@@ -472,7 +559,12 @@ export const GuideArticles: CollectionConfig = {
         if (!data.slug?.trim()) issues.push('Slug is required')
         if (!data.author) issues.push('Author is required')
         if (!data.guideCategory) issues.push('Guide Category is required')
-        if (!data.heroImage) issues.push('Hero Image is required')
+
+        // Hero image is either a hero block or the legacy heroImage upload field
+        const heroBlock = blocks.find(b => b.blockType === 'hero')
+        const hasHeroImage = data.heroImage || heroBlock?.image
+        if (!hasHeroImage) issues.push('Hero Image is required (add a Hero block or use the Hero Image field)')
+
         if (!data.excerpt?.trim()) issues.push('Excerpt is required')
         else if (data.excerpt.length < 30)
           issues.push(`Excerpt too short (${data.excerpt.length}/30 chars)`)
@@ -484,9 +576,8 @@ export const GuideArticles: CollectionConfig = {
         else if (data.metaDescription.length < 120)
           issues.push(`Meta Description too short (${data.metaDescription.length}/120 chars)`)
         if (!data.schemaType) issues.push('Schema Type is required')
-        if (!data.pageType) issues.push('Page Type is required')
 
-        // Validate fields still at top level
+        // Validate fields at top level
         const keyTakeaways = getKeyTakeawaysFromBlocks(blocks)
         if (keyTakeaways.length < 3)
           issues.push(`Key Takeaways: ${keyTakeaways.length}/3 — add ${3 - keyTakeaways.length} more`)
@@ -505,11 +596,11 @@ export const GuideArticles: CollectionConfig = {
           issues.push(`FAQ items: ${faqs.length}/4 — add ${4 - faqs.length} more`)
 
         const stats = getStatsFromBlocks(blocks)
-        if (stats.length < 2)
-          issues.push(`Key Statistics (Citation Fact blocks): ${stats.length}/2 — add ${2 - stats.length} more`)
+        if (stats.length < 1)
+          issues.push(`Sources: ${stats.length}/1 — add at least 1 source (add an Article Sources block)`)
 
         const extSources = getExternalSourcesFromBlocks(blocks)
-        if (extSources.length < 1) issues.push('At least 1 External Source is required (add Citation Fact blocks)')
+        if (extSources.length < 1) issues.push('External Source required (add an Article Sources block)')
 
         // Content length from blocks
         const bodyText = extractTextFromBlocks(blocks)
@@ -520,8 +611,8 @@ export const GuideArticles: CollectionConfig = {
         const { h2, h3 } = countHeadingsFromBlocks(blocks)
 
         const sgeAnswer = data.sgeOptimizedAnswer || ''
-        if (!sgeAnswer.trim()) issues.push('SGE Optimized Answer is required')
-        else if (sgeAnswer.length < 40) issues.push(`SGE Answer: ${sgeAnswer.length}/40 chars`)
+        if (sgeAnswer.trim() && sgeAnswer.length < 40)
+          issues.push(`SGE Answer: ${sgeAnswer.length}/40 chars`)
 
         if (issues.length > 0) {
           throw new Error(issues.join(' | '))
@@ -619,18 +710,23 @@ export const GuideArticles: CollectionConfig = {
           const { h2, h3 } = countHeadingsFromBlocks(blocks)
           const bodyText = extractTextFromBlocks(blocks)
 
+          // Extract hero image alt from hero block inside blocks array
           let heroImageAlt = ''
-          if (typeof data.heroImage === 'object' && data.heroImage?.alt) {
-            heroImageAlt = data.heroImage.alt
-          } else if (typeof data.heroImage === 'string') {
-            try {
-              const mediaDoc = await req.payload.findByID({
-                collection: 'media',
-                id: data.heroImage,
-              })
-              heroImageAlt = mediaDoc?.alt ?? ''
-            } catch {
-              heroImageAlt = ''
+          const heroBlock = blocks.find(b => b.blockType === 'hero')
+          if (heroBlock?.image) {
+            if (typeof heroBlock.image === 'object' && heroBlock.image.alt) {
+              heroImageAlt = heroBlock.image.alt
+            } else if (typeof heroBlock.image === 'string') {
+              // Look up media by ID
+              try {
+                const mediaDoc = await req.payload.findByID({
+                  collection: 'media',
+                  id: heroBlock.image,
+                })
+                heroImageAlt = mediaDoc?.alt ?? ''
+              } catch {
+                heroImageAlt = ''
+              }
             }
           }
 
@@ -654,9 +750,9 @@ export const GuideArticles: CollectionConfig = {
           else if (overallScore >= 40) dominanceRank = 'weak'
 
           let competitiveAdvantageScore = 0
-          if (data.competitorAnalysis?.uniqueAdvantages?.length > 0) {
+          if (data.uniqueAdvantages?.length > 0) {
             competitiveAdvantageScore = Math.min(
-              50 + data.competitorAnalysis.uniqueAdvantages.length * 10,
+              50 + data.uniqueAdvantages.length * 10,
               100,
             )
           }
@@ -705,7 +801,7 @@ export const GuideArticles: CollectionConfig = {
             snippetOptimizationScore: snippetScore,
           }
 
-          // Auto-generate internal links within guideArticles
+          // Auto-generate internal links within guideNew
           if (data.id && data.guideCategory) {
             const relatedGuides = await req.payload.find({
               collection: 'guideArticles',
@@ -739,19 +835,6 @@ export const GuideArticles: CollectionConfig = {
           if (doc.slug) {
             revalidatePath(`/guides/${doc.slug}`)
           }
-          if (doc.pageType === 'state' && doc.targetStates?.length) {
-            for (const state of doc.targetStates) {
-              revalidatePath(`/guides/states/${state}`)
-            }
-          }
-          if (doc.pageType === 'city' && doc.targetCities?.length) {
-            for (const city of doc.targetCities) {
-              revalidatePath(`/guides/cities/${city}`)
-            }
-          }
-          if (doc.pageType === 'faq') {
-            revalidatePath(`/guides/faq/${doc.slug}`)
-          }
         } catch {
           // If we are not in a Next.js server context, quietly ignore
         }
@@ -780,55 +863,25 @@ export const GuideArticles: CollectionConfig = {
               label: 'Guide Category',
               admin: { description: 'Primary category for this guide' },
             },
-            {
-              name: 'pageType',
-              type: 'select',
-              options: ['guide', 'category', 'state', 'city', 'faq'],
-              defaultValue: 'guide',
-              admin: { description: 'Determines which template renders this page' },
-            },
             // ─── Media & Summary ─────────────────────────────────────────
-            { name: 'heroImage', type: 'upload', relationTo: 'media' },
+            // Hero image is now inside a Hero block in the blocks array
+            { name: 'heroImage', type: 'upload', relationTo: 'media', admin: { description: 'Legacy field - prefer using Hero block instead' } },
             { name: 'excerpt', type: 'textarea', maxLength: 300 },
             { name: 'subtitle', type: 'text' },
-            { name: 'executiveSummary', type: 'textarea' },
+            {
+              name: 'breadcrumbTitle',
+              type: 'text',
+              admin: { description: 'Short breadcrumb label shown in hero (e.g. "Do I Need a Lawyer"). Defaults to article title if empty.' },
+            },
             // ─── Guide Blocks ──────────────────────────────────────────
             {
               name: 'blocks',
               type: 'blocks',
-              blocks: GUIDE_BLOCKS,
+              blocks: GUIDEARTICLE_BLOCKS,
               admin: {
                 description: 'Add and reorder blocks to structure your article content.',
               },
             },
-            // ─── AEO & Direct Answer ─────────────────────────────────────
-            // directAnswer, aiCitationSummary, primaryAiQuery — now in DirectAnswer + Standfirst blocks
-            // ─── FAQ Section ─────────────────────────────────────────────
-            // faqSection — now in FAQAccordion block
-            // ─── Key Statistics ──────────────────────────────────────────
-            // keyStatistics — now in CitationFact block
-            // ─── Expert Info ─────────────────────────────────────────────
-            // expertQuotes — now in ExpertQuote block
-            // ─── Term Definitions ─────────────────────────────────────────
-            // termDefinitions — now in TermDefinition block
-            // ─── Related Articles ─────────────────────────────────────────
-            // relatedArticles (relationship) — now in RelatedArticleLink block
-            // ─── Duplicates removed → use Blocks instead ──────────────────────────────────
-            // REMOVED (use blocks instead):
-            // - whatYouLearn → KeyTakeaways block
-            // - immediateStepsTitle/Subtitle + immediateSteps → StepChecklist block
-            // - attorneyComparison → Comparison block
-            // - settlementData group → SettlementRange + CaseScenario blocks
-            // - stateRanges → SettlementRanges block
-            // - statuteOfLimitations group → StatuteLimitations block
-            // - testimonials → CaseScenario block
-            // - keyFacts → StatCallout block
-            // - fiveThingsToKnow → ProtectionPlan block
-            // - mistakesToAvoid → ProtectionPlan block
-            // - decisionMatrix → (new DecisionMatrix block planned)
-            // - mathComparison group → Comparison block
-            // - ctaHeading + ctaBody → CTA block
-            // ─── Core Fields (kept) ─────────────────────────────────────────────
             // ─── Difficulty & Time ─────────────────────────────────────
             {
               name: 'difficultyLevel',
@@ -841,11 +894,7 @@ export const GuideArticles: CollectionConfig = {
               type: 'text',
               admin: { description: 'Auto-calculated from content length', readOnly: true },
             },
-            // ─── Relationships ──────────────────────────────────────────
-            // relatedArticles (relationship) — now in RelatedArticleLink block
-            // relatedGuides (relationship) — now in RelatedGuides block
             // ─── Tags ───────────────────────────────────────────────────
-            // NOTE: tags field has no block equivalent yet — kept as-is
             { name: 'tags', type: 'array', fields: [{ name: 'tag', type: 'text' }] },
           ],
         },
@@ -858,8 +907,8 @@ export const GuideArticles: CollectionConfig = {
             { name: 'monthlySearchVolume', type: 'number' },
             { name: 'currentRankingPosition', type: 'number' },
             { name: 'secondaryKeywords', type: 'array', fields: [{ name: 'keyword', type: 'text' }] },
-            { name: 'metaTitle', type: 'text', maxLength: 60 },
-            { name: 'metaDescription', type: 'textarea', maxLength: 160 },
+            { name: 'metaTitle', type: 'text' },
+            { name: 'metaDescription', type: 'textarea' },
             { name: 'canonicalUrl', type: 'text' },
             { name: 'socialHeadline', type: 'text' },
             { name: 'socialDescription', type: 'textarea' },
@@ -876,8 +925,6 @@ export const GuideArticles: CollectionConfig = {
         {
           label: 'AEO and AI Citation',
           fields: [
-            // Note: directAnswer, keyStatistics, faqSection, expertQuotes, termDefinitions
-            // are now in their respective blocks in the Content tab
             { name: 'aiCitationSummary', type: 'textarea', admin: { description: 'Summary for AI citations and references' } },
             { name: 'primaryAiQuery', type: 'text', admin: { description: 'Primary AI/voice search query this article answers' } },
           ],
@@ -1168,224 +1215,6 @@ export const GuideArticles: CollectionConfig = {
                   options: [{ label: 'Remove', value: 'remove' }, { label: 'Optimize', value: 'optimize' }, { label: 'Maintain', value: 'maintain' }, { label: 'Expand', value: 'expand' }],
                   admin: { readOnly: true },
                 },
-              ],
-            },
-          ],
-        },
-        // ─── Search Engine Submission ───────────────────────────────────
-        {
-          label: 'Search Engine Submission',
-          fields: [
-            {
-              name: 'searchEngineSubmission',
-              type: 'group',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'googleSubmitted', type: 'checkbox' },
-                { name: 'googleSubmissionTime', type: 'date' },
-                { name: 'googleSubmissionMessage', type: 'textarea' },
-                { name: 'bingSubmitted', type: 'checkbox' },
-                { name: 'bingSubmissionTime', type: 'date' },
-                { name: 'bingSubmissionMessage', type: 'textarea' },
-              ],
-            },
-          ],
-        },
-        // ─── Entity Extraction ──────────────────────────────────────────
-        {
-          label: 'Entity Extraction',
-          fields: [
-            { name: 'primaryEntity', type: 'text' },
-            { name: 'entityDefinition', type: 'textarea' },
-            { name: 'relatedEntities', type: 'array', fields: [{ name: 'entity', type: 'text' }] },
-            {
-              name: 'entityImportance',
-              type: 'select',
-              options: [{ label: 'Critical', value: 'critical' }, { label: 'Important', value: 'important' }, { label: 'Supporting', value: 'supporting' }],
-            },
-          ],
-        },
-        // ─── Content Validation ─────────────────────────────────────────
-        {
-          label: 'Content Validation',
-          fields: [
-            {
-              name: 'contentValidation',
-              type: 'group',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'contentLength', type: 'number', admin: { readOnly: true } },
-                { name: 'h2Count', type: 'number', admin: { readOnly: true } },
-                { name: 'h3Count', type: 'number', admin: { readOnly: true } },
-                { name: 'faqCount', type: 'number', admin: { readOnly: true } },
-                {
-                  name: 'validationStatus',
-                  type: 'select',
-                  options: [{ label: 'Pass', value: 'pass' }, { label: 'Warning', value: 'warning' }, { label: 'Fail', value: 'fail' }],
-                  admin: { readOnly: true },
-                },
-                { name: 'validationErrors', type: 'array', admin: { readOnly: true }, fields: [{ name: 'error', type: 'text' }] },
-              ],
-            },
-          ],
-        },
-        // ─── Internal Linking ───────────────────────────────────────────
-        {
-          label: 'Internal Linking',
-          fields: [
-            {
-              name: 'internalLinks',
-              type: 'array',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'linkedArticleId', type: 'relationship', relationTo: 'guideArticles' },
-                { name: 'anchorText', type: 'text' },
-                { name: 'relevanceScore', type: 'number' },
-              ],
-            },
-          ],
-        },
-        // ─── Content Freshness ──────────────────────────────────────────
-        {
-          label: 'Content Freshness',
-          fields: [
-            {
-              name: 'contentFreshness',
-              type: 'group',
-              fields: [
-                { name: 'lastReviewDate', type: 'date' },
-                { name: 'nextReviewDue', type: 'date', admin: { readOnly: true } },
-                { name: 'daysOld', type: 'number', admin: { readOnly: true } },
-                {
-                  name: 'freshnessStatus',
-                  type: 'select',
-                  options: [{ label: 'Fresh (0-30 days)', value: 'fresh' }, { label: 'Current (31-90 days)', value: 'current' }, { label: 'Aging (91-180 days)', value: 'aging' }, { label: 'Stale (180+ days)', value: 'stale' }],
-                  admin: { readOnly: true },
-                },
-              ],
-            },
-          ],
-        },
-        // ─── Featured Snippet Optimization ──────────────────────────────
-        {
-          label: 'Featured Snippet Optimization',
-          fields: [
-            {
-              name: 'featuredSnippetOptimization',
-              type: 'group',
-              fields: [
-                {
-                  name: 'targetSnippetType',
-                  type: 'select',
-                  options: [{ label: 'Paragraph', value: 'paragraph' }, { label: 'List', value: 'list' }, { label: 'Table', value: 'table' }, { label: 'Definition', value: 'definition' }],
-                },
-                { name: 'snippetContent', type: 'textarea' },
-                { name: 'currentSnippetRank', type: 'number' },
-                { name: 'snippetOptimizationScore', type: 'number', admin: { readOnly: true } },
-              ],
-            },
-          ],
-        },
-        // ─── Backlink Tracking ──────────────────────────────────────────
-        {
-          label: 'Backlink Tracking',
-          fields: [
-            {
-              name: 'backlinkTracking',
-              type: 'group',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'totalBacklinks', type: 'number' },
-                { name: 'highQualityBacklinks', type: 'number' },
-                { name: 'referringDomains', type: 'number' },
-                { name: 'backlinkGrowth', type: 'number' },
-                { name: 'backlinkLastUpdated', type: 'date' },
-              ],
-            },
-          ],
-        },
-        // ─── Keyword Rankings ───────────────────────────────────────────
-        {
-          label: 'Keyword Rankings',
-          fields: [
-            {
-              name: 'keywordRankings',
-              type: 'array',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'keyword', type: 'text' },
-                { name: 'currentRank', type: 'number' },
-                { name: 'previousRank', type: 'number' },
-                { name: 'rankChange', type: 'number' },
-                { name: 'searchVolume', type: 'number' },
-                { name: 'lastUpdated', type: 'date' },
-              ],
-            },
-          ],
-        },
-        // ─── Traffic & Engagement ───────────────────────────────────────
-        {
-          label: 'Traffic & Engagement',
-          fields: [
-            {
-              name: 'trafficMetrics',
-              type: 'group',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'monthlyVisitors', type: 'number' },
-                { name: 'bounceRate', type: 'number' },
-                { name: 'averageTimeOnPage', type: 'number' },
-                { name: 'scrollDepth', type: 'number' },
-                {
-                  name: 'trafficSources',
-                  type: 'array',
-                  fields: [
-                    { name: 'source', type: 'text' },
-                    { name: 'visitors', type: 'number' },
-                    { name: 'percentage', type: 'number' },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        // ─── AI Citation Tracking ───────────────────────────────────────
-        {
-          label: 'AI Citation Tracking',
-          fields: [
-            {
-              name: 'aiCitationTracking',
-              type: 'group',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'claudeCitations', type: 'number' },
-                { name: 'chatgptCitations', type: 'number' },
-                { name: 'perplexityCitations', type: 'number' },
-                { name: 'totalAiCitations', type: 'number', admin: { readOnly: true } },
-                { name: 'shareOfVoice', type: 'number', admin: { readOnly: true } },
-                { name: 'lastUpdated', type: 'date' },
-              ],
-            },
-          ],
-        },
-        // ─── Conversion Funnel ───────────────────────────────────────────
-        {
-          label: 'Conversion Funnel',
-          fields: [
-            {
-              name: 'conversionFunnel',
-              type: 'group',
-              admin: { readOnly: true },
-              fields: [
-                { name: 'uniqueVisitors', type: 'number' },
-                { name: 'formViews', type: 'number' },
-                { name: 'formSubmissions', type: 'number' },
-                { name: 'emailCaptures', type: 'number' },
-                { name: 'confirmedLeads', type: 'number' },
-                { name: 'confirmedCases', type: 'number' },
-                { name: 'visitorToFormRate', type: 'number', admin: { readOnly: true } },
-                { name: 'formToLeadRate', type: 'number', admin: { readOnly: true } },
-                { name: 'leadToCaseRate', type: 'number', admin: { readOnly: true } },
               ],
             },
           ],

@@ -16,12 +16,12 @@ const SITE_LINKS = [
   { name: 'Markets', url: '/markets' },
   { name: 'Personal Injury Leads', url: '/personal-injury-leads' },
   { name: 'Injured', url: '/injured' },
-  { name: 'All Guides', url: '/guide' },
-  { name: 'Guide Category', url: '/guide/[category]' },
-  { name: 'Individual Guide', url: '/guide/[category]/[slug]' },
-  { name: 'State Guide', url: '/guide/states/[state]' },
-  { name: 'City Guide', url: '/guide/cities/[city]' },
-  { name: 'FAQ Guide', url: '/guide/faq/[slug]' },
+  { name: 'All Guides', url: '/guides' },
+  { name: 'Guide Category', url: '/guides/[category]' },
+  { name: 'Individual Guide', url: '/guides/[category]/[slug]' },
+  { name: 'State Guide', url: '/guides/states/[state]' },
+  { name: 'City Guide', url: '/guides/cities/[city]' },
+  { name: 'FAQ Guide', url: '/guides/faq/[slug]' },
 ]
 
 const run = async () => {

@@ -43,7 +43,7 @@ export function Nav() {
           <Link className="nav-link" href="/injuries">
             Injuries
           </Link>
-          <Link className="nav-link" href="/guide">
+          <Link className="nav-link" href="/guides">
             Guides
           </Link>
           <Link className="nav-link" href="/accidents/car-accident">
@@ -91,7 +91,7 @@ export function Nav() {
           <Link href="/injuries" onClick={close}>
             Injuries Hub
           </Link>
-          <Link href="/guide" onClick={close}>
+          <Link href="/guides" onClick={close}>
             Guides Hub
           </Link>
           <Link href="/accidents/car-accident" onClick={close}>

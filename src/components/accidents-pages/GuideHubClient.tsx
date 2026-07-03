@@ -1,24 +1,29 @@
+'use client'
+
 import { ClaimRoadmap } from '@/components/accidents-widgets/ClaimRoadmap'
 import { TakeHome } from '@/components/accidents-widgets/TakeHome'
 import { CTABand } from '@/components/AccidentsCTABand'
 import { FAQ } from '@/components/AccidentsFAQ'
 import { JsonLd } from '@/components/AccidentsJsonLd'
+import { ArticleOverlays } from '@/components/article/ArticleOverlays'
 import { Capsule } from '@/components/article/Capsule'
 import { Expert } from '@/components/article/Expert'
 import { Icon } from '@/components/Icon'
-import { guidePillars } from '@/data'
-import { article, breadcrumb, faqSchema, orgGraph, type Faq } from '@/lib/accidents-schema'
-import type { Metadata } from 'next'
+import { article, breadcrumb, faqSchema, orgGraph } from '@/lib/accidents-schema'
 import Link from 'next/link'
 
-export const metadata: Metadata = {
-  title: 'The Complete Guide to Injury Claims | CasePort',
-  description:
-    'National, attorney-reviewed guides to every accident type and every step of an injury claim.',
-  alternates: { canonical: '/guide' },
+type Category = {
+  id: string
+  title: string
+  slug: string
+  description?: string
+  heroTitle?: string
+  heroSubtitle?: string
+  metaDescription?: string
+  directAnswer?: string
 }
 
-const faqs: Faq[] = [
+const faqs = [
   {
     q: 'What is the difference between the Guide, Accidents, and Injuries sections?',
     a: 'The Guide is the national education layer — plain-English explainers of each accident type and each step of a claim. The Accidents hub covers your state\'s specific negligence rules, deadlines, and city-level guidance. The Injuries hub covers the medical side — symptoms, treatment, and recovery. Together they answer "what happened," "where it happened," and "what it did to me."',
@@ -33,9 +38,10 @@ const faqs: Faq[] = [
   },
 ]
 
-export default function GuideHub() {
+export function GuideHubClient({ categories }: { categories: Category[] }) {
   return (
     <>
+      {/* Hero */}
       <section className="hero">
         <div className="container-5">
           <div className="eyebrow center" style={{ marginBottom: '1rem' }}>
@@ -94,70 +100,44 @@ export default function GuideHub() {
 
       <ClaimRoadmap bg="bg-cream" />
 
+      {/* Category Grid */}
       <section className="section bg-cream">
         <div className="container">
           <div className="section-head">
             <h2 className="section-h">Browse the Guides</h2>
             <p className="section-sub">
-              Twelve accident pillars, five claim-process guides, and a plain-language glossary —
-              each a complete national resource.
+              Accident categories — each a complete national resource pulled from{' '}
+              <strong>guideCategories</strong>.
             </p>
           </div>
           <div className="guide-grid">
-            {guidePillars.map((p) => (
-              <Link key={p.slug} href={`/guide/${p.slug}`} className="guide-card r">
+            {categories.map((cat) => (
+              <Link key={cat.id} href={`/guides/${cat.slug}`} className="guide-card r">
                 <div className="guide-card-top">
                   <div className="guide-card-title">
                     <span className="dot dot-gold"></span>
-                    <h3>{p.name}</h3>
+                    <h3>{cat.title}</h3>
                   </div>
                   <span className="scope scope-both">National</span>
                 </div>
                 <p className="guide-card-path">
-                  /guide/<b>{p.slug}</b>
+                  /guides/<b>{cat.slug}</b>
                 </p>
-                <div className="tags" style={{ margin: '.5rem 0 .75rem' }}>
-                  {p.tags.map((t) => (
-                    <span key={t} className={'tag tag-' + t.toLowerCase()}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <p className="guide-card-desc">{p.short}</p>
+                <p className="guide-card-desc">
+                  {cat.metaDescription || cat.description || cat.directAnswer || ''}
+                </p>
                 <span className="card-link" style={{ marginTop: '.9rem' }}>
                   Read the guide
                 </span>
               </Link>
             ))}
-            <Link href="/guide/glossary" className="guide-card r">
-              <div className="guide-card-top">
-                <div className="guide-card-title">
-                  <span className="dot dot-gold"></span>
-                  <h3>Personal Injury Glossary</h3>
-                </div>
-                <span className="scope scope-both">National</span>
-              </div>
-              <p className="guide-card-path">
-                /guide/<b>glossary</b>
-              </p>
-              <div className="tags" style={{ margin: '.5rem 0 .75rem' }}>
-                <span className="tag tag-aeo">AEO</span>
-                <span className="tag tag-voice">VOICE</span>
-              </div>
-              <p className="guide-card-desc">
-                Every claim term in plain English. AI &quot;define this&quot; bait with
-                DefinedTermSet schema.
-              </p>
-              <span className="card-link" style={{ marginTop: '.9rem' }}>
-                Open the glossary
-              </span>
-            </Link>
           </div>
         </div>
       </section>
 
       <TakeHome bg="bg-white" />
 
+      {/* Go Deeper */}
       <section className="section bg-white">
         <div className="container-5">
           <div className="section-head center">
@@ -206,6 +186,8 @@ export default function GuideHub() {
         btn="Get Free Case Review"
       />
 
+      <ArticleOverlays />
+
       <JsonLd
         data={[
           article({
@@ -216,7 +198,7 @@ export default function GuideHub() {
           faqSchema(faqs),
           breadcrumb([
             { name: 'Home', url: '/' },
-            { name: 'Guide', url: '/guide' },
+            { name: 'Guides', url: '/guides' },
           ]),
           ...orgGraph(),
         ]}

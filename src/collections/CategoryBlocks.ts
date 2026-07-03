@@ -4,9 +4,25 @@ const role = (r: string, text: string) => `[${r.toUpperCase()}] ${text}`
 
 // ─── Category Page Block Library ──────────────────────────────────────────────
 
+const CategoryDirectAnswer: Block = {
+  slug: 'categoryDirectAnswer',
+  labels: { singular: 'Direct Answer', plural: 'Direct Answers' },
+  fields: [
+    { name: 'heading', type: 'text', label: 'Capsule Heading' },
+    { name: 'text', type: 'textarea', label: 'Lead Text', admin: { description: 'Capsule lead text shown below the heading.' } },
+    {
+      name: 'author',
+      type: 'relationship',
+      relationTo: 'authors',
+      label: 'Author',
+      admin: { description: 'Select the author shown in the Capsule review line.' },
+    },
+  ],
+}
+
 const CategoryQuickAnswerStats: Block = {
   slug: 'categoryQuickAnswerStats',
-  labels: { singular: 'Quick Answer Stats', plural: 'Quick Answer Stats' },
+  labels: { singular: 'Stat Tiles', plural: 'Stat Tiles' },
   fields: [
     { name: 'average', type: 'text', label: 'Average Settlement' },
     { name: 'successRate', type: 'text', label: 'Success Rate' },
@@ -15,15 +31,74 @@ const CategoryQuickAnswerStats: Block = {
   ],
 }
 
-const CategoryCredibility: Block = {
-  slug: 'categoryCredibility',
-  labels: { singular: 'Credibility / Track Record', plural: 'Credibility / Track Record' },
+const CategoryKeyTakeaways: Block = {
+  slug: 'categoryKeyTakeaways',
+  labels: { singular: 'Key Takeaways', plural: 'Key Takeaways' },
   fields: [
-    { name: 'recoveredAmount', type: 'text', label: 'Total Recovered (e.g. $1.8B+)' },
-    { name: 'successRate', type: 'text', label: 'Success Rate %' },
-    { name: 'casesWon', type: 'text', label: 'Cases Won (e.g. 4,500+)' },
-    { name: 'avgSettlement', type: 'text', label: 'Avg Settlement' },
-    { name: 'recoveryNote', type: 'text', label: 'Recovery Note (e.g. "5x more than going it alone")' },
+    {
+      name: 'items',
+      type: 'array',
+      label: 'Takeaway Items',
+      fields: [
+        { name: 'fact', type: 'text', required: true, label: 'Fact' },
+      ],
+    },
+  ],
+}
+
+const CategoryProseSections: Block = {
+  slug: 'categoryProseSections',
+  labels: { singular: 'Prose Sections', plural: 'Prose Sections' },
+  fields: [
+    {
+      name: 'sections',
+      type: 'array',
+      label: 'Sections',
+      fields: [
+        { name: 'title', type: 'text', required: true, label: 'Section Title' },
+        {
+          name: 'paras',
+          type: 'array',
+          label: 'Paragraphs',
+          fields: [
+            { name: 'text', type: 'textarea', required: true, label: 'Paragraph Text' },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
+const CategoryFAQ: Block = {
+  slug: 'categoryFAQ',
+  labels: { singular: 'FAQ Accordion', plural: 'FAQ Accordions' },
+  fields: [
+    {
+      name: 'items',
+      type: 'array',
+      fields: [
+        { name: 'question', type: 'text', required: true },
+        { name: 'answer', type: 'textarea', required: true },
+      ],
+    },
+  ],
+}
+
+const CategoryStatuteDeadlines: Block = {
+  slug: 'categoryStatuteDeadlines',
+  labels: { singular: 'Statute of Limitations', plural: 'Statutes of Limitations' },
+  fields: [
+    { name: 'description', type: 'textarea', label: 'Section Description' },
+    {
+      name: 'byState',
+      type: 'array',
+      label: 'Deadline by State',
+      fields: [
+        { name: 'state', type: 'text', required: true },
+        { name: 'years', type: 'number', label: 'Years' },
+        { name: 'notes', type: 'text', label: 'Notes' },
+      ],
+    },
   ],
 }
 
@@ -50,101 +125,85 @@ const CategoryWhyImportant: Block = {
   ],
 }
 
-const CategoryTestimonials: Block = {
-  slug: 'categoryTestimonials',
-  labels: { singular: 'Client Testimonials', plural: 'Client Testimonials' },
+const CategorySectionTOC: Block = {
+  slug: 'categorySectionTOC',
+  labels: { singular: 'Section TOC', plural: 'Section TOCs' },
+  fields: [],
+}
+
+const CategoryRelatedGuides: Block = {
+  slug: 'categoryRelatedGuides',
+  labels: { singular: 'Related Guide Articles', plural: 'Related Guide Articles' },
   fields: [
     {
-      name: 'items',
+      name: 'articles',
+      type: 'relationship',
+      relationTo: 'guideArticles',
+      hasMany: true,
+      label: 'Guide Articles',
+      admin: { description: 'Select the Guide New articles to display.' },
+    },
+  ],
+}
+
+const CategoryTakeHome: Block = {
+  slug: 'categoryTakeHome',
+  labels: { singular: 'Take the Next Step', plural: 'Take the Next Step' },
+  fields: [],
+}
+
+const CategoryHowWeKeepAccurate: Block = {
+  slug: 'categoryHowWeKeepAccurate',
+  labels: { singular: 'How We Keep This Accurate', plural: 'How We Keep This Accurate' },
+  fields: [
+    {
+      name: 'author',
+      type: 'relationship',
+      relationTo: 'authors',
+      label: 'Author',
+    },
+    {
+      name: 'detail',
+      type: 'textarea',
+      label: 'Detail',
+      admin: { description: 'Summary or detail text shown with the author.' },
+    },
+  ],
+}
+
+const CategorySources: Block = {
+  slug: 'categorySources',
+  labels: { singular: 'Sources & Citations', plural: 'Sources & Citations' },
+  fields: [
+    {
+      name: 'citeTitle',
+      type: 'text',
+      label: 'Cite Title',
+      admin: { description: 'Title shown in the citation (e.g. "Car Accident Guide").' },
+    },
+    {
+      name: 'sources',
       type: 'array',
+      label: 'Sources',
       fields: [
-        { name: 'name', type: 'text' },
-        { name: 'location', type: 'text' },
-        { name: 'settlement', type: 'text', label: 'Settlement / Award' },
-        { name: 'quote', type: 'textarea' },
+        { name: 'name', type: 'text', required: true, label: 'Source Name' },
+        { name: 'url', type: 'text', required: true, label: 'Source URL' },
       ],
     },
   ],
 }
 
-const CategorySettlementBreakdown: Block = {
-  slug: 'categorySettlementBreakdown',
-  labels: { singular: 'Settlement Breakdown', plural: 'Settlement Breakdowns' },
+const CategoryExploreMore: Block = {
+  slug: 'categoryExploreMore',
+  labels: { singular: 'Explore More Guides', plural: 'Explore More Guides' },
   fields: [
     {
-      name: 'items',
-      type: 'array',
-      fields: [
-        { name: 'injuryType', type: 'text' },
-        { name: 'settlementAmount', type: 'text', label: 'Average Settlement' },
-        { name: 'minAmount', type: 'text', label: 'Min Amount' },
-        { name: 'maxAmount', type: 'text', label: 'Max Amount' },
-        { name: 'recoveryTime', type: 'text', label: 'Recovery Time' },
-      ],
-    },
-  ],
-}
-
-const CategoryAttorneyComparison: Block = {
-  slug: 'categoryAttorneyComparison',
-  labels: { singular: 'Attorney Comparison', plural: 'Attorney Comparisons' },
-  fields: [
-    {
-      name: 'items',
-      type: 'array',
-      fields: [
-        { name: 'label', type: 'text', label: 'Factor / Label' },
-        { name: 'withoutAttorney', type: 'textarea', label: 'Going It Alone' },
-        { name: 'withAttorney', type: 'textarea', label: 'With Legal Representation' },
-      ],
-    },
-  ],
-}
-
-const CategoryStatuteDeadlines: Block = {
-  slug: 'categoryStatuteDeadlines',
-  labels: { singular: 'Statute of Limitations', plural: 'Statutes of Limitations' },
-  fields: [
-    { name: 'description', type: 'textarea', label: 'Section Description' },
-    {
-      name: 'byState',
-      type: 'array',
-      label: 'Deadline by State',
-      fields: [
-        { name: 'state', type: 'text', required: true },
-        { name: 'years', type: 'number', label: 'Years' },
-        { name: 'notes', type: 'text', label: 'Notes' },
-      ],
-    },
-  ],
-}
-
-const CategoryFAQ: Block = {
-  slug: 'categoryFAQ',
-  labels: { singular: 'FAQ Accordion', plural: 'FAQ Accordions' },
-  fields: [
-    {
-      name: 'items',
-      type: 'array',
-      fields: [
-        { name: 'question', type: 'text', required: true },
-        { name: 'answer', type: 'textarea', required: true },
-      ],
-    },
-  ],
-}
-
-const CategoryPeopleAlsoAsk: Block = {
-  slug: 'categoryPeopleAlsoAsk',
-  labels: { singular: 'People Also Ask', plural: 'People Also Ask' },
-  fields: [
-    {
-      name: 'items',
-      type: 'array',
-      fields: [
-        { name: 'question', type: 'text', required: true },
-        { name: 'answer', type: 'textarea', required: true },
-      ],
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'guideCategories',
+      hasMany: true,
+      label: 'Categories to Show',
+      admin: { description: 'Select which category guides to display in this section.' },
     },
   ],
 }
@@ -152,13 +211,17 @@ const CategoryPeopleAlsoAsk: Block = {
 // ─── Block Registry ────────────────────────────────────────────────────────────
 
 export const CATEGORY_BLOCKS: Block[] = [
+  CategoryDirectAnswer,
   CategoryQuickAnswerStats,
-  CategoryCredibility,
-  CategoryWhyImportant,
-  CategoryTestimonials,
-  CategorySettlementBreakdown,
-  CategoryAttorneyComparison,
-  CategoryStatuteDeadlines,
+  CategoryKeyTakeaways,
+  CategoryProseSections,
   CategoryFAQ,
-  CategoryPeopleAlsoAsk,
+  CategoryStatuteDeadlines,
+  CategoryWhyImportant,
+  CategorySectionTOC,
+  CategoryRelatedGuides,
+  CategoryTakeHome,
+  CategoryHowWeKeepAccurate,
+  CategoryExploreMore,
+  CategorySources,
 ]
