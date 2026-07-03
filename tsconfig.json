@@ -34,7 +34,6 @@
   "exclude": [
     "caseport-insights-complete",
     "caseport-subguide-source",
-    "caseport-nextjs",
     "node_modules",
     "HomePage",
     "ForLawFirm",

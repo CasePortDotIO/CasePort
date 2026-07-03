@@ -1,5 +1,5 @@
 const fs = require('fs');
-const data = fs.readFileSync('src/app/(frontend)/guides/[category]/[slug]/GuideArticleClient.tsx', 'utf8');
+const data = fs.readFileSync('src/app/(frontend)/guide/[category]/[slug]/GuideArticleClient.tsx', 'utf8');
 let open = 0, close = 0;
 let inStr = false, strChar = '';
 for(let i=0;i<data.length;i++){
