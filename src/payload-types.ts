@@ -2292,7 +2292,8 @@ export interface Event {
     | 'SpeedCallbackNotified'
     | 'FirmResponded'
     | 'SlaBreached'
-    | 'DecayInterrupt';
+    | 'DecayInterrupt'
+    | 'OutcomeRequested';
   aggregateType: string;
   aggregateId: string;
   /**

@@ -99,6 +99,7 @@ export const EVENT_TYPES = [
   'FirmResponded',
   'SlaBreached',
   'DecayInterrupt',
+  'OutcomeRequested',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]

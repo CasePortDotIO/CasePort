@@ -155,18 +155,27 @@ export function createIntelligenceService(deps: IntelligenceDeps) {
     feesPaidCents: number
     signedCases: number
     costPerSignedCaseCents: number | null
+    reported: boolean
+    /** True when the firm has paid for deliveries but reported no outcomes, so
+     * the number cannot be computed. The reciprocity gate: reporting unlocks it. */
+    locked: boolean
   }> {
     const entries = await deps.ledger.listByFirm(firmId)
     const feesPaidCents = entries
       .filter((e) => e.reason === 'delivery-debit')
       .reduce((s, e) => s + Math.abs(e.amountCents), 0)
     const outcomes = await deps.outcomes.listByFirm(firmId)
+    const reported = outcomes.length > 0
     const signedCases = outcomes.filter((o) => o.result === 'retained' || o.result === 'settled').length
     return {
       firmId,
       feesPaidCents,
       signedCases,
       costPerSignedCaseCents: signedCases > 0 ? Math.round(feesPaidCents / signedCases) : null,
+      reported,
+      // Their true cost per signed case is unknowable until they tell us what
+      // signed. Feeding outcomes unlocks the number they came for.
+      locked: feesPaidCents > 0 && !reported,
     }
   }
 

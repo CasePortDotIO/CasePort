@@ -7,6 +7,7 @@ import { createAgentService } from '../services/AgentService'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
 import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
+import { outcomeCaptureUrl } from '../lib/outcomeLink'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
 import { deliverDossierWorkflow, reconcileWalletsWorkflow, releaseHeldWorkflow } from './workflows'
@@ -134,6 +135,43 @@ export const deliveryAgents = inngest.createFunction(
     // Decay interrupt: deeper in the decay curve, re engage if still unworked.
     await s.sleep('await-decay-window', '72h')
     await s.run('check-decay', () => agents.checkDecay({ deliveryId: data.deliveryId }))
+
+    // Signed case feedback loop: a couple of days later, if the firm still has
+    // not told us what happened, ask, with one tap links. Reciprocity, not a
+    // nag: reporting is what unlocks their true cost per signed case (W4, never
+    // tied to the fee). Skipped silently once an outcome exists.
+    await s.sleep('await-outcome-window', '2d')
+    await s.run('request-outcome', async () => {
+      if (await deps.outcomes.hasOutcome(data.deliveryId)) return { requested: false }
+      const delivery = await deps.deliveries.get(data.deliveryId)
+      const firm = delivery ? await deps.firms.get(delivery.firmId) : null
+      if (!delivery || !firm) return { requested: false }
+      const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'
+      const signed = outcomeCaptureUrl(base, delivery.id, 'retained')
+      const working = outcomeCaptureUrl(base, delivery.id, 'still-evaluating')
+      const declined = outcomeCaptureUrl(base, delivery.id, 'not-retained')
+      const body =
+        `CasePort: did your delivered personal injury case sign? One tap sharpens your true cost per signed case.\n\n` +
+        `It signed: ${signed}\nStill working it: ${working}\nIt did not sign: ${declined}`
+      const sent: string[] = []
+      if (firm.email) {
+        const r = await deps.notify.email({ to: firm.email, subject: 'Did this case sign? One tap', body })
+        if (r.sent) sent.push('email')
+      }
+      if (firm.phone) {
+        const r = await deps.notify.sms({ to: firm.phone, body })
+        if (r.sent) sent.push('sms')
+      }
+      await deps.events.append({
+        eventType: 'OutcomeRequested',
+        aggregateType: 'delivery',
+        aggregateId: delivery.id,
+        actor: 'agent',
+        occurredAt: deps.clock.nowIso(),
+        payload: { firmId: firm.id, channels: sent },
+      })
+      return { requested: true, channels: sent }
+    })
 
     return { deliveryId: data.deliveryId }
   },
