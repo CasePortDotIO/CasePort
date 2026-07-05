@@ -8,6 +8,8 @@ import { createIntakeService } from '../services/IntakeService'
 import { createDossierAssemblyService } from '../services/DossierAssemblyService'
 import { createPayloadAssemblyDeps } from '../services/adapters/payloadAssembly'
 import { createEvidenceCoachingAgent } from '../agents/EvidenceCoachingAgent'
+import { createAbandonedIntakeRecoveryAgent } from '../agents/AbandonedIntakeRecoveryAgent'
+import { createPayloadRecoveryDeps } from '../services/adapters/payloadRecovery'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
 import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
@@ -211,6 +213,22 @@ export const coachEvidence = inngest.createFunction(
   },
 )
 
+/**
+ * The Abandoned Intake Recovery Agent (AGENTS.md Section 4.4). A scheduled scan
+ * that re engages claimants who started an intake and did not finish. It only
+ * ever touches existing, incomplete sessions on a channel where consent was
+ * captured, so it never cold contacts anyone (ABA Formal Opinion 501, TCPA). No
+ * message carries legal evaluation; the send is guarded. Bounded per session.
+ */
+export const recoverAbandonedIntakes = inngest.createFunction(
+  { id: 'recover-abandoned-intakes', triggers: [{ cron: '0 */4 * * *' }] },
+  async ({ step }) => {
+    const payload = await getPayload({ config })
+    const agent = createAbandonedIntakeRecoveryAgent(createPayloadRecoveryDeps(payload))
+    return (step as InngestStep).run('recover-stale', () => agent.recoverStale())
+  },
+)
+
 export const inngestFunctions = [
   deliverDossier,
   releaseHeldQueue,
@@ -218,4 +236,5 @@ export const inngestFunctions = [
   recalibrateScps,
   deliveryAgents,
   coachEvidence,
+  recoverAbandonedIntakes,
 ]

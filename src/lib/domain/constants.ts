@@ -87,6 +87,7 @@ export const EVENT_TYPES = [
   'IntakeValidated',
   'ProtectionPlanGenerated',
   'StatusViewed',
+  'AbandonedIntakeNudged',
   'GeographicRouteResolved',
   'DossierAssembled',
   'DossierDelivered',

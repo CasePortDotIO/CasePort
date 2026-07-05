@@ -2281,6 +2281,7 @@ export interface Event {
     | 'IntakeValidated'
     | 'ProtectionPlanGenerated'
     | 'StatusViewed'
+    | 'AbandonedIntakeNudged'
     | 'GeographicRouteResolved'
     | 'DossierAssembled'
     | 'DossierDelivered'
