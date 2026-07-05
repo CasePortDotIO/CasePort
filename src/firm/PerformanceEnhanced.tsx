@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { NeonCard, StatBox } from '@/firm/CasePortComponentsEnhanced';
 import ExportMenu from '@/firm/ExportMenu';
+import RevenueAnalytics from '@/firm/RevenueAnalytics';
 
 export default function PerformanceEnhanced() {
   const chartData = [
@@ -54,6 +55,11 @@ export default function PerformanceEnhanced() {
 
       {/* Content */}
       <div className="p-8 space-y-8">
+        {/* Revenue over time, moved here from the dashboard cockpit. */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <RevenueAnalytics />
+        </motion.div>
+
         {/* Response Time Trend */}
         <motion.div
           variants={containerVariants}

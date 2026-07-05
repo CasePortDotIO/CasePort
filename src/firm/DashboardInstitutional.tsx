@@ -1,14 +1,19 @@
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
-import { ArrowRight, ArrowUpRight, ArrowDownRight, Phone, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ArrowDownRight, Phone, ShieldCheck, LineChart, TrendingUp, CreditCard, Trophy } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/firm/useAuth';
-import GamificationWidget from '@/firm/GamificationWidget';
-import BenchmarkingWidget from '@/firm/BenchmarkingWidget';
-import WalletReplenishmentWidget from '@/firm/WalletReplenishmentWidget';
 import BloombergClock from '@/firm/BloombergClock';
-import RevenueAnalytics from '@/firm/RevenueAnalytics';
+
+/* Where the depth lives. The dashboard is the cockpit; each of these opens a
+ * dedicated page carrying the detail that used to crowd the landing screen. */
+const wayfinding = [
+  { to: '/performance', icon: LineChart, label: 'Performance', desc: 'ROI, cost per signed case, response trends' },
+  { to: '/analytics', icon: TrendingUp, label: 'Analytics', desc: 'Cohorts, funnel, and channel attribution' },
+  { to: '/wallet', icon: CreditCard, label: 'Wallet', desc: 'Pre-funded balance and full ledger' },
+  { to: '/leaderboard', icon: Trophy, label: 'Standing', desc: 'Your market rank and benchmarks' },
+] as const;
 
 /*
  * Calibrated semantic palette. Kept separate from the brand teal so meaning
@@ -296,35 +301,34 @@ export default function DashboardInstitutional() {
           Every figure here traces to your ledger and your market. Nothing is estimated, nothing is shared.
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.44 }}>
-          <RevenueAnalytics />
+        {/* Wayfinding. The depth lives on its own pages; a first time partner is
+            shown exactly where, never made to hunt. This is the whole cockpit. */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.46 }}>
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-foreground">Go deeper</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">Everything else is one click away</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {wayfinding.map((w) => {
+              const Icon = w.icon;
+              return (
+                <button
+                  key={w.to}
+                  onClick={() => navigate(w.to)}
+                  className="text-left rounded-xl p-5 border border-white/[0.08] hover:border-white/20 hover:-translate-y-0.5 transition-all group"
+                  style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.032), rgba(255,255,255,0.008))' }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <Icon className="w-5 h-5" style={{ color: TEAL }} />
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                  <div className="text-sm font-semibold text-foreground">{w.label}</div>
+                  <div className="text-xs text-muted-foreground mt-1 leading-relaxed">{w.desc}</div>
+                </button>
+              );
+            })}
+          </div>
         </motion.div>
-
-        <div className="space-y-12 mt-12">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <div className="mb-5">
-              <h2 className="text-lg font-semibold text-foreground">Market comparison</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">How you compare to market averages</p>
-            </div>
-            <BenchmarkingWidget />
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.58 }}>
-            <div className="mb-5">
-              <h2 className="text-lg font-semibold text-foreground">Wallet &amp; billing</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Manage your pre-funded wallet</p>
-            </div>
-            <WalletReplenishmentWidget />
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.66 }}>
-            <div className="mb-5">
-              <h2 className="text-lg font-semibold text-foreground">Your standing</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Where you rank in your market</p>
-            </div>
-            <GamificationWidget />
-          </motion.div>
-        </div>
       </div>
     </div>
   );

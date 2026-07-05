@@ -2,10 +2,12 @@ import { motion } from 'framer-motion';
 import { TrendingUp } from 'lucide-react';
 import LeaderboardComponent from '@/firm/LeaderboardComponent';
 import LeaderboardFilters from '@/firm/LeaderboardFilters';
+import GamificationWidget from '@/firm/GamificationWidget';
+import BenchmarkingWidget from '@/firm/BenchmarkingWidget';
 
 export default function LeaderboardPage() {
   return (
-    <div className="space-y-8">
+    <div className="p-8 space-y-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -22,6 +24,12 @@ export default function LeaderboardPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Your own standing first: the anchor before the full board. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <GamificationWidget />
+        <BenchmarkingWidget />
+      </div>
 
       {/* Filters */}
       <LeaderboardFilters />
