@@ -124,6 +124,7 @@ describe('handleIntakeSubmit (moat write path)', () => {
     harness.narrative = {
       reflectivePlayback: async () => ({ summary: '', points: [] }),
       evidenceCoaching: async () => '',
+      nextCaptureDirection: async () => ({ direction: '', done: true }),
       protectionPlan: async () => {
         throw new Error('narrative outage')
       },

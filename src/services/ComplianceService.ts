@@ -3,6 +3,11 @@ import {
   findEvaluativeLeaks,
   type EvaluativeLeak,
 } from '@/lib/compliance/assertNoEvaluativeLeak'
+import {
+  assertCompliantClaimantText,
+  findClaimantLanguageViolations,
+  type ClaimantLanguageViolation,
+} from '@/lib/compliance/claimantLanguage'
 
 /**
  * ComplianceService. Section 4 domain service.
@@ -29,5 +34,24 @@ export const ComplianceService = {
    */
   inspectForLeaks(payload: unknown): EvaluativeLeak[] {
     return findEvaluativeLeaks(payload)
+  },
+
+  /**
+   * Guard a piece of generated prose bound for a claimant surface (evidence
+   * coaching, reflective playback, protection plan). Throws on any W6 non
+   * recommendation phrasing or W2 legal evaluation. The prose complement to
+   * guardClaimantPayload: one guards structured fields, this guards free text.
+   */
+  guardClaimantText(text: string): void {
+    assertCompliantClaimantText(text)
+  },
+
+  /**
+   * Non throwing inspection of generated prose. Returns every claimant language
+   * violation found. Used by the coaching agent to decide whether to surface a
+   * generated direction or substitute a safe fallback, and by its eval harness.
+   */
+  inspectClaimantText(text: string): ClaimantLanguageViolation[] {
+    return findClaimantLanguageViolations(text)
   },
 }

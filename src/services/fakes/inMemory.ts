@@ -1,4 +1,5 @@
 import type { Dossier } from '@/lib/compliance/dossierProjections'
+import { nextEssentialCapture } from '@/lib/domain/captureChecklist'
 import type {
   ClaimantContact,
   IdGenerator,
@@ -127,6 +128,7 @@ export function createInMemoryHarness(
       }),
       evidenceCoaching: async () =>
         'Next, take a wide photo showing both vehicles and the intersection.',
+      nextCaptureDirection: async ({ inventory }) => nextEssentialCapture(inventory),
       protectionPlan: async () => [
         'Keep every medical appointment.',
         'Do not post about the accident.',

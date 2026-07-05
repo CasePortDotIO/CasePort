@@ -4,9 +4,12 @@ import { createRoutingService } from '../services/RoutingService'
 import { createDeliveryService } from '../services/DeliveryService'
 import { createIntelligenceService } from '../services/IntelligenceService'
 import { createAgentService } from '../services/AgentService'
+import { createIntakeService } from '../services/IntakeService'
+import { createEvidenceCoachingAgent } from '../agents/EvidenceCoachingAgent'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
 import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
+import { createPayloadIntakeDeps } from '../services/adapters/payload'
 import { outcomeCaptureUrl } from '../lib/outcomeLink'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
@@ -178,4 +181,34 @@ export const deliveryAgents = inngest.createFunction(
   },
 )
 
-export const inngestFunctions = [deliverDossier, releaseHeldQueue, reconcileWallets, recalibrateScps, deliveryAgents]
+/**
+ * The Evidence and Intake Coaching Agent (AGENTS.md Section 4.1), as a durable
+ * step. Triggered after each capture during intake. It observes the current
+ * capture inventory and returns the single next photographic or factual
+ * direction, guarded so nothing evaluative can reach the claimant (W2, W6). One
+ * durable step per capture: a retry re runs the same guarded decision, and the
+ * EvidenceCoachingShown event is emitted inside the service, so replays are
+ * clean. Bounded by the agent's step cap, timeout, and direction budget.
+ */
+export const coachEvidence = inngest.createFunction(
+  { id: 'evidence-coaching', retries: 2, triggers: [{ event: 'intake/coach.requested' }] },
+  async ({ event, step }) => {
+    const data = event.data as CaseportEvents['intake/coach.requested']
+    const payload = await getPayload({ config })
+    const intake = createIntakeService(createPayloadIntakeDeps(payload))
+    const agent = createEvidenceCoachingAgent({ coachNextCapture: intake.coachNextCapture })
+    const direction = await (step as InngestStep).run('coach-next', () =>
+      agent.coachOnce(data.sessionId, data.inventory),
+    )
+    return { sessionId: data.sessionId, direction }
+  },
+)
+
+export const inngestFunctions = [
+  deliverDossier,
+  releaseHeldQueue,
+  reconcileWallets,
+  recalibrateScps,
+  deliveryAgents,
+  coachEvidence,
+]

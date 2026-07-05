@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Dossier } from '@/lib/compliance/dossierProjections'
+import { nextEssentialCapture } from '@/lib/domain/captureChecklist'
 import type {
   ClaimantRepository,
   ConsentClient,
@@ -239,6 +240,9 @@ function resolveNarrativeClient(): NarrativeClient {
   return {
     reflectivePlayback: async () => ({ summary: '', points: [] }),
     evidenceCoaching: async () => '',
+    // No API key: coaching falls back to the deterministic, compliant checklist
+    // so a claimant is still guided through the essential captures.
+    nextCaptureDirection: async ({ inventory }) => nextEssentialCapture(inventory),
     protectionPlan: async () => [],
   }
 }

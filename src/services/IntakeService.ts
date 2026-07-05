@@ -1,7 +1,11 @@
 import type { Dossier } from '@/lib/compliance/dossierProjections'
+import { findClaimantLanguageViolations } from '@/lib/compliance/claimantLanguage'
+import { nextEssentialCapture } from '@/lib/domain/captureChecklist'
 import type { EventType } from '@/lib/domain/constants'
 import type {
   AttributionTuple,
+  CaptureDirection,
+  CaptureInventory,
   ClaimantContact,
   IntakeDeps,
   PlaybackResult,
@@ -78,6 +82,56 @@ export function createIntakeService(deps: IntakeDeps) {
       marketId: market?.id ?? null,
       marketSlug: market?.slug ?? null,
     }
+  }
+
+  /**
+   * The single guarded action of the Evidence and Intake Coaching Agent
+   * (AGENTS.md Section 4.1). Given everything captured so far, ask the narrative
+   * client for the next photographic or factual direction, then hold it to the
+   * Wall before it can reach the claimant.
+   *
+   * This is the compliance boundary, tested not trusted (W2, W6). Every
+   * generated direction is scanned for legal evaluation and non recommendation
+   * language. If the model drifts even once, the violating text is never
+   * surfaced: it is replaced with the next deterministic, compliant checklist
+   * direction, and the substitution is recorded on the event so the drift is
+   * auditable. The claimant only ever sees procedural direction.
+   *
+   * The action space of the agent is exactly this method (and the other
+   * IntakeService methods). It has no raw model, database, or network access.
+   */
+  async function coachNextCapture(
+    sessionId: string,
+    inventory: CaptureInventory,
+  ): Promise<CaptureDirection & { substituted: boolean }> {
+    let proposed: CaptureDirection
+    try {
+      proposed = await deps.narrative.nextCaptureDirection({ inventory })
+    } catch {
+      // Narrative outage: fall straight to the compliant checklist floor.
+      proposed = nextEssentialCapture(inventory)
+    }
+
+    const violations = findClaimantLanguageViolations(proposed.direction)
+    let direction = proposed
+    let substituted = false
+    if (violations.length > 0 || !proposed.direction.trim()) {
+      // Never surface a violating or empty direction. Substitute the safe floor.
+      direction = nextEssentialCapture(inventory)
+      substituted = true
+    }
+
+    await emit(sessionId, 'EvidenceCoachingShown', 'intakeSession', sessionId, {
+      direction: direction.direction,
+      focus: direction.focus ?? null,
+      done: direction.done,
+      substituted,
+      // What the drift was, so a substitution is auditable without storing the
+      // violating text itself.
+      violationKinds: violations.map((v) => v.kind),
+    })
+
+    return { ...direction, substituted }
   }
 
   /** Voice captured and transcribed by Deepgram (Section 6 step 2). */
@@ -221,6 +275,7 @@ export function createIntakeService(deps: IntakeDeps) {
 
   return {
     beginIntake,
+    coachNextCapture,
     recordVoice,
     showPlayback,
     confirmPlayback,
