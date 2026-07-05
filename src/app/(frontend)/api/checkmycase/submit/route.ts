@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import { handleIntakeSubmit, type IntakeSubmission } from '@/services/intakeSubmission'
 import { createPayloadIntakeDeps } from '@/services/adapters/payload'
 import { ComplianceService } from '@/services/ComplianceService'
+import { inngest } from '@/inngest/client'
 
 /**
  * Claimant intake submission. The single write path from the CheckMyCase surface
@@ -33,6 +34,18 @@ export async function POST(req: Request) {
   const deps = createPayloadIntakeDeps(payload)
 
   const result = await handleIntakeSubmit(deps, submission, { ipAddress, userAgent })
+
+  // Close the pipeline: a validated dossier in a live market is handed to the
+  // durable delivery pipeline (geographic route, deliver as a closing kit, ACID
+  // debit, then the speed and SLA agents). Guarded so a missing Inngest config
+  // never breaks intake. The claimant response is unaffected either way.
+  if (result.validationPassed && result.market) {
+    try {
+      await inngest.send({ name: 'dossier/deliver.requested', data: { dossierId: result.dossierId } })
+    } catch (err) {
+      console.error('failed to trigger delivery pipeline for dossier', result.dossierId, err)
+    }
+  }
 
   // Claimant safe response only. Geographic and procedural, never evaluative.
   const body = {
