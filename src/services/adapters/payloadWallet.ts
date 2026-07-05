@@ -9,7 +9,14 @@ import type {
   WalletSnapshot,
   WalletSnapshotRepository,
 } from '../walletPorts'
-import type { GlassBoxDeps, GlassBoxReadPort, RedactedActivity, FirmDeliveryView } from '../GlassBoxService'
+import {
+  buildOpportunityDetail,
+  type GlassBoxDeps,
+  type GlassBoxReadPort,
+  type RedactedActivity,
+  type FirmDeliveryView,
+  type OpportunityDetail,
+} from '../GlassBoxService'
 
 /**
  * Payload adapters for the wallet and Glass Box ports. The ledger is authoritative;
@@ -267,6 +274,65 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
           slaBreached: Boolean(doc.slaBreached),
           billedCents: feeByDelivery.get(String(doc.id)) ?? (doc.billed ? 0 : null),
         }
+      })
+    },
+    async opportunityForFirm(firmId, deliveryId): Promise<OpportunityDetail | null> {
+      const relId = (v: unknown) => (v == null ? '' : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
+      const delivery = (await payload.findByID({ collection: 'deliveries', id: deliveryId, depth: 0 }).catch(() => null)) as Record<
+        string,
+        unknown
+      > | null
+      if (!delivery) return null
+      const dossier = (await payload
+        .findByID({ collection: 'dossiers', id: relId(delivery.dossier), depth: 0 })
+        .catch(() => null)) as Record<string, unknown> | null
+      const evaluation = (dossier?.evaluation ?? {}) as Record<string, unknown>
+      const claimant = dossier?.claimant
+        ? ((await payload.findByID({ collection: 'claimants', id: relId(dossier.claimant), depth: 0 }).catch(() => null)) as Record<
+            string,
+            unknown
+          > | null)
+        : null
+
+      // The firm scoping and mapping live in the pure builder, unit tested.
+      return buildOpportunityDetail({
+        firmId,
+        delivery: {
+          id: String(delivery.id),
+          firmId: relId(delivery.firm),
+          dossierId: relId(delivery.dossier),
+          deliveredAt: (delivery.deliveredAt as string) ?? null,
+          firmRespondedAt: (delivery.firmRespondedAt as string) ?? null,
+          slaBreached: Boolean(delivery.slaBreached),
+        },
+        dossier: dossier
+          ? {
+              market: relId(dossier.market),
+              caseType: String(dossier.caseType ?? 'unknown'),
+              plainLanguageSummary: String(dossier.plainLanguageSummary ?? ''),
+              statuteOfLimitationsDate: (dossier.statuteOfLimitationsDate as string) ?? null,
+              evaluation: {
+                scpsScore: Number(evaluation.scpsScore ?? 0),
+                scpsVersion: String(evaluation.scpsVersion ?? 'v1'),
+                qualificationTier: String(evaluation.qualificationTier ?? 'D'),
+                injurySeverity: String(evaluation.injurySeverity ?? ''),
+                liabilityAssessment: String(evaluation.liabilityAssessment ?? ''),
+                statuteStatus: String(evaluation.statuteStatus ?? ''),
+                qualificationBreakdown: Array.isArray(evaluation.qualificationBreakdown)
+                  ? (evaluation.qualificationBreakdown as Array<{ layer: string; score: number; max?: number }>)
+                  : [],
+              },
+            }
+          : null,
+        claimant: claimant
+          ? {
+              firstName: (claimant.firstName as string) ?? '',
+              lastName: (claimant.lastName as string) ?? '',
+              phone: (claimant.phone as string) ?? null,
+              email: (claimant.email as string) ?? null,
+              location: String(claimant.marketZip ?? ''),
+            }
+          : null,
       })
     },
   }

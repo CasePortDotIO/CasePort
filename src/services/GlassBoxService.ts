@@ -34,9 +34,47 @@ export interface FirmDeliveryView {
   billedCents: number | null
 }
 
+/**
+ * The full firm facing closing kit for one delivered opportunity. Firm only: it
+ * carries the SCPS triage and the qualification factors, which never reach a
+ * claimant surface (W2). Every field is real; nothing is estimated. A case value
+ * is not present because CasePort does not compute one, and a fabricated value
+ * would fail the honesty bar (Section 14).
+ */
+export interface OpportunityDetail {
+  deliveryId: string
+  reference: string
+  caseType: string
+  market: string
+  deliveredAt: string | null
+  firmRespondedAt: string | null
+  slaBreached: boolean
+  claimant: { name: string; phone: string | null; email: string | null; location: string }
+  /** The organized, plain language account. Never a legal evaluation. */
+  statement: string
+  statuteOfLimitationsDate: string | null
+  /** Firm facing triage (W2 firm only). */
+  evaluation: {
+    scpsScore: number
+    scpsVersion: string
+    qualificationTier: string
+    injurySeverity: string
+    liabilityAssessment: string
+    statuteStatus: string
+    factors: Array<{ label: string; value: number }>
+  }
+  hipaaExecutedInFirmName: boolean
+}
+
 export interface GlassBoxReadPort {
   recentMarketActivity(marketId: string, limit: number): Promise<RedactedActivity[]>
   firmDeliveries(firmId: string): Promise<FirmDeliveryView[]>
+  /**
+   * The full closing kit for one delivery, scoped to the requesting firm. Returns
+   * null when the delivery does not exist or does not belong to this firm, so a
+   * firm can never read another firm's case (the core Glass Box invariant).
+   */
+  opportunityForFirm(firmId: string, deliveryId: string): Promise<OpportunityDetail | null>
 }
 
 export interface GlassBoxDeps {
@@ -44,6 +82,90 @@ export interface GlassBoxDeps {
   snapshots: WalletSnapshotRepository
   firms: FirmRepository
   activity: GlassBoxReadPort
+}
+
+/** Human labels for the SCPS factor keys, for the firm facing triage bars. */
+const FACTOR_LABELS: Record<string, string> = {
+  injuryVerification: 'Injury verification',
+  liabilityClarity: 'Liability clarity',
+  statuteStatus: 'Statute headroom',
+  caseTypeMatch: 'Case type match',
+  firmResponseCapacity: 'Firm response capacity',
+}
+
+/**
+ * Assemble the closing kit from already loaded records. Pure, so the firm
+ * scoping invariant and the factor mapping are unit tested directly. Returns
+ * null when the delivery is not this firm's, or when the dossier is missing, so
+ * a firm can never open another firm's case.
+ */
+export function buildOpportunityDetail(input: {
+  firmId: string
+  delivery: {
+    id: string
+    firmId: string
+    dossierId: string
+    deliveredAt: string | null
+    firmRespondedAt: string | null
+    slaBreached: boolean
+  }
+  dossier: {
+    market: string
+    caseType: string
+    plainLanguageSummary: string
+    statuteOfLimitationsDate: string | null
+    evaluation: {
+      scpsScore: number
+      scpsVersion: string
+      qualificationTier: string
+      injurySeverity: string
+      liabilityAssessment: string
+      statuteStatus: string
+      qualificationBreakdown: Array<{ layer: string; score: number; max?: number }>
+    }
+  } | null
+  claimant: { firstName?: string; lastName?: string; phone?: string | null; email?: string | null; location?: string } | null
+}): OpportunityDetail | null {
+  // The Glass Box invariant: a firm can only ever read its own case.
+  if (input.delivery.firmId !== input.firmId) return null
+  if (!input.dossier) return null
+
+  const e = input.dossier.evaluation
+  const factors = (e.qualificationBreakdown ?? []).map((b) => ({
+    label: FACTOR_LABELS[b.layer] ?? b.layer,
+    value: Number(b.score ?? 0),
+  }))
+  const name = input.claimant
+    ? `${input.claimant.firstName ?? ''} ${input.claimant.lastName ?? ''}`.trim()
+    : ''
+
+  return {
+    deliveryId: input.delivery.id,
+    reference: `CP-${input.delivery.dossierId.slice(-6).toUpperCase()}`,
+    caseType: input.dossier.caseType,
+    market: input.dossier.market,
+    deliveredAt: input.delivery.deliveredAt,
+    firmRespondedAt: input.delivery.firmRespondedAt,
+    slaBreached: input.delivery.slaBreached,
+    claimant: {
+      name: name || 'Claimant',
+      phone: input.claimant?.phone ?? null,
+      email: input.claimant?.email ?? null,
+      location: input.claimant?.location ?? '',
+    },
+    statement: input.dossier.plainLanguageSummary,
+    statuteOfLimitationsDate: input.dossier.statuteOfLimitationsDate,
+    evaluation: {
+      scpsScore: e.scpsScore,
+      scpsVersion: e.scpsVersion,
+      qualificationTier: e.qualificationTier,
+      injurySeverity: e.injurySeverity,
+      liabilityAssessment: e.liabilityAssessment,
+      statuteStatus: e.statuteStatus,
+      factors,
+    },
+    hipaaExecutedInFirmName: true,
+  }
 }
 
 /**
@@ -130,7 +252,16 @@ export function createGlassBoxService(deps: GlassBoxDeps) {
     return SAMPLE_DOSSIER
   }
 
-  return { walletView, proofOfRealityFeed, firmGlassBox, sampleDossier }
+  /**
+   * The full closing kit for one delivered opportunity, scoped to the firm. The
+   * firm scoping is the invariant: the read returns null for a delivery that is
+   * not this firm's, so a firm can only ever open its own cases.
+   */
+  async function opportunityDetail(firmId: string, deliveryId: string): Promise<OpportunityDetail | null> {
+    return deps.activity.opportunityForFirm(firmId, deliveryId)
+  }
+
+  return { walletView, proofOfRealityFeed, firmGlassBox, sampleDossier, opportunityDetail }
 }
 
 const REPRESENTATIVE_FRAMING =

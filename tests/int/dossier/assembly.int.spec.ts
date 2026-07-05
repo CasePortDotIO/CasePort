@@ -3,6 +3,7 @@ import { createDossierAssemblyService, type DocumentationReader } from '@/servic
 import { createIntelligenceService } from '@/services/IntelligenceService'
 import { createIntelligenceHarness, intelligenceDepsFrom } from '@/services/fakes/intelligenceInMemory'
 import { DossierService } from '@/services/DossierService'
+import { buildOpportunityDetail } from '@/services/GlassBoxService'
 import { toClaimantDossier } from '@/lib/compliance/dossierProjections'
 import { findEvaluativeLeaks } from '@/lib/compliance/assertNoEvaluativeLeak'
 import type { Dossier, FirmOnlyEvaluation } from '@/lib/compliance/dossierProjections'
@@ -164,5 +165,41 @@ describe('Dossier Assembly Orchestrator (Section 4.2)', () => {
   it('returns null when the dossier or firm is missing, without throwing', async () => {
     const { svc } = buildAssembly(noDocs)
     expect(await svc.assembleFirmPackage('CP-missing', 'firm_a')).toBeNull()
+  })
+
+  // End-to-end coherence: the SCPS the orchestrator computes and attaches is
+  // exactly what the firm sees on its closing kit, and only the owning firm can.
+  it('the assembled SCPS surfaces on the firm closing kit, firm scoped', async () => {
+    const store = dossierStore([seedDossier('CP-1')])
+    const { svc } = buildAssembly(fullDocs, store)
+    const assembled = await svc.assembleFirmPackage('CP-1', 'firm_a')
+    expect(assembled).not.toBeNull()
+
+    const dossier = store.rows.get('CP-1')!
+    const delivery = {
+      id: 'del_1',
+      firmId: 'firm_a',
+      dossierId: 'CP-1',
+      deliveredAt: '2026-07-05T12:10:00.000Z',
+      firmRespondedAt: null,
+      slaBreached: false,
+    }
+    const dossierForRead = {
+      market: dossier.market,
+      caseType: dossier.caseType,
+      plainLanguageSummary: dossier.plainLanguageSummary,
+      statuteOfLimitationsDate: dossier.statuteOfLimitationsDate,
+      evaluation: dossier.evaluation,
+    }
+    const claimant = { firstName: 'Jordan', lastName: 'Rivera', phone: '+14045550100', email: null, location: '30303' }
+
+    // The owning firm sees the exact SCPS the orchestrator computed.
+    const kit = buildOpportunityDetail({ firmId: 'firm_a', delivery, dossier: dossierForRead, claimant })!
+    expect(kit).not.toBeNull()
+    expect(kit.evaluation.scpsScore).toBe(assembled!.scpsScore)
+    expect(kit.evaluation.factors.length).toBe(5)
+
+    // Another firm cannot open it.
+    expect(buildOpportunityDetail({ firmId: 'firm_other', delivery, dossier: dossierForRead, claimant })).toBeNull()
   })
 })

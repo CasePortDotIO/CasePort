@@ -125,6 +125,7 @@ export function glassBoxDepsFrom(
     activity: {
       recentMarketActivity: activity.recentMarketActivity ?? (async () => []),
       firmDeliveries: activity.firmDeliveries ?? (async () => []),
+      opportunityForFirm: activity.opportunityForFirm ?? (async () => null),
     },
   }
 }
