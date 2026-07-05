@@ -8,9 +8,12 @@ Locked answers to the Section 15 gate in `CLAUDE.md`. Phase 0 does not begin unt
 | ---- | ----- | ------ |
 | 1 | ACER definition | Locked |
 | 2 | Wallet-dry market policy | Locked |
-| 3 | Per-opportunity price table | Open |
+| 3 | Per-opportunity price table and case types | Locked (provisional fees, reversible) |
 | 4 | Manus prototype | Received and mapped (see PROTOTYPE_CONTRACT_MAP.md) |
-| 5 | Market model: single-firm vs multi-firm | Open |
+| 5 | Market model: single-firm vs multi-firm | Locked (per-market type) |
+| 6 | Quality bar: fabricated stats and dark patterns | Locked (remove) |
+
+Section 15 gate is cleared. Phase 0 may begin.
 
 ---
 
@@ -30,21 +33,40 @@ Behavior.
 - The claimant status remains received and pending firm contact. Status language stays geographic and procedural only, per W2 and W6.
 - Single-firm exclusivity means there is no backup firm, so re-routing is structurally off the table. A wallet-dry hold is a commercial hold, never a quality filter.
 
-## D3. Per-opportunity price table (open)
+## D3. Case types and per-opportunity price table (2026-07-05)
 
-Awaiting founder-approved fixed fees by case type and launch market (Virginia, Maryland, Washington DC, Georgia). The price-table structure will be built regardless; Phase 3 debit needs approved values before it can move real money. Fees are fixed and never derived from outcome (W3).
+**Case types locked (full personal injury list).** Motor vehicle accident, commercial trucking accident, premises liability (slip and fall), medical malpractice, wrongful death, dog bite and animal attack. "Personal injury" is spelled in full everywhere per Section 14. This is the firm-facing triage case-type enum and the price-table key. The prototype's minimal internal set (Auto, Slip, Medical, Other) maps into this list; "Other" is not used as a billing bucket.
+
+**Price table locked as provisional and reversible.** Founder asked for an industry-intelligence-based recommendation. Fixed fee per delivered opportunity:
+
+| Case type | Base fee (standard markets) | Premium metros (DC, Atlanta, Northern Virginia, Baltimore) |
+| --------- | --------------------------- | ---------------------------------------------------------- |
+| Motor vehicle accident | 750 | 900 |
+| Premises liability (slip and fall) | 700 | 840 |
+| Dog bite and animal attack | 450 | 540 |
+| Commercial trucking accident | 1800 | 1800 |
+| Medical malpractice | 2500 | 2500 |
+| Wrongful death | 3000 | 3000 |
+
+Rationale, from 2025 to 2026 market data. Exclusive personal injury leads run 250 to 600, and 300 to 1500 in competitive metros. Cost per signed case via Google Ads runs 2500 to 3000 on average and 8700 to 12900 in competitive metros. Medical malpractice cost per acquisition runs 2000 to 5000. CasePort delivers a worked-up, exclusive dossier with the HIPAA authorization pre-executed, not a raw lead, so it prices above an exclusive lead while still beating the firm's cost per signed case comfortably at reasonable sign rates. Competition-driven types (auto, premises, dog bite) carry a roughly 20 percent premium in the hot metros; value-driven types (trucking, medical malpractice, wrongful death) price on national case economics and stay flat. This encodes the founder's "not every city is equal" point as a market tier.
+
+Fees are fixed and never derived from outcome (W3, W4). The values live in a price table keyed by case type and market tier and can be retuned per cell without code changes. Phase 3 debit uses these values; the founder can revise any cell before or after go-live.
 
 ## D4. Manus prototype (received and mapped, 2026-07-05)
 
 Both dashboards received (law firm dashboard and internal operator dashboard). Fully inventoried and mapped to Section 5 collections and the Section 4 domain services in `docs/PROTOTYPE_CONTRACT_MAP.md`. Key finding: the prototype assumes a multi-firm competitive market that conflicts with single-firm exclusivity. That conflict is escalated as D5.
 
-## D5. Market model: single-firm vs multi-firm (open)
+## D5. Market model: per-market type (2026-07-05)
 
-The prototype is built on a multi-firm competitive market (market slots such as 3/3, a leaderboard of 156 firms, ranks, "priority routing" for high performers). The doctrine (W1, W8, Section 8) mandates single-firm geographic exclusivity per protected market, with a future multi-firm type as an unbuilt seam.
+Founder direction: it depends on the market and city, not every city is created equal. Encoded as a per-market type rather than one global model.
 
-Recommended reconciliation, pending founder confirmation:
-- Launch markets (Virginia, Maryland, Washington DC, Georgia) are single-firm protected markets. One firm per market.
-- Leaderboard and rank become national, cross-market vanity metrics with zero routing consequence.
-- "Priority routing" and "priority premium cases" are removed. Reporting completeness gates nothing about routing.
+- `markets.marketType` is set per market: `single-firm-exclusive` or `multi-firm-panel`. Premium cities can be locked to one firm; others may hold a panel.
+- Launch build ships single-firm routing only. Each launch market (Virginia, Maryland, Washington DC, Georgia) is configured `single-firm-exclusive` at go-live unless the founder designates a specific city as a panel.
+- The `multi-firm-panel` routing rule (a compliant, non-quality rotation by geography and capacity) is the W8-deferred seam. It is reserved in the schema and implemented in a fast-follow, never using any quality signal to choose among panel firms (W1).
+- Leaderboard and rank are national, cross-market vanity metrics with zero routing consequence. "Priority routing" and "priority premium cases" are removed. Reporting completeness gates nothing about routing.
 
-This decision reframes the market health, leaderboard, and slot concepts across both dashboards, so it is resolved before Phase 0 collection design finalizes the `markets` schema.
+## D6. Quality bar: remove fabricated stats and dark patterns (2026-07-05)
+
+The prototype contains unsourced claims (for example "firms who check 15+ times daily see 3.2x higher conversion") and coercive framing (the InvestmentLayer switching-cost and sunk-capital panel, compulsive-checking urgency). These conflict with the Section 14 bar of not a single false claim.
+
+Locked: strip fabricated statistics and coercive framing. Keep the dense, real-time, auditable Bloomberg-terminal texture. Every number on every panel must trace to a real event. Leaderboard, streaks, and any retained engagement mechanics are driven only by real data.
