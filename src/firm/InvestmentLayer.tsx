@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useLocation } from 'wouter';
 import { Wallet, TrendingUp, FileText, AlertCircle, Lock } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,7 @@ export default function InvestmentLayer({
   casesAccepted,
   conversionRate,
 }: InvestmentLayerProps) {
+  const [, navigate] = useLocation();
   const isLowBalance = walletBalance < walletThreshold;
   const rankPercentile = Math.round((1 - currentRank / totalFirms) * 100);
   const switchingCost = casesAccepted * 500; // Estimated value of case history
@@ -81,7 +83,7 @@ export default function InvestmentLayer({
 
             {/* Top Up Button */}
             {isLowBalance && (
-              <Button className="w-full" variant="default">
+              <Button className="w-full" variant="default" onClick={() => navigate('/wallet')}>
                 Top Up Wallet
               </Button>
             )}

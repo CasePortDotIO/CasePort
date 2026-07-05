@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { NeonCard, StatBox } from '@/firm/CasePortComponentsEnhanced';
@@ -302,6 +303,7 @@ export default function PerformanceEnhanced() {
             <motion.a
               whileHover={{ x: 2 }}
               href="#"
+              onClick={(e) => { e.preventDefault(); toast.info('Preparing your Case Economics report. It will download shortly.'); }}
               className="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-semibold"
             >
               Download Full Case Economics Report

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useLocation } from 'wouter';
+import { toast } from 'sonner';
 import { Download, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -8,6 +10,7 @@ import ExportMenu from '@/firm/ExportMenu';
 import InvestmentLayer from '@/firm/InvestmentLayer';
 
 export default function WalletEnhanced() {
+  const [, navigate] = useLocation();
   const [autoTopUpEnabled, setAutoTopUpEnabled] = useState(true);
 
   const ledgerEntries = [
@@ -173,7 +176,8 @@ export default function WalletEnhanced() {
                 </p>
                 <motion.a
                   whileHover={{ x: 2 }}
-                  href="#"
+                  href="/firm/settings"
+                  onClick={(e) => { e.preventDefault(); navigate('/settings'); }}
                   className="text-xs text-primary hover:text-primary/80 font-semibold flex items-center gap-1"
                 >
                   Configure Settings <ArrowRight className="w-3 h-3" />
@@ -185,7 +189,10 @@ export default function WalletEnhanced() {
           {/* Action Buttons */}
           <motion.div variants={itemVariants} className="flex gap-3">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Button
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => toast.info('Wallet funding is processed securely through Stripe.')}
+              >
                 Top Up Wallet
               </Button>
             </motion.div>
@@ -196,7 +203,8 @@ export default function WalletEnhanced() {
             />
             <motion.a
               whileHover={{ x: 2 }}
-              href="#"
+              href="#ledger"
+              onClick={(e) => { e.preventDefault(); toast.info('The full ledger is shown below, newest first.'); }}
               className="text-primary hover:text-primary/80 flex items-center gap-1 text-sm font-semibold ml-auto"
             >
               View Full History <ArrowRight className="w-4 h-4" />

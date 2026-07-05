@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { Mail, Calendar, Clock, Eye } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,20 @@ export default function EmailSchedulingPanel() {
     setReports(reports.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)));
   };
 
+  const addReport = () => {
+    const newReport: ScheduledReport = {
+      id: String(reports.length + 1),
+      type: 'opportunities',
+      frequency: 'weekly',
+      dayOfWeek: 1,
+      email: 'michael@chenassociates.com',
+      enabled: true,
+      nextSend: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    };
+    setReports([...reports, newReport]);
+    toast.success('New weekly report scheduled. Adjust it below.');
+  };
+
   const getFrequencyLabel = (report: ScheduledReport) => {
     if (report.frequency === 'weekly') {
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -68,7 +83,7 @@ export default function EmailSchedulingPanel() {
           <Mail className="w-5 h-5 text-primary" />
           <h3 className="font-semibold text-foreground">Scheduled Reports</h3>
         </div>
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="outline" onClick={addReport}>
           Add Report
         </Button>
       </div>

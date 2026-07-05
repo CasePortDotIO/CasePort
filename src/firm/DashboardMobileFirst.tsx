@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'wouter';
 import { Menu, X, ChevronRight, TrendingUp, AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import LeadQualityBadge from '@/firm/LeadQualityBadge';
 import ChurnRiskBadge from '@/firm/ChurnRiskBadge';
 
 export default function DashboardMobileFirst() {
+  const [, navigate] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('opportunities');
 
@@ -271,7 +273,7 @@ export default function DashboardMobileFirst() {
                 </div>
                 <Badge className="bg-yellow-500/20 text-yellow-700 border-yellow-300">20% Low</Badge>
               </div>
-              <Button className="w-full bg-primary text-primary-foreground text-sm">Add Funds</Button>
+              <Button className="w-full bg-primary text-primary-foreground text-sm" onClick={() => navigate('/wallet')}>Add Funds</Button>
             </Card>
           </motion.div>
         </div>

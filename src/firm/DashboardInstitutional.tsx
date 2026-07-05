@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useLocation } from 'wouter';
 import { TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,6 +50,7 @@ const recentOpportunities = [
 ];
 
 export default function DashboardInstitutional() {
+  const [, navigate] = useLocation();
   return (
     <div className="min-h-screen bg-background">
       {/* Bloomberg Clock */}
@@ -135,7 +137,7 @@ export default function DashboardInstitutional() {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">Recent Opportunities</h2>
-                <Button variant="ghost" size="sm" className="text-primary">
+                <Button variant="ghost" size="sm" className="text-primary" onClick={() => navigate('/opportunities')}>
                   View All
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -176,7 +178,7 @@ export default function DashboardInstitutional() {
                           <span>Conversion: {opp.probability}</span>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => navigate(`/opportunity/${opp.id}`)}>
                         <ArrowRight className="w-4 h-4" />
                       </Button>
                     </div>

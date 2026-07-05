@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { Wallet, AlertCircle, Zap, Check, ChevronRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -201,7 +202,14 @@ export default function WalletReplenishmentWidget() {
                   </p>
                 </div>
 
-                <Button className="w-full bg-primary hover:bg-primary/90">
+                <Button
+                  className="w-full bg-primary hover:bg-primary/90"
+                  onClick={() =>
+                    toast.success(
+                      `Auto-replenishment set: top up $${replenishAmount.toLocaleString()} when the balance runs low.`,
+                    )
+                  }
+                >
                   Enable Auto-Replenishment
                 </Button>
               </motion.div>

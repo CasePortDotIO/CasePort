@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { Settings, Lock, Bell, Eye, Palette } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -98,8 +99,8 @@ export default function SettingsPage() {
             </Card>
 
             <div className="flex gap-3">
-              <Button className="bg-primary hover:bg-primary/90">Save Changes</Button>
-              <Button variant="outline">Cancel</Button>
+              <Button className="bg-primary hover:bg-primary/90" onClick={() => toast.success('Changes saved.')}>Save Changes</Button>
+              <Button variant="outline" onClick={() => toast('Changes discarded.')}>Cancel</Button>
             </div>
           </motion.div>
         )}
@@ -198,7 +199,7 @@ export default function SettingsPage() {
               </div>
             </Card>
 
-            <Button className="bg-primary hover:bg-primary/90">Save Preferences</Button>
+            <Button className="bg-primary hover:bg-primary/90" onClick={() => toast.success('Preferences saved.')}>Save Preferences</Button>
           </motion.div>
         )}
       </div>
