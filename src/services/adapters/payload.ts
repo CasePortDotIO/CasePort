@@ -5,7 +5,6 @@ import type {
   ClaimantRepository,
   ConsentClient,
   DossierRepository,
-  EventStore,
   GeographicLocation,
   IntakeDeps,
   IntakeRepository,
@@ -17,6 +16,7 @@ import type {
   VisionClient,
 } from '../ports'
 import { createAnthropicNarrativeClient } from './AnthropicNarrativeClient'
+import { payloadEventStoreFor } from './payloadEvents'
 
 /**
  * Production adapters that implement the intake ports against Payload and the
@@ -28,26 +28,6 @@ import { createAnthropicNarrativeClient } from './AnthropicNarrativeClient'
 
 /* Payload local API bypasses access control by default, which is correct here:
  * this is the trusted server side intake pipeline, not a claimant request. */
-
-function payloadEventStore(payload: Payload): EventStore {
-  return {
-    async append(event) {
-      const created = await payload.create({
-        collection: 'events',
-        data: {
-          eventType: event.eventType,
-          aggregateType: event.aggregateType,
-          aggregateId: event.aggregateId,
-          intakeSession: event.intakeSessionId,
-          actor: event.actor,
-          occurredAt: event.occurredAt,
-          payload: event.payload ?? {},
-        },
-      })
-      return { id: String(created.id), ...event }
-    },
-  }
-}
 
 function mapSession(doc: {
   id: string | number
@@ -274,7 +254,7 @@ function nextId(prefix: string): string {
  */
 export function createPayloadIntakeDeps(payload: Payload): IntakeDeps {
   return {
-    events: payloadEventStore(payload),
+    events: payloadEventStoreFor(payload),
     intake: payloadIntakeRepository(payload),
     claimants: payloadClaimantRepository(payload),
     dossiers: payloadDossierRepository(payload),
