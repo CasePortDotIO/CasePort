@@ -1,106 +1,77 @@
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
-import { ArrowRight, ArrowUpRight, ArrowDownRight, Phone, ShieldCheck, LineChart, TrendingUp, CreditCard, Trophy } from 'lucide-react';
+import { ArrowRight, Phone, ShieldCheck, LineChart, TrendingUp, CreditCard, Trophy, Inbox } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/firm/useAuth';
 import BloombergClock from '@/firm/BloombergClock';
 import DashboardFirstRun from '@/firm/DashboardFirstRun';
+import EmptyState from '@/firm/EmptyState';
+import { useFirmData, dollars, relativeTime, toFirmMetrics, toOpportunityRows, type OpportunityRow } from '@/firm/useFirmData';
 
 /* Where the depth lives. The dashboard is the cockpit; each of these opens a
  * dedicated page carrying the detail that used to crowd the landing screen. */
 const wayfinding = [
-  { to: '/performance', icon: LineChart, label: 'Performance', desc: 'ROI, cost per signed case, response trends' },
+  { to: '/performance', icon: LineChart, label: 'Performance', desc: 'Response trends and cost per signed case' },
   { to: '/analytics', icon: TrendingUp, label: 'Analytics', desc: 'Cohorts, funnel, and channel attribution' },
   { to: '/wallet', icon: CreditCard, label: 'Wallet', desc: 'Pre-funded balance and full ledger' },
   { to: '/leaderboard', icon: Trophy, label: 'Standing', desc: 'Your market rank and benchmarks' },
 ] as const;
 
-/*
- * Calibrated semantic palette. Kept separate from the brand teal so meaning
- * (good / attention / critical) never competes with identity. These shades are
- * tuned for legibility on the near black ground, brighter than Tailwind's
- * default -600/-700 which read muddy on dark.
- */
-const POS = '#34d39a'; // emerald, positive movement
-const NEG = '#fb7185'; // rose, negative movement
-const WARN = '#f5b544'; // amber, needs attention
-const TEAL = '#22c58d'; // brightened brand accent for key moments
+/* Calibrated semantic palette, kept separate from the brand teal so meaning
+ * never competes with identity. */
+const POS = '#34d39a';
+const WARN = '#f5b544';
+const TEAL = '#22c58d';
 
-interface Metric {
+const statusStyle: Record<OpportunityRow['status'], { dot: string; text: string; bg: string }> = {
+  'Awaiting Response': { dot: WARN, text: '#f7c873', bg: 'rgba(245,181,68,0.12)' },
+  Contacted: { dot: '#6ea8ff', text: '#a9c8ff', bg: 'rgba(110,168,255,0.12)' },
+};
+
+interface MetricCardProps {
   label: string;
   hint: string;
   value: string;
   unit?: string;
-  delta: string;
-  deltaTone: 'pos' | 'neg' | 'flat';
-  series: number[];
+  sub?: string;
+  hero?: boolean;
 }
 
-const primaryMetrics: Metric[] = [
-  { label: 'Cost per signed case', hint: 'Your true acquisition cost. The number that beats Google Ads.', value: '$2,240', delta: '38% under Google Ads', deltaTone: 'pos', series: [4100, 3800, 3400, 3100, 2900, 2600, 2400, 2240] },
-  { label: 'Cases signed', hint: 'Signed this month across your markets.', value: '35', delta: '+5 vs. last month', deltaTone: 'pos', series: [22, 24, 23, 27, 29, 31, 33, 35] },
-  { label: 'Conversion rate', hint: 'Delivered opportunities that became signed cases.', value: '22.4', unit: '%', delta: '+2.1 pts', deltaTone: 'pos', series: [17, 18, 18.5, 19.4, 20, 21, 21.6, 22.4] },
-  { label: 'Response time', hint: 'Median time to first contact. Your SLA is 15 min.', value: '12', unit: 'min', delta: '3 min faster', deltaTone: 'pos', series: [21, 19, 18, 16, 15, 14, 13, 12] },
-];
-
-interface Opp {
-  id: string;
-  type: string;
-  market: string;
-  status: 'New' | 'Contacted' | 'Signed';
-  probability: string;
-  waiting?: string;
-}
-
-const recentOpportunities: Opp[] = [
-  { id: 'CP-2026-000089', type: 'Auto Accident', market: 'Houston', status: 'New', probability: '87%', waiting: '6 min ago' },
-  { id: 'CP-2026-000090', type: 'Truck Accident', market: 'Houston', status: 'New', probability: '81%', waiting: '14 min ago' },
-  { id: 'CP-2026-000088', type: 'Slip & Fall', market: 'Dallas', status: 'Signed', probability: '92%' },
-  { id: 'CP-2026-000087', type: 'Workers Comp', market: 'Austin', status: 'Contacted', probability: '71%' },
-];
-
-/* A dependency free SVG sparkline. Area fill plus an emphasized endpoint. */
-function Sparkline({ data, color }: { data: number[]; color: string }) {
-  const w = 104;
-  const h = 32;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const span = max - min || 1;
-  const pts = data.map((v, i) => [(i / (data.length - 1)) * w, h - 3 - ((v - min) / span) * (h - 6)]);
-  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
-  const area = `${line} L ${w} ${h} L 0 ${h} Z`;
-  const last = pts[pts.length - 1];
-  const id = `sg-${color.replace('#', '')}`;
+function MetricCard({ label, hint, value, unit, sub, hero }: MetricCardProps) {
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="overflow-visible" aria-hidden="true">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill={`url(#${id})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={last[0]} cy={last[1]} r="2.6" fill={color} />
-    </svg>
+    <Card
+      title={hint}
+      className="relative p-5 h-full border-white/[0.08] overflow-hidden transition-all hover:border-white/20 hover:-translate-y-0.5"
+      style={{
+        background: hero
+          ? 'linear-gradient(150deg, rgba(34,197,141,0.10), rgba(255,255,255,0.02))'
+          : 'linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01))',
+        borderColor: hero ? 'rgba(34,197,141,0.28)' : undefined,
+      }}
+    >
+      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-3 pr-2">{label}</p>
+      <div className="flex items-baseline gap-1">
+        <span className="text-[32px] leading-none font-light tracking-tight text-foreground tabular-nums">{value}</span>
+        {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
+      </div>
+      {sub && <div className="mt-3 text-xs text-muted-foreground">{sub}</div>}
+    </Card>
   );
 }
-
-const statusStyle: Record<Opp['status'], { dot: string; text: string; bg: string }> = {
-  New: { dot: WARN, text: '#f7c873', bg: 'rgba(245,181,68,0.12)' },
-  Contacted: { dot: '#6ea8ff', text: '#a9c8ff', bg: 'rgba(110,168,255,0.12)' },
-  Signed: { dot: POS, text: '#7fe3ba', bg: 'rgba(52,211,154,0.12)' },
-};
 
 export default function DashboardInstitutional() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
+  const { data, firmName, loading } = useFirmData();
   const firstName = (user?.name ?? 'Partner').split(' ')[0];
-  const newCount = recentOpportunities.filter((o) => o.status === 'New').length;
+  const nowMs = Date.now();
 
-  // First login, before any case has flowed. Today driven by a preview flag;
-  // when the dashboard reads live data, this becomes "no deliveries yet".
+  const metrics = toFirmMetrics(data);
+  const recent = toOpportunityRows(data?.deliveries ?? []).slice(0, 4);
+
+  // First login, before any case has flowed. Driven by a preview flag, or by the
+  // honest live signal: a resolved firm with no deliveries yet.
   const search = typeof window !== 'undefined' ? window.location.search : '';
   const params = new URLSearchParams(search);
   if (params.has('new')) {
@@ -124,7 +95,7 @@ export default function DashboardInstitutional() {
                 Good afternoon, {firstName}
               </h1>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
-                Houston market
+                {firmName ?? 'Your market'}
                 <span className="inline-flex items-center gap-1.5 text-xs" style={{ color: POS }}>
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: POS, boxShadow: `0 0 8px ${POS}` }} />
                   Exclusive · live
@@ -132,16 +103,16 @@ export default function DashboardInstitutional() {
               </p>
             </div>
             <div className="text-right hidden sm:block">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.18em] mb-1">Market rank</p>
-              <p className="text-2xl font-semibold text-foreground tabular-nums">#8<span className="text-muted-foreground text-base font-normal"> / 156</span></p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.18em] mb-1">Balance</p>
+              <p className="text-2xl font-semibold text-foreground tabular-nums">${dollars(metrics.balanceCents)}</p>
             </div>
           </div>
         </div>
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-8 py-9">
-        {/* Hero: what needs you now. The single most important navigation cue. */}
-        {newCount > 0 && (
+        {/* Hero: what needs you now, from real awaiting-response deliveries. */}
+        {metrics.awaitingCount > 0 && (
           <motion.button
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -155,10 +126,10 @@ export default function DashboardInstitutional() {
               </span>
               <div>
                 <p className="text-base font-semibold text-foreground">
-                  {newCount} {newCount === 1 ? 'opportunity needs' : 'opportunities need'} your first call
+                  {metrics.awaitingCount} {metrics.awaitingCount === 1 ? 'opportunity needs' : 'opportunities need'} your first call
                 </p>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  Call inside your 15 minute window while the claimant is still expecting you.
+                  Call inside your callback window while the claimant is still expecting you.
                 </p>
               </div>
             </div>
@@ -168,60 +139,28 @@ export default function DashboardInstitutional() {
           </motion.button>
         )}
 
-        {/* Primary metrics with sparklines. First card is the hero metric. */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-          {primaryMetrics.map((m, idx) => {
-            const tone = m.deltaTone === 'pos' ? POS : m.deltaTone === 'neg' ? NEG : 'var(--muted-foreground)';
-            const isHero = idx === 0;
-            return (
-              <motion.div
-                key={m.label}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 + idx * 0.05 }}
-              >
-                <Card
-                  title={m.hint}
-                  className="relative p-5 h-full border-white/[0.08] overflow-hidden transition-all hover:border-white/20 hover:-translate-y-0.5"
-                  style={{
-                    background: isHero
-                      ? 'linear-gradient(150deg, rgba(34,197,141,0.10), rgba(255,255,255,0.02))'
-                      : 'linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01))',
-                    borderColor: isHero ? 'rgba(34,197,141,0.28)' : undefined,
-                  }}
-                >
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-3 pr-2">
-                    {m.label}
-                  </p>
-                  <div className="flex items-end justify-between gap-2">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-[32px] leading-none font-light tracking-tight text-foreground tabular-nums">{m.value}</span>
-                      {m.unit && <span className="text-sm text-muted-foreground">{m.unit}</span>}
-                    </div>
-                    <Sparkline data={m.series} color={isHero ? TEAL : tone === POS ? POS : 'var(--muted-foreground)'} />
-                  </div>
-                  <div className="mt-3 flex items-center gap-1.5 text-xs font-medium" style={{ color: tone }}>
-                    {m.deltaTone === 'pos' ? <ArrowUpRight className="w-3.5 h-3.5" /> : m.deltaTone === 'neg' ? <ArrowDownRight className="w-3.5 h-3.5" /> : null}
-                    {m.delta}
-                  </div>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
+        {/* Primary metrics, every one real. No sparklines: we do not fabricate a
+            history we do not have. */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+            {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-32 rounded-xl bg-muted/30 animate-pulse" />)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+            <MetricCard hero label="Wallet balance" hint="Your authoritative pre-funded balance, the ledger sum." value={`$${dollars(metrics.balanceCents)}`} sub="Delivery fees debit against this." />
+            <MetricCard label="Opportunities delivered" hint="Cases delivered to your exclusive market." value={String(metrics.delivered)} sub={metrics.awaitingCount > 0 ? `${metrics.awaitingCount} awaiting your first call` : 'All responded'} />
+            <MetricCard label="Median response time" hint="Median time to first contact across responded cases." value={metrics.medianResponseMin != null ? String(metrics.medianResponseMin) : '—'} unit={metrics.medianResponseMin != null ? 'min' : undefined} sub="Faster contact wins more cases." />
+            <MetricCard label="SLA adherence" hint="Share of delivered cases you responded to within SLA." value={metrics.slaAdherencePct != null ? String(metrics.slaAdherencePct) : '—'} unit={metrics.slaAdherencePct != null ? '%' : undefined} sub="Within your contractual callback window." />
+          </div>
+        )}
 
-        {/* Two column: opportunities + summary */}
+        {/* Two column: recent opportunities + this-month summary, all real. */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="lg:col-span-2"
-          >
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">Recent opportunities</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">Delivered to your markets, newest first</p>
+                <p className="text-sm text-muted-foreground mt-0.5">Delivered to your market, newest first</p>
               </div>
               <Button variant="ghost" size="sm" className="text-primary" onClick={() => navigate('/opportunities')}>
                 View all <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -229,90 +168,86 @@ export default function DashboardInstitutional() {
             </div>
 
             <Card className="border-white/[0.08] overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.02), transparent)' }}>
-              <div className="divide-y divide-white/[0.06]">
-                {recentOpportunities.map((opp, idx) => {
-                  const s = statusStyle[opp.status];
-                  return (
-                    <motion.button
-                      key={opp.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 + idx * 0.05 }}
-                      onClick={() => navigate(`/opportunity/${opp.id}`)}
-                      className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-white/[0.03] transition-colors group"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2.5 mb-1.5">
-                          <span className="font-medium text-foreground">{opp.type}</span>
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ color: s.text, background: s.bg }}>
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.dot }} />
-                            {opp.status}
-                          </span>
+              {loading ? (
+                <div className="p-5 space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 rounded bg-muted/30 animate-pulse" />)}</div>
+              ) : recent.length === 0 ? (
+                <EmptyState icon={Inbox} title="No opportunities yet" body="The moment a personal injury case is delivered to your market, it appears here and we call you to act within your window." compact />
+              ) : (
+                <div className="divide-y divide-white/[0.06]">
+                  {recent.map((opp, idx) => {
+                    const s = statusStyle[opp.status];
+                    return (
+                      <motion.button
+                        key={opp.deliveryId}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.25 + idx * 0.05 }}
+                        onClick={() => navigate(`/opportunity/${opp.deliveryId}`)}
+                        className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-white/[0.03] transition-colors group"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2.5 mb-1.5">
+                            <span className="font-medium text-foreground">{opp.caseType}</span>
+                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ color: s.text, background: s.bg }}>
+                              <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.dot }} />
+                              {opp.status}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
+                            <span className="font-mono text-[12px]">{opp.id}</span>
+                            <span>{relativeTime(opp.deliveredAt, nowMs)}</span>
+                            {opp.sla === 'Overdue' && <span style={{ color: WARN }}>SLA overdue</span>}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
-                          <span className="font-mono text-[12px]">{opp.id}</span>
-                          <span>{opp.market}</span>
-                          {opp.waiting && <span style={{ color: WARN }}>{opp.waiting}</span>}
-                        </div>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all flex-shrink-0" />
-                    </motion.button>
-                  );
-                })}
-              </div>
+                        <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              )}
             </Card>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.32 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
             <div className="mb-4">
-              <h2 className="text-lg font-semibold text-foreground">This month</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Your performance summary</p>
+              <h2 className="text-lg font-semibold text-foreground">Your market</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">Real, from your own record</p>
             </div>
 
             <div className="space-y-4">
-              <Card className="p-5 border-white/[0.08]" title="Share of delivered opportunities your firm accepted." style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
+              <Card className="p-5 border-white/[0.08]" title="Delivered cases you have already responded to." style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em]">Acceptance rate</p>
-                  <span className="text-sm font-semibold" style={{ color: POS }}>68%</span>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em]">SLA adherence</p>
+                  <span className="text-sm font-semibold" style={{ color: POS }}>{metrics.slaAdherencePct != null ? `${metrics.slaAdherencePct}%` : '—'}</span>
                 </div>
                 <div className="w-full rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                  <div className="h-1.5 rounded-full" style={{ width: '68%', background: `linear-gradient(90deg, ${TEAL}, ${POS})` }} />
+                  <div className="h-1.5 rounded-full" style={{ width: `${metrics.slaAdherencePct ?? 0}%`, background: `linear-gradient(90deg, ${TEAL}, ${POS})` }} />
                 </div>
               </Card>
 
-              <Card className="p-5 border-white/[0.08]" title="Average signed case value across your markets." style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-2">Avg case value</p>
-                <p className="text-[28px] leading-none font-light tracking-tight text-foreground tabular-nums">$65,000</p>
-                <p className="text-xs mt-2 flex items-center gap-1" style={{ color: POS }}><ArrowUpRight className="w-3.5 h-3.5" />12% above market average</p>
+              <Card className="p-5 border-white/[0.08]" title="Fixed per-opportunity fees billed to date." style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
+                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-2">Fees billed</p>
+                <p className="text-[28px] leading-none font-light tracking-tight text-foreground tabular-nums">${dollars(metrics.feesPaidCents)}</p>
+                <p className="text-xs text-muted-foreground mt-2">A fixed fee per delivered opportunity, never a share of any outcome.</p>
               </Card>
 
-              <Card className="p-5 border-white/[0.08]" title="Signed cases this month, pacing to quarter." style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-2">Cases this month</p>
-                <p className="text-[28px] leading-none font-light tracking-tight text-foreground tabular-nums">12</p>
-                <p className="text-xs text-muted-foreground mt-2">On pace for 45 this quarter</p>
+              <Card className="p-5 border-white/[0.08]" title="Opportunities delivered to your market." style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
+                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-2">Delivered</p>
+                <p className="text-[28px] leading-none font-light tracking-tight text-foreground tabular-nums">{metrics.delivered}</p>
+                <p className="text-xs text-muted-foreground mt-2">{metrics.awaitingCount > 0 ? `${metrics.awaitingCount} awaiting a first call` : 'All responded to'}</p>
               </Card>
             </div>
           </motion.div>
         </div>
 
-        {/* Trust line: the Glass Box promise, quietly stated. */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mb-12 flex items-center gap-2.5 text-[13px] text-muted-foreground"
-        >
+        {/* Trust line: the Glass Box promise, now literally true. */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.36 }} className="mb-12 flex items-center gap-2.5 text-[13px] text-muted-foreground">
           <ShieldCheck className="w-4 h-4" style={{ color: TEAL }} />
           Every figure here traces to your ledger and your market. Nothing is estimated, nothing is shared.
         </motion.div>
 
-        {/* Wayfinding. The depth lives on its own pages; a first time partner is
-            shown exactly where, never made to hunt. This is the whole cockpit. */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.46 }}>
+        {/* Wayfinding. The depth lives on its own pages. */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }}>
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-foreground">Go deeper</h2>
             <p className="text-sm text-muted-foreground mt-0.5">Everything else is one click away</p>

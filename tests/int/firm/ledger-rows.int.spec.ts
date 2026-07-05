@@ -2,11 +2,13 @@ import { describe, it, expect } from 'vitest'
 import {
   toLedgerRows,
   toOpportunityRows,
+  toFirmMetrics,
   caseReference,
   relativeTime,
   dollars,
   type FirmLedgerEntry,
   type FirmDeliveryView,
+  type FirmGlassBox,
 } from '@/firm/useFirmData'
 
 /**
@@ -118,6 +120,38 @@ describe('opportunity row mapping (real deliveries, no fabricated numbers)', () 
     const [row] = toOpportunityRows([delivery({})])
     expect(Object.keys(row)).not.toContain('value')
     expect(Object.keys(row)).not.toContain('conversionProbability')
+  })
+})
+
+describe('cockpit metrics (real Glass Box only, never estimated)', () => {
+  const glass = (deliveries: FirmDeliveryView[], balanceCents = 5_000_000): Pick<FirmGlassBox, 'wallet' | 'deliveries'> => ({
+    wallet: { firmId: 'f', balanceCents, snapshotBalanceCents: balanceCents, lowBalanceThresholdCents: null, inSync: true, entries: [] },
+    deliveries,
+  })
+
+  it('returns zeros for a firm with no deliveries', () => {
+    const m = toFirmMetrics(glass([]))
+    expect(m).toEqual({ balanceCents: 5_000_000, delivered: 0, awaitingCount: 0, medianResponseMin: null, slaAdherencePct: null, feesPaidCents: 0 })
+  })
+
+  it('counts delivered, awaiting, fees, and derives median response + SLA adherence', () => {
+    const m = toFirmMetrics(
+      glass([
+        delivery({ deliveryId: 'a', firmRespondedAt: '2026-07-01T00:06:00.000Z', responseTimeSeconds: 360, slaBreached: false, billedCents: 45_000 }),
+        delivery({ deliveryId: 'b', firmRespondedAt: '2026-07-01T00:12:00.000Z', responseTimeSeconds: 720, slaBreached: false, billedCents: 45_000 }),
+        delivery({ deliveryId: 'c', firmRespondedAt: null, responseTimeSeconds: null, slaBreached: true, billedCents: 35_000 }),
+      ]),
+    )
+    expect(m.delivered).toBe(3)
+    expect(m.awaitingCount).toBe(1) // c not responded
+    expect(m.feesPaidCents).toBe(125_000)
+    expect(m.medianResponseMin).toBe(9) // median of 6 and 12 minutes
+    expect(m.slaAdherencePct).toBe(67) // 2 of 3 on time, rounded
+  })
+
+  it('ignores deliveries that never actually delivered', () => {
+    const m = toFirmMetrics(glass([delivery({ deliveredAt: null })]))
+    expect(m.delivered).toBe(0)
   })
 })
 

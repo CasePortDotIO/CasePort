@@ -200,6 +200,46 @@ export function toOpportunityRows(deliveries: FirmDeliveryView[]): OpportunityRo
     }))
 }
 
+/** Cockpit metrics, every one derived from real Glass Box data. Fields that
+ * would require outcome data we do not hold (cost per signed case, conversion
+ * rate) are deliberately absent rather than estimated. */
+export interface FirmMetrics {
+  balanceCents: number
+  delivered: number
+  /** Delivered cases the firm has not yet responded to. Needs a first call. */
+  awaitingCount: number
+  /** Median first-response time in minutes across responded cases, or null. */
+  medianResponseMin: number | null
+  /** Share of delivered cases responded to within SLA, 0..100, or null. */
+  slaAdherencePct: number | null
+  /** Fixed fees actually billed across delivered cases, in cents. */
+  feesPaidCents: number
+}
+
+function median(nums: number[]): number | null {
+  if (nums.length === 0) return null
+  const s = [...nums].sort((a, b) => a - b)
+  const mid = Math.floor(s.length / 2)
+  return s.length % 2 ? s[mid] : Math.round((s[mid - 1] + s[mid]) / 2)
+}
+
+/** Derive the cockpit metrics from a firm's Glass Box. Pure, unit tested. */
+export function toFirmMetrics(glass: Pick<FirmGlassBox, 'wallet' | 'deliveries'> | null): FirmMetrics {
+  const deliveries = glass?.deliveries ?? []
+  const delivered = deliveries.filter((d) => d.deliveredAt != null)
+  const responded = delivered.filter((d) => d.firmRespondedAt != null && d.responseTimeSeconds != null)
+  const onTime = delivered.filter((d) => d.firmRespondedAt != null && !d.slaBreached)
+  const responseMins = responded.map((d) => Math.round((d.responseTimeSeconds as number) / 60))
+  return {
+    balanceCents: glass?.wallet.balanceCents ?? 0,
+    delivered: delivered.length,
+    awaitingCount: delivered.filter((d) => d.firmRespondedAt == null).length,
+    medianResponseMin: median(responseMins),
+    slaAdherencePct: delivered.length ? Math.round((onTime.length / delivered.length) * 100) : null,
+    feesPaidCents: delivered.reduce((s, d) => s + (d.billedCents ?? 0), 0),
+  }
+}
+
 /** A short relative time like "2 hrs ago" from an ISO timestamp. */
 export function relativeTime(iso: string | null, nowMs: number): string {
   if (!iso) return '—'
