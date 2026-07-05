@@ -2260,6 +2260,7 @@ export interface Event {
   id: string;
   eventType:
     | 'AttributionCaptured'
+    | 'IntakeSubmitted'
     | 'PhotoUploaded'
     | 'VisionParsed'
     | 'VoiceCaptured'

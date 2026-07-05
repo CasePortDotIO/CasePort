@@ -369,6 +369,39 @@ export default function CheckMyCaseClient() {
   const sigCanvasRef = useRef<HTMLCanvasElement>(null)
   const isDrawingRef = useRef(false)
 
+  // Answer to Wallet moat. First touch attribution is captured once and
+  // persisted, so a refresh does not reset it, and read at submit. Behavioral
+  // timings are first party data no competitor can reconstruct after the fact.
+  // Marketing and geographic signals only, never a case evaluation.
+  const attributionRef = useRef<Record<string, unknown> | null>(null)
+  const behaviorRef = useRef<{ screen: string; at: number }[]>([])
+
+  useEffect(() => {
+    const KEY = 'cp_attribution'
+    try {
+      const existing = localStorage.getItem(KEY)
+      if (existing) { attributionRef.current = JSON.parse(existing); return }
+      const p = new URLSearchParams(window.location.search)
+      const attr: Record<string, unknown> = {
+        utmSource: p.get('utm_source'), utmMedium: p.get('utm_medium'),
+        utmCampaign: p.get('utm_campaign'), utmContent: p.get('utm_content'),
+        keyword: p.get('utm_term') || p.get('keyword'),
+        gclid: p.get('gclid'), fbclid: p.get('fbclid'),
+        referrerSource: document.referrer || null,
+        landingPath: window.location.pathname + window.location.search,
+        firstTouchAt: new Date().toISOString(),
+      }
+      attributionRef.current = attr
+      localStorage.setItem(KEY, JSON.stringify(attr))
+    } catch {
+      attributionRef.current = { firstTouchAt: new Date().toISOString() }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (curScreen) behaviorRef.current.push({ screen: curScreen, at: Date.now() })
+  }, [curScreen])
+
   const TOAST_SKIP = ['s1', 's-confirm', 's-off', 's-off-atty', 's-off-settled', 's-off-recovery', 's-await-thanks', 's-med-soft', 's-await', 's-comp-neg', 's-else']
   const TOAST_MSGS: Record<string, string> = {
     s2: 'Incident noted.', s3: 'Date recorded.', s4: 'Location confirmed.', s5: 'Liability noted.',
@@ -848,16 +881,75 @@ export default function CheckMyCaseClient() {
     }
 
     const timestamp = new Date().toISOString()
+    const submissionId = `CP-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
     updateForm({
       consentTimestamp: timestamp,
       submittedAt: timestamp,
-      submissionId: `CP-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+      submissionId,
       hipaaSignatureMode: sigMode,
       hipaaSignedAt: timestamp,
       hipaaSignature: sigMode === 'draw' ? 'captured' : sigTyped,
     })
 
-    await new Promise(r => setTimeout(r, 1600))
+    // Map the intake to the compliant submission contract. No score, no routing
+    // status. Routing is geographic (server side, W1); scoring is firm facing,
+    // server side, after routing (W2). Raw case facts flow to the backend as data.
+    const caseTypeSlug = (t: string | null): string => {
+      const s = (t || '').toLowerCase()
+      if (s.includes('truck') || s.includes('commercial')) return 'commercial-trucking-accident'
+      if (s.includes('slip') || s.includes('fall') || s.includes('premises') || s.includes('workplace')) return 'premises-liability'
+      if (s.includes('dog') || s.includes('bite') || s.includes('animal')) return 'dog-bite'
+      if (s.includes('malpractice') || s.includes('medical negligence')) return 'medical-malpractice'
+      if (s.includes('wrongful death') || s.includes('fatal')) return 'wrongful-death'
+      return 'motor-vehicle-accident'
+    }
+    const trustedFormCertUrl =
+      (document.querySelector('input[name="xxTrustedFormCertUrl"]') as HTMLInputElement | null)?.value || null
+
+    const submission = {
+      contact: { firstName: fd.firstName || '', phone: fd.phone || undefined, email: fd.email || undefined },
+      location: { state: fd.incidentState || undefined, city: fd.incidentCity || undefined },
+      caseType: caseTypeSlug(fd.incidentType),
+      incidentDate: fd.incidentDate,
+      statuteOfLimitationsDate: null,
+      consent: { given: fd.consentGiven, timestamp, trustedFormCertUrl, consentLanguageVersion: 'v1' },
+      hipaa: { signatureMode: sigMode, signedAt: timestamp, templateVersion: 'hipaa-v1' },
+      attribution: {
+        ...(attributionRef.current || {}),
+        sessionBehavior: {
+          steps: behaviorRef.current,
+          totalSteps: behaviorRef.current.length,
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+        },
+      },
+      meta: { submissionId, phoneVerified: fd.phoneVerified, uploadedFileCount: uploadedFiles.length },
+      caseFacts: {
+        incidentType: fd.incidentType,
+        incidentDaysSince: fd.incidentDaysSince,
+        solFlag: fd.solFlag, solExpired: fd.solExpired,
+        liabilityStatus: fd.liabilityStatus, compNegFlag: fd.compNegFlag,
+        medicalTreatment: fd.medicalTreatment,
+        treatmentTypes: fd.treatmentTypes, providerName: fd.providerName,
+        providerType: fd.providerType, providerCity: fd.providerCity,
+        treatmentRecency: fd.treatmentRecency, treatmentOngoing: fd.treatmentOngoing,
+        injuryTypes: fd.injuryTypes, lifeImpact: fd.lifeImpact,
+        atFaultInsurance: fd.atFaultInsurance, ownUMCoverage: fd.ownUMCoverage,
+        reportFiled: fd.reportFiled, urgencyLevel: fd.urgencyLevel,
+        incidentState: fd.incidentState, incidentCity: fd.incidentCity,
+      },
+    }
+
+    // Best effort submit. The claimant is never blocked on a network error; the
+    // confirmation is shown regardless and the failure is logged for retry.
+    try {
+      await fetch('/api/checkmycase/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submission),
+      })
+    } catch (err) {
+      console.error('[CP] intake submit failed', err)
+    }
 
     const secs = fd.urgencyLevel === 'urgent' ? 900 : fd.urgencyLevel === 'soon' ? 14400 : 86400
     const countdownEl = document.getElementById('countdownTimer')

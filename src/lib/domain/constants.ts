@@ -72,6 +72,7 @@ export const NOT_RETAINED_REASONS = [
  */
 export const EVENT_TYPES = [
   'AttributionCaptured',
+  'IntakeSubmitted',
   'PhotoUploaded',
   'VisionParsed',
   'VoiceCaptured',

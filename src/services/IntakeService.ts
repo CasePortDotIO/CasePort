@@ -54,9 +54,14 @@ export function createIntakeService(deps: IntakeDeps) {
   async function beginIntake(input: {
     attribution: AttributionTuple
     contact: ClaimantContact
-  }): Promise<{ sessionId: string; claimantId: string; marketId: string | null }> {
+  }): Promise<{
+    sessionId: string
+    claimantId: string
+    marketId: string | null
+    marketSlug: string | null
+  }> {
     const claimant = await deps.claimants.create(input.contact)
-    const market = await deps.markets.resolveByZip(input.contact.marketZip)
+    const market = await deps.markets.resolveByLocation(input.contact.location)
     const session = await deps.intake.createSession({
       claimantId: claimant.id,
       marketId: market?.id ?? null,
@@ -67,7 +72,12 @@ export function createIntakeService(deps: IntakeDeps) {
       keyword: input.attribution.keyword,
       market: market?.slug ?? null,
     })
-    return { sessionId: session.id, claimantId: claimant.id, marketId: market?.id ?? null }
+    return {
+      sessionId: session.id,
+      claimantId: claimant.id,
+      marketId: market?.id ?? null,
+      marketSlug: market?.slug ?? null,
+    }
   }
 
   /** Voice captured and transcribed by Deepgram (Section 6 step 2). */
@@ -98,10 +108,15 @@ export function createIntakeService(deps: IntakeDeps) {
   /** Consent and TrustedForm (Section 6 step 5, W7). */
   async function captureConsent(
     sessionId: string,
-    meta: { ipAddress?: string; userAgent?: string },
+    meta: { ipAddress?: string; userAgent?: string; trustedFormCertUrl?: string | null },
   ): Promise<void> {
     const submissionId = deps.ids.submissionId()
-    const cert = await deps.consent.certify({ submissionId, ...meta })
+    const cert = await deps.consent.certify({
+      submissionId,
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+      providedCertUrl: meta.trustedFormCertUrl,
+    })
     await emit(sessionId, 'ConsentCaptured', 'intakeSession', sessionId, {
       submissionId,
       consentLanguageVersion: cert.consentLanguageVersion,
@@ -114,6 +129,21 @@ export function createIntakeService(deps: IntakeDeps) {
   /** HIPAA template pre signed, firm name blank until routing (Section 6, W5). */
   async function signHipaaTemplate(sessionId: string, templateVersion: string): Promise<void> {
     await emit(sessionId, 'HIPAATemplateSigned', 'intakeSession', sessionId, { templateVersion })
+  }
+
+  /**
+   * Record the raw structured intake as an immutable IntakeSubmitted event. This
+   * is the moat: the append only log holds the complete first party case facts,
+   * tied to the attribution tuple through the session. If the intelligence layer
+   * were deleted, SCPS and every downstream metric could be rebuilt from here
+   * (Section 4). These raw facts are firm facing material, never scored or shown
+   * to the claimant on the way in (W1, W2).
+   */
+  async function recordStructuredIntake(
+    sessionId: string,
+    caseFacts: Record<string, unknown>,
+  ): Promise<void> {
+    await emit(sessionId, 'IntakeSubmitted', 'intakeSession', sessionId, caseFacts)
   }
 
   /**
@@ -135,12 +165,21 @@ export function createIntakeService(deps: IntakeDeps) {
     return { passed, reasons }
   }
 
-  /** Protection plan (Section 6 step 7). They walk out armed. */
+  /** Protection plan (Section 6 step 7). They walk out armed. Resilient: if the
+   * narrative call fails or returns nothing, the fallback plan is used so the
+   * claimant is never left without protective guidance. */
   async function generateProtectionPlan(
     sessionId: string,
     input: { summary: string; caseType: string },
+    fallback: string[] = [],
   ): Promise<string[]> {
-    const plan = await deps.narrative.protectionPlan(input)
+    let plan: string[]
+    try {
+      plan = await deps.narrative.protectionPlan(input)
+      if (!plan || plan.length === 0) plan = fallback
+    } catch {
+      plan = fallback
+    }
     await emit(sessionId, 'ProtectionPlanGenerated', 'intakeSession', sessionId, {
       steps: plan.length,
     })
@@ -186,6 +225,7 @@ export function createIntakeService(deps: IntakeDeps) {
     confirmPlayback,
     captureConsent,
     signHipaaTemplate,
+    recordStructuredIntake,
     validateIntake,
     generateProtectionPlan,
     assembleDossier,

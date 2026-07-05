@@ -105,8 +105,11 @@ export function createInMemoryHarness(
       get: async (id) => createdDossiers.find((d) => d.id === id) ?? null,
     },
     markets: {
-      resolveByZip: async (zip) =>
-        zip.startsWith('303') && liveMarket.liveForIntake ? liveMarket : null,
+      resolveByLocation: async (loc) => {
+        const inAtlanta =
+          loc.zip?.startsWith('303') || loc.city?.toLowerCase() === 'atlanta' || loc.state === 'GA'
+        return inAtlanta && liveMarket.liveForIntake ? liveMarket : null
+      },
     },
     media: {
       put: async ({ key }) => ({ key }),

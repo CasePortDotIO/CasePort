@@ -21,10 +21,18 @@ export interface AttributionTuple {
 /* Claimant contact captured during intake. PII (Section 5). */
 export interface ClaimantContact {
   firstName: string
-  lastName: string
+  lastName?: string
   phone?: string
   email?: string
-  marketZip: string
+  location: GeographicLocation
+}
+
+/* The geographic inputs to routing (W1). ZIP preferred; state and city are the
+ * fallback for the launch markets. No quality signal is ever present here. */
+export interface GeographicLocation {
+  state?: string
+  city?: string
+  zip?: string
 }
 
 /* A resolved market. The routing surface exposes only what W1 permits. */
@@ -85,9 +93,10 @@ export interface DossierRepository {
   get(id: string): Promise<Dossier | null>
 }
 
-/* Resolves a market from a ZIP. Geographic only (W1). No quality signal. */
+/* Resolves a market from a geographic location. Geographic only (W1). No
+ * quality signal is reachable through this port. */
 export interface MarketResolver {
-  resolveByZip(zip: string): Promise<MarketInfo | null>
+  resolveByLocation(location: GeographicLocation): Promise<MarketInfo | null>
 }
 
 /* Media storage behind signed, expiring URLs. Never public (Section 3, W5). */
@@ -121,12 +130,16 @@ export interface TranscriptionClient {
   transcribe(input: { mediaKey: string }): Promise<{ transcript: string }>
 }
 
-/* TrustedForm certificate on every submission (W7). */
+/* TrustedForm certificate on every submission (W7). The certificate is
+ * generated client side by the TrustedForm script, so certify records the
+ * provided certificate; it generates a placeholder only if none was provided. */
 export interface ConsentClient {
-  certify(input: { submissionId: string; ipAddress?: string; userAgent?: string }): Promise<{
-    trustedFormUrl: string
-    consentLanguageVersion: string
-  }>
+  certify(input: {
+    submissionId: string
+    ipAddress?: string
+    userAgent?: string
+    providedCertUrl?: string | null
+  }): Promise<{ trustedFormUrl: string; consentLanguageVersion: string }>
 }
 
 /* Deterministic id and clock ports keep the domain pure and testable. */

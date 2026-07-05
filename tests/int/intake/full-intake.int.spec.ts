@@ -28,7 +28,7 @@ async function runFullIntake(harness = createInMemoryHarness()) {
       firstName: 'Jordan',
       lastName: 'Rivera',
       phone: '(404) 555-0100',
-      marketZip: '30303',
+      location: { state: 'GA', city: 'Atlanta', zip: '30303' },
     },
   })
 
@@ -85,7 +85,7 @@ describe('Phase 1 full intake pipeline', () => {
     const svc = createIntakeService(harness)
     const { sessionId } = await svc.beginIntake({
       attribution,
-      contact: { firstName: 'A', lastName: 'B', marketZip: '99999' },
+      contact: { firstName: 'A', lastName: 'B', location: { state: 'CA', city: 'Fresno', zip: '93701' } },
     })
     const validation = await svc.validateIntake(sessionId)
     expect(validation.passed).toBe(false)
