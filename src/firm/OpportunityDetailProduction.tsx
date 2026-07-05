@@ -5,7 +5,7 @@ import { ChevronLeft, Phone, User, FileText, Gauge, ShieldCheck, Download, Clock
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/firm/useAuth';
 import EmptyState from '@/firm/EmptyState';
-import { relativeTime } from '@/firm/useFirmData';
+import { relativeTime, dollars } from '@/firm/useFirmData';
 
 /**
  * The closing kit for one delivered opportunity, from the firm's real Glass Box.
@@ -59,6 +59,8 @@ export default function OpportunityDetailProduction() {
   const firmName = user?.firmName ?? 'your firm';
   const [detail, setDetail] = useState<Detail | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'empty'>('loading');
+  const [firmId, setFirmId] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<{ phase: 'idle' | 'saving' | 'saved'; label?: string; costPerSignedCaseCents?: number | null }>({ phase: 'idle' });
 
   useEffect(() => {
     const m = window.location.pathname.match(/\/opportunity\/([^/]+)/);
@@ -68,6 +70,7 @@ export default function OpportunityDetailProduction() {
       try {
         const cur = (await fetch('/api/firm/current').then((r) => r.json())) as { firmId: string | null };
         if (!cur.firmId || !deliveryId) { if (!cancelled) setStatus('empty'); return; }
+        if (!cancelled) setFirmId(cur.firmId);
         const res = await fetch(`/api/firm/${encodeURIComponent(cur.firmId)}/opportunity/${encodeURIComponent(deliveryId)}`);
         if (!res.ok) { if (!cancelled) setStatus('empty'); return; }
         const d = (await res.json()) as Detail;
@@ -101,7 +104,31 @@ export default function OpportunityDetailProduction() {
   const nowMs = Date.now();
   const caseTypeLabel = CASE_TYPE_LABEL[detail.caseType] ?? detail.caseType;
   const responded = Boolean(detail.firmRespondedAt);
-  const report = (label: string) => toast.success(`Recorded as ${label}. Your cost per signed case just sharpened.`);
+
+  const OUTCOME_LABEL: Record<string, string> = {
+    retained: 'signed',
+    'still-evaluating': 'still being worked',
+    'not-retained': 'not signed',
+  };
+
+  async function submitOutcome(result: 'retained' | 'still-evaluating' | 'not-retained') {
+    if (!firmId || !detail || outcome.phase === 'saving') return;
+    setOutcome({ phase: 'saving' });
+    try {
+      const res = await fetch(`/api/firm/${encodeURIComponent(firmId)}/opportunity/${encodeURIComponent(detail.deliveryId)}/outcome`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ result }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { acer?: { costPerSignedCaseCents?: number | null } };
+      if (!res.ok) throw new Error('failed');
+      setOutcome({ phase: 'saved', label: OUTCOME_LABEL[result], costPerSignedCaseCents: data.acer?.costPerSignedCaseCents ?? null });
+      toast.success(`Recorded as ${OUTCOME_LABEL[result]}. Your cost per signed case just sharpened.`);
+    } catch {
+      setOutcome({ phase: 'idle' });
+      toast.error('Could not record the outcome. Please try again.');
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -220,21 +247,43 @@ export default function OpportunityDetailProduction() {
             </button>
           </Card>
 
-          {/* Report the outcome */}
+          {/* Report the outcome. This is the moat's ignition: a reported outcome
+             feeds the SCPS feedback loop and unlocks the firm's true cost per
+             signed case. It never touches the fee (W4). */}
           <Card className="p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1">After your call</h2>
-            <p className="text-xs text-muted-foreground mb-4">One tap. It unlocks your true cost per signed case.</p>
-            <div className="space-y-2.5">
-              <button onClick={() => report('signed')} className="w-full rounded-lg py-2.5 text-sm font-semibold transition-colors" style={{ color: '#052018', background: `linear-gradient(120deg, ${TEAL}, ${POS})` }}>
-                It signed
-              </button>
-              <button onClick={() => report('still being worked')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-foreground">
-                Still working it
-              </button>
-              <button onClick={() => report('not signed')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-muted-foreground">
-                It did not sign
-              </button>
-            </div>
+            {outcome.phase === 'saved' ? (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldCheck className="w-4 h-4" style={{ color: POS }} />
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Outcome recorded</h2>
+                </div>
+                <p className="text-sm text-foreground leading-relaxed">
+                  Recorded as <b className="font-semibold">{outcome.label}</b>. This tunes your market intelligence and the signed case model.
+                </p>
+                {outcome.costPerSignedCaseCents != null && (
+                  <div className="mt-4 rounded-lg p-4" style={{ background: 'rgba(34,197,141,0.08)', border: '1px solid rgba(34,197,141,0.2)' }}>
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-1">Your true cost per signed case</p>
+                    <p className="text-2xl font-light tabular-nums text-foreground">${dollars(outcome.costPerSignedCaseCents)}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1">After your call</h2>
+                <p className="text-xs text-muted-foreground mb-4">One tap. It unlocks your true cost per signed case.</p>
+                <div className="space-y-2.5">
+                  <button disabled={outcome.phase === 'saving'} onClick={() => submitOutcome('retained')} className="w-full rounded-lg py-2.5 text-sm font-semibold transition-colors disabled:opacity-60" style={{ color: '#052018', background: `linear-gradient(120deg, ${TEAL}, ${POS})` }}>
+                    It signed
+                  </button>
+                  <button disabled={outcome.phase === 'saving'} onClick={() => submitOutcome('still-evaluating')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-foreground disabled:opacity-60">
+                    Still working it
+                  </button>
+                  <button disabled={outcome.phase === 'saving'} onClick={() => submitOutcome('not-retained')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-muted-foreground disabled:opacity-60">
+                    It did not sign
+                  </button>
+                </div>
+              </>
+            )}
           </Card>
         </div>
       </div>

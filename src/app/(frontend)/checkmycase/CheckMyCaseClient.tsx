@@ -921,6 +921,17 @@ export default function CheckMyCaseClient() {
           steps: behaviorRef.current,
           totalSteps: behaviorRef.current.length,
           userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+          // First party intake behavior, the moat's raw material. Folded into the
+          // immutable tuple so a signed case can later be correlated not just to a
+          // keyword, but to how that claimant behaved during intake.
+          timeToSubmitMs: (() => {
+            const first = attributionRef.current?.firstTouchAt;
+            const t = typeof first === 'string' ? Date.parse(first) : NaN;
+            return Number.isFinite(t) ? Math.max(0, Date.now() - t) : null;
+          })(),
+          uploadedFileCount: uploadedFiles.length,
+          documentedCase: uploadedFiles.length > 0,
+          deviceType: typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
         },
       },
       meta: { submissionId, phoneVerified: fd.phoneVerified, uploadedFileCount: uploadedFiles.length },
