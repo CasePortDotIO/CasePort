@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import EvidenceCoach from './EvidenceCoach'
 
 // City data - all 50 states
 const CITIES: Record<string, string[]> = {
@@ -2329,6 +2330,12 @@ export default function CheckMyCaseClient() {
               <div className="upload-kicker">Optional — but it helps</div>
               <h3 className="upload-headline">Strengthen your file while you wait.</h3>
               <p className="upload-body">Cases with documentation move faster. Upload photos, police reports, medical receipts, or insurance letters.</p>
+
+              {/* Guided, shot by shot documentation (AGENTS.md Section 4.1). Every
+                 direction is guarded server side: procedural photographic
+                 direction only, never a case assessment. */}
+              <EvidenceCoach onFiles={(files) => setUploadedFiles(prev => [...prev, ...files])} />
+
               <div
                 className="upload-zone"
                 onDragOver={(e) => e.preventDefault()}
