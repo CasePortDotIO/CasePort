@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { MARKET_TYPES, MARKET_TIERS } from '@/lib/domain/constants'
 
 export const Markets: CollectionConfig = {
   slug: 'markets',
@@ -265,6 +266,65 @@ export const Markets: CollectionConfig = {
                 description:
                   'Hidden semantic blocks for Answer Engine Optimization. Will be rendered seamlessly.',
               },
+            },
+          ],
+        },
+        {
+          label: 'Routing & Wallet',
+          description:
+            'Backend routing and pricing config. Routing is geographic only (W1). Not every city is equal (decision D5).',
+          fields: [
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'marketType',
+                  type: 'select',
+                  defaultValue: 'single-firm-exclusive',
+                  options: MARKET_TYPES.map((m) => ({ label: m.label, value: m.value })),
+                  admin: {
+                    description:
+                      'Single firm exclusive ships now. Multi firm panel is the W8 deferred seam.',
+                  },
+                },
+                {
+                  name: 'marketTier',
+                  type: 'select',
+                  defaultValue: 'standard',
+                  options: MARKET_TIERS.map((m) => ({ label: m.label, value: m.value })),
+                  admin: { description: 'Drives the premium metro price tier (decision D3).' },
+                },
+              ],
+            },
+            {
+              name: 'assignedFirm',
+              type: 'relationship',
+              relationTo: 'firms',
+              admin: {
+                description:
+                  'The single firm this protected market routes to. Resolved geographically only (W1).',
+              },
+            },
+            {
+              name: 'partnerCap',
+              type: 'number',
+              defaultValue: 1,
+              admin: {
+                description:
+                  'One for single firm exclusive markets. Reserved higher for the future multi firm panel type.',
+              },
+            },
+            {
+              name: 'zipClusters',
+              type: 'array',
+              admin: { description: 'The ZIP clusters that resolve to this market for routing.' },
+              fields: [{ name: 'zip', type: 'text', required: true }],
+            },
+            {
+              name: 'liveForIntake',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: { description: 'Whether basic intake validation treats this as a live market.' },
             },
           ],
         },

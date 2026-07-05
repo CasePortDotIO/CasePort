@@ -59,8 +59,8 @@ function toClaimantDossier_WRONG(dossier: Dossier): unknown {
   return {
     id: dossier.id,
     status: dossier.status,
-    // The violation: leaks scpsScore, estimatedValue, injurySeverity, and more.
-    scpsScore: dossier.evaluation.scpsScore,
+    // The violation: spreading the evaluation half leaks scpsScore,
+    // estimatedValue, injurySeverity, and every other firm only field.
     ...dossier.evaluation,
   }
 }

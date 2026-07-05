@@ -27,6 +27,28 @@ import { HeaderNav } from './globals/HeaderNav'
 import { MarketsPage } from './globals/MarketsPage'
 import { SiteSettings } from './globals/SiteSettings'
 
+// CasePort backend collections (Section 5). The system of record surface for
+// the case acquisition network. Field level access on Dossiers enforces the
+// audience split (W2).
+import {
+  Events,
+  Claimants,
+  IntakeSessions,
+  Dossiers,
+  Firms,
+  Wallets,
+  LedgerEntries,
+  Deliveries,
+  Outcomes,
+  ScpsScores,
+  Disputes,
+  Consents,
+  HipaaAuthorizations,
+  Disclosures,
+  AuditLog,
+  Operators,
+} from './collections/backend'
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -117,6 +139,23 @@ export default buildConfig({
     Authors,
     Articles,
     InjuredLeads,
+    // CasePort backend (Section 5)
+    Events,
+    Claimants,
+    IntakeSessions,
+    Dossiers,
+    Firms,
+    Wallets,
+    LedgerEntries,
+    Deliveries,
+    Outcomes,
+    ScpsScores,
+    Disputes,
+    Consents,
+    HipaaAuthorizations,
+    Disclosures,
+    AuditLog,
+    Operators,
   ],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature(), CTAButtonFeature()],

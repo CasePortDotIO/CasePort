@@ -80,6 +80,22 @@ export interface Config {
     authors: Author;
     articles: Article;
     'injured-leads': InjuredLead;
+    events: Event;
+    claimants: Claimant;
+    intakeSessions: IntakeSession;
+    dossiers: Dossier;
+    firms: Firm;
+    wallets: Wallet;
+    ledgerEntries: LedgerEntry;
+    deliveries: Delivery;
+    outcomes: Outcome;
+    scpsScores: ScpsScore;
+    disputes: Dispute;
+    consents: Consent;
+    hipaaAuthorizations: HipaaAuthorization;
+    disclosures: Disclosure;
+    auditLog: AuditLog;
+    operators: Operator;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -100,6 +116,22 @@ export interface Config {
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     'injured-leads': InjuredLeadsSelect<false> | InjuredLeadsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    claimants: ClaimantsSelect<false> | ClaimantsSelect<true>;
+    intakeSessions: IntakeSessionsSelect<false> | IntakeSessionsSelect<true>;
+    dossiers: DossiersSelect<false> | DossiersSelect<true>;
+    firms: FirmsSelect<false> | FirmsSelect<true>;
+    wallets: WalletsSelect<false> | WalletsSelect<true>;
+    ledgerEntries: LedgerEntriesSelect<false> | LedgerEntriesSelect<true>;
+    deliveries: DeliveriesSelect<false> | DeliveriesSelect<true>;
+    outcomes: OutcomesSelect<false> | OutcomesSelect<true>;
+    scpsScores: ScpsScoresSelect<false> | ScpsScoresSelect<true>;
+    disputes: DisputesSelect<false> | DisputesSelect<true>;
+    consents: ConsentsSelect<false> | ConsentsSelect<true>;
+    hipaaAuthorizations: HipaaAuthorizationsSelect<false> | HipaaAuthorizationsSelect<true>;
+    disclosures: DisclosuresSelect<false> | DisclosuresSelect<true>;
+    auditLog: AuditLogSelect<false> | AuditLogSelect<true>;
+    operators: OperatorsSelect<false> | OperatorsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -258,6 +290,75 @@ export interface Market {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Single firm exclusive ships now. Multi firm panel is the W8 deferred seam.
+   */
+  marketType?: ('single-firm-exclusive' | 'multi-firm-panel') | null;
+  /**
+   * Drives the premium metro price tier (decision D3).
+   */
+  marketTier?: ('standard' | 'premium') | null;
+  /**
+   * The single firm this protected market routes to. Resolved geographically only (W1).
+   */
+  assignedFirm?: (string | null) | Firm;
+  /**
+   * One for single firm exclusive markets. Reserved higher for the future multi firm panel type.
+   */
+  partnerCap?: number | null;
+  /**
+   * The ZIP clusters that resolve to this market for routing.
+   */
+  zipClusters?:
+    | {
+        zip: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Whether basic intake validation treats this as a live market.
+   */
+  liveForIntake?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Law firm partner record, SLA terms, and the fixed price table.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "firms".
+ */
+export interface Firm {
+  id: string;
+  name: string;
+  assignedMarket?: (string | null) | Market;
+  email?: string | null;
+  phone?: string | null;
+  foundingPartner?: boolean | null;
+  /**
+   * Contractual callback SLA. Golden window.
+   */
+  slaCallbackMinutes?: number | null;
+  status?: ('active' | 'inactive' | 'suspended') | null;
+  /**
+   * Fixed fee per delivered opportunity by case type (D3). Never outcome derived (W3).
+   */
+  priceTable?:
+    | {
+        caseType:
+          | 'motor-vehicle-accident'
+          | 'commercial-trucking-accident'
+          | 'premises-liability'
+          | 'medical-malpractice'
+          | 'wrongful-death'
+          | 'dog-bite';
+        /**
+         * Fixed fee in cents.
+         */
+        feeCents: number;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2150,6 +2251,443 @@ export interface InjuredLead {
   createdAt: string;
 }
 /**
+ * Append only global event log. Immutable by design.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: string;
+  eventType:
+    | 'AttributionCaptured'
+    | 'PhotoUploaded'
+    | 'VisionParsed'
+    | 'VoiceCaptured'
+    | 'VoiceTranscribed'
+    | 'DocumentParsed'
+    | 'EvidenceCoachingShown'
+    | 'PlaybackShown'
+    | 'PlaybackConfirmed'
+    | 'ConsentCaptured'
+    | 'TrustedFormCertified'
+    | 'HIPAATemplateSigned'
+    | 'IntakeValidated'
+    | 'ProtectionPlanGenerated'
+    | 'StatusViewed'
+    | 'GeographicRouteResolved'
+    | 'DossierDelivered'
+    | 'WalletFunded'
+    | 'WalletDebited'
+    | 'OutcomeReported'
+    | 'SCPSRecalibrated';
+  aggregateType: string;
+  aggregateId: string;
+  /**
+   * Attribution tuple carrier for this event, when applicable.
+   */
+  intakeSession?: (string | null) | IntakeSession;
+  /**
+   * System, claimant, firm, or operator.
+   */
+  actor?: string | null;
+  occurredAt: string;
+  /**
+   * Event body. Never contains medical records.
+   */
+  payload?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Intake attempt with the immutable attribution tuple.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intakeSessions".
+ */
+export interface IntakeSession {
+  id: string;
+  claimant?: (string | null) | Claimant;
+  market?: (string | null) | Market;
+  /**
+   * Immutable. Captured at first touch before anything else (W: Answer to Wallet).
+   */
+  attribution?: {
+    source?: string | null;
+    keyword?: string | null;
+    referringSurface?: string | null;
+    sessionBehavior?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    firstTouchAt?: string | null;
+  };
+  /**
+   * Basic intake completeness gate. Not a quality gate (W1).
+   */
+  validationPassed?: boolean | null;
+  events?: (string | Event)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Claimant identity and contact. PII, access controlled.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "claimants".
+ */
+export interface Claimant {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+  email?: string | null;
+  /**
+   * ZIP used to resolve market for geographic routing (W1).
+   */
+  marketZip?: string | null;
+  /**
+   * R2 object keys for photos, voice, and documents. Never public.
+   */
+  mediaRefs?:
+    | {
+        key: string;
+        kind?: ('photo' | 'voice' | 'document') | null;
+        id?: string | null;
+      }[]
+    | null;
+  consents?: (string | Consent)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Immutable consent record. Seven year retention (W7).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consents".
+ */
+export interface Consent {
+  id: string;
+  claimant?: (string | null) | Claimant;
+  trustedFormUrl: string;
+  consentLanguageVersion: string;
+  ipAddress?: string | null;
+  submissionId: string;
+  userAgent?: string | null;
+  capturedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Assembled case file. Claimant safe fields and firm only evaluation are physically separated.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dossiers".
+ */
+export interface Dossier {
+  id: string;
+  claimant: string | Claimant;
+  market: string | Market;
+  caseType?:
+    | (
+        | 'motor-vehicle-accident'
+        | 'commercial-trucking-accident'
+        | 'premises-liability'
+        | 'medical-malpractice'
+        | 'wrongful-death'
+        | 'dog-bite'
+      )
+    | null;
+  /**
+   * Geographic and procedural language only.
+   */
+  status?: ('received' | 'delivered' | 'contacted' | 'closed') | null;
+  /**
+   * Reflective playback. Organization of the claimant words, never legal evaluation.
+   */
+  plainLanguageSummary?: string | null;
+  protectionPlan?:
+    | {
+        step: string;
+        id?: string | null;
+      }[]
+    | null;
+  statuteOfLimitationsDate?: string | null;
+  receivedAt?: string | null;
+  evaluation?: {
+    /**
+     * Firm facing triage percentage. Attached after routing.
+     */
+    scpsScore?: number | null;
+    scpsVersion?: string | null;
+    qualificationTier?: ('A' | 'B' | 'C' | 'D') | null;
+    qualificationScore?: number | null;
+    qualificationBreakdown?:
+      | {
+          layer?: string | null;
+          score?: number | null;
+          max?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    estimatedValue?: number | null;
+    injurySeverity?: string | null;
+    liabilityAssessment?: string | null;
+    statuteStatus?: string | null;
+    signedCaseProbability?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Derived balance snapshot. Authoritative truth is the ledger.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wallets".
+ */
+export interface Wallet {
+  id: string;
+  firm: string | Firm;
+  /**
+   * Cached sum of ledger entries. Rebuildable.
+   */
+  balanceCents?: number | null;
+  /**
+   * Fires a top up prompt before the wallet empties (Section 10).
+   */
+  lowBalanceThresholdCents?: number | null;
+  lastRebuiltAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Append only authoritative ledger. Immutable. Unique idempotency key.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ledgerEntries".
+ */
+export interface LedgerEntry {
+  id: string;
+  firm: string | Firm;
+  entryType: 'credit' | 'debit';
+  reason: 'topup' | 'delivery-debit' | 'adjustment';
+  /**
+   * Positive for credit, negative for debit.
+   */
+  amountCents: number;
+  /**
+   * Derived from the delivery event id for debits. Enforces exactly once.
+   */
+  idempotencyKey: string;
+  /**
+   * Set on delivery debits.
+   */
+  delivery?: (string | null) | Delivery;
+  /**
+   * Stripe reference on top ups. Stripe is the rail, the ledger is the truth.
+   */
+  stripeRef?: string | null;
+  balanceAfterCents?: number | null;
+  occurredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Dossier to firm delivery with SLA response tracking.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deliveries".
+ */
+export interface Delivery {
+  id: string;
+  dossier: string | Dossier;
+  firm: string | Firm;
+  status?: ('held' | 'delivered' | 'billed') | null;
+  deliveredAt?: string | null;
+  firmRespondedAt?: string | null;
+  responseTimeSeconds?: number | null;
+  slaBreached?: boolean | null;
+  /**
+   * Set true only inside the ACID debit transaction.
+   */
+  billed?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Firm reported outcome. Feeds intelligence only, never billing (W4).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "outcomes".
+ */
+export interface Outcome {
+  id: string;
+  delivery: string | Delivery;
+  firm: string | Firm;
+  result: 'retained' | 'not-retained' | 'still-evaluating' | 'settled';
+  /**
+   * Required when not retained.
+   */
+  reasonCode?: ('NR-001' | 'NR-002' | 'NR-003' | 'NR-004' | 'NR-005') | null;
+  /**
+   * Reported case value. Intelligence only. Never a fee input (W3).
+   */
+  settlementValueCents?: number | null;
+  reportedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Versioned SCPS. Firm facing triage only. Never a routing input (W1).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scpsScores".
+ */
+export interface ScpsScore {
+  id: string;
+  dossier: string | Dossier;
+  modelVersion: string;
+  score: number;
+  /**
+   * The 5 layer factor set: Signal Integrity, Geographic Fit, Case Viability, Contactability, Buyer Fit.
+   */
+  breakdown?:
+    | {
+        layer?: string | null;
+        score?: number | null;
+        max?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  computedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Firm dispute over a delivered opportunity.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "disputes".
+ */
+export interface Dispute {
+  id: string;
+  delivery: string | Delivery;
+  firm: string | Firm;
+  status?: ('open' | 'in-review' | 'resolved') | null;
+  priority?: ('low' | 'medium' | 'high') | null;
+  reason: string;
+  amountCents?: number | null;
+  openedAt?: string | null;
+  resolution?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Executed HIPAA authorization record. CasePort never stores medical records (W5).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hipaaAuthorizations".
+ */
+export interface HipaaAuthorization {
+  id: string;
+  claimant: string | Claimant;
+  templateVersion: string;
+  /**
+   * When the claimant pre signed the blank template.
+   */
+  signedAt?: string | null;
+  /**
+   * Populated at routing with the specific firm name (W5).
+   */
+  executedFirmName?: string | null;
+  executedFirm?: (string | null) | Firm;
+  executedAt?: string | null;
+  /**
+   * R2 object key for the executed authorization document. Never a medical record.
+   */
+  documentRef?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Jurisdiction served disclaimer and disclosure text (W6).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "disclosures".
+ */
+export interface Disclosure {
+  id: string;
+  label: string;
+  jurisdiction: 'VA' | 'MD' | 'DC' | 'GA' | 'NY' | 'FL' | 'TX' | 'general';
+  disclosureType: 'non-recommendation' | 'attorney-advertising' | 'office-location' | 'no-representation';
+  body: string;
+  version: string;
+  effectiveAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Immutable audit of routing and delivery decisions. Seven year retention (W7).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auditLog".
+ */
+export interface AuditLog {
+  id: string;
+  decisionType: 'routing' | 'delivery';
+  /**
+   * For routing decisions the only permitted value is geographic (W1).
+   */
+  reason: 'geographic' | 'delivered' | 'held';
+  aggregateId: string;
+  firm?: (string | null) | Firm;
+  market?: (string | null) | Market;
+  actor?: string | null;
+  details?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  occurredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Internal operator staff record.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "operators".
+ */
+export interface Operator {
+  id: string;
+  name: string;
+  email?: string | null;
+  /**
+   * Backing Payload auth user.
+   */
+  user?: (string | null) | User;
+  role?: ('operator' | 'supervisor' | 'manager') | null;
+  status?: ('active' | 'inactive' | 'on-leave') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -2224,6 +2762,70 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'injured-leads';
         value: string | InjuredLead;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: string | Event;
+      } | null)
+    | ({
+        relationTo: 'claimants';
+        value: string | Claimant;
+      } | null)
+    | ({
+        relationTo: 'intakeSessions';
+        value: string | IntakeSession;
+      } | null)
+    | ({
+        relationTo: 'dossiers';
+        value: string | Dossier;
+      } | null)
+    | ({
+        relationTo: 'firms';
+        value: string | Firm;
+      } | null)
+    | ({
+        relationTo: 'wallets';
+        value: string | Wallet;
+      } | null)
+    | ({
+        relationTo: 'ledgerEntries';
+        value: string | LedgerEntry;
+      } | null)
+    | ({
+        relationTo: 'deliveries';
+        value: string | Delivery;
+      } | null)
+    | ({
+        relationTo: 'outcomes';
+        value: string | Outcome;
+      } | null)
+    | ({
+        relationTo: 'scpsScores';
+        value: string | ScpsScore;
+      } | null)
+    | ({
+        relationTo: 'disputes';
+        value: string | Dispute;
+      } | null)
+    | ({
+        relationTo: 'consents';
+        value: string | Consent;
+      } | null)
+    | ({
+        relationTo: 'hipaaAuthorizations';
+        value: string | HipaaAuthorization;
+      } | null)
+    | ({
+        relationTo: 'disclosures';
+        value: string | Disclosure;
+      } | null)
+    | ({
+        relationTo: 'auditLog';
+        value: string | AuditLog;
+      } | null)
+    | ({
+        relationTo: 'operators';
+        value: string | Operator;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2350,6 +2952,17 @@ export interface MarketsSelect<T extends boolean = true> {
         id?: T;
       };
   aeoContent?: T;
+  marketType?: T;
+  marketTier?: T;
+  assignedFirm?: T;
+  partnerCap?: T;
+  zipClusters?:
+    | T
+    | {
+        zip?: T;
+        id?: T;
+      };
+  liveForIntake?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3817,6 +4430,295 @@ export interface InjuredLeadsSelect<T extends boolean = true> {
   hasDocuments?: T;
   seen?: T;
   uploadedDocuments?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  eventType?: T;
+  aggregateType?: T;
+  aggregateId?: T;
+  intakeSession?: T;
+  actor?: T;
+  occurredAt?: T;
+  payload?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "claimants_select".
+ */
+export interface ClaimantsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  email?: T;
+  marketZip?: T;
+  mediaRefs?:
+    | T
+    | {
+        key?: T;
+        kind?: T;
+        id?: T;
+      };
+  consents?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intakeSessions_select".
+ */
+export interface IntakeSessionsSelect<T extends boolean = true> {
+  claimant?: T;
+  market?: T;
+  attribution?:
+    | T
+    | {
+        source?: T;
+        keyword?: T;
+        referringSurface?: T;
+        sessionBehavior?: T;
+        firstTouchAt?: T;
+      };
+  validationPassed?: T;
+  events?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dossiers_select".
+ */
+export interface DossiersSelect<T extends boolean = true> {
+  claimant?: T;
+  market?: T;
+  caseType?: T;
+  status?: T;
+  plainLanguageSummary?: T;
+  protectionPlan?:
+    | T
+    | {
+        step?: T;
+        id?: T;
+      };
+  statuteOfLimitationsDate?: T;
+  receivedAt?: T;
+  evaluation?:
+    | T
+    | {
+        scpsScore?: T;
+        scpsVersion?: T;
+        qualificationTier?: T;
+        qualificationScore?: T;
+        qualificationBreakdown?:
+          | T
+          | {
+              layer?: T;
+              score?: T;
+              max?: T;
+              id?: T;
+            };
+        estimatedValue?: T;
+        injurySeverity?: T;
+        liabilityAssessment?: T;
+        statuteStatus?: T;
+        signedCaseProbability?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "firms_select".
+ */
+export interface FirmsSelect<T extends boolean = true> {
+  name?: T;
+  assignedMarket?: T;
+  email?: T;
+  phone?: T;
+  foundingPartner?: T;
+  slaCallbackMinutes?: T;
+  status?: T;
+  priceTable?:
+    | T
+    | {
+        caseType?: T;
+        feeCents?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wallets_select".
+ */
+export interface WalletsSelect<T extends boolean = true> {
+  firm?: T;
+  balanceCents?: T;
+  lowBalanceThresholdCents?: T;
+  lastRebuiltAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ledgerEntries_select".
+ */
+export interface LedgerEntriesSelect<T extends boolean = true> {
+  firm?: T;
+  entryType?: T;
+  reason?: T;
+  amountCents?: T;
+  idempotencyKey?: T;
+  delivery?: T;
+  stripeRef?: T;
+  balanceAfterCents?: T;
+  occurredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deliveries_select".
+ */
+export interface DeliveriesSelect<T extends boolean = true> {
+  dossier?: T;
+  firm?: T;
+  status?: T;
+  deliveredAt?: T;
+  firmRespondedAt?: T;
+  responseTimeSeconds?: T;
+  slaBreached?: T;
+  billed?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "outcomes_select".
+ */
+export interface OutcomesSelect<T extends boolean = true> {
+  delivery?: T;
+  firm?: T;
+  result?: T;
+  reasonCode?: T;
+  settlementValueCents?: T;
+  reportedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scpsScores_select".
+ */
+export interface ScpsScoresSelect<T extends boolean = true> {
+  dossier?: T;
+  modelVersion?: T;
+  score?: T;
+  breakdown?:
+    | T
+    | {
+        layer?: T;
+        score?: T;
+        max?: T;
+        id?: T;
+      };
+  computedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "disputes_select".
+ */
+export interface DisputesSelect<T extends boolean = true> {
+  delivery?: T;
+  firm?: T;
+  status?: T;
+  priority?: T;
+  reason?: T;
+  amountCents?: T;
+  openedAt?: T;
+  resolution?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consents_select".
+ */
+export interface ConsentsSelect<T extends boolean = true> {
+  claimant?: T;
+  trustedFormUrl?: T;
+  consentLanguageVersion?: T;
+  ipAddress?: T;
+  submissionId?: T;
+  userAgent?: T;
+  capturedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hipaaAuthorizations_select".
+ */
+export interface HipaaAuthorizationsSelect<T extends boolean = true> {
+  claimant?: T;
+  templateVersion?: T;
+  signedAt?: T;
+  executedFirmName?: T;
+  executedFirm?: T;
+  executedAt?: T;
+  documentRef?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "disclosures_select".
+ */
+export interface DisclosuresSelect<T extends boolean = true> {
+  label?: T;
+  jurisdiction?: T;
+  disclosureType?: T;
+  body?: T;
+  version?: T;
+  effectiveAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auditLog_select".
+ */
+export interface AuditLogSelect<T extends boolean = true> {
+  decisionType?: T;
+  reason?: T;
+  aggregateId?: T;
+  firm?: T;
+  market?: T;
+  actor?: T;
+  details?: T;
+  occurredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "operators_select".
+ */
+export interface OperatorsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  user?: T;
+  role?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }
