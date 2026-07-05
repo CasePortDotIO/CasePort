@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { NeonCard, ProgressBar } from '@/firm/CasePortComponentsEnhanced';
 import ExportMenu from '@/firm/ExportMenu';
-import InvestmentLayer from '@/firm/InvestmentLayer';
 
 export default function WalletEnhanced() {
   const [, navigate] = useLocation();
@@ -106,22 +105,6 @@ export default function WalletEnhanced() {
 
       {/* Content */}
       <div className="p-8 space-y-8">
-        {/* Investment Layer - Sunk Cost Indicators */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <InvestmentLayer
-            walletBalance={18400}
-            walletThreshold={2000}
-            currentRank={8}
-            totalFirms={156}
-            casesAccepted={35}
-            conversionRate={22.4}
-          />
-        </motion.div>
-
         {/* Balance Display */}
         <motion.div
           variants={containerVariants}
