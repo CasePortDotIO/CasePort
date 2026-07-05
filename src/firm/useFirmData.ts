@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { CASE_TYPES } from '@/lib/domain/constants'
 
 /**
  * The firm data seam. Resolves the current firm, then loads that firm's own
@@ -151,4 +152,64 @@ export function toLedgerRows(entries: FirmLedgerEntry[]): LedgerRow[] {
       amountCents: e.entryType === 'credit' ? Math.abs(e.amountCents) : -Math.abs(e.amountCents),
       balanceCents: e.balanceAfterCents,
     }))
+}
+
+/** An opportunity row for the firm's list, mapped from a real delivery record.
+ * Note what it does NOT carry: no fabricated case value, no invented conversion
+ * probability. Every field here is a real delivery fact. */
+export interface OpportunityRow {
+  /** Display reference derived from the dossier id. */
+  id: string
+  /** The delivery id, used for navigation and lookups. */
+  deliveryId: string
+  caseType: string
+  deliveredAt: string | null
+  /** Response time in whole minutes, or null when the firm has not responded. */
+  responseTimeMin: number | null
+  status: 'Contacted' | 'Awaiting Response'
+  sla: 'On time' | 'Overdue' | 'Pending'
+  /** The fixed fee actually billed for this delivery, in cents. */
+  feeCents: number | null
+  slaBreached: boolean
+}
+
+const CASE_TYPE_LABEL: Record<string, string> = Object.fromEntries(CASE_TYPES.map((c) => [c.value, c.label]))
+
+/** A short, human reference for a dossier id. */
+export function caseReference(dossierId: string): string {
+  return `CP-${String(dossierId).slice(-6).toUpperCase()}`
+}
+
+/**
+ * Map a firm's real deliveries to opportunity rows, newest first. Deterministic
+ * and free of any fabricated evaluative number, so it is unit tested directly.
+ */
+export function toOpportunityRows(deliveries: FirmDeliveryView[]): OpportunityRow[] {
+  return [...deliveries]
+    .sort((a, b) => Date.parse(b.deliveredAt ?? '') - Date.parse(a.deliveredAt ?? ''))
+    .map((d) => ({
+      id: caseReference(d.dossierId),
+      deliveryId: d.deliveryId,
+      caseType: CASE_TYPE_LABEL[d.caseType] ?? d.caseType,
+      deliveredAt: d.deliveredAt,
+      responseTimeMin: d.responseTimeSeconds != null ? Math.round(d.responseTimeSeconds / 60) : null,
+      status: d.firmRespondedAt ? 'Contacted' : 'Awaiting Response',
+      sla: d.slaBreached ? 'Overdue' : d.firmRespondedAt ? 'On time' : 'Pending',
+      feeCents: d.billedCents,
+      slaBreached: d.slaBreached,
+    }))
+}
+
+/** A short relative time like "2 hrs ago" from an ISO timestamp. */
+export function relativeTime(iso: string | null, nowMs: number): string {
+  if (!iso) return '—'
+  const t = Date.parse(iso)
+  if (Number.isNaN(t)) return '—'
+  const mins = Math.max(0, Math.round((nowMs - t) / 60000))
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins} min ago`
+  const hrs = Math.round(mins / 60)
+  if (hrs < 24) return `${hrs} hr${hrs === 1 ? '' : 's'} ago`
+  const days = Math.round(hrs / 24)
+  return `${days} day${days === 1 ? '' : 's'} ago`
 }
