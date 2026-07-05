@@ -5,6 +5,8 @@ import { createDeliveryService } from '../services/DeliveryService'
 import { createIntelligenceService } from '../services/IntelligenceService'
 import { createAgentService } from '../services/AgentService'
 import { createIntakeService } from '../services/IntakeService'
+import { createDossierAssemblyService } from '../services/DossierAssemblyService'
+import { createPayloadAssemblyDeps } from '../services/adapters/payloadAssembly'
 import { createEvidenceCoachingAgent } from '../agents/EvidenceCoachingAgent'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
@@ -24,11 +26,16 @@ import { deliverDossierWorkflow, reconcileWalletsWorkflow, releaseHeldWorkflow }
 /** Build the workflow service bundle from a Payload instance. */
 export function buildWorkflowDeps(payload: Payload): WorkflowDeps {
   const deliveryDeps = createPayloadDeliveryDeps(payload)
+  const assembly = createDossierAssemblyService(createPayloadAssemblyDeps(payload))
   return {
     routing: createRoutingService(createPayloadRoutingDeps(payload)),
     delivery: createDeliveryService(deliveryDeps),
     wallet: deliveryDeps.wallet,
     loadDossier: (id) => deliveryDeps.dossiers.get(id),
+    assembleFirmPackage: async (dossierId, firmId) => {
+      const result = await assembly.assembleFirmPackage(dossierId, firmId)
+      return result ? { scpsScore: result.scpsScore, scpsVersion: result.scpsVersion } : null
+    },
   }
 }
 

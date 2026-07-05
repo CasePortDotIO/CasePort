@@ -2282,6 +2282,7 @@ export interface Event {
     | 'ProtectionPlanGenerated'
     | 'StatusViewed'
     | 'GeographicRouteResolved'
+    | 'DossierAssembled'
     | 'DossierDelivered'
     | 'DeliveryHeld'
     | 'WalletFunded'

@@ -91,6 +91,10 @@ export function createDeliveryHarness(
       return d
     },
     get: async (id) => dossierRows.get(id) ?? null,
+    attachEvaluation: async (id, evaluation) => {
+      const d = dossierRows.get(id)
+      if (d) dossierRows.set(id, { ...d, evaluation })
+    },
   }
 
   const deliveries: DeliveryRepository = {

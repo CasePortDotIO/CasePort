@@ -1,4 +1,4 @@
-import type { Dossier } from '@/lib/compliance/dossierProjections'
+import type { Dossier, FirmOnlyEvaluation } from '@/lib/compliance/dossierProjections'
 import type { EventType } from '@/lib/domain/constants'
 
 /**
@@ -91,6 +91,15 @@ export interface ClaimantRepository {
 export interface DossierRepository {
   create(dossier: Dossier): Promise<Dossier>
   get(id: string): Promise<Dossier | null>
+  /**
+   * Attach the firm only evaluation half after routing (Section 8, Phase 3;
+   * AGENTS.md Section 4.2). This is the one write that populates SCPS and the
+   * qualification factors as firm facing triage. It happens after the geographic
+   * routing decision, never before, so a quality signal can never reach routing
+   * (W1). It writes only the evaluation half; the claimant safe half is
+   * immutable from assembly.
+   */
+  attachEvaluation(id: string, evaluation: FirmOnlyEvaluation): Promise<void>
 }
 
 /* Resolves a market from a geographic location. Geographic only (W1). No

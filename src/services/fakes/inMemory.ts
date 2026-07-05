@@ -104,6 +104,10 @@ export function createInMemoryHarness(
         return dossier
       },
       get: async (id) => createdDossiers.find((d) => d.id === id) ?? null,
+      attachEvaluation: async (id, evaluation) => {
+        const d = createdDossiers.find((row) => row.id === id)
+        if (d) d.evaluation = evaluation
+      },
     },
     markets: {
       resolveByLocation: async (loc) => {

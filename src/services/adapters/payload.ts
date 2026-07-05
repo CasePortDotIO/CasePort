@@ -159,6 +159,14 @@ function payloadDossierRepository(payload: Payload): DossierRepository {
     async get() {
       return null
     },
+    async attachEvaluation(id, evaluation) {
+      await payload.update({
+        collection: 'dossiers',
+        id,
+        data: { evaluation: evaluation as never },
+        overrideAccess: true,
+      })
+    },
   }
 }
 

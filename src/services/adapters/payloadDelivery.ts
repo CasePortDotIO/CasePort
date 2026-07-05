@@ -122,6 +122,16 @@ function payloadDossierReader(payload: Payload): DossierRepository {
         return null
       }
     },
+    async attachEvaluation(id, evaluation) {
+      // Post routing write of the firm only triage half. overrideAccess so the
+      // system can populate it; field access still shields it from claimants.
+      await payload.update({
+        collection: 'dossiers',
+        id,
+        data: { evaluation: evaluation as never },
+        overrideAccess: true,
+      })
+    },
   }
 }
 
