@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/firm/useAuth';
 import BloombergClock from '@/firm/BloombergClock';
+import DashboardFirstRun from '@/firm/DashboardFirstRun';
 
 /* Where the depth lives. The dashboard is the cockpit; each of these opens a
  * dedicated page carrying the detail that used to crowd the landing screen. */
@@ -97,6 +98,14 @@ export default function DashboardInstitutional() {
   const { user } = useAuth();
   const firstName = (user?.name ?? 'Partner').split(' ')[0];
   const newCount = recentOpportunities.filter((o) => o.status === 'New').length;
+
+  // First login, before any case has flowed. Today driven by a preview flag;
+  // when the dashboard reads live data, this becomes "no deliveries yet".
+  const search = typeof window !== 'undefined' ? window.location.search : '';
+  const params = new URLSearchParams(search);
+  if (params.has('new')) {
+    return <DashboardFirstRun firstName={firstName} walletFunded={params.has('funded')} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
