@@ -9,7 +9,8 @@ Locked answers to the Section 15 gate in `CLAUDE.md`. Phase 0 does not begin unt
 | 1 | ACER definition | Locked |
 | 2 | Wallet-dry market policy | Locked |
 | 3 | Per-opportunity price table | Open |
-| 4 | Manus prototype | Open |
+| 4 | Manus prototype | Received and mapped (see PROTOTYPE_CONTRACT_MAP.md) |
+| 5 | Market model: single-firm vs multi-firm | Open |
 
 ---
 
@@ -33,6 +34,17 @@ Behavior.
 
 Awaiting founder-approved fixed fees by case type and launch market (Virginia, Maryland, Washington DC, Georgia). The price-table structure will be built regardless; Phase 3 debit needs approved values before it can move real money. Fees are fixed and never derived from outcome (W3).
 
-## D4. Manus prototype (open)
+## D4. Manus prototype (received and mapped, 2026-07-05)
 
-Awaiting both dashboards (law firm dashboard and CasePort dashboard) so the API contract serves the existing screens exactly. The backend serves the frontend that exists; it does not invent a contract the frontend cannot consume.
+Both dashboards received (law firm dashboard and internal operator dashboard). Fully inventoried and mapped to Section 5 collections and the Section 4 domain services in `docs/PROTOTYPE_CONTRACT_MAP.md`. Key finding: the prototype assumes a multi-firm competitive market that conflicts with single-firm exclusivity. That conflict is escalated as D5.
+
+## D5. Market model: single-firm vs multi-firm (open)
+
+The prototype is built on a multi-firm competitive market (market slots such as 3/3, a leaderboard of 156 firms, ranks, "priority routing" for high performers). The doctrine (W1, W8, Section 8) mandates single-firm geographic exclusivity per protected market, with a future multi-firm type as an unbuilt seam.
+
+Recommended reconciliation, pending founder confirmation:
+- Launch markets (Virginia, Maryland, Washington DC, Georgia) are single-firm protected markets. One firm per market.
+- Leaderboard and rank become national, cross-market vanity metrics with zero routing consequence.
+- "Priority routing" and "priority premium cases" are removed. Reporting completeness gates nothing about routing.
+
+This decision reframes the market health, leaderboard, and slot concepts across both dashboards, so it is resolved before Phase 0 collection design finalizes the `markets` schema.
