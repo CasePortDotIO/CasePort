@@ -106,16 +106,25 @@ export function createIntelligenceHarness(): IntelligenceHarness {
 
   const models: ScpsModelRepository = {
     active: async () => {
-      // The highest version number is active.
-      const all = [...modelRows.values()]
-      if (all.length === 0) return null
-      return all.sort((a, b) => versionNum(b.version) - versionNum(a.version))[0]
+      // The highest version number whose status is active. A proposed model,
+      // however high its version, never scores until a human promotes it.
+      const active = [...modelRows.values()].filter((m) => m.status === 'active')
+      if (active.length === 0) return null
+      return active.sort((a, b) => versionNum(b.version) - versionNum(a.version))[0]
     },
     get: async (version) => modelRows.get(version) ?? null,
     save: async (model) => {
       modelRows.set(model.version, model)
     },
     list: async () => [...modelRows.values()],
+    promote: async (version) => {
+      const existing = modelRows.get(version)
+      if (!existing) return null
+      // Flip status only. Weights are never touched, so no past score changes.
+      const promoted = { ...existing, status: 'active' as const }
+      modelRows.set(version, promoted)
+      return promoted
+    },
   }
 
   const scores: ScpsScoreRepository = {

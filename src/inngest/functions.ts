@@ -86,11 +86,12 @@ export const reconcileWallets = inngest.createFunction(
 )
 
 /**
- * The Signed Case Feedback Loop (Section 9). Recalibrates the SCPS model from
- * firm reported outcomes on a daily cadence, so the model versions once per day
- * rather than churning a new version per outcome. The loop is wired from day one
- * even though it has nothing to learn from until the first cases close. Never
- * touches a fee (W4).
+ * The Signed Case Feedback Loop (Section 9, AGENTS.md Section 4.6). Recalibrates
+ * the SCPS model from firm reported outcomes on a daily cadence and saves it as a
+ * PROPOSAL. It never activates the new version: a human promotes a proposal to
+ * active through the intelligence service, so the scorer can never silently
+ * rewrite itself. The loop is wired from day one even though it has nothing to
+ * learn from until the first cases close. Never touches a fee (W4).
  */
 export const recalibrateScps = inngest.createFunction(
   { id: 'recalibrate-scps', triggers: [{ cron: '0 6 * * *' }] },

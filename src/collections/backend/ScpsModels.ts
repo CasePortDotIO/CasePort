@@ -9,6 +9,13 @@ import { authenticated } from '../access'
  *
  * Firm only intelligence. Never a routing input (W1), never claimant facing
  * (W2), never derived from or an input to a fee (W3, W4). Append only.
+ *
+ * Human in the loop promotion (AGENTS.md Section 4.6, Section 3). Recalibration
+ * writes a 'proposed' model; it scores nothing. Only an explicit, audited
+ * promotion through IntelligenceService.promoteScpsModel flips a proposal to
+ * 'active'. The collection blocks all updates from the admin panel and external
+ * API, so a version can never be silently self activated; promotion changes the
+ * status field only and never the weights, so no historical score is altered.
  */
 export const ScpsModels: CollectionConfig = {
   slug: 'scpsModels',
@@ -21,11 +28,26 @@ export const ScpsModels: CollectionConfig = {
   admin: {
     group: 'Intelligence',
     useAsTitle: 'version',
-    defaultColumns: ['version', 'sampleCount', 'signedCount', 'createdAt'],
+    defaultColumns: ['version', 'status', 'sampleCount', 'signedCount', 'createdAt'],
     description: 'Versioned SCPS weight model. Recalibrated from firm reported outcomes. Never a fee input (W4).',
   },
   fields: [
     { name: 'version', type: 'text', required: true, unique: true, index: true },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      defaultValue: 'proposed',
+      index: true,
+      options: [
+        { label: 'Proposed (awaiting human promotion)', value: 'proposed' },
+        { label: 'Active (scoring)', value: 'active' },
+      ],
+      admin: {
+        description:
+          'Recalibration writes proposed models. A human promotes to active through the intelligence service; a proposed model never scores. Section 4.6.',
+      },
+    },
     {
       name: 'weights',
       type: 'group',

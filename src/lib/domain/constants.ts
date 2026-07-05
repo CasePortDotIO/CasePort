@@ -95,6 +95,7 @@ export const EVENT_TYPES = [
   'LowBalanceAlerted',
   'OutcomeReported',
   'SCPSRecalibrated',
+  'SCPSPromoted',
   'SpeedCallbackNotified',
   'FirmResponded',
   'SlaBreached',

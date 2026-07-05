@@ -2289,6 +2289,7 @@ export interface Event {
     | 'LowBalanceAlerted'
     | 'OutcomeReported'
     | 'SCPSRecalibrated'
+    | 'SCPSPromoted'
     | 'SpeedCallbackNotified'
     | 'FirmResponded'
     | 'SlaBreached'
@@ -2606,6 +2607,10 @@ export interface ScpsScore {
 export interface ScpsModel {
   id: string;
   version: string;
+  /**
+   * Recalibration writes proposed models. A human promotes to active through the intelligence service; a proposed model never scores. Section 4.6.
+   */
+  status: 'proposed' | 'active';
   /**
    * Factor weights, normalized to sum to one.
    */
@@ -4695,6 +4700,7 @@ export interface ScpsScoresSelect<T extends boolean = true> {
  */
 export interface ScpsModelsSelect<T extends boolean = true> {
   version?: T;
+  status?: T;
   weights?:
     | T
     | {

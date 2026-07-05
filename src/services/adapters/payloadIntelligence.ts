@@ -82,6 +82,9 @@ function toModel(doc: Record<string, unknown>): ScpsModel {
       firmResponseCapacity: Number(w.firmResponseCapacity ?? 0),
     },
     basis: { sampleCount: Number(doc.sampleCount ?? 0), signedCount: Number(doc.signedCount ?? 0) },
+    // Missing status resolves to 'active' so a legacy v1 row without the field
+    // still scores. Every recalibrated model writes an explicit 'proposed'.
+    status: doc.status === 'proposed' ? 'proposed' : 'active',
     createdAt: String(doc.createdAt ?? ''),
   }
 }
@@ -94,7 +97,7 @@ function versionNum(v: string): number {
 function payloadScpsModelRepository(payload: Payload): ScpsModelRepository {
   return {
     async active() {
-      const res = await payload.find({ collection: 'scpsModels', limit: 1000, depth: 0 })
+      const res = await payload.find({ collection: 'scpsModels', where: { status: { equals: 'active' } }, limit: 1000, depth: 0 })
       if (res.docs.length === 0) return null
       const models = res.docs.map((d) => toModel(d as never))
       return models.sort((a, b) => versionNum(b.version) - versionNum(a.version))[0]
@@ -111,6 +114,7 @@ function payloadScpsModelRepository(payload: Payload): ScpsModelRepository {
           weights: model.weights,
           sampleCount: model.basis.sampleCount,
           signedCount: model.basis.signedCount,
+          status: model.status,
           createdAt: model.createdAt,
         },
       })
@@ -118,6 +122,21 @@ function payloadScpsModelRepository(payload: Payload): ScpsModelRepository {
     async list() {
       const res = await payload.find({ collection: 'scpsModels', limit: 1000, depth: 0 })
       return res.docs.map((d) => toModel(d as never))
+    },
+    async promote(version) {
+      const res = await payload.find({ collection: 'scpsModels', where: { version: { equals: version } }, limit: 1, depth: 0 })
+      const doc = res.docs[0] as unknown as { id: string } | undefined
+      if (!doc) return null
+      // Flip status only, via privileged Local API. The collection blocks admin
+      // and external updates (append only); only this audited service path, and
+      // only for the status field, may promote a proposal to active.
+      const updated = await payload.update({
+        collection: 'scpsModels',
+        id: doc.id,
+        data: { status: 'active' },
+        overrideAccess: true,
+      })
+      return toModel(updated as never)
     },
   }
 }

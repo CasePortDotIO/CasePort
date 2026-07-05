@@ -40,6 +40,14 @@ export interface ScpsModel {
   weights: ScpsFactors
   /** What this model was trained on. sampleCount 0 means it carried v1 forward. */
   basis: { sampleCount: number; signedCount: number }
+  /**
+   * Lifecycle status (AGENTS.md Section 4.6, Section 3). Recalibration produces a
+   * 'proposed' model; it never scores anything. A human promotes a proposal to
+   * 'active' through the domain service, which is the only way a version starts
+   * scoring. A scorer that silently rewrites itself breaks auditability and the
+   * trust the feedback loop depends on, so promotion is human in the loop.
+   */
+  status: 'proposed' | 'active'
   createdAt: string
 }
 
@@ -53,7 +61,10 @@ export const DEFAULT_V1_WEIGHTS: ScpsFactors = {
 }
 
 export function defaultV1Model(createdAt: string): ScpsModel {
-  return { version: 'v1', weights: { ...DEFAULT_V1_WEIGHTS }, basis: { sampleCount: 0, signedCount: 0 }, createdAt }
+  // v1 is born active: there is nothing to promote it from, and scoring needs a
+  // model on first use. Every later version is born 'proposed' and must be
+  // promoted by a human before it scores.
+  return { version: 'v1', weights: { ...DEFAULT_V1_WEIGHTS }, basis: { sampleCount: 0, signedCount: 0 }, status: 'active', createdAt }
 }
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n)
@@ -105,7 +116,7 @@ export function recalibrate(
 
   const enoughData = samples.length >= 5 && signed.length > 0 && declined.length > 0
   if (!enoughData) {
-    return { version: nextVersion, weights: normalize(prev.weights), basis, createdAt }
+    return { version: nextVersion, weights: normalize(prev.weights), basis, status: 'proposed', createdAt }
   }
 
   const mean = (rows: ScpsSample[], k: keyof ScpsFactors) =>
@@ -119,5 +130,5 @@ export function recalibrate(
     nudged[k] = Math.max(0, prev.weights[k] * (1 + bounded))
   }
 
-  return { version: nextVersion, weights: normalize(nudged), basis, createdAt }
+  return { version: nextVersion, weights: normalize(nudged), basis, status: 'proposed', createdAt }
 }

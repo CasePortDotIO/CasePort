@@ -35,15 +35,25 @@ export interface OutcomeRepository {
 }
 
 /**
- * The versioned SCPS model store. Append only in spirit: recalibration saves a
- * new version, it never mutates an existing one, so every historical score
- * stays reproducible against the model that produced it.
+ * The versioned SCPS model store. Append only in weights: recalibration saves a
+ * new version, it never mutates an existing model's weights, so every historical
+ * score stays reproducible against the model that produced it. The one permitted
+ * mutation is the lifecycle status, flipped only by an explicit human promotion
+ * (AGENTS.md Section 4.6), which never changes weights and so cannot alter any
+ * past score.
  */
 export interface ScpsModelRepository {
+  /** The highest version whose status is 'active'. The model that scores. */
   active(): Promise<ScpsModel | null>
   get(version: string): Promise<ScpsModel | null>
   save(model: ScpsModel): Promise<void>
   list(): Promise<ScpsModel[]>
+  /**
+   * Promote a proposed version to active. Flips status only; weights are never
+   * touched. Returns the promoted model, or null if the version does not exist.
+   * The human in the loop gate: nothing but this call makes a new version score.
+   */
+  promote(version: string): Promise<ScpsModel | null>
 }
 
 export interface ScpsScoreInput {
