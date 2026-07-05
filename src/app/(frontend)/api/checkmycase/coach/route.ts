@@ -4,8 +4,9 @@ import { createIntakeService } from '@/services/IntakeService'
 import { createPayloadIntakeDeps } from '@/services/adapters/payload'
 import { createEvidenceCoachingAgent } from '@/agents/EvidenceCoachingAgent'
 import { ComplianceService } from '@/services/ComplianceService'
-import { emptyInventory } from '@/lib/domain/captureChecklist'
-import type { CaptureInventory } from '@/services/ports'
+import { emptyInventory, nextEssentialCapture } from '@/lib/domain/captureChecklist'
+import { findClaimantLanguageViolations } from '@/lib/compliance/claimantLanguage'
+import type { CaptureDirection, CaptureInventory } from '@/services/ports'
 
 /**
  * Live evidence coaching (AGENTS.md Section 4.1). Called by the CheckMyCase
@@ -51,14 +52,23 @@ export async function POST(req: Request) {
   const { sessionId } = (body ?? {}) as { sessionId?: string }
   const inventory = toInventory((body as { inventory?: unknown })?.inventory)
 
-  const payload = await getPayload({ config })
-  const intake = createIntakeService(createPayloadIntakeDeps(payload))
-  const agent = createEvidenceCoachingAgent({ coachNextCapture: intake.coachNextCapture })
-
-  // One observe, decide, act step. The event is emitted server side inside the
-  // action; here we only return the guarded direction. A missing or unknown
-  // sessionId still yields a compliant direction; it just is not threaded.
-  const direction = await agent.coachOnce(typeof sessionId === 'string' ? sessionId : 'coach-anon', inventory)
+  let direction: Pick<CaptureDirection, 'direction' | 'focus' | 'done'>
+  try {
+    // The full agent path: emits the event through the domain service and
+    // records the coaching step on the session's event log.
+    const payload = await getPayload({ config })
+    const intake = createIntakeService(createPayloadIntakeDeps(payload))
+    const agent = createEvidenceCoachingAgent({ coachNextCapture: intake.coachNextCapture })
+    direction = await agent.coachOnce(typeof sessionId === 'string' ? sessionId : 'coach-anon', inventory)
+  } catch {
+    // Coaching is an enhancement. If the backend is unavailable, fall back to
+    // the deterministic, compliant checklist so the claimant is still guided.
+    // The same guard applies: never surface a non compliant direction.
+    const fallback = nextEssentialCapture(inventory)
+    const safe =
+      findClaimantLanguageViolations(fallback.direction).length > 0 ? nextEssentialCapture(emptyInventory()) : fallback
+    direction = { direction: safe.direction, focus: safe.focus, done: safe.done }
+  }
 
   const responseBody = {
     direction: direction.direction,
