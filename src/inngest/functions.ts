@@ -10,6 +10,9 @@ import { createPayloadAssemblyDeps } from '../services/adapters/payloadAssembly'
 import { createEvidenceCoachingAgent } from '../agents/EvidenceCoachingAgent'
 import { createAbandonedIntakeRecoveryAgent } from '../agents/AbandonedIntakeRecoveryAgent'
 import { createPayloadRecoveryDeps } from '../services/adapters/payloadRecovery'
+import { createProspectingService } from '../services/ProspectingService'
+import { createProspectingAgent } from '../agents/ProspectingAgent'
+import { createPayloadProspectingDeps } from '../services/adapters/payloadProspecting'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
 import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
@@ -229,6 +232,25 @@ export const recoverAbandonedIntakes = inngest.createFunction(
   },
 )
 
+/**
+ * The B2B Prospecting and Proof of Reality Agent (AGENTS.md Section 4.3).
+ * Triggered when a target firm is named. It researches the firm and drafts
+ * personalized outreach with redacted proof of reality. It NEVER sends: the
+ * draft is the output, awaiting human review and send (Section 3, human in the
+ * loop for all B2B outreach). Every draft is guarded against Rule 7.1.
+ */
+export const prospectFirm = inngest.createFunction(
+  { id: 'prospect-firm', retries: 2, triggers: [{ event: 'prospect/requested' }] },
+  async ({ event, step }) => {
+    const data = event.data as CaseportEvents['prospect/requested']
+    const payload = await getPayload({ config })
+    const agent = createProspectingAgent(createProspectingService(createPayloadProspectingDeps(payload)))
+    const result = await (step as InngestStep).run('prospect', () => agent.prospect(data))
+    // The draft is returned for a human to review and send. Nothing is sent here.
+    return { firmId: data.firmId, status: 'draft', awaitingHumanApproval: true, draft: result.draft }
+  },
+)
+
 export const inngestFunctions = [
   deliverDossier,
   releaseHeldQueue,
@@ -237,4 +259,5 @@ export const inngestFunctions = [
   deliveryAgents,
   coachEvidence,
   recoverAbandonedIntakes,
+  prospectFirm,
 ]

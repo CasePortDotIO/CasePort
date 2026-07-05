@@ -98,6 +98,8 @@ export const EVENT_TYPES = [
   'OutcomeReported',
   'SCPSRecalibrated',
   'SCPSPromoted',
+  'ProspectResearched',
+  'ProspectDraftCreated',
   'SpeedCallbackNotified',
   'FirmResponded',
   'SlaBreached',

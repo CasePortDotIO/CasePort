@@ -20,6 +20,8 @@ export type CaseportEvents = {
   'delivery/delivered': { deliveryId: string; firmId: string }
   /** A capture landed; the coaching agent should decide the next direction. */
   'intake/coach.requested': { sessionId: string; inventory: CaptureInventory }
+  /** A target firm was named; the prospecting agent should draft outreach. */
+  'prospect/requested': { firmId: string; firmName: string; market: string; domain?: string }
 }
 
 export type CaseportEventName = keyof CaseportEvents

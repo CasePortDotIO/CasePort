@@ -2292,6 +2292,8 @@ export interface Event {
     | 'OutcomeReported'
     | 'SCPSRecalibrated'
     | 'SCPSPromoted'
+    | 'ProspectResearched'
+    | 'ProspectDraftCreated'
     | 'SpeedCallbackNotified'
     | 'FirmResponded'
     | 'SlaBreached'
