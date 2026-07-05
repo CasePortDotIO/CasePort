@@ -68,7 +68,12 @@ export default function DashboardInstitutional() {
   const nowMs = Date.now();
 
   const metrics = toFirmMetrics(data);
-  const recent = toOpportunityRows(data?.deliveries ?? []).slice(0, 4);
+  const rows = toOpportunityRows(data?.deliveries ?? []);
+  const recent = rows.slice(0, 4);
+  // The single case that needs a first call now. "Review now" jumps straight to
+  // it, so the partner lands on the claimant to call, not a list to scan.
+  const nextCall = rows.find((o) => o.status === 'Awaiting Response') ?? null;
+  const reviewTarget = nextCall ? `/opportunity/${nextCall.deliveryId}` : '/opportunities';
 
   // First login, before any case has flowed. Driven by a preview flag, or by the
   // honest live signal: a resolved firm with no deliveries yet.
@@ -116,7 +121,7 @@ export default function DashboardInstitutional() {
           <motion.button
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={() => navigate('/opportunities')}
+            onClick={() => navigate(reviewTarget)}
             className="group w-full text-left mb-8 rounded-2xl border p-5 sm:p-6 flex items-center justify-between gap-4 transition-colors"
             style={{ borderColor: 'rgba(245,181,68,0.28)', background: 'linear-gradient(120deg, rgba(245,181,68,0.10), rgba(245,181,68,0.02) 60%)' }}
           >
