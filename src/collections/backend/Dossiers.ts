@@ -37,6 +37,16 @@ export const Dossiers: CollectionConfig = {
   },
   fields: [
     {
+      name: 'intakeSession',
+      type: 'relationship',
+      relationTo: 'intakeSessions',
+      index: true,
+      admin: {
+        description:
+          'The intake session this dossier was assembled from. Carries the attribution trace back to the first touch tuple (Section 11). System reference, not claimant facing.',
+      },
+    },
+    {
       type: 'tabs',
       tabs: [
         {

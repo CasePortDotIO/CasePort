@@ -15,6 +15,7 @@ export type CaseportEvents = {
   'wallet/funded': { firmId: string }
   'wallet/low-balance': { firmId: string; deliveryId: string }
   'wallet/drift-detected': { firmId: string; driftCents: number }
+  'outcome/reported': { outcomeId: string; firmId: string; result: string }
 }
 
 export type CaseportEventName = keyof CaseportEvents

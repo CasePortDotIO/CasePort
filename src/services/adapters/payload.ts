@@ -142,6 +142,7 @@ function payloadDossierRepository(payload: Payload): DossierRepository {
         collection: 'dossiers',
         data: {
           claimant: dossier.claimantId,
+          intakeSession: dossier.intakeSessionId ?? undefined,
           market: dossier.market,
           caseType: dossier.caseType as never,
           status: dossier.status as never,

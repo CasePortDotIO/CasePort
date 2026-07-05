@@ -51,6 +51,7 @@ function makeDossier(input: { id: string; market: string; caseType: CaseTypeValu
   return {
     id: input.id,
     claimantId: `clm_${input.id}`,
+    intakeSessionId: `sess_${input.id}`,
     market: input.market,
     caseType: input.caseType,
     status: 'received',

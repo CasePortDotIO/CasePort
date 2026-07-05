@@ -46,6 +46,13 @@ export interface ClaimantSafeDossier {
 /** The full internal dossier. Holds both halves plus claimant reference. */
 export interface Dossier extends ClaimantSafeDossier {
   claimantId: string
+  /**
+   * The intake session this dossier was assembled from. Carried at creation, not
+   * reconstructed later, so the attribution trace from a signed case back to the
+   * first touch tuple is a direct chain (Section 11). System field: never part
+   * of the claimant projection.
+   */
+  intakeSessionId: string | null
   evaluation: FirmOnlyEvaluation
 }
 

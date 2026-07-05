@@ -38,10 +38,11 @@ export const DossierService = {
    * starts empty and is populated firm side after routing. Returns the full
    * internal dossier holding both halves.
    */
-  assemble(input: Omit<ClaimantSafeDossier, 'status'> & { claimantId: string }): Dossier {
+  assemble(input: Omit<ClaimantSafeDossier, 'status'> & { claimantId: string; intakeSessionId?: string | null }): Dossier {
     return {
       id: input.id,
       claimantId: input.claimantId,
+      intakeSessionId: input.intakeSessionId ?? null,
       market: input.market,
       caseType: input.caseType,
       status: 'received',

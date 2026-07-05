@@ -94,6 +94,7 @@ function payloadDossierReader(payload: Payload): DossierRepository {
         const dossier: Dossier = {
           id: String(doc.id),
           claimantId: relId(doc.claimant),
+          intakeSessionId: doc.intakeSession ? relId(doc.intakeSession) : null,
           market: relId(doc.market),
           caseType: String(doc.caseType ?? ''),
           status: String(doc.status ?? 'received'),

@@ -208,6 +208,7 @@ export function createIntakeService(deps: IntakeDeps) {
     const dossier = DossierService.assemble({
       id: deps.ids.dossierId(),
       claimantId: session.claimantId,
+      intakeSessionId: session.id,
       market: input.marketSlug,
       caseType: input.caseType,
       plainLanguageSummary: input.playback.summary,

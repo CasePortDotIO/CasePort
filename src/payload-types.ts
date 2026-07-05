@@ -90,6 +90,7 @@ export interface Config {
     deliveries: Delivery;
     outcomes: Outcome;
     scpsScores: ScpsScore;
+    scpsModels: ScpsModel;
     disputes: Dispute;
     consents: Consent;
     hipaaAuthorizations: HipaaAuthorization;
@@ -126,6 +127,7 @@ export interface Config {
     deliveries: DeliveriesSelect<false> | DeliveriesSelect<true>;
     outcomes: OutcomesSelect<false> | OutcomesSelect<true>;
     scpsScores: ScpsScoresSelect<false> | ScpsScoresSelect<true>;
+    scpsModels: ScpsModelsSelect<false> | ScpsModelsSelect<true>;
     disputes: DisputesSelect<false> | DisputesSelect<true>;
     consents: ConsentsSelect<false> | ConsentsSelect<true>;
     hipaaAuthorizations: HipaaAuthorizationsSelect<false> | HipaaAuthorizationsSelect<true>;
@@ -2401,6 +2403,10 @@ export interface Consent {
  */
 export interface Dossier {
   id: string;
+  /**
+   * The intake session this dossier was assembled from. Carries the attribution trace back to the first touch tuple (Section 11). System reference, not claimant facing.
+   */
+  intakeSession?: (string | null) | IntakeSession;
   claimant: string | Claimant;
   market: string | Market;
   caseType?:
@@ -2581,6 +2587,33 @@ export interface ScpsScore {
   computedAt: string;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * Versioned SCPS weight model. Recalibrated from firm reported outcomes. Never a fee input (W4).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scpsModels".
+ */
+export interface ScpsModel {
+  id: string;
+  version: string;
+  /**
+   * Factor weights, normalized to sum to one.
+   */
+  weights: {
+    injuryVerification: number;
+    liabilityClarity: number;
+    statuteStatus: number;
+    caseTypeMatch: number;
+    firmResponseCapacity: number;
+  };
+  /**
+   * Outcomes this model was trained on.
+   */
+  sampleCount?: number | null;
+  signedCount?: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 /**
  * Firm dispute over a delivered opportunity.
@@ -2809,6 +2842,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'scpsScores';
         value: string | ScpsScore;
+      } | null)
+    | ({
+        relationTo: 'scpsModels';
+        value: string | ScpsModel;
       } | null)
     | ({
         relationTo: 'disputes';
@@ -4502,6 +4539,7 @@ export interface IntakeSessionsSelect<T extends boolean = true> {
  * via the `definition` "dossiers_select".
  */
 export interface DossiersSelect<T extends boolean = true> {
+  intakeSession?: T;
   claimant?: T;
   market?: T;
   caseType?: T;
@@ -4640,6 +4678,26 @@ export interface ScpsScoresSelect<T extends boolean = true> {
   computedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scpsModels_select".
+ */
+export interface ScpsModelsSelect<T extends boolean = true> {
+  version?: T;
+  weights?:
+    | T
+    | {
+        injuryVerification?: T;
+        liabilityClarity?: T;
+        statuteStatus?: T;
+        caseTypeMatch?: T;
+        firmResponseCapacity?: T;
+      };
+  sampleCount?: T;
+  signedCount?: T;
+  createdAt?: T;
+  updatedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

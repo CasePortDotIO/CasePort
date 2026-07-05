@@ -20,6 +20,7 @@ import { ComplianceService } from '@/services/ComplianceService'
 const dossierFixture: Dossier = {
   id: 'CP-2026-000089',
   claimantId: 'claimant_abc',
+  intakeSessionId: 'sess_abc',
   market: 'atlanta-ga',
   caseType: 'motor-vehicle-accident',
   status: 'received, pending firm contact',

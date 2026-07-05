@@ -2,7 +2,9 @@ import config from '@payload-config'
 import { getPayload, type Payload } from 'payload'
 import { createRoutingService } from '../services/RoutingService'
 import { createDeliveryService } from '../services/DeliveryService'
+import { createIntelligenceService } from '../services/IntelligenceService'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
+import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
 import { deliverDossierWorkflow, reconcileWalletsWorkflow, releaseHeldWorkflow } from './workflows'
@@ -80,4 +82,20 @@ export const reconcileWallets = inngest.createFunction(
   },
 )
 
-export const inngestFunctions = [deliverDossier, releaseHeldQueue, reconcileWallets]
+/**
+ * The Signed Case Feedback Loop (Section 9). Recalibrates the SCPS model from
+ * firm reported outcomes on a daily cadence, so the model versions once per day
+ * rather than churning a new version per outcome. The loop is wired from day one
+ * even though it has nothing to learn from until the first cases close. Never
+ * touches a fee (W4).
+ */
+export const recalibrateScps = inngest.createFunction(
+  { id: 'recalibrate-scps', triggers: [{ cron: '0 6 * * *' }] },
+  async ({ step }) => {
+    const payload = await getPayload({ config })
+    const intel = createIntelligenceService(createPayloadIntelligenceDeps(payload))
+    return (step as InngestStep).run('recalibrate', () => intel.recalibrateScps())
+  },
+)
+
+export const inngestFunctions = [deliverDossier, releaseHeldQueue, reconcileWallets, recalibrateScps]
