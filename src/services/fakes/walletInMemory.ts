@@ -71,6 +71,22 @@ export function createWalletHarness(
 
   const snapshots: WalletSnapshotRepository = {
     get: async (firmId) => snapshotRows.get(firmId) ?? null,
+    // The body is synchronous, so it models the atomic single document CAS: two
+    // concurrent debits interleave only at the awaits around this call, and only
+    // one can match the version and swap. The other loses and retries.
+    compareAndSwap: async ({ firmId, expectedVersion, newBalanceCents, lowBalanceThresholdCents, at }) => {
+      const cur = snapshotRows.get(firmId)
+      if (cur == null) {
+        if (expectedVersion !== 0) return { ok: false, snapshot: null }
+        const snap: WalletSnapshot = { firmId, balanceCents: newBalanceCents, lowBalanceThresholdCents, version: 1, lastRebuiltAt: at }
+        snapshotRows.set(firmId, snap)
+        return { ok: true, snapshot: snap }
+      }
+      if (cur.version !== expectedVersion) return { ok: false, snapshot: cur }
+      const snap: WalletSnapshot = { ...cur, balanceCents: newBalanceCents, lowBalanceThresholdCents, version: cur.version + 1, lastRebuiltAt: at }
+      snapshotRows.set(firmId, snap)
+      return { ok: true, snapshot: snap }
+    },
     upsert: async (snapshot) => {
       snapshotRows.set(snapshot.firmId, snapshot)
     },

@@ -22,8 +22,9 @@ export const Wallets: CollectionConfig = {
   },
   fields: [
     { name: 'firm', type: 'relationship', relationTo: 'firms', required: true, unique: true, index: true },
-    { name: 'balanceCents', type: 'number', defaultValue: 0, admin: { description: 'Cached sum of ledger entries. Rebuildable.' } },
+    { name: 'balanceCents', type: 'number', defaultValue: 0, admin: { description: 'Balance of record, updated by compare and swap. Rebuildable from the ledger.' } },
     { name: 'lowBalanceThresholdCents', type: 'number', defaultValue: 200000, admin: { description: 'Fires a top up prompt before the wallet empties (Section 10).' } },
+    { name: 'version', type: 'number', defaultValue: 0, index: true, admin: { description: 'Optimistic concurrency version. Bumped on every guarded balance change so concurrent debits cannot overdraw.' } },
     { name: 'lastRebuiltAt', type: 'date' },
   ],
   timestamps: true,

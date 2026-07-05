@@ -53,12 +53,42 @@ export interface WalletSnapshot {
   firmId: string
   balanceCents: number
   lowBalanceThresholdCents: number
+  /**
+   * Optimistic concurrency version. Every guarded balance change bumps it. It is
+   * what makes the snapshot the serialization point for concurrent debits: two
+   * debits that read the same version race to compare-and-swap, exactly one
+   * wins, the loser re-reads the now lower balance and holds. This is why a
+   * wallet can never be overdrawn even under simultaneous deliveries.
+   */
+  version: number
   lastRebuiltAt: string
 }
 
-/** The derived balance snapshot. Not authoritative. Rebuildable from the ledger. */
+/**
+ * The balance snapshot. The ledger stays the durable audit truth and the source
+ * of truth for reconciliation, and the snapshot is rebuildable from it. But the
+ * snapshot is not a passive cache: it is the atomically guarded balance of
+ * record for the debit decision, updated by a single document compare-and-swap
+ * so concurrent debits cannot both spend the same balance.
+ */
 export interface WalletSnapshotRepository {
   get(firmId: string): Promise<WalletSnapshot | null>
+  /**
+   * Compare and swap on version. Sets the balance and bumps the version only if
+   * the stored version equals expectedVersion, or creates the snapshot at
+   * version 1 when none exists and expectedVersion is 0. Returns ok false on a
+   * version mismatch so the caller retries. In production this is a single
+   * document conditional update, which MongoDB executes atomically without a
+   * multi document transaction, so it is the overdraw guard on its own.
+   */
+  compareAndSwap(input: {
+    firmId: string
+    expectedVersion: number
+    newBalanceCents: number
+    lowBalanceThresholdCents: number
+    at: string
+  }): Promise<{ ok: boolean; snapshot: WalletSnapshot | null }>
+  /** Unconditional heal from the ledger. Used only by rebuildSnapshot. */
   upsert(snapshot: WalletSnapshot): Promise<void>
 }
 

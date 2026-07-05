@@ -2464,13 +2464,17 @@ export interface Wallet {
   id: string;
   firm: string | Firm;
   /**
-   * Cached sum of ledger entries. Rebuildable.
+   * Balance of record, updated by compare and swap. Rebuildable from the ledger.
    */
   balanceCents?: number | null;
   /**
    * Fires a top up prompt before the wallet empties (Section 10).
    */
   lowBalanceThresholdCents?: number | null;
+  /**
+   * Optimistic concurrency version. Bumped on every guarded balance change so concurrent debits cannot overdraw.
+   */
+  version?: number | null;
   lastRebuiltAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -4565,6 +4569,7 @@ export interface WalletsSelect<T extends boolean = true> {
   firm?: T;
   balanceCents?: T;
   lowBalanceThresholdCents?: T;
+  version?: T;
   lastRebuiltAt?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -110,8 +110,56 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
         firmId,
         balanceCents: Number(doc.balanceCents ?? 0),
         lowBalanceThresholdCents: Number(doc.lowBalanceThresholdCents ?? 200000),
+        version: Number(doc.version ?? 0),
         lastRebuiltAt: String(doc.lastRebuiltAt ?? ''),
       }
+    },
+    async compareAndSwap({ firmId, expectedVersion, newBalanceCents, lowBalanceThresholdCents, at }) {
+      // The swap: a version filtered update. MongoDB executes it as an atomic
+      // per document update, so two concurrent swaps at the same version cannot
+      // both match. The one that loses gets zero updated docs and retries.
+      const updated = await payload.update({
+        collection: 'wallets',
+        where: { and: [{ firm: { equals: firmId } }, { version: { equals: expectedVersion } }] },
+        data: {
+          balanceCents: newBalanceCents,
+          lowBalanceThresholdCents,
+          version: expectedVersion + 1,
+          lastRebuiltAt: at,
+        } as never,
+      })
+      const doc = (updated as { docs?: unknown[] }).docs?.[0] as Record<string, unknown> | undefined
+      if (doc) {
+        return {
+          ok: true,
+          snapshot: {
+            firmId,
+            balanceCents: Number(doc.balanceCents ?? newBalanceCents),
+            lowBalanceThresholdCents: Number(doc.lowBalanceThresholdCents ?? lowBalanceThresholdCents),
+            version: Number(doc.version ?? expectedVersion + 1),
+            lastRebuiltAt: String(doc.lastRebuiltAt ?? at),
+          },
+        }
+      }
+      // No row at that version. Either the wallet does not exist yet (create it
+      // at version 1 when the caller expected 0) or a concurrent swap moved it on.
+      if (expectedVersion === 0) {
+        try {
+          const created = await payload.create({
+            collection: 'wallets',
+            data: { firm: firmId, balanceCents: newBalanceCents, lowBalanceThresholdCents, version: 1, lastRebuiltAt: at },
+          })
+          const c = created as unknown as Record<string, unknown>
+          return {
+            ok: true,
+            snapshot: { firmId, balanceCents: Number(c.balanceCents ?? newBalanceCents), lowBalanceThresholdCents, version: 1, lastRebuiltAt: at },
+          }
+        } catch {
+          // Unique firm index rejected a concurrent create. Lost the race, retry.
+          return { ok: false, snapshot: null }
+        }
+      }
+      return { ok: false, snapshot: null }
     },
     async upsert(snapshot: WalletSnapshot) {
       const existing = await payload.find({
@@ -123,6 +171,7 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
         firm: snapshot.firmId,
         balanceCents: snapshot.balanceCents,
         lowBalanceThresholdCents: snapshot.lowBalanceThresholdCents,
+        version: snapshot.version,
         lastRebuiltAt: snapshot.lastRebuiltAt,
       }
       if (existing.docs[0]) {

@@ -26,7 +26,16 @@ export function createWalletService(deps: WalletDeps) {
     return deps.ledger.sumByFirm(firmId)
   }
 
-  /** Rebuild the derived snapshot from the ledger. Self healing by design. */
+  // How many times a guarded balance change re-reads and retries after losing a
+  // compare-and-swap race before giving up. Contention past this is pathological.
+  const MAX_CAS_ATTEMPTS = 16
+
+  /**
+   * Rebuild the snapshot from the ledger. Self healing by design: the ledger is
+   * the durable truth, so this recomputes the balance and writes it
+   * unconditionally, preserving the version so an in flight compare-and-swap is
+   * not silently defeated. Also seeds the snapshot the first time it is touched.
+   */
   async function rebuildSnapshot(firmId: string): Promise<WalletSnapshot> {
     const balanceCents = await deps.ledger.sumByFirm(firmId)
     const existing = await deps.snapshots.get(firmId)
@@ -34,17 +43,52 @@ export function createWalletService(deps: WalletDeps) {
       firmId,
       balanceCents,
       lowBalanceThresholdCents: existing?.lowBalanceThresholdCents ?? LOW_BALANCE_DEFAULT_CENTS,
+      version: existing?.version ?? 0,
       lastRebuiltAt: deps.clock.nowIso(),
     }
     await deps.snapshots.upsert(snapshot)
     return snapshot
   }
 
+  /** Ensure a snapshot exists so the compare-and-swap loop has a version to race on. */
+  async function ensureSnapshot(firmId: string): Promise<WalletSnapshot> {
+    return (await deps.snapshots.get(firmId)) ?? (await rebuildSnapshot(firmId))
+  }
+
   /**
-   * Money in. A successful Stripe top up appends a credit ledger entry and
-   * updates the snapshot. Idempotent on idempotencyKey: firing the same Stripe
-   * event twice credits exactly once. Emits WalletFunded only on the first,
-   * real credit. Returns the resulting authoritative balance.
+   * The single overdraw guard. decide sees the current authoritative balance and
+   * returns either the new balance to commit or a reject. The commit is applied
+   * with a compare-and-swap on the snapshot version, so two concurrent changes
+   * that read the same version cannot both win: exactly one swaps, the loser
+   * re-reads the updated balance and decides again. A reject writes nothing.
+   */
+  async function guardedBalanceChange(
+    firmId: string,
+    decide: (currentBalanceCents: number) => { commit: number } | { reject: true },
+  ): Promise<{ committed: boolean; balanceCents: number }> {
+    for (let attempt = 0; attempt < MAX_CAS_ATTEMPTS; attempt++) {
+      const snap = await ensureSnapshot(firmId)
+      const d = decide(snap.balanceCents)
+      if ('reject' in d) return { committed: false, balanceCents: snap.balanceCents }
+      const res = await deps.snapshots.compareAndSwap({
+        firmId,
+        expectedVersion: snap.version,
+        newBalanceCents: d.commit,
+        lowBalanceThresholdCents: snap.lowBalanceThresholdCents,
+        at: deps.clock.nowIso(),
+      })
+      if (res.ok) return { committed: true, balanceCents: d.commit }
+      // Lost the race. Re-read and decide again against the fresh balance.
+    }
+    throw new Error(`wallet ${firmId} snapshot contention exceeded retry budget`)
+  }
+
+  /**
+   * Money in. A successful Stripe top up appends a credit ledger entry and moves
+   * the snapshot by the credit amount under a compare-and-swap, so a concurrent
+   * debit can never clobber it. Idempotent on idempotencyKey: firing the same
+   * Stripe event twice credits exactly once, and a replay does not move the
+   * balance again. Emits WalletFunded only on the first real credit.
    */
   async function topUp(input: {
     firmId: string
@@ -56,9 +100,11 @@ export function createWalletService(deps: WalletDeps) {
       throw new Error('top up amount must be positive')
     }
 
-    const priorBalance = await deps.ledger.sumByFirm(input.firmId)
-    const balanceAfterCents = priorBalance + input.amountCents
+    // Ensure the snapshot exists (and reflects any prior entries) before we read
+    // a balance to move, so the first ever top up does not miss existing credits.
+    await ensureSnapshot(input.firmId)
 
+    const priorLedger = await deps.ledger.sumByFirm(input.firmId)
     const { created } = await deps.ledger.append(
       {
         firmId: input.firmId,
@@ -69,27 +115,32 @@ export function createWalletService(deps: WalletDeps) {
         stripeRef: input.stripeRef,
         occurredAt: deps.clock.nowIso(),
       },
-      balanceAfterCents,
+      priorLedger + input.amountCents,
     )
 
-    const snapshot = await rebuildSnapshot(input.firmId)
-
-    if (created) {
-      await deps.events.append({
-        eventType: 'WalletFunded',
-        aggregateType: 'wallet',
-        aggregateId: input.firmId,
-        actor: 'stripe',
-        occurredAt: deps.clock.nowIso(),
-        payload: {
-          amountCents: input.amountCents,
-          stripeRef: input.stripeRef ?? null,
-          balanceCents: snapshot.balanceCents,
-        },
-      })
+    if (!created) {
+      // Replay: the credit already landed. Do not move the balance again.
+      const snap = await ensureSnapshot(input.firmId)
+      return { balanceCents: snap.balanceCents, credited: false }
     }
 
-    return { balanceCents: snapshot.balanceCents, credited: created }
+    // Apply the credit as a delta under the guard so a concurrent debit is not lost.
+    const { balanceCents } = await guardedBalanceChange(input.firmId, (b) => ({ commit: b + input.amountCents }))
+
+    await deps.events.append({
+      eventType: 'WalletFunded',
+      aggregateType: 'wallet',
+      aggregateId: input.firmId,
+      actor: 'stripe',
+      occurredAt: deps.clock.nowIso(),
+      payload: {
+        amountCents: input.amountCents,
+        stripeRef: input.stripeRef ?? null,
+        balanceCents,
+      },
+    })
+
+    return { balanceCents, credited: true }
   }
 
   /**
@@ -103,10 +154,13 @@ export function createWalletService(deps: WalletDeps) {
    * balance cannot cover the fee, nothing is written and the caller holds the
    * delivery. There is no partial state.
    *
-   * The atomic boundary that also marks the delivery billed is owned by the
-   * caller (DeliveryService runs this and the delivery write inside one
-   * transaction). The unique idempotency index is the ultimate guard: even
-   * without a transaction the same delivery cannot charge twice.
+   * Concurrency safety: the balance is reserved with a compare-and-swap on the
+   * snapshot before the ledger entry is written, so two simultaneous debits can
+   * never both spend the same balance. Exactly one reserves, the other re-reads
+   * the reduced balance and holds. The reservation plus the ledger append are
+   * run inside the caller's transaction (DeliveryService) so they commit
+   * together; even without a transaction the atomic single document CAS prevents
+   * overdraw, and the unique idempotency index prevents a double charge.
    */
   async function debit(input: {
     firmId: string
@@ -122,20 +176,23 @@ export function createWalletService(deps: WalletDeps) {
     }
 
     // Replay guard: if this delivery already charged, return the original result
-    // without touching the balance. This is what makes forced retries safe.
+    // without reserving again. This is what makes forced retries safe.
     const existing = await deps.ledger.findByIdempotencyKey(input.idempotencyKey)
     if (existing) {
       const balanceCents = await deps.ledger.sumByFirm(input.firmId)
       return { debited: true, reason: 'ok', feeCents, balanceCents, created: false }
     }
 
-    const priorBalance = await deps.ledger.sumByFirm(input.firmId)
-    if (priorBalance < feeCents) {
-      // Wallet dry: no ledger write, no partial state. The caller holds.
-      return { debited: false, reason: 'insufficient-funds', feeCents, balanceCents: priorBalance, created: false }
+    // Reserve the fee under the overdraw guard. A reject means the wallet cannot
+    // cover it: nothing is written, no partial state, the caller holds.
+    const reservation = await guardedBalanceChange(input.firmId, (b) =>
+      b < feeCents ? { reject: true } : { commit: b - feeCents },
+    )
+    if (!reservation.committed) {
+      return { debited: false, reason: 'insufficient-funds', feeCents, balanceCents: reservation.balanceCents, created: false }
     }
 
-    const balanceAfterCents = priorBalance - feeCents
+    // Record the reserved debit on the authoritative ledger. Idempotent on the key.
     const { created } = await deps.ledger.append(
       {
         firmId: input.firmId,
@@ -146,10 +203,8 @@ export function createWalletService(deps: WalletDeps) {
         deliveryId: input.deliveryId,
         occurredAt: deps.clock.nowIso(),
       },
-      balanceAfterCents,
+      reservation.balanceCents,
     )
-
-    const snapshot = await rebuildSnapshot(input.firmId)
 
     if (created) {
       await deps.events.append({
@@ -162,12 +217,12 @@ export function createWalletService(deps: WalletDeps) {
           feeCents,
           deliveryId: input.deliveryId,
           caseType: input.caseType,
-          balanceCents: snapshot.balanceCents,
+          balanceCents: reservation.balanceCents,
         },
       })
     }
 
-    return { debited: true, reason: 'ok', feeCents, balanceCents: snapshot.balanceCents, created }
+    return { debited: true, reason: 'ok', feeCents, balanceCents: reservation.balanceCents, created }
   }
 
   /**
