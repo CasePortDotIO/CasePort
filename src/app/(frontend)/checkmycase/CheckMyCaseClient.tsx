@@ -298,8 +298,6 @@ interface FormData {
   hipaaSignature: string | null
   hipaaSignatureMode: string | null
   hipaaSignedAt: string | null
-  caseScore: number
-  routingStatus: string | null
   submittedAt: string | null
   submissionId: string | null
   uploadedFiles: File[]
@@ -320,7 +318,6 @@ const initialFormData: FormData = {
   firstName: null, phone: null, email: null, phoneVerified: false,
   preferredContactTime: [], consentGiven: false, consentTimestamp: null,
   hipaaSignature: null, hipaaSignatureMode: null, hipaaSignedAt: null,
-  caseScore: 0, routingStatus: null,
   submittedAt: null, submissionId: null,
   uploadedFiles: [],
 }
@@ -359,7 +356,6 @@ export default function CheckMyCaseClient() {
   const [showResumeBanner, setShowResumeBanner] = useState(false)
   const [countdownSecs, setCountdownSecs] = useState(0)
   const [countdownDisplay, setCountdownDisplay] = useState('30:00')
-  const [cisDisplay, setCisDisplay] = useState<{ score: number; factors: { label: string; pct: number }[]; tier: { label: string; color: string; ringClass: string } } | null>(null)
   const [providerList, setProviderList] = useState<Provider[]>([])
   const [providerInput, setProviderInput] = useState('')
   const [showProviderSugg, setShowProviderSugg] = useState(false)
@@ -534,27 +530,10 @@ export default function CheckMyCaseClient() {
     }
   }, [curScreen, fd.urgencyLevel])
 
-  // CIS score calculation and display
-  useEffect(() => {
-    if (curScreen !== 's-confirm') return
-
-    const factors = [
-      { label: 'Liability signal', pct: fd.liabilityFlag === 'confirmed' ? 92 : fd.liabilityFlag === 'unsure' ? 55 : 20 },
-      { label: 'Medical documentation', pct: fd.treatmentLevel === 'er' ? 95 : fd.treatmentLevel === 'urgentCare' ? 80 : fd.providerName ? 65 : 30 },
-      { label: 'Insurance coverage', pct: (fd.atFaultInsurance && fd.atFaultInsurance.includes('Yes')) ? 90 : fd.ownUMCoverage === 'Yes' ? 65 : 35 },
-      { label: 'Filing window', pct: fd.solExpired ? 20 : fd.solFlag ? 55 : (fd.incidentDaysSince != null && fd.incidentDaysSince < 90) ? 98 : 80 }
-    ]
-
-    let rawScore = calculateScore()
-    const score = Math.min(rawScore, 99)
-    const tier = score >= 75
-      ? { label: 'Strong Case Signal', color: '#4caf7d', ringClass: 'strong' }
-      : score >= 50
-        ? { label: 'Viable Case', color: '#c9a84c', ringClass: 'viable' }
-        : { label: 'Under Review', color: '#c4663a', ringClass: '' }
-
-    setCisDisplay({ score, factors, tier })
-  }, [curScreen])
+  // Compliance wall, W1 and W2. No case scoring happens on the claimant surface.
+  // SCPS and every evaluative signal are computed server side, firm facing, and
+  // only after geographic routing. The claimant never sees a score, a tier, or a
+  // case assessment. The confirmation shows a protection plan instead.
 
   const onProviderInputChange = (value: string) => {
     setProviderInput(value)
@@ -840,29 +819,10 @@ export default function CheckMyCaseClient() {
     goTo('s14')
   }
 
-  const calculateScore = () => {
-    let s = 0
-    if (['Car accident', 'Truck or commercial vehicle accident', 'Motorcycle accident', 'Slip, trip, or fall', 'Workplace injury', 'Rideshare accident (Uber or Lyft)', 'Pedestrian accident', 'Wrongful death or fatal accident'].some(t => fd.incidentType?.includes(t))) s += 10
-    if (fd.inMarket) s += 15
-    if (fd.liabilityFlag === 'confirmed') s += 15
-    else if (fd.liabilityFlag === 'unsure') s += 7
-    if (['er', 'urgentCare'].includes(fd.treatmentLevel || '')) s += 15
-    if (fd.treatmentSeveritySignal === 'high') s += 15
-    else if (fd.treatmentSeveritySignal === 'moderate') s += 8
-    if (fd.providerName) s += 10
-    if (fd.treatmentRecency === 'Within the last 30 days') s += 10
-    else if (fd.treatmentRecency === '1 to 3 months ago') s += 5
-    if (fd.injurySeverityIndex >= 7) s += 10
-    else if (fd.injurySeverityIndex >= 3) s += 5
-    if (fd.impactLevel === 'serious') s += 10
-    else if (fd.impactLevel === 'moderate') s += 8
-    if (fd.atFaultInsurance === 'Yes, they had insurance') s += 10
-    if (fd.reportFiled === true) s += 5
-    if (fd.phoneVerified) s += 10
-    if (hasSig) s += 20
-    if (uploadedFiles.length > 0) s += 15
-    return s
-  }
+  // No calculateScore on the claimant surface. Routing is geographic only (W1)
+  // and case scoring is firm facing, computed server side after routing (W2).
+  // The intake fields collected here (liability, treatment, insurance, injury)
+  // are raw case facts sent to the backend, never scored or shown to the claimant.
 
   const fmtSecs = (s: number) => {
     if (s >= 3600) return `${String(Math.floor(s / 3600)).padStart(2, '0')}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
@@ -898,9 +858,6 @@ export default function CheckMyCaseClient() {
     })
 
     await new Promise(r => setTimeout(r, 1600))
-
-    const score = calculateScore()
-    updateForm({ caseScore: score })
 
     const secs = fd.urgencyLevel === 'urgent' ? 900 : fd.urgencyLevel === 'soon' ? 14400 : 86400
     const countdownEl = document.getElementById('countdownTimer')
@@ -1132,24 +1089,15 @@ export default function CheckMyCaseClient() {
         .upload-file-name { color: var(--ink); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
         .upload-file-remove { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; padding: 0 4px }
         .upload-skip { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--muted); font-weight: 500; display: block; width: 100%; text-align: center; padding: 8px }
-        .cis-block { background: var(--white); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px; margin: 0 0 16px; box-shadow: 0 2px 16px rgba(26,61,64,.06); animation: cardIn 0.5s var(--ease) 0.3s both }
-        .cis-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 16px }
-        .cis-ring { width: 96px; height: 96px; border-radius: 50%; border: 5px solid var(--terra); display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 10px; position: relative; transition: border-color 0.4s }
-        .cis-ring.strong { border-color: var(--green) }
-        .cis-ring.viable { border-color: var(--gold) }
-        .cis-ring::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 5px solid transparent; border-top-color: rgba(255,255,255,.15); animation: ringSpinEntry 1s var(--ease) 0.4s both }
-        @keyframes ringSpinEntry { from { transform: rotate(-90deg); opacity: 0 } to { transform: rotate(0deg); opacity: 1 } }
-        .cis-score-num { font-family: var(--font-display); font-size: 30px; font-weight: 500; color: var(--ink); line-height: 1; font-variation-settings: 'opsz' 28 }
-        .cis-score-denom { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em }
-        .cis-tier-label { font-size: 12px; font-weight: 700 }
-        .cis-tier-desc { font-size: 11px; color: var(--muted); margin-top: 3px }
-        .cis-factors { display: flex; flex-direction: column; gap: 0 }
-        .cis-factor-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border-soft); animation: cardIn .35s var(--ease) both }
-        .cis-factor-row:last-child { border-bottom: none }
-        .cis-factor-label { font-size: 11px; color: var(--body-text); flex: 1 }
-        .cis-factor-bar-wrap { width: 72px; height: 4px; background: var(--cream-alt); border-radius: 99px; overflow: hidden }
-        .cis-factor-bar { height: 4px; border-radius: 99px; width: 0%; transition: width 1.2s var(--ease) }
-        .cis-factor-val { font-size: 11px; font-weight: 700; color: var(--teal); width: 30px; text-align: right }
+        .protect-card { background: var(--white); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px; margin: 0 0 16px; box-shadow: 0 2px 16px rgba(26,61,64,.06); animation: cardIn 0.5s var(--ease) 0.3s both }
+        .protect-kicker { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--sage); margin-bottom: 10px }
+        .protect-title { font-family: var(--font-display); font-size: 20px; font-weight: 500; color: var(--ink); line-height: 1.25; margin-bottom: 6px; font-variation-settings: 'opsz' 22, 'WONK' 1 }
+        .protect-sub { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.65; margin-bottom: 14px }
+        .protect-item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border-soft); animation: cardIn .35s var(--ease) both }
+        .protect-item:last-child { border-bottom: none; padding-bottom: 0 }
+        .protect-icon { width: 30px; height: 30px; border-radius: 9px; background: var(--teal-soft); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0 }
+        .protect-text { font-size: 13px; color: var(--body-text); line-height: 1.6; font-weight: 300 }
+        .protect-text strong { color: var(--ink); font-weight: 600 }
         .wait-section { background: var(--white); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px }
         .wait-kicker { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--sage); margin-bottom: 14px }
         .wait-items { display: flex; flex-direction: column; gap: 12px }
@@ -1278,7 +1226,7 @@ export default function CheckMyCaseClient() {
               </div>
             </div>
             <h1 className="q-headline">What happened to you?</h1>
-            <p className="q-sub">Select the option that best describes your situation.</p>
+            <p className="q-sub">Select the option that most closely describes your situation.</p>
             <div className="options">
               {[
                 { icon: '🚗', label: 'Car accident', value: 'Car accident' },
@@ -1537,7 +1485,7 @@ export default function CheckMyCaseClient() {
               </div>
             </div>
             <h1 className="q-headline">What types of treatment have you received?</h1>
-            <p className="q-sub">Select all that apply — this helps match you with the right attorney.</p>
+            <p className="q-sub">Select all that apply — this helps a firm in your area review your case.</p>
             <div className="options">
               {[
                 { icon: '🏥', label: 'Emergency Room or Hospital' },
@@ -1733,7 +1681,7 @@ export default function CheckMyCaseClient() {
             </div>
             <div className="input-wrap">
               <label className="input-label">Phone or email</label>
-              <input className="form-input" type="text" id="awaitContact" placeholder="Best way to reach you" />
+              <input className="form-input" type="text" id="awaitContact" placeholder="How can we reach you?" />
             </div>
             <button className="btn-continue" onClick={() => goTo('s-await-thanks')}>Save my spot →</button>
           </div>
@@ -1829,7 +1777,7 @@ export default function CheckMyCaseClient() {
               </div>
             </div>
             <h1 className="q-headline">How has this affected your daily life?</h1>
-            <p className="q-sub">Select the option that best describes your situation.</p>
+            <p className="q-sub">Select the option that most closely describes your situation.</p>
             <div className="options">
               {[
                 { icon: '💼', label: 'I missed work or lost income', level: 'serious' },
@@ -2214,7 +2162,7 @@ export default function CheckMyCaseClient() {
                 <div className="radar-core">⚡</div>
               </div>
               <h1 className="confirm-headline">Your case is in motion.</h1>
-              <p className="confirm-sub"><strong>{fd.firstName || 'A qualified attorney'}</strong> is being matched to your case right now.</p>
+              <p className="confirm-sub">{fd.firstName ? <><strong>{fd.firstName}</strong>, your</> : 'Your'} case file has been received and a firm in your area is reviewing it now.</p>
               <div className="countdown-wrap">
                 <div>
                   <div className="countdown-label">Attorney contact within</div>
@@ -2224,36 +2172,22 @@ export default function CheckMyCaseClient() {
               </div>
             </div>
 
-            {cisDisplay && (
-              <div className="cis-block">
-                <div className="cis-ring-wrap">
-                  <div className={`cis-ring ${cisDisplay.tier.ringClass}`}>
-                    <span className="cis-score-num">{cisDisplay.score}</span>
-                    <span className="cis-score-denom">/ 100</span>
-                  </div>
-                  <div className="cis-tier-label" style={{ color: cisDisplay.tier.color }}>{cisDisplay.tier.label}</div>
-                  <div className="cis-tier-desc">Case Intelligence Score</div>
+            <div className="protect-card">
+              <div className="protect-kicker">Your protection plan</div>
+              <div className="protect-title">A few things that protect you, starting today</div>
+              <div className="protect-sub">You walked in with questions. Here is what to do while your file is reviewed. These are practical steps, not a case assessment.</div>
+              {[
+                { icon: '🗓️', text: <><strong>Keep every medical appointment.</strong> Gaps in care are the most common reason an injury is undervalued later.</> },
+                { icon: '🤐', text: <><strong>Do not post about the accident.</strong> Not the crash, not your injuries, not how you feel. Assume anything public can be seen later.</> },
+                { icon: '📷', text: <><strong>Photograph any bruising again in two days.</strong> Injuries often develop and look worse over time. Dated photos help.</> },
+                { icon: '📞', text: <><strong>If an insurance adjuster calls, you can say:</strong> "I am not ready to give a statement. Please contact my attorney." You do not have to say more.</> },
+              ].map((item, i) => (
+                <div key={i} className="protect-item" style={{ animationDelay: `${0.4 + i * 0.08}s` }}>
+                  <div className="protect-icon">{item.icon}</div>
+                  <div className="protect-text">{item.text}</div>
                 </div>
-                <div className="cis-factors">
-                  {cisDisplay.factors.map((f, i) => (
-                    <div key={i} className="cis-factor-row" style={{ animationDelay: `${0.5 + i * 0.08}s` }}>
-                      <span className="cis-factor-label">{f.label}</span>
-                      <div className="cis-factor-bar-wrap">
-                        <div
-                          className="cis-factor-bar"
-                          style={{
-                            width: `${f.pct}%`,
-                            background: f.pct > 70 ? '#4a8c7e' : f.pct > 45 ? '#c9a84c' : '#c4663a',
-                            transitionDelay: `${0.4 + i * 0.08}s`
-                          }}
-                        />
-                      </div>
-                      <span className="cis-factor-val">{f.pct}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+              ))}
+            </div>
 
             <div className="info-card">
               <div className="info-card-kicker">What happens next</div>
@@ -2275,8 +2209,8 @@ export default function CheckMyCaseClient() {
                 <div className="tl-step">
                   <div className="tl-icon active">🔍</div>
                   <div className="tl-body">
-                    <div className="tl-title">Being matched now</div>
-                    <div className="tl-desc">We're identifying the best qualified attorney in your area.</div>
+                    <div className="tl-title">Reviewing your case now</div>
+                    <div className="tl-desc">The firm that serves your area is being notified about your case.</div>
                     <div className="tl-badge">⚡ <span>Within 30 minutes</span></div>
                   </div>
                 </div>
@@ -2299,10 +2233,10 @@ export default function CheckMyCaseClient() {
             </div>
 
             <div className="upload-section">
-              <div className="upload-boost">⬆ Boosts review priority</div>
+              <div className="upload-boost">⬆ Helps your attorney move faster</div>
               <div className="upload-kicker">Optional — but it helps</div>
               <h3 className="upload-headline">Strengthen your file while you wait.</h3>
-              <p className="upload-body">Cases with documentation are matched faster. Upload photos, police reports, medical receipts, or insurance letters.</p>
+              <p className="upload-body">Cases with documentation move faster. Upload photos, police reports, medical receipts, or insurance letters.</p>
               <div
                 className="upload-zone"
                 onDragOver={(e) => e.preventDefault()}
