@@ -43,20 +43,35 @@ const DEFAULT_LEGAL_LINKS: FooterLink[] = [
  * Falls back to hardcoded defaults if the globals haven't been saved yet.
  * Call this in server page.tsx files that render Navbar / Footer.
  */
+const DEFAULT_NAV_DATA: NavData = {
+  navLinks: DEFAULT_NAV_LINKS,
+  ctaLabel: 'Request Private Access',
+  ctaHref: '/request-access',
+  platformLinks: DEFAULT_PLATFORM_LINKS,
+  resourceLinks: DEFAULT_RESOURCE_LINKS,
+  legalLinks: DEFAULT_LEGAL_LINKS,
+}
+
 export async function fetchNavData(): Promise<NavData> {
-  const payload = await getPayload({ config: configPromise })
+  // Resilient by design: if the database is unreachable (offline build, cold
+  // start), the shell renders with the built in defaults rather than failing.
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const [headerNav, footerNav] = await Promise.all([
-    payload.findGlobal({ slug: 'header-nav', depth: 0 }).catch(() => null),
-    payload.findGlobal({ slug: 'footer-nav', depth: 0 }).catch(() => null),
-  ])
+    const [headerNav, footerNav] = await Promise.all([
+      payload.findGlobal({ slug: 'header-nav', depth: 0 }).catch(() => null),
+      payload.findGlobal({ slug: 'footer-nav', depth: 0 }).catch(() => null),
+    ])
 
-  return {
-    navLinks: (headerNav as any)?.navLinks ?? DEFAULT_NAV_LINKS,
-    ctaLabel: (headerNav as any)?.ctaLabel ?? 'Request Private Access',
-    ctaHref: (headerNav as any)?.ctaHref ?? '/request-access',
-    platformLinks: (footerNav as any)?.platformLinks ?? DEFAULT_PLATFORM_LINKS,
-    resourceLinks: (footerNav as any)?.resourceLinks ?? DEFAULT_RESOURCE_LINKS,
-    legalLinks: (footerNav as any)?.legalLinks ?? DEFAULT_LEGAL_LINKS,
+    return {
+      navLinks: (headerNav as any)?.navLinks ?? DEFAULT_NAV_LINKS,
+      ctaLabel: (headerNav as any)?.ctaLabel ?? 'Request Private Access',
+      ctaHref: (headerNav as any)?.ctaHref ?? '/request-access',
+      platformLinks: (footerNav as any)?.platformLinks ?? DEFAULT_PLATFORM_LINKS,
+      resourceLinks: (footerNav as any)?.resourceLinks ?? DEFAULT_RESOURCE_LINKS,
+      legalLinks: (footerNav as any)?.legalLinks ?? DEFAULT_LEGAL_LINKS,
+    }
+  } catch {
+    return DEFAULT_NAV_DATA
   }
 }

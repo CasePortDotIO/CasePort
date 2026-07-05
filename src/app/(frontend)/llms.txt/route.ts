@@ -1,16 +1,25 @@
 import { NextResponse } from 'next/server'
 
+// Rendered on demand, never prerendered at build. The article list is a best
+// effort enrichment: if the articles API is unreachable (offline build, cold
+// database), the document still renders with an empty article section rather
+// than failing the whole build.
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.caseport.io'
-  const res = await fetch(
-    `${baseUrl}/api/articles?where[_status][equals]=published&limit=200&depth=0&sort=-publishedAt`,
-    { next: { revalidate: 3600 } },
-  )
-
-  const data = await res.json()
-  const articles = data.docs ?? []
+  let articles: Array<{ slug?: string; excerpt?: string; title?: string }> = []
+  try {
+    const res = await fetch(
+      `${baseUrl}/api/articles?where[_status][equals]=published&limit=200&depth=0&sort=-publishedAt`,
+      { next: { revalidate: 3600 } },
+    )
+    const data = await res.json()
+    articles = Array.isArray(data.docs) ? data.docs : []
+  } catch {
+    articles = []
+  }
 
   const articleLines = articles
     .map((article: any) => {

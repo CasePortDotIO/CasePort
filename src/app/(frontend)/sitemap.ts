@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import configPromise from '@payload-config'
 import type { MetadataRoute } from 'next'
 import { getPayload } from 'payload'
