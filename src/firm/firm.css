@@ -1,0 +1,167 @@
+/*
+ * Scoped theme for the ported Manus Law Firm dashboard.
+ *
+ * The main app already loads Tailwind and the shadcn @theme mapping
+ * (--color-background: var(--background), etc.) in styles.css, so we do NOT
+ * re-import tailwindcss here. We only override the CasePort brand color
+ * variables and typography inside the .firm-root container. Because the app's
+ * @theme is `inline`, every bg-background / text-foreground / bg-primary
+ * utility resolves to var(--background) etc. at runtime, so overriding those
+ * variables under .firm-root re-skins the entire island with the exact Manus
+ * palette, and nothing outside .firm-root is affected.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+.firm-root {
+  /* CasePort Brand Colors (Manus dashboard palette) */
+  --primary: #0F6E56; /* Deep teal */
+  --primary-foreground: #F5F5F5;
+  --chart-1: #1D9E75; /* Accent green */
+  --chart-2: #0F6E56; /* Primary teal */
+  --chart-3: #EF9F27; /* Accent amber */
+  --chart-4: #E24B4A; /* Accent red */
+  --chart-5: #7F77DD; /* Accent purple */
+  --radius: 0.5rem;
+  --background: #0A0A0A; /* Deep black */
+  --foreground: #F5F5F5; /* Text primary */
+  --card: #1A1A1A; /* Card background */
+  --card-foreground: #F5F5F5;
+  --popover: #141414; /* Surface */
+  --popover-foreground: #F5F5F5;
+  --secondary: #111111; /* Near black */
+  --secondary-foreground: #AAAAAA; /* Text secondary */
+  --muted: #262626; /* Border */
+  --muted-foreground: #888888; /* Text muted */
+  --accent: #0F6E56; /* Primary accent */
+  --accent-foreground: #F5F5F5;
+  --destructive: #E24B4A; /* Accent red */
+  --destructive-foreground: #F5F5F5;
+  --border: #262626; /* Border color */
+  --input: #262626;
+  --ring: #0F6E56;
+  --sidebar: #0A0A0A;
+  --sidebar-foreground: #F5F5F5;
+  --sidebar-primary: #0F6E56;
+  --sidebar-primary-foreground: #F5F5F5;
+  --sidebar-accent: #0F6E56;
+  --sidebar-accent-foreground: #F5F5F5;
+  --sidebar-border: #262626;
+  --sidebar-ring: #0F6E56;
+
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.005em;
+  min-height: 100vh;
+}
+
+/* CasePort Typography (Institutional), scoped to the island */
+.firm-root h1 {
+  font-size: 2.25rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.firm-root h2 {
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+.firm-root h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.firm-root h4,
+.firm-root h5,
+.firm-root h6 {
+  font-weight: 500;
+}
+.firm-root p {
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+}
+.firm-root code,
+.firm-root pre,
+.firm-root .font-mono {
+  font-family: 'DM Mono', ui-monospace, monospace;
+}
+
+/* Neon Glow Effects (parity with Manus components) */
+.firm-root .glow-cyan {
+  box-shadow: var(--glow-cyan);
+}
+.firm-root .glow-lime {
+  box-shadow: var(--glow-lime);
+}
+.firm-root .glow-cyan-hover:hover {
+  box-shadow: var(--glow-cyan);
+}
+.firm-root .glow-lime-hover:hover {
+  box-shadow: var(--glow-lime);
+}
+
+/* Dashed Border Utilities */
+.firm-root .border-dashed-cyan {
+  border: 1px dashed #00d9ff;
+}
+.firm-root .border-dashed-lime {
+  border: 1px dashed #00ff41;
+}
+
+/* Grid Pattern Background */
+.firm-root .grid-pattern {
+  background-image:
+    linear-gradient(rgba(0, 217, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 217, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Neon Text */
+.firm-root .text-neon-cyan {
+  color: #00d9ff;
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}
+.firm-root .text-neon-lime {
+  color: #00ff41;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+/* Flex min-size reset (Manus quirk), scoped so it never touches the main site */
+.firm-root .flex {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Mobile-first responsive shell */
+@media (max-width: 767px) {
+  .firm-root .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 70px;
+    flex-direction: row;
+    border-top: 1px solid var(--border);
+    border-left: none;
+    z-index: 40;
+  }
+  .firm-root .main-content {
+    padding-bottom: 80px;
+  }
+  .firm-root .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .firm-root * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
