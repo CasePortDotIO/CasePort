@@ -3,8 +3,10 @@ import { getPayload, type Payload } from 'payload'
 import { createRoutingService } from '../services/RoutingService'
 import { createDeliveryService } from '../services/DeliveryService'
 import { createIntelligenceService } from '../services/IntelligenceService'
+import { createAgentService } from '../services/AgentService'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
+import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
 import { deliverDossierWorkflow, reconcileWalletsWorkflow, releaseHeldWorkflow } from './workflows'
@@ -98,4 +100,43 @@ export const recalibrateScps = inngest.createFunction(
   },
 )
 
-export const inngestFunctions = [deliverDossier, releaseHeldQueue, reconcileWallets, recalibrateScps]
+/**
+ * The agents and the speed loop (Phase 5), as one durable timeline per delivery.
+ * The instant a dossier is delivered the speed callback fires; Inngest then
+ * sleeps until the callback SLA window closes and runs the watchdog; then sleeps
+ * deeper into the decay curve and runs the decay interrupt. All gated on the
+ * firm's live callback SLA, so before firm one every step is a dry no op.
+ */
+export const deliveryAgents = inngest.createFunction(
+  { id: 'delivery-agents', retries: 3, triggers: [{ event: 'delivery/delivered' }] },
+  async ({ event, step }) => {
+    const data = event.data as CaseportEvents['delivery/delivered']
+    const payload = await getPayload({ config })
+    const deps = createPayloadAgentDeps(payload)
+    const agents = createAgentService(deps)
+    const s = step as InngestStep & {
+      sleep: (id: string, ms: string | number) => Promise<void>
+      sleepUntil: (id: string, at: string | Date) => Promise<void>
+    }
+
+    // Speed callback: fire immediately, while the claimant is still on screen.
+    await s.run('speed-callback', () => agents.notifyOnDelivery({ deliveryId: data.deliveryId }))
+
+    // SLA watchdog: wait out the callback window, then check for a response.
+    const delivery = await s.run('load-delivery', () => deps.deliveries.get(data.deliveryId))
+    const firm = delivery ? await s.run('load-firm', () => deps.firms.get(delivery.firmId)) : null
+    if (delivery?.deliveredAt && firm) {
+      const dueAt = new Date(Date.parse(delivery.deliveredAt) + firm.slaCallbackMinutes * 60_000).toISOString()
+      await s.sleepUntil('await-sla-window', dueAt)
+      await s.run('check-sla', () => agents.checkSla({ deliveryId: data.deliveryId }))
+    }
+
+    // Decay interrupt: deeper in the decay curve, re engage if still unworked.
+    await s.sleep('await-decay-window', '72h')
+    await s.run('check-decay', () => agents.checkDecay({ deliveryId: data.deliveryId }))
+
+    return { deliveryId: data.deliveryId }
+  },
+)
+
+export const inngestFunctions = [deliverDossier, releaseHeldQueue, reconcileWallets, recalibrateScps, deliveryAgents]

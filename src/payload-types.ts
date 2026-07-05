@@ -341,6 +341,10 @@ export interface Firm {
    * Contractual callback SLA. Golden window.
    */
   slaCallbackMinutes?: number | null;
+  /**
+   * Speed callback loop and SLA watchdog fire only when a firm has a live contractual callback SLA (activated at firm one).
+   */
+  callbackSlaActive?: boolean | null;
   status?: ('active' | 'inactive' | 'suspended') | null;
   /**
    * Fixed fee per delivered opportunity by case type (D3). Never outcome derived (W3).
@@ -2284,7 +2288,11 @@ export interface Event {
     | 'WalletDebited'
     | 'LowBalanceAlerted'
     | 'OutcomeReported'
-    | 'SCPSRecalibrated';
+    | 'SCPSRecalibrated'
+    | 'SpeedCallbackNotified'
+    | 'FirmResponded'
+    | 'SlaBreached'
+    | 'DecayInterrupt';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -4588,6 +4596,7 @@ export interface FirmsSelect<T extends boolean = true> {
   phone?: T;
   foundingPartner?: T;
   slaCallbackMinutes?: T;
+  callbackSlaActive?: T;
   status?: T;
   priceTable?:
     | T

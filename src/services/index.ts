@@ -34,3 +34,6 @@ export { createIntelligenceService, nextModelVersion } from './IntelligenceServi
 export type { IntelligenceService } from './IntelligenceService'
 export * from './scps'
 export type * from './intelligencePorts'
+export { createAgentService, slaStatus } from './AgentService'
+export type { AgentService } from './AgentService'
+export type * from './agentPorts'

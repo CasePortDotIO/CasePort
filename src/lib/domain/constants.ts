@@ -95,6 +95,10 @@ export const EVENT_TYPES = [
   'LowBalanceAlerted',
   'OutcomeReported',
   'SCPSRecalibrated',
+  'SpeedCallbackNotified',
+  'FirmResponded',
+  'SlaBreached',
+  'DecayInterrupt',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]

@@ -39,6 +39,12 @@ export async function deliverDossierWorkflow(
       name: 'wallet/low-balance',
       data: { firmId, deliveryId: outcome.deliveryId },
     })
+  } else if (outcome.status === 'delivered') {
+    // Trigger the speed callback and the SLA and decay agents (Phase 5).
+    await step.sendEvent('trigger-agents', {
+      name: 'delivery/delivered',
+      data: { firmId, deliveryId: outcome.deliveryId },
+    })
   }
 
   return { status: outcome.status, details: outcome }

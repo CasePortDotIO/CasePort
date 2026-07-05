@@ -45,6 +45,12 @@ export const Firms: CollectionConfig = {
           admin: { description: 'Contractual callback SLA. Golden window.' },
         },
         {
+          name: 'callbackSlaActive',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: { description: 'Speed callback loop and SLA watchdog fire only when a firm has a live contractual callback SLA (activated at firm one).' },
+        },
+        {
           name: 'status',
           type: 'select',
           defaultValue: 'active',
