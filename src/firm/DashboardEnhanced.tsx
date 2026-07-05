@@ -128,14 +128,14 @@ export default function DashboardEnhanced() {
                       id: 'CP-2026-000089',
                       type: 'Auto Accident',
                       received: '2 hrs ago',
-                      time: '6 min ✓',
+                      time: '6 min ',
                       status: 'Contacted',
                     },
                     {
                       id: 'CP-2026-000084',
                       type: 'Auto Accident',
                       received: 'Yesterday',
-                      time: '4 min ✓',
+                      time: '4 min ',
                       status: 'Outcome Pending',
                     },
                     {
@@ -156,7 +156,7 @@ export default function DashboardEnhanced() {
                       id: 'CP-2026-000075',
                       type: 'Premises Liability',
                       received: '5 days ago',
-                      time: '8 min ✓',
+                      time: '8 min ',
                       status: 'Closed Lost',
                     },
                   ].map((row, idx) => (

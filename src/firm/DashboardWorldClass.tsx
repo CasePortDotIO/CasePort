@@ -112,7 +112,7 @@ const getStatusColor = (status: string) => {
 
 export default function DashboardWorldClass() {
   const [, navigate] = useLocation();
-  
+
   const today = new Date();
   const greeting =
     today.getHours() < 12
@@ -120,11 +120,11 @@ export default function DashboardWorldClass() {
       : today.getHours() < 18
         ? "Good afternoon"
         : "Good evening";
-  
+
   const handleTopUpWallet = () => {
     navigate('/wallet');
   };
-  
+
   const handleViewWeeklyReport = () => {
     navigate('/performance');
   };

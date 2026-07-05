@@ -72,7 +72,7 @@ class NotificationService extends EventEmitter {
       id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       userId,
       type: 'rank_change',
-      title: isImprovement ? '🎉 You moved up!' : '⚠️ You dropped in rank',
+      title: isImprovement ? 'You moved up' : 'You dropped in rank',
       message: isImprovement
         ? `You're now #${newRank} of 156 firms`
         : `You dropped to #${newRank} — accept more cases to climb back`,
@@ -103,7 +103,7 @@ class NotificationService extends EventEmitter {
       id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       userId,
       type: 'wallet_update',
-      title: isLow ? '⚠️ Low wallet balance' : '💰 Wallet updated',
+      title: isLow ? 'Low wallet balance' : 'Wallet updated',
       message: isLow
         ? `Your balance is now $${newBalance.toLocaleString()}. Refund soon to stay active.`
         : `Case delivered: -$${caseValue.toLocaleString()} • Balance: $${newBalance.toLocaleString()}`,

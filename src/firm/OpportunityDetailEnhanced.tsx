@@ -230,7 +230,7 @@ export default function OpportunityDetailEnhanced() {
                           First Contact
                         </p>
                         <p className="text-sm text-foreground mt-1">Apr 20, 09:26 AM</p>
-                        <p className="text-xs text-chart-1 font-semibold mt-1">6 minutes ✓</p>
+                        <p className="text-xs text-chart-1 font-semibold mt-1">6 minutes </p>
                       </div>
                       <div className="border-t border-border pt-4">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">

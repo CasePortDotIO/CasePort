@@ -161,13 +161,13 @@ export default function OpportunityDetailExcellent() {
                       onClick={() => handleOutcomeSubmit('retained')}
                       className="w-full px-4 py-3 rounded-lg bg-chart-1/20 text-chart-1 border border-chart-1/30 hover:bg-chart-1/30 transition-colors font-semibold"
                     >
-                      Retained ✓
+                      Retained
                     </button>
                     <button
                       onClick={() => handleOutcomeSubmit('not-retained')}
                       className="w-full px-4 py-3 rounded-lg bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-colors font-semibold"
                     >
-                      Not Retained ✗
+                      Not Retained
                     </button>
                     <button
                       onClick={() => handleOutcomeSubmit('evaluating')}

@@ -187,13 +187,13 @@ export function OutcomeButtonGroup({
         onClick={onRetained}
         className="flex-1 px-4 py-2 rounded-lg bg-chart-1/20 text-chart-1 border border-chart-1/30 hover:bg-chart-1/30 transition-colors font-semibold text-sm"
       >
-        Retained ✓
+        Retained
       </button>
       <button
         onClick={onNotRetained}
         className="flex-1 px-4 py-2 rounded-lg bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-colors font-semibold text-sm"
       >
-        Not Retained ✗
+        Not Retained
       </button>
       <button
         onClick={onEvaluating}

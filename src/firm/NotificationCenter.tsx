@@ -35,7 +35,7 @@ export default function NotificationCenter() {
     {
       id: '2',
       type: 'rank_change',
-      title: '🎉 You moved up!',
+      title: 'You moved up',
       message: "You're now #7 of 156 firms",
       data: { oldRank: 8, newRank: 7, isImprovement: true },
       read: false,
@@ -44,7 +44,7 @@ export default function NotificationCenter() {
     {
       id: '3',
       type: 'wallet_update',
-      title: '💰 Wallet updated',
+      title: 'Wallet updated',
       message: 'Case delivered: -$2,500 • Balance: $12,450',
       data: { newBalance: 12450, caseValue: 2500, isLow: false },
       read: true,

@@ -165,7 +165,7 @@ export default function Dashboard() {
                                 : 'text-red-400'
                           }`}
                         >
-                          {opp.responseTime} min ✓
+                          {opp.responseTime} min
                         </span>
                       </td>
                       <td className="px-6 py-4">

@@ -63,7 +63,7 @@ export default function OpportunitiesExcellent() {
       const matchesStatus = !selectedStatus || opp.status === selectedStatus;
       const matchesCaseType = !selectedCaseType || opp.caseType === selectedCaseType;
       const matchesOutcome = !selectedOutcome || opp.outcome === selectedOutcome;
-      
+
       return matchesSearch && matchesStatus && matchesCaseType && matchesOutcome;
     });
   }, [searchTerm, selectedStatus, selectedCaseType, selectedOutcome]);

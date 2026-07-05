@@ -201,7 +201,7 @@ export default function BenchmarkingWidget() {
         className="bg-primary/5 border border-primary/20 rounded-lg p-4"
       >
         <p className="text-sm text-foreground">
-          <span className="font-semibold">💡 Pro Tip:</span> Firms in the top 10% focus on response time. Reducing your
+          <span className="font-semibold">Insight:</span> Firms in the top 10% focus on response time. Reducing your
           response time by 2 minutes could move you to the top 5%.
         </p>
       </motion.div>

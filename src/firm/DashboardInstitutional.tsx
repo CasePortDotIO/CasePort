@@ -319,8 +319,8 @@ export default function DashboardInstitutional() {
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.66 }}>
             <div className="mb-5">
-              <h2 className="text-lg font-semibold text-foreground">Performance &amp; achievements</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Track your progress</p>
+              <h2 className="text-lg font-semibold text-foreground">Your standing</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">Where you rank in your market</p>
             </div>
             <GamificationWidget />
           </motion.div>

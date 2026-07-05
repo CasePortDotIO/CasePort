@@ -59,7 +59,7 @@ export default function OpportunityDetailProduction() {
     if (pathMatch) {
       const opportunityId = pathMatch[1];
       setParams({ id: opportunityId });
-      
+
       // Simulate loading
       setIsLoading(true);
       setTimeout(() => {
@@ -156,11 +156,11 @@ export default function OpportunityDetailProduction() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const outcomeLabel = confirmAction === 'retained' ? 'Retained' : 
-                          confirmAction === 'not-retained' ? `Not Retained (${selectedReason})` : 
+
+      const outcomeLabel = confirmAction === 'retained' ? 'Retained' :
+                          confirmAction === 'not-retained' ? `Not Retained (${selectedReason})` :
                           'Still Evaluating';
-      
+
       toast.success(`Outcome submitted: ${outcomeLabel}`);
       setShowConfirmDialog(false);
       setShowReasonCodes(false);
@@ -216,7 +216,7 @@ export default function OpportunityDetailProduction() {
             Back to Opportunities
           </button>
         </div>
-        
+
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <button
@@ -331,7 +331,7 @@ export default function OpportunityDetailProduction() {
                           Submitting...
                         </span>
                       ) : (
-                        'Retained ✓'
+                        'Retained'
                       )}
                     </button>
                     <button
@@ -347,7 +347,7 @@ export default function OpportunityDetailProduction() {
                           Submitting...
                         </span>
                       ) : (
-                        'Not Retained ✗'
+                        'Not Retained'
                       )}
                     </button>
                     <button

@@ -130,7 +130,7 @@ export default function CaseFeedbackLoop() {
                               (ratings[caseItem.caseId] || 0) >= star ? 'text-yellow-500' : 'text-border'
                             }`}
                           >
-                            ★
+
                           </button>
                         ))}
                       </div>

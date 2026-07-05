@@ -198,7 +198,7 @@ export default function WalletReplenishmentWidget() {
 
                 <div className="bg-green-500/10 border border-green-200/30 rounded-lg p-3">
                   <p className="text-xs text-green-900 font-semibold">
-                    ✨ Get 5% bonus credit when you enable auto-replenishment
+                    Get 5% bonus credit when you enable auto-replenishment
                   </p>
                 </div>
 

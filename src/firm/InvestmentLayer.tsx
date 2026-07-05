@@ -64,7 +64,7 @@ export default function InvestmentLayer({
               <p className="text-xs text-muted-foreground mt-2">
                 {isLowBalance ? (
                   <span className="text-amber-600 font-semibold">
-                    ⚠️ Refund soon to stay active
+                    Top up soon to stay active
                   </span>
                 ) : (
                   <span>
@@ -77,7 +77,7 @@ export default function InvestmentLayer({
             {/* Sunk Cost Message */}
             <div className="bg-amber-500/10 border border-amber-200/30 rounded-lg p-3">
               <p className="text-xs text-amber-900 font-semibold">
-                💡 Switching platforms means losing ${walletBalance.toLocaleString()} in pre-funded capital
+                Switching platforms means losing ${walletBalance.toLocaleString()} in pre-funded capital
               </p>
             </div>
 
@@ -126,7 +126,7 @@ export default function InvestmentLayer({
             {/* Switching Cost Message */}
             <div className="bg-blue-500/10 border border-blue-200/30 rounded-lg p-3">
               <p className="text-xs text-blue-900 font-semibold">
-                🔒 Switching platforms means starting at rank #1 again
+                Switching platforms means starting at rank #1 again
               </p>
             </div>
           </div>

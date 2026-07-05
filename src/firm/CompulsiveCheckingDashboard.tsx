@@ -189,7 +189,7 @@ export default function CompulsiveCheckingDashboard() {
         className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg p-4"
       >
         <p className="text-sm text-foreground">
-          <span className="font-semibold">💡 Pro Tip:</span> Firms who check this dashboard 15+ times daily see{' '}
+          <span className="font-semibold"> Pro Tip:</span> Firms who check this dashboard 15+ times daily see{' '}
           <span className="font-bold text-green-600">3.2x higher conversion rates</span>. Real-time insights drive
           faster decisions.
         </p>
