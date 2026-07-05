@@ -18,7 +18,7 @@ function fakeAnthropic(text: string | (() => never)) {
         return { content: [{ type: 'text', text }] }
       },
     },
-  } as unknown as ConstructorParameters<typeof createAnthropicVisionClient>[0]
+  } as unknown as Parameters<typeof createAnthropicVisionClient>[0]
 }
 
 describe('Claude Vision insurance card parsing', () => {
