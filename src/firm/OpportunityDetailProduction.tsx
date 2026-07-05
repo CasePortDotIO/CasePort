@@ -1,656 +1,317 @@
-import { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, Clock, MapPin, AlertCircle, CheckCircle, ChevronDown, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
-import CollaborationPanel from '@/firm/CollaborationPanel';
+import {
+  ChevronLeft, Phone, MapPin, Calendar, ShieldCheck, FileText, Camera, Image as ImageIcon,
+  Gauge, Scale, Clock, FileCheck2, Download, ArrowUpRight, User,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
+import { useAuth } from '@/firm/useAuth';
 
-interface TimelineEvent {
-  date: string;
-  title: string;
-  description: string;
-  type: 'contact' | 'response' | 'outcome' | 'update';
-}
+/*
+ * The closing kit (Section 7 step 5). The screen a partner opens on a delivered
+ * case where the involuntary thought is "I could sign this on the first call".
+ * Everything is already done and visible, no tabs to dig through: the claimant
+ * and how to reach them, their organized statement, the categorized evidence
+ * with severity, the parsed police report, the SCPS triage, the statute clock,
+ * and the HIPAA authorization already executed in the firm's name. All they do
+ * is call and sign.
+ */
 
-interface Opportunity {
+const TEAL = '#22c58d';
+const POS = '#34d39a';
+const WARN = '#f5b544';
+const NEG = '#fb7185';
+
+interface Kit {
   id: string;
   caseType: string;
   market: string;
-  status: 'Contacted' | 'Outcome Pending' | 'Signed' | 'Closed Lost' | 'Disputed';
-  received: string;
-  responseTime: number;
+  receivedAgo: string;
+  claimant: { name: string; phone: string; location: string; incidentDate: string };
+  statement: string;
+  facts: string[];
+  photos: { group: string; icon: typeof Camera; items: { label: string; severity?: 'severe' | 'moderate' | 'mild' }[] }[];
+  police: { number: string; finding: string; filed: string };
+  scps: number;
+  factors: { label: string; value: number }[];
+  injury: string;
+  liability: string;
+  estValue: string;
+  insurance: string;
+  statuteDays: number;
 }
 
-// Mock database of opportunities
-const opportunitiesDB: Record<string, Opportunity> = {
-  'CP-2026-000089': { id: 'CP-2026-000089', caseType: 'Auto Accident', market: 'Houston, TX', status: 'Contacted', received: '2 hours ago', responseTime: 6 },
-  'CP-2026-000084': { id: 'CP-2026-000084', caseType: 'Auto Accident', market: 'Houston, TX', status: 'Outcome Pending', received: 'Yesterday', responseTime: 4 },
-  'CP-2026-000081': { id: 'CP-2026-000081', caseType: 'Slip & Fall', market: 'Houston, TX', status: 'Outcome Pending', received: '2 days ago', responseTime: 31 },
-  'CP-2026-000075': { id: 'CP-2026-000075', caseType: 'Medical Malpractice', market: 'Houston, TX', status: 'Signed', received: '3 days ago', responseTime: 12 },
-};
+function buildKit(id: string): Kit {
+  return {
+    id,
+    caseType: 'Motor Vehicle Accident',
+    market: 'Houston, TX',
+    receivedAgo: '6 minutes ago',
+    claimant: { name: 'Marcus Delgado', phone: '+1 (713) 555-0148', location: 'Houston, TX 77002', incidentDate: 'July 2, 2026' },
+    statement:
+      'I was stopped at the light on Smith Street when a delivery truck ran the red and hit the driver side of my car. My neck and lower back started hurting that evening. I went to the emergency room the next morning and I have a follow up with a physical therapist this week. The other driver got a ticket at the scene.',
+    facts: [
+      'Rear and side impact at a signaled intersection, claimant was stopped',
+      'Emergency room visit within 24 hours, physical therapy scheduled',
+      'Other driver cited at the scene',
+    ],
+    photos: [
+      { group: 'Scene', icon: MapPin, items: [{ label: 'Intersection, wide' }, { label: 'Traffic signal' }, { label: 'Skid marks' }] },
+      { group: 'Vehicle damage', icon: Camera, items: [{ label: 'Driver door', severity: 'severe' }, { label: 'Front quarter panel', severity: 'moderate' }] },
+      { group: 'Injuries', icon: ImageIcon, items: [{ label: 'Neck bruising', severity: 'moderate' }, { label: 'Left wrist', severity: 'mild' }] },
+    ],
+    police: { number: 'HPD-2026-118437', finding: 'Other driver cited for failure to obey a traffic signal.', filed: 'July 2, 2026' },
+    scps: 87,
+    factors: [
+      { label: 'Injury verification', value: 90 },
+      { label: 'Liability clarity', value: 95 },
+      { label: 'Statute headroom', value: 100 },
+      { label: 'Case type match', value: 88 },
+    ],
+    injury: 'Neck and lower back, soft tissue with ongoing treatment',
+    liability: 'Clear, other party cited, police report on file',
+    estValue: '$45,000 - $85,000',
+    insurance: 'Commercial auto, $250K liability limit',
+    statuteDays: 548,
+  };
+}
 
-const reasonCodes = [
-  { code: 'NR-001', label: 'Not Retained - Client Declined' },
-  { code: 'NR-002', label: 'Not Retained - Conflict of Interest' },
-  { code: 'NR-003', label: 'Not Retained - Outside Practice Area' },
-  { code: 'NR-004', label: 'Not Retained - No Liability' },
-  { code: 'NR-005', label: 'Not Retained - Insufficient Damages' },
-];
+const sevColor = (s?: 'severe' | 'moderate' | 'mild') => (s === 'severe' ? NEG : s === 'moderate' ? WARN : POS);
 
 export default function OpportunityDetailProduction() {
   const [, navigate] = useLocation();
-  const [params, setParams] = useState<{ id?: string }>({});
-  const [activeTab, setActiveTab] = useState<'overview' | 'intelligence' | 'timeline' | 'dispute'>('overview');
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [showReasonCodes, setShowReasonCodes] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedReason, setSelectedReason] = useState<string | null>(null);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const firmName = user?.firmName ?? 'your firm';
+  const [kit, setKit] = useState<Kit | null>(null);
 
-  // Extract route params from URL
   useEffect(() => {
-    const pathMatch = window.location.pathname.match(/\/opportunity\/([^/]+)/);
-    if (pathMatch) {
-      const opportunityId = pathMatch[1];
-      setParams({ id: opportunityId });
-
-      // Simulate loading
-      setIsLoading(true);
-      setTimeout(() => {
-        const opp = opportunitiesDB[opportunityId];
-        if (opp) {
-          setOpportunity(opp);
-          setError(null);
-        } else {
-          setError(`Opportunity ${opportunityId} not found`);
-          setOpportunity(null);
-        }
-        setIsLoading(false);
-      }, 500);
-    }
+    const m = window.location.pathname.match(/\/opportunity\/([^/]+)/);
+    setKit(buildKit(m ? decodeURIComponent(m[1]) : 'CP-2026-000089'));
   }, []);
 
-  // Keyboard event handlers
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape key closes dialogs/menus
-      if (e.key === 'Escape') {
-        setShowConfirmDialog(false);
-        setShowReasonCodes(false);
-      }
-      // Tab navigation for accessibility
-      if (e.key === 'Tab') {
-        // Allow natural tab flow
-      }
-    };
+  if (!kit) return <div className="min-h-screen bg-background" />;
+  const c = kit.claimant;
+  const firstName = c.name.split(' ')[0];
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowReasonCodes(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading opportunity details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !opportunity) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-4" />
-          <p className="text-foreground font-semibold mb-2">Error Loading Opportunity</p>
-          <p className="text-muted-foreground mb-6">{error || 'Opportunity not found'}</p>
-          <button
-            onClick={() => navigate('/opportunities')}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Back to Opportunities
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const handleOutcomeSubmit = (outcome: string) => {
-    if (outcome === 'not-retained') {
-      if (!showReasonCodes) {
-        setShowReasonCodes(true);
-        return;
-      }
-      if (!selectedReason) {
-        toast.error('Please select a reason code');
-        return;
-      }
-    }
-
-    setConfirmAction(outcome);
-    setShowConfirmDialog(true);
-  };
-
-  const confirmSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const outcomeLabel = confirmAction === 'retained' ? 'Retained' :
-                          confirmAction === 'not-retained' ? `Not Retained (${selectedReason})` :
-                          'Still Evaluating';
-
-      toast.success(`Outcome submitted: ${outcomeLabel}`);
-      setShowConfirmDialog(false);
-      setShowReasonCodes(false);
-      setSelectedReason(null);
-      setConfirmAction(null);
-    } catch (err) {
-      toast.error('Failed to submit outcome. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const timelineEvents: TimelineEvent[] = [
-    {
-      date: '2026-04-21 14:32',
-      title: 'Case Received',
-      description: 'Auto Accident case received from CasePort network',
-      type: 'contact'
-    },
-    {
-      date: '2026-04-21 14:38',
-      title: 'Response Submitted',
-      description: 'Firm responded to case inquiry within 6 minutes',
-      type: 'response'
-    },
-    {
-      date: '2026-04-21 15:15',
-      title: 'Outcome Pending',
-      description: 'Awaiting outcome submission from firm',
-      type: 'update'
-    }
-  ];
-
-  const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'intelligence', label: 'Intelligence' },
-    { id: 'timeline', label: 'Timeline' },
-    { id: 'dispute', label: 'Dispute' },
-  ];
+  const report = (label: string) => toast.success(`Recorded as ${label}. Your cost per signed case just sharpened.`);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-secondary px-8 py-6">
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => navigate('/opportunities')}
-            onKeyDown={(e) => e.key === 'Enter' && navigate('/opportunities')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-2 py-1"
-            aria-label="Back to opportunities list"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back to Opportunities
+      {/* Header + the action */}
+      <div className="border-b border-white/[0.07] bg-background/70 backdrop-blur-md sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-8 py-5">
+          <button onClick={() => navigate('/opportunities')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
+            <ChevronLeft className="w-4 h-4" /> Opportunities
           </button>
-        </div>
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
-          >
-            Dashboard
-          </button>
-          <ChevronRight className="w-4 h-4" />
-          <button
-            onClick={() => navigate('/opportunities')}
-            className="hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
-          >
-            Opportunities
-          </button>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-foreground font-mono">{opportunity.id}</span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground font-mono">{opportunity.id}</h1>
-            <p className="text-sm text-muted-foreground mt-1">{opportunity.caseType} · {opportunity.market}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border bg-blue-500/20 text-blue-200 border-blue-500/30">
-              {opportunity.status}
-            </span>
-            <span className="text-sm text-muted-foreground">{opportunity.received}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="px-8 flex gap-8">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  setActiveTab(tab.id as any);
-                }
-              }}
-              className={`py-4 px-2 text-sm font-medium border-b-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-t ${
-                activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-              aria-selected={activeTab === tab.id}
-              role="tab"
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-8">
-        <AnimatePresence mode="wait">
-          {/* Overview Tab */}
-          {activeTab === 'overview' && (
-            <motion.div
-              key="overview"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="grid grid-cols-3 gap-8"
-            >
-              {/* Left Column */}
-              <div className="col-span-2 space-y-6">
-                {/* Case Profile */}
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-4">Case Profile</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Case Type</p>
-                      <p className="text-foreground mt-1">{opportunity.caseType}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Market</p>
-                      <p className="text-foreground mt-1">{opportunity.market}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status of Limitations</p>
-                      <p className="text-foreground mt-1">180 days remaining</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Received Date</p>
-                      <p className="text-foreground mt-1">April 21, 2026</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Outcome Buttons */}
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-4">Submit Outcome</h2>
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => handleOutcomeSubmit('retained')}
-                      onKeyDown={(e) => e.key === 'Enter' && handleOutcomeSubmit('retained')}
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 rounded-lg bg-chart-1/20 text-chart-1 border border-chart-1/30 hover:bg-chart-1/30 disabled:opacity-50 transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-chart-1/50"
-                      aria-label="Submit outcome: Retained"
-                    >
-                      {isSubmitting && confirmAction === 'retained' ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Submitting...
-                        </span>
-                      ) : (
-                        'Retained'
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleOutcomeSubmit('not-retained')}
-                      onKeyDown={(e) => e.key === 'Enter' && handleOutcomeSubmit('not-retained')}
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 rounded-lg bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 disabled:opacity-50 transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-destructive/50"
-                      aria-label="Submit outcome: Not Retained"
-                    >
-                      {isSubmitting && confirmAction === 'not-retained' ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Submitting...
-                        </span>
-                      ) : (
-                        'Not Retained'
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleOutcomeSubmit('evaluating')}
-                      onKeyDown={(e) => e.key === 'Enter' && handleOutcomeSubmit('evaluating')}
-                      disabled={isSubmitting}
-                      className="w-full px-4 py-3 rounded-lg bg-muted/50 text-muted-foreground border border-muted/50 hover:bg-muted/70 disabled:opacity-50 transition-colors font-semibold focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      aria-label="Submit outcome: Still Evaluating"
-                    >
-                      {isSubmitting && confirmAction === 'evaluating' ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Submitting...
-                        </span>
-                      ) : (
-                        'Still Evaluating ○'
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Reason Codes */}
-                  <AnimatePresence>
-                    {showReasonCodes && (
-                      <motion.div
-                        ref={menuRef}
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mt-4 pt-4 border-t border-border"
-                      >
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                          Select Reason Code <span className="text-destructive">*</span>
-                        </p>
-                        <div className="space-y-2">
-                          {reasonCodes.map(code => (
-                            <button
-                              key={code.code}
-                              onClick={() => {
-                                setSelectedReason(code.code);
-                                toast.info(`Selected: ${code.label}`);
-                              }}
-                              onKeyDown={(e) => e.key === 'Enter' && setSelectedReason(code.code)}
-                              className={`w-full px-3 py-2 text-left text-sm rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 ${
-                                selectedReason === code.code
-                                  ? 'bg-primary/20 text-primary border border-primary/30'
-                                  : 'bg-muted/50 text-foreground hover:bg-muted'
-                              }`}
-                              aria-selected={selectedReason === code.code}
-                              role="option"
-                            >
-                              <span className="font-mono text-primary">{code.code}</span> - {code.label}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-3 mb-1.5">
+                <h1 className="text-[26px] leading-none font-light tracking-tight text-foreground">{kit.caseType}</h1>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ color: WARN, background: 'rgba(245,181,68,0.12)' }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: WARN }} /> Awaiting your call
+                </span>
               </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                {/* Collaboration Panel */}
-                <CollaborationPanel
-                  resourceId={opportunity.id}
-                  resourceType="opportunity"
-                />
-
-                {/* Response Performance */}
-                <div className="bg-card border border-border rounded-lg p-6">
-                  <h2 className="text-lg font-semibold text-foreground mb-4">Response Performance</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Your Response</p>
-                      <p className="text-2xl font-bold text-chart-1 mt-1">{opportunity.responseTime} min</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Market Average</p>
-                      <p className="text-muted-foreground mt-1">12 min</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Benchmark</p>
-                      <p className="text-muted-foreground mt-1">8 min</p>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden mt-4">
-                      <div className="h-full bg-chart-1" style={{ width: '75%' }} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Intake Intelligence */}
-                <div className="bg-card border border-border rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setExpandedSection(expandedSection === 'intake' ? null : 'intake')}
-                    onKeyDown={(e) => e.key === 'Enter' && setExpandedSection(expandedSection === 'intake' ? null : 'intake')}
-                    className="w-full px-6 py-4 flex items-center justify-between hover:bg-muted/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    aria-expanded={expandedSection === 'intake'}
-                    aria-label="Intake Intelligence section"
-                  >
-                    <h2 className="text-lg font-semibold text-foreground">Intake Intelligence</h2>
-                    <ChevronDown
-                      className={`w-4 h-4 text-muted-foreground transition-transform ${
-                        expandedSection === 'intake' ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-                  <AnimatePresence>
-                    {expandedSection === 'intake' && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="border-t border-border px-6 py-4 space-y-3"
-                      >
-                        <div>
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Injury Type</p>
-                          <p className="text-foreground mt-1">Whiplash, Soft Tissue</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Medical Treatment</p>
-                          <p className="text-foreground mt-1">ER visit, Physical therapy</p>
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Estimated Damages</p>
-                          <p className="text-foreground mt-1">$15,000 - $25,000</p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Intelligence Tab */}
-          {activeTab === 'intelligence' && (
-            <motion.div
-              key="intelligence"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
-              <div className="bg-card border border-border rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-foreground mb-4">Case Intelligence</h2>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Injury Severity</p>
-                    <p className="text-foreground mt-1">Moderate - Soft tissue injuries with ongoing treatment</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Liability Assessment</p>
-                    <p className="text-foreground mt-1">Clear liability - Other party at fault, police report filed</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Insurance Coverage</p>
-                    <p className="text-foreground mt-1">Defendant has commercial auto insurance, $100K limit</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Comparable Cases</p>
-                    <p className="text-foreground mt-1">Similar cases in Houston market settle for $18K - $28K</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Timeline Tab */}
-          {activeTab === 'timeline' && (
-            <motion.div
-              key="timeline"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="max-w-2xl"
-            >
-              <div className="space-y-6">
-                {timelineEvents.map((event, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex gap-4"
-                  >
-                    <div className="flex flex-col items-center">
-                      <div className={`w-4 h-4 rounded-full border-2 ${
-                        event.type === 'contact' ? 'bg-blue-500 border-blue-500' :
-                        event.type === 'response' ? 'bg-chart-1 border-chart-1' :
-                        event.type === 'outcome' ? 'bg-chart-3 border-chart-3' :
-                        'bg-primary border-primary'
-                      }`} />
-                      {idx < timelineEvents.length - 1 && (
-                        <div className="w-0.5 h-12 bg-border mt-2" />
-                      )}
-                    </div>
-
-                    <div className="pb-6">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-mono text-sm text-muted-foreground">{event.date}</p>
-                      </div>
-                      <p className="text-foreground font-semibold">{event.title}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Dispute Tab */}
-          {activeTab === 'dispute' && (
-            <motion.div
-              key="dispute"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
-              <div className="bg-card border border-border rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-foreground mb-4">Dispute Information</h2>
-                <p className="text-muted-foreground mb-6">No active disputes for this case.</p>
-                <button
-                  onClick={() => {
-                    setConfirmAction('dispute');
-                    setShowConfirmDialog(true);
-                  }}
-                  onKeyDown={(e) => e.key === 'Enter' && (setConfirmAction('dispute'), setShowConfirmDialog(true))}
-                  className="px-4 py-2 bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30 transition-colors font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-destructive/50"
-                  aria-label="Open dispute for this case"
-                >
-                  Open Dispute
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Confirmation Dialog */}
-      <AnimatePresence>
-        {showConfirmDialog && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            onClick={() => !isSubmitting && setShowConfirmDialog(false)}
-          >
-            <motion.div
-              ref={dialogRef}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card border border-border rounded-lg p-6 max-w-md mx-4"
-              onClick={(e) => e.stopPropagation()}
-              role="alertdialog"
-              aria-modal="true"
-              aria-labelledby="dialog-title"
-            >
-              <h2 id="dialog-title" className="text-lg font-semibold text-foreground mb-4">
-                Confirm Action
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                {confirmAction === 'retained' && 'Are you sure you want to mark this case as Retained?'}
-                {confirmAction === 'not-retained' && `Are you sure you want to mark this case as Not Retained (${selectedReason})?`}
-                {confirmAction === 'evaluating' && 'Are you sure you want to mark this case as Still Evaluating?'}
-                {confirmAction === 'dispute' && 'Are you sure you want to open a dispute for this case? This action cannot be undone.'}
+              <p className="text-sm text-muted-foreground">
+                <span className="font-mono">{kit.id}</span> · {kit.market} · delivered {kit.receivedAgo}
               </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowConfirmDialog(false)}
-                  disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 bg-muted/50 text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmSubmit}
-                  disabled={isSubmitting}
-                  className={`flex-1 px-4 py-2 font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 disabled:opacity-50 ${
-                    confirmAction === 'dispute'
-                      ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive/50'
-                      : 'bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary/50'
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Confirming...
-                    </span>
-                  ) : (
-                    'Confirm'
-                  )}
-                </button>
+            </div>
+            <a
+              href={`tel:${c.phone.replace(/[^+\d]/g, '')}`}
+              className="inline-flex items-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+              style={{ background: `linear-gradient(120deg, ${TEAL}, ${POS})`, color: '#052018' }}
+            >
+              <Phone className="w-4 h-4" /> Call {firstName} now
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* The case file */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Claimant */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-4 h-4" style={{ color: TEAL }} />
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">The claimant</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+              <Field label="Name" value={c.name} />
+              <Field label="Phone" value={c.phone} mono />
+              <Field label="Location" value={c.location} icon={MapPin} />
+              <Field label="Incident" value={c.incidentDate} icon={Calendar} />
+            </div>
+          </Card>
+
+          {/* What happened */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="w-4 h-4" style={{ color: TEAL }} />
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">What happened</h2>
+              <span className="ml-auto text-[11px] text-muted-foreground">in their words, organized</span>
+            </div>
+            <p className="text-[15px] text-foreground leading-relaxed mb-5">{kit.statement}</p>
+            <div className="space-y-2">
+              {kit.facts.map((f) => (
+                <div key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: TEAL }} />
+                  {f}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Evidence */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Camera className="w-4 h-4" style={{ color: TEAL }} />
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Evidence</h2>
+              <span className="ml-auto text-[11px] text-muted-foreground">categorized · signed, expiring links</span>
+            </div>
+            <div className="space-y-5">
+              {kit.photos.map((grp) => {
+                const Icon = grp.icon;
+                return (
+                  <div key={grp.group}>
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="text-xs font-semibold text-foreground">{grp.group}</span>
+                      <span className="text-[11px] text-muted-foreground">· {grp.items.length}</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {grp.items.map((it) => (
+                        <div key={it.label} className="rounded-lg overflow-hidden border border-white/[0.07]" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                          <div className="h-24 grid place-items-center" style={{ background: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 10px, transparent 10px 20px)' }}>
+                            <Camera className="w-5 h-5 text-white/20" />
+                          </div>
+                          <div className="px-3 py-2.5 flex items-center justify-between gap-2">
+                            <span className="text-xs text-foreground truncate">{it.label}</span>
+                            {it.severity && (
+                              <span className="text-[10px] font-semibold uppercase tracking-wide flex-shrink-0" style={{ color: sevColor(it.severity) }}>{it.severity}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Police report, parsed */}
+              <div className="rounded-lg p-4 border border-white/[0.07]" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <FileCheck2 className="w-4 h-4" style={{ color: POS }} />
+                  <span className="text-xs font-semibold text-foreground">Police report, parsed</span>
+                  <span className="ml-auto font-mono text-[11px] text-muted-foreground">{kit.police.number}</span>
+                </div>
+                <p className="text-sm text-foreground">{kit.police.finding}</p>
+                <p className="text-[11px] text-muted-foreground mt-1.5">Filed {kit.police.filed}</p>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </Card>
+        </div>
+
+        {/* Triage + actions */}
+        <div className="space-y-6">
+          {/* SCPS triage */}
+          <Card className="p-6" style={{ background: 'linear-gradient(150deg, rgba(34,197,141,0.10), rgba(255,255,255,0.02))', borderColor: 'rgba(34,197,141,0.26)' }}>
+            <div className="flex items-center gap-2 mb-3">
+              <Gauge className="w-4 h-4" style={{ color: TEAL }} />
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">SCPS triage</h2>
+              <span className="ml-auto text-[10px] text-muted-foreground">firm only · v1</span>
+            </div>
+            <div className="flex items-baseline gap-1.5 mb-4">
+              <span className="text-[40px] leading-none font-light tabular-nums text-foreground">{kit.scps}</span>
+              <span className="text-lg text-muted-foreground">%</span>
+            </div>
+            <div className="space-y-2.5">
+              {kit.factors.map((f) => (
+                <div key={f.label}>
+                  <div className="flex justify-between text-[11px] mb-1">
+                    <span className="text-muted-foreground">{f.label}</span>
+                    <span className="text-foreground tabular-nums">{f.value}</span>
+                  </div>
+                  <div className="h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                    <div className="h-1 rounded-full" style={{ width: `${f.value}%`, background: TEAL }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Snapshot */}
+          <Card className="p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-4">Case snapshot</h2>
+            <div className="space-y-3.5">
+              <Row icon={ImageIcon} label="Injury" value={kit.injury} />
+              <Row icon={Scale} label="Liability" value={kit.liability} />
+              <Row icon={ArrowUpRight} label="Estimated value" value={kit.estValue} accent />
+              <Row icon={ShieldCheck} label="Insurance" value={kit.insurance} />
+              <Row icon={Clock} label="Statute" value={`${kit.statuteDays} days remaining`} />
+            </div>
+          </Card>
+
+          {/* HIPAA */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck className="w-4 h-4" style={{ color: POS }} />
+              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">HIPAA authorization</h2>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed">
+              Executed by the claimant in the name of <b className="font-semibold">{firmName}</b>. Request records directly from providers, no waiting.
+            </p>
+            <button
+              onClick={() => toast.success('HIPAA authorization downloaded.')}
+              className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold border border-white/[0.1] hover:border-white/25 transition-colors text-foreground"
+            >
+              <Download className="w-4 h-4" /> Download authorization
+            </button>
+          </Card>
+
+          {/* Report the outcome */}
+          <Card className="p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1">After your call</h2>
+            <p className="text-xs text-muted-foreground mb-4">One tap. It unlocks your true cost per signed case.</p>
+            <div className="space-y-2.5">
+              <button onClick={() => report('signed')} className="w-full rounded-lg py-2.5 text-sm font-semibold transition-colors" style={{ color: '#052018', background: `linear-gradient(120deg, ${TEAL}, ${POS})` }}>
+                It signed
+              </button>
+              <button onClick={() => report('still being worked')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-foreground">
+                Still working it
+              </button>
+              <button onClick={() => report('not signed')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-muted-foreground">
+                It did not sign
+              </button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, mono, icon: Icon }: { label: string; value: string; mono?: boolean; icon?: typeof MapPin }) {
+  return (
+    <div>
+      <p className="text-[10px] font-medium uppercase tracking-[0.13em] text-muted-foreground mb-1.5">{label}</p>
+      <p className={`text-sm text-foreground flex items-center gap-1.5 ${mono ? 'font-mono' : ''}`}>
+        {Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function Row({ icon: Icon, label, value, accent }: { icon: typeof MapPin; label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="flex items-start gap-3">
+      <Icon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+      <div>
+        <p className="text-[11px] text-muted-foreground">{label}</p>
+        <p className="text-sm mt-0.5" style={accent ? { color: TEAL, fontWeight: 600 } : { color: 'var(--foreground)' }}>{value}</p>
+      </div>
     </div>
   );
 }
