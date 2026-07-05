@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import Stripe from 'stripe'
 import { createWalletService } from '@/services/WalletService'
 import { createPayloadWalletDeps } from '@/services/adapters/payloadWallet'
+import { inngest } from '@/inngest/client'
 
 /**
  * Stripe webhook. Money in only (Section 3, Section 10). Stripe is the rail; the
@@ -67,6 +68,17 @@ export async function POST(req: Request) {
     idempotencyKey: `stripe_${event.id}`,
     stripeRef: event.id,
   })
+
+  // Close the wallet dry loop: on a real credit, fan out wallet/funded so the
+  // durable release-held-queue function re attempts any held deliveries. Guarded
+  // so a missing Inngest config never breaks the money in path.
+  if (result.credited) {
+    try {
+      await inngest.send({ name: 'wallet/funded', data: { firmId } })
+    } catch (err) {
+      console.error('failed to emit wallet/funded for held queue release', err)
+    }
+  }
 
   return Response.json({ received: true, credited: result.credited, balanceCents: result.balanceCents })
 }
