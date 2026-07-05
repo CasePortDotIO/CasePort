@@ -48,6 +48,7 @@ import {
   Disclosures,
   AuditLog,
   Operators,
+  FirmUsers,
 } from './collections/backend'
 
 const filename = fileURLToPath(import.meta.url)
@@ -158,6 +159,7 @@ export default buildConfig({
     Disclosures,
     AuditLog,
     Operators,
+    FirmUsers,
   ],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature(), CTAButtonFeature()],

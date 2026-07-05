@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    firmUsers: FirmUserAuthOperations;
   };
   blocks: {};
   collections: {
@@ -97,6 +98,7 @@ export interface Config {
     disclosures: Disclosure;
     auditLog: AuditLog;
     operators: Operator;
+    firmUsers: FirmUser;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -134,6 +136,7 @@ export interface Config {
     disclosures: DisclosuresSelect<false> | DisclosuresSelect<true>;
     auditLog: AuditLogSelect<false> | AuditLogSelect<true>;
     operators: OperatorsSelect<false> | OperatorsSelect<true>;
+    firmUsers: FirmUsersSelect<false> | FirmUsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -159,13 +162,31 @@ export interface Config {
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: User | FirmUser;
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface FirmUserAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -2750,6 +2771,39 @@ export interface Operator {
   createdAt: string;
 }
 /**
+ * Partner logins for the firm dashboard. Each belongs to one firm.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "firmUsers".
+ */
+export interface FirmUser {
+  id: string;
+  name: string;
+  /**
+   * The firm this partner belongs to. Scopes all their reads.
+   */
+  firm: string | Firm;
+  role: 'partner' | 'staff';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'firmUsers';
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -2892,12 +2946,21 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'operators';
         value: string | Operator;
+      } | null)
+    | ({
+        relationTo: 'firmUsers';
+        value: string | FirmUser;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'firmUsers';
+        value: string | FirmUser;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -2907,10 +2970,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'firmUsers';
+        value: string | FirmUser;
+      };
   key?: string | null;
   value?:
     | {
@@ -4812,6 +4880,31 @@ export interface OperatorsSelect<T extends boolean = true> {
   status?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "firmUsers_select".
+ */
+export interface FirmUsersSelect<T extends boolean = true> {
+  name?: T;
+  firm?: T;
+  role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -13,11 +13,10 @@ import { requireInternal } from '@/lib/adminAuth'
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
-  const payload = await getPayload({ config })
-  const auth = await requireInternal(payload, req)
-  if ('response' in auth) return auth.response
-
   try {
+    const payload = await getPayload({ config })
+    const auth = await requireInternal(payload, req)
+    if ('response' in auth) return auth.response
     const intel = createIntelligenceService(createPayloadIntelligenceDeps(payload))
     const models = await intel.listScpsModels()
     return Response.json({ models })

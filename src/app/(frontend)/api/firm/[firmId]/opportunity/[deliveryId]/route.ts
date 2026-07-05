@@ -2,6 +2,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { createGlassBoxService } from '@/services/GlassBoxService'
 import { createPayloadGlassBoxDeps } from '@/services/adapters/payloadWallet'
+import { guardFirmAccess } from '@/lib/firmAuth'
 
 /**
  * The full closing kit for one delivered opportunity, scoped to the firm
@@ -22,6 +23,8 @@ export async function GET(
   const { firmId, deliveryId } = await params
   try {
     const payload = await getPayload({ config })
+    const denied = await guardFirmAccess(payload, _req, firmId)
+    if (denied) return denied
     const glass = createGlassBoxService(createPayloadGlassBoxDeps(payload))
     const detail = await glass.opportunityDetail(firmId, deliveryId)
     if (!detail) return Response.json({ error: 'not found' }, { status: 404 })

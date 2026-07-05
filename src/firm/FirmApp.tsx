@@ -13,6 +13,7 @@ import PerformanceEnhanced from '@/firm/PerformanceEnhanced'
 import AnalyticsDashboard from '@/firm/AnalyticsDashboard'
 import SettingsPage from '@/firm/SettingsPage'
 import LeaderboardPage from '@/firm/LeaderboardPage'
+import FirmLogin from '@/firm/FirmLogin'
 
 /**
  * The ported Manus Law Firm dashboard, mounted as a single client island under
@@ -22,6 +23,9 @@ import LeaderboardPage from '@/firm/LeaderboardPage'
  */
 function FirmRouter() {
   const [location] = useLocation()
+
+  // Login stands alone, without the dashboard chrome.
+  if (location === '/login') return <FirmLogin />
 
   const getCurrentScreen = () => {
     if (location.startsWith('/opportunities') || location.startsWith('/opportunity')) return 'opportunities'

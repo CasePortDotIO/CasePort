@@ -2,6 +2,7 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { createGlassBoxService } from '@/services/GlassBoxService'
 import { createPayloadGlassBoxDeps } from '@/services/adapters/payloadWallet'
+import { guardFirmAccess } from '@/lib/firmAuth'
 
 /**
  * The firm's Glass Box (Section 7). Serves only the requesting firm's own data:
@@ -16,6 +17,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ firmId:
   const { firmId } = await params
   try {
     const payload = await getPayload({ config })
+    const denied = await guardFirmAccess(payload, _req, firmId)
+    if (denied) return denied
     const glass = createGlassBoxService(createPayloadGlassBoxDeps(payload))
 
     const [wallet, proofFeed, deliveries] = await Promise.all([

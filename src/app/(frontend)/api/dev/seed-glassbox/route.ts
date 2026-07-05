@@ -77,6 +77,16 @@ export async function POST(req: Request) {
     firmId = String(firm.id)
   }
 
+  // 2b. A firm partner login bound to this firm, so the dashboard can be entered
+  // as a real authenticated partner (email partner@peachtreeinjury.example).
+  const existingFirmUser = await payload.find({ collection: 'firmUsers', where: { email: { equals: 'partner@peachtreeinjury.example' } }, limit: 1 })
+  if (!existingFirmUser.docs[0]) {
+    await payload.create({
+      collection: 'firmUsers',
+      data: { email: 'partner@peachtreeinjury.example', password: 'caseport-demo', name: 'Michael Adeyemi', firm: firmId, role: 'partner' } as never,
+    })
+  }
+
   // 3. Fund the wallet through the WalletService (real ledger credits).
   const wallet = createWalletService(createPayloadWalletDeps(payload))
   await wallet.topUp({ firmId, amountCents: 5000000, idempotencyKey: `seed_${firmId}_1`, stripeRef: 'seed_topup_1' })

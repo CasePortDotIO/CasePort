@@ -14,10 +14,6 @@ import { requireInternal } from '@/lib/adminAuth'
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
-  const payload = await getPayload({ config })
-  const auth = await requireInternal(payload, req, { admin: true })
-  if ('response' in auth) return auth.response
-
   let body: { version?: unknown }
   try {
     body = (await req.json()) ?? {}
@@ -28,6 +24,9 @@ export async function POST(req: Request) {
   if (!version) return Response.json({ error: 'version required' }, { status: 400 })
 
   try {
+    const payload = await getPayload({ config })
+    const auth = await requireInternal(payload, req, { admin: true })
+    if ('response' in auth) return auth.response
     const intel = createIntelligenceService(createPayloadIntelligenceDeps(payload))
     const result = await intel.promoteScpsModel({ version, approvedBy: auth.user.email })
     // not-found / already-active are reported, not thrown, so the caller knows why.

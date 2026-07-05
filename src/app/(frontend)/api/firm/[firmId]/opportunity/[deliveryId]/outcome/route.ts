@@ -4,6 +4,7 @@ import { createOutcomeService } from '@/services/OutcomeService'
 import { createIntelligenceService } from '@/services/IntelligenceService'
 import { createPayloadOutcomeDeps, createPayloadIntelligenceDeps } from '@/services/adapters/payloadIntelligence'
 import { createPayloadAgentDeps } from '@/services/adapters/payloadAgents'
+import { guardFirmAccess } from '@/lib/firmAuth'
 import type { OutcomeResult } from '@/services/intelligencePorts'
 
 /**
@@ -45,6 +46,8 @@ export async function POST(
 
   try {
     const payload = await getPayload({ config })
+    const denied = await guardFirmAccess(payload, req, firmId)
+    if (denied) return denied
     const agentDeps = createPayloadAgentDeps(payload)
 
     // Firm scoping: the delivery must be this firm's.
