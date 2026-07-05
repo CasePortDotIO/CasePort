@@ -2277,8 +2277,10 @@ export interface Event {
     | 'StatusViewed'
     | 'GeographicRouteResolved'
     | 'DossierDelivered'
+    | 'DeliveryHeld'
     | 'WalletFunded'
     | 'WalletDebited'
+    | 'LowBalanceAlerted'
     | 'OutcomeReported'
     | 'SCPSRecalibrated';
   aggregateType: string;

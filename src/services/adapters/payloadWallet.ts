@@ -83,6 +83,15 @@ function payloadLedgerRepository(payload: Payload): LedgerRepository {
       })
       return res.docs.reduce((s: number, d) => s + Number((d as { amountCents?: number }).amountCents ?? 0), 0)
     },
+    async findByIdempotencyKey(idempotencyKey) {
+      const res = await payload.find({
+        collection: 'ledgerEntries',
+        where: { idempotencyKey: { equals: idempotencyKey } },
+        limit: 1,
+        depth: 0,
+      })
+      return res.docs[0] ? toLedgerEntry(res.docs[0] as never) : null
+    },
   }
 }
 
@@ -176,25 +185,38 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
       })
     },
     async firmDeliveries(firmId): Promise<FirmDeliveryView[]> {
+      const relId = (v: unknown) => (v == null ? '' : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
       const res = await payload.find({
         collection: 'deliveries',
         where: { firm: { equals: firmId } },
         sort: '-deliveredAt',
         limit: 100,
+        depth: 1, // populate the dossier so we can surface its case type
+      })
+      // Map the actual fee billed per delivery from the authoritative ledger.
+      const debits = await payload.find({
+        collection: 'ledgerEntries',
+        where: { and: [{ firm: { equals: firmId } }, { reason: { equals: 'delivery-debit' } }] },
+        limit: 1000,
         depth: 0,
       })
+      const feeByDelivery = new Map<string, number>()
+      for (const l of debits.docs) {
+        const row = l as unknown as Record<string, unknown>
+        feeByDelivery.set(relId(row.delivery), Math.abs(Number(row.amountCents ?? 0)))
+      }
       return res.docs.map((d) => {
         const doc = d as unknown as Record<string, unknown>
-        const relId = (v: unknown) => (v == null ? '' : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
+        const dossier = (typeof doc.dossier === 'object' ? doc.dossier : null) as Record<string, unknown> | null
         return {
           deliveryId: String(doc.id),
           dossierId: relId(doc.dossier),
-          caseType: 'unknown',
+          caseType: String(dossier?.caseType ?? 'unknown'),
           deliveredAt: (doc.deliveredAt as string) ?? null,
           firmRespondedAt: (doc.firmRespondedAt as string) ?? null,
           responseTimeSeconds: (doc.responseTimeSeconds as number) ?? null,
           slaBreached: Boolean(doc.slaBreached),
-          billedCents: doc.billed ? 0 : null,
+          billedCents: feeByDelivery.get(String(doc.id)) ?? (doc.billed ? 0 : null),
         }
       })
     },

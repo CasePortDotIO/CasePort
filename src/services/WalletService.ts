@@ -1,4 +1,11 @@
+import type { CaseTypeValue } from '@/lib/domain/constants'
 import type { WalletDeps, WalletSnapshot } from './walletPorts'
+
+/** The outcome of a debit attempt. Never derived from a case outcome (W4). */
+export type DebitResult =
+  | { debited: true; reason: 'ok'; feeCents: number; balanceCents: number; created: boolean }
+  | { debited: false; reason: 'insufficient-funds'; feeCents: number; balanceCents: number; created: false }
+  | { debited: false; reason: 'no-price'; feeCents: null; balanceCents: number; created: false }
 
 /**
  * WalletService. Section 4, Section 10. Life critical. Correctness beats every
@@ -86,6 +93,84 @@ export function createWalletService(deps: WalletDeps) {
   }
 
   /**
+   * The debit, on verified delivery (Section 10, W3, W4). Life critical.
+   *
+   * The fee is read from the firm's fixed price table by case type. It is never
+   * derived from a case outcome (W3), and the debit fires on delivery regardless
+   * of whether the case ever signs (W4). Idempotent on idempotencyKey (the
+   * delivery id): a retry recognizes the existing charge and returns it rather
+   * than charging again, so the same delivery can never debit twice. If the
+   * balance cannot cover the fee, nothing is written and the caller holds the
+   * delivery. There is no partial state.
+   *
+   * The atomic boundary that also marks the delivery billed is owned by the
+   * caller (DeliveryService runs this and the delivery write inside one
+   * transaction). The unique idempotency index is the ultimate guard: even
+   * without a transaction the same delivery cannot charge twice.
+   */
+  async function debit(input: {
+    firmId: string
+    caseType: CaseTypeValue
+    deliveryId: string
+    idempotencyKey: string
+  }): Promise<DebitResult> {
+    // W3: fixed fee from the price table, keyed by case type. Never from an outcome.
+    const feeCents = await deps.firms.priceFor(input.firmId, input.caseType)
+    if (feeCents == null || feeCents <= 0) {
+      const balanceCents = await deps.ledger.sumByFirm(input.firmId)
+      return { debited: false, reason: 'no-price', feeCents: null, balanceCents, created: false }
+    }
+
+    // Replay guard: if this delivery already charged, return the original result
+    // without touching the balance. This is what makes forced retries safe.
+    const existing = await deps.ledger.findByIdempotencyKey(input.idempotencyKey)
+    if (existing) {
+      const balanceCents = await deps.ledger.sumByFirm(input.firmId)
+      return { debited: true, reason: 'ok', feeCents, balanceCents, created: false }
+    }
+
+    const priorBalance = await deps.ledger.sumByFirm(input.firmId)
+    if (priorBalance < feeCents) {
+      // Wallet dry: no ledger write, no partial state. The caller holds.
+      return { debited: false, reason: 'insufficient-funds', feeCents, balanceCents: priorBalance, created: false }
+    }
+
+    const balanceAfterCents = priorBalance - feeCents
+    const { created } = await deps.ledger.append(
+      {
+        firmId: input.firmId,
+        entryType: 'debit',
+        reason: 'delivery-debit',
+        amountCents: -feeCents,
+        idempotencyKey: input.idempotencyKey,
+        deliveryId: input.deliveryId,
+        occurredAt: deps.clock.nowIso(),
+      },
+      balanceAfterCents,
+    )
+
+    const snapshot = await rebuildSnapshot(input.firmId)
+
+    if (created) {
+      await deps.events.append({
+        eventType: 'WalletDebited',
+        aggregateType: 'wallet',
+        aggregateId: input.firmId,
+        actor: 'system',
+        occurredAt: deps.clock.nowIso(),
+        payload: {
+          feeCents,
+          deliveryId: input.deliveryId,
+          caseType: input.caseType,
+          balanceCents: snapshot.balanceCents,
+        },
+      })
+    }
+
+    return { debited: true, reason: 'ok', feeCents, balanceCents: snapshot.balanceCents, created }
+  }
+
+  /**
    * Reconciliation (Section 10). Compares the derived snapshot against the
    * authoritative ledger sum and reports any drift for human review. The ledger
    * and the snapshot must agree.
@@ -108,7 +193,7 @@ export function createWalletService(deps: WalletDeps) {
     }
   }
 
-  return { balance, rebuildSnapshot, topUp, reconcile }
+  return { balance, rebuildSnapshot, topUp, debit, reconcile }
 }
 
 export type WalletService = ReturnType<typeof createWalletService>

@@ -89,8 +89,10 @@ export const EVENT_TYPES = [
   'StatusViewed',
   'GeographicRouteResolved',
   'DossierDelivered',
+  'DeliveryHeld',
   'WalletFunded',
   'WalletDebited',
+  'LowBalanceAlerted',
   'OutcomeReported',
   'SCPSRecalibrated',
 ] as const

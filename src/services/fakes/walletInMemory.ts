@@ -66,6 +66,7 @@ export function createWalletHarness(
     listByFirm: async (firmId) => ledgerRows.filter((r) => r.firmId === firmId),
     sumByFirm: async (firmId) =>
       ledgerRows.filter((r) => r.firmId === firmId).reduce((s, r) => s + r.amountCents, 0),
+    findByIdempotencyKey: async (key) => ledgerRows.find((r) => r.idempotencyKey === key) ?? null,
   }
 
   const snapshots: WalletSnapshotRepository = {

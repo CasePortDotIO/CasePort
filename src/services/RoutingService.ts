@@ -1,4 +1,4 @@
-import type { Payload } from 'payload'
+import type { RoutingDeps } from './deliveryPorts'
 
 /**
  * RoutingService. Section 4 and Section 8. The most compliance bearing
@@ -46,26 +46,68 @@ export function decideGeographicRoute(
   }
 }
 
-export const RoutingService = {
-  decideGeographicRoute,
+export const RoutingService = { decideGeographicRoute }
 
-  /**
-   * Resolve the single firm assigned to a protected market, produce the
-   * geographic routing decision, write the audit record with reason geographic,
-   * and emit GeographicRouteResolved.
-   *
-   * Phase 0 wires the signature and the pure decision. The Payload backed
-   * resolution, audit write, and event emit are completed in Phase 3 (the money
-   * moving slice). The signature is final now so nothing downstream can smuggle
-   * a quality signal in later.
-   */
-  async route(
-    _payload: Payload,
-    intake: RoutingIntake,
-  ): Promise<GeographicRoutingDecision> {
-    // Phase 3: look up markets.assignedFirm for intake.market, write auditLog
-    // with reason geographic, emit GeographicRouteResolved. For now the pure
-    // decision proves the contract with no firm resolved.
-    return decideGeographicRoute(intake, null)
-  },
+/**
+ * The routing service (Phase 3). Resolves the single firm assigned to a
+ * protected market, produces the geographic routing decision, writes the audit
+ * record with reason geographic, and emits GeographicRouteResolved.
+ *
+ * The route input carries only the dossier id (the aggregate being routed), the
+ * market, and the validation boolean. There is no field through which SCPS,
+ * severity, or value could reach this function, and the market resolver it calls
+ * exposes only geographic assignment. Routing cause and triage data are kept
+ * physically separate: this function never reads or writes an evaluative field.
+ */
+export function createRoutingService(deps: RoutingDeps) {
+  async function route(input: {
+    dossierId: string
+    market: string
+    validationPassed: boolean
+  }): Promise<GeographicRoutingDecision> {
+    // Geographic resolution only. A failed validation never resolves a firm.
+    const assigned = input.validationPassed
+      ? await deps.markets.assignedFirmForMarket(input.market)
+      : null
+
+    const decision = decideGeographicRoute(
+      { market: input.market, validationPassed: input.validationPassed },
+      assigned?.firmId ?? null,
+    )
+
+    const occurredAt = deps.clock.nowIso()
+
+    // W1 and W7: every routing decision is audited, and the only permitted
+    // reason is geographic, whether or not a firm was resolved.
+    await deps.audit.record({
+      decisionType: 'routing',
+      reason: 'geographic',
+      aggregateId: input.dossierId,
+      firmId: decision.firmId ?? undefined,
+      marketId: input.market,
+      actor: 'system',
+      details: { routed: decision.routed, marketType: assigned?.marketType ?? null },
+      occurredAt,
+    })
+
+    await deps.events.append({
+      eventType: 'GeographicRouteResolved',
+      aggregateType: 'dossier',
+      aggregateId: input.dossierId,
+      actor: 'system',
+      occurredAt,
+      payload: {
+        market: input.market,
+        firmId: decision.firmId,
+        reason: 'geographic',
+        routed: decision.routed,
+      },
+    })
+
+    return decision
+  }
+
+  return { route, decideGeographicRoute }
 }
+
+export type RoutingServiceInstance = ReturnType<typeof createRoutingService>

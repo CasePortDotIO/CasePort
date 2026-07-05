@@ -13,8 +13,11 @@
  *   OutcomeService, IntelligenceService                  Phase 4
  */
 export { ComplianceService } from './ComplianceService'
-export { RoutingService, decideGeographicRoute } from './RoutingService'
-export type { RoutingIntake, GeographicRoutingDecision } from './RoutingService'
+export { RoutingService, decideGeographicRoute, createRoutingService } from './RoutingService'
+export type { RoutingIntake, GeographicRoutingDecision, RoutingServiceInstance } from './RoutingService'
+export { createDeliveryService } from './DeliveryService'
+export type { DeliveryService, DeliveryOutcome } from './DeliveryService'
+export type * from './deliveryPorts'
 export { createIntakeService } from './IntakeService'
 export type { IntakeService } from './IntakeService'
 export type * from './ports'

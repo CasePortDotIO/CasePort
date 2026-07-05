@@ -41,6 +41,12 @@ export interface LedgerRepository {
   }>
   listByFirm(firmId: string): Promise<StoredLedgerEntry[]>
   sumByFirm(firmId: string): Promise<number>
+  /**
+   * Look up an entry by its idempotency key. Lets the debit path recognize a
+   * replay before it re-evaluates the balance, so a retry returns the original
+   * charge instead of mistaking the already reduced balance for a new shortfall.
+   */
+  findByIdempotencyKey(idempotencyKey: string): Promise<StoredLedgerEntry | null>
 }
 
 export interface WalletSnapshot {
