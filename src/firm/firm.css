@@ -15,10 +15,10 @@
 
 .firm-root {
   /* CasePort Brand Colors (Manus dashboard palette) */
-  --primary: #0F6E56; /* Deep teal */
+  --primary: #12A67C; /* Deep teal */
   --primary-foreground: #F5F5F5;
   --chart-1: #1D9E75; /* Accent green */
-  --chart-2: #0F6E56; /* Primary teal */
+  --chart-2: #12A67C; /* Primary teal */
   --chart-3: #EF9F27; /* Accent amber */
   --chart-4: #E24B4A; /* Accent red */
   --chart-5: #7F77DD; /* Accent purple */
@@ -33,27 +33,51 @@
   --secondary-foreground: #AAAAAA; /* Text secondary */
   --muted: #262626; /* Border */
   --muted-foreground: #888888; /* Text muted */
-  --accent: #0F6E56; /* Primary accent */
+  --accent: #12A67C; /* Primary accent */
   --accent-foreground: #F5F5F5;
   --destructive: #E24B4A; /* Accent red */
   --destructive-foreground: #F5F5F5;
   --border: #262626; /* Border color */
   --input: #262626;
-  --ring: #0F6E56;
+  --ring: #12A67C;
   --sidebar: #0A0A0A;
   --sidebar-foreground: #F5F5F5;
-  --sidebar-primary: #0F6E56;
+  --sidebar-primary: #12A67C;
   --sidebar-primary-foreground: #F5F5F5;
-  --sidebar-accent: #0F6E56;
+  --sidebar-accent: #12A67C;
   --sidebar-accent-foreground: #F5F5F5;
   --sidebar-border: #262626;
-  --sidebar-ring: #0F6E56;
+  --sidebar-ring: #12A67C;
 
   background-color: var(--background);
   color: var(--foreground);
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.005em;
   min-height: 100vh;
+}
+
+/*
+ * Global card depth. Every shadcn card across every firm page gains a subtle
+ * top lit gradient and a refined hairline border, so surfaces separate from the
+ * near black ground and the eye can find focal points. Cards that set their own
+ * inline background (the dashboard hero cards) keep their bespoke treatment.
+ */
+.firm-root [data-slot='card'] {
+  background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.008));
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}
+.firm-root [data-slot='card']:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Calibrated semantic tokens, legible on the dark ground and distinct from the
+ * brand teal so meaning never competes with identity. */
+.firm-root {
+  --pos: #34d39a;
+  --neg: #fb7185;
+  --warn: #f5b544;
+  --accent-bright: #22c58d;
 }
 
 /* CasePort Typography (Institutional), scoped to the island */
