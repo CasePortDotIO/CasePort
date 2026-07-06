@@ -70,6 +70,12 @@ export interface OpsCockpit {
         observedAt: string
       }>
     }
+    // Phase C domain synthesis.
+    synthesis: {
+      artifacts: number
+      recommendationsProposed: number
+      recommendationsRejected: number
+    }
   }
   demand: {
     cells: {
@@ -85,17 +91,26 @@ export interface OpsCockpit {
       recentPublished: Array<{ title: string; surface: string; canonicalQuestion: string; url: string; publishedAt: string | null }>
     }
     fundedMarkets: string[]
+    // Phase C B2B.
+    b2b: {
+      targets: number
+      outboundPending: number
+      outboundSent: number
+    }
   }
   events: OpsEventRow[]
 }
 
 /** Map an event type to its lane so the fused feed reads as one system. */
 export function laneFor(eventType: string): OpsLane {
-  if (eventType.startsWith('Intelligence')) return 'intelligence'
+  if (eventType.startsWith('Intelligence') || eventType.startsWith('Recommendation')) return 'intelligence'
   if (
     eventType.startsWith('DemandCell') ||
     eventType.startsWith('CaptureAsset') ||
-    eventType.startsWith('KeywordQuestion')
+    eventType.startsWith('KeywordQuestion') ||
+    eventType.startsWith('B2B') ||
+    eventType.startsWith('Outbound') ||
+    eventType.startsWith('Authority')
   ) {
     return 'demand'
   }
@@ -114,11 +129,13 @@ function emptyCockpit(online: boolean, generatedAt: string): OpsCockpit {
     cic: {
       sources: { total: 0, byRating: { A: 0, B: 0, C: 0 }, active: 0, prohibited: 0, retired: 0, rows: [] },
       signals: { total: 0, active: 0, superseded: 0, byDomain: { demand: 0, supply: 0, regulatory: 0, market: 0 }, recent: [] },
+      synthesis: { artifacts: 0, recommendationsProposed: 0, recommendationsRejected: 0 },
     },
     demand: {
       cells: { total: 0, pursue: 0, ignore: 0, byIgnoreReason: {}, topPursued: [] },
       assets: { total: 0, byStatus: {}, recentPublished: [] },
       fundedMarkets: [],
+      b2b: { targets: 0, outboundPending: 0, outboundSent: 0 },
     },
     events: [],
   }
@@ -242,6 +259,30 @@ export async function loadOpsCockpit(payload: Payload, generatedAt: string): Pro
       url: String(d.url ?? ''),
       publishedAt: d.publishedAt ? iso(d.publishedAt) : null,
     }))
+  }, undefined)
+
+  // Phase C domain synthesis: artifacts and recommendation proposals.
+  await safe(async () => {
+    const [artifacts, proposed, rejected] = await Promise.all([
+      payload.count({ collection: 'intelligence-artifacts' }),
+      payload.count({ collection: 'recommendations', where: { status: { equals: 'proposed' } } }),
+      payload.count({ collection: 'recommendations', where: { status: { equals: 'rejected' } } }),
+    ])
+    snapshot.cic.synthesis.artifacts = artifacts.totalDocs
+    snapshot.cic.synthesis.recommendationsProposed = proposed.totalDocs
+    snapshot.cic.synthesis.recommendationsRejected = rejected.totalDocs
+  }, undefined)
+
+  // Phase C B2B: the target universe and the outbound queue.
+  await safe(async () => {
+    const [targets, pending, sent] = await Promise.all([
+      payload.count({ collection: 'b2b-targets' }),
+      payload.count({ collection: 'b2b-targets', where: { 'outbound.status': { equals: 'pending-send' } } }),
+      payload.count({ collection: 'b2b-targets', where: { 'outbound.status': { equals: 'sent' } } }),
+    ])
+    snapshot.demand.b2b.targets = targets.totalDocs
+    snapshot.demand.b2b.outboundPending = pending.totalDocs
+    snapshot.demand.b2b.outboundSent = sent.totalDocs
   }, undefined)
 
   // Funded markets, resolved from the real markets, firms, and wallet state (HL3).

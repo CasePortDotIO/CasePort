@@ -230,6 +230,17 @@ function IntelligencePanel({ cockpit }: { cockpit: OpsCockpit }) {
             <Metric label="Prohibited src" value={sources.prohibited} accent="text-[color:var(--chart-4)]" />
           </div>
 
+          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-md border ops-hairline px-3 py-2">
+            <SubHead>Domain synthesis</SubHead>
+            <InlineStat label="Artifacts" value={cockpit.cic.synthesis.artifacts} />
+            <InlineStat label="Recs proposed" value={cockpit.cic.synthesis.recommendationsProposed} accent="lane-demand" />
+            <InlineStat
+              label="Recs blocked"
+              value={cockpit.cic.synthesis.recommendationsRejected}
+              accent="text-[color:var(--chart-4)]"
+            />
+          </div>
+
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
               <SubHead>Sources by reliability</SubHead>
@@ -319,6 +330,13 @@ function DemandPanel({ cockpit }: { cockpit: OpsCockpit }) {
             <Metric label="Cells ignored" value={cells.ignore} accent="text-[color:var(--muted-foreground)]" />
             <Metric label="Published" value={assets.byStatus.published ?? 0} accent="lane-demand" />
             <Metric label="Funded markets" value={fundedMarkets.length} />
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-md border ops-hairline px-3 py-2">
+            <SubHead>B2B outbound</SubHead>
+            <InlineStat label="Targets" value={cockpit.demand.b2b.targets} />
+            <InlineStat label="Pending send" value={cockpit.demand.b2b.outboundPending} accent="text-[color:var(--chart-3)]" />
+            <InlineStat label="Sent" value={cockpit.demand.b2b.outboundSent} accent="lane-demand" />
           </div>
 
           <div className="mt-5 grid gap-5 md:grid-cols-2">
@@ -456,6 +474,14 @@ function SubHead({ children, className = '' }: { children: React.ReactNode; clas
 }
 function Muted({ children }: { children: React.ReactNode }) {
   return <p className="text-xs text-[color:var(--muted-foreground)]">{children}</p>
+}
+function InlineStat({ label, value, accent }: { label: string; value: number; accent?: string }) {
+  return (
+    <span className="flex items-baseline gap-1.5">
+      <span className={`ops-mono text-sm font-semibold tabular-nums ${accent ?? ''}`}>{value.toLocaleString('en-US')}</span>
+      <span className="text-[11px] text-[color:var(--secondary-foreground)]">{label}</span>
+    </span>
+  )
 }
 function EmptyState({ line }: { line: string }) {
   return <p className="py-6 text-center text-xs text-[color:var(--muted-foreground)]">{line}</p>

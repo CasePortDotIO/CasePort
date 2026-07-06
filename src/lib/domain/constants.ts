@@ -115,6 +115,16 @@ export const EVENT_TYPES = [
   'CaptureAssetSubmitted',
   'CaptureAssetPublished',
   'CaptureAssetRejected',
+  // CIC Phase C domain synthesis (INTELLIGENCE_CORE.md Section 4, 9).
+  'IntelligenceArtifactSynthesized',
+  'RecommendationProposed',
+  'RecommendationRejected',
+  // Demand Capture Phase C B2B (DEMAND_CAPTURE.md Section 5).
+  'B2BTargetAdded',
+  'AuthorityDrafted',
+  'OutboundDrafted',
+  'OutboundRejected',
+  'OutboundSent',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]

@@ -99,8 +99,11 @@ export interface Config {
     operators: Operator;
     'intelligence-sources': IntelligenceSource;
     'intelligence-signals': IntelligenceSignal;
+    'intelligence-artifacts': IntelligenceArtifact;
+    recommendations: Recommendation;
     'demand-cells': DemandCell;
     'capture-assets': CaptureAsset;
+    'b2b-targets': B2BTarget;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -140,8 +143,11 @@ export interface Config {
     operators: OperatorsSelect<false> | OperatorsSelect<true>;
     'intelligence-sources': IntelligenceSourcesSelect<false> | IntelligenceSourcesSelect<true>;
     'intelligence-signals': IntelligenceSignalsSelect<false> | IntelligenceSignalsSelect<true>;
+    'intelligence-artifacts': IntelligenceArtifactsSelect<false> | IntelligenceArtifactsSelect<true>;
+    recommendations: RecommendationsSelect<false> | RecommendationsSelect<true>;
     'demand-cells': DemandCellsSelect<false> | DemandCellsSelect<true>;
     'capture-assets': CaptureAssetsSelect<false> | CaptureAssetsSelect<true>;
+    'b2b-targets': B2BTargetsSelect<false> | B2BTargetsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -2312,7 +2318,15 @@ export interface Event {
     | 'CaptureAssetDrafted'
     | 'CaptureAssetSubmitted'
     | 'CaptureAssetPublished'
-    | 'CaptureAssetRejected';
+    | 'CaptureAssetRejected'
+    | 'IntelligenceArtifactSynthesized'
+    | 'RecommendationProposed'
+    | 'RecommendationRejected'
+    | 'B2BTargetAdded'
+    | 'AuthorityDrafted'
+    | 'OutboundDrafted'
+    | 'OutboundRejected'
+    | 'OutboundSent';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2852,6 +2866,64 @@ export interface IntelligenceSignal {
   createdAt: string;
 }
 /**
+ * Synthesized per domain briefs. Ranked and sourced; nothing unverified is asserted as fact.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-artifacts".
+ */
+export interface IntelligenceArtifact {
+  id: string;
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  title: string;
+  summary: string;
+  findings?:
+    | {
+        claim: string;
+        signalId?: string | null;
+        sourceKey?: string | null;
+        reliability?: ('A' | 'B' | 'C') | null;
+        rank?: number | null;
+        status?: ('asserted' | 'needs-verification') | null;
+        id?: string | null;
+      }[]
+    | null;
+  generatedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * CIC recommendations. Proposed by the engine, promoted only by a human. Never outcome scaled pricing or smart routing.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendations".
+ */
+export interface Recommendation {
+  id: string;
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  action: string;
+  expectedValue?: string | null;
+  rationale?: string | null;
+  /**
+   * The signals this recommendation rests on.
+   */
+  sourceSignalIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  status: 'proposed' | 'approved' | 'rejected' | 'executed';
+  /**
+   * Set when the compliance guard rejected the proposal (H2, H3).
+   */
+  rejectionReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
  * Geography by case-type by legal-concept cells, scored by defensible data cell logic. Vanity volume scores zero.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2955,6 +3027,46 @@ export interface CaptureAsset {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * The target firm universe. Outreach drafts are Rule 7.1 clean and wait for a human send.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "b2b-targets".
+ */
+export interface B2BTarget {
+  id: string;
+  firmName: string;
+  market: string;
+  partnerName?: string | null;
+  revenueBand?: string | null;
+  status: 'added' | 'enriched' | 'drafted' | 'sent';
+  enriched?: boolean | null;
+  /**
+   * The outreach draft, pending a human send.
+   */
+  outbound?: {
+    subject?: string | null;
+    body?: string | null;
+    /**
+     * Redacted representative recent activity. No claimant PII.
+     */
+    proof?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    status?: ('pending-send' | 'rejected' | 'sent') | null;
+    rejectionReason?: string | null;
+    sentBy?: string | null;
+    sentAt?: string | null;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3109,12 +3221,24 @@ export interface PayloadLockedDocument {
         value: string | IntelligenceSignal;
       } | null)
     | ({
+        relationTo: 'intelligence-artifacts';
+        value: string | IntelligenceArtifact;
+      } | null)
+    | ({
+        relationTo: 'recommendations';
+        value: string | Recommendation;
+      } | null)
+    | ({
         relationTo: 'demand-cells';
         value: string | DemandCell;
       } | null)
     | ({
         relationTo: 'capture-assets';
         value: string | CaptureAsset;
+      } | null)
+    | ({
+        relationTo: 'b2b-targets';
+        value: string | B2BTarget;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -5076,6 +5200,44 @@ export interface IntelligenceSignalsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-artifacts_select".
+ */
+export interface IntelligenceArtifactsSelect<T extends boolean = true> {
+  domain?: T;
+  title?: T;
+  summary?: T;
+  findings?:
+    | T
+    | {
+        claim?: T;
+        signalId?: T;
+        sourceKey?: T;
+        reliability?: T;
+        rank?: T;
+        status?: T;
+        id?: T;
+      };
+  generatedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendations_select".
+ */
+export interface RecommendationsSelect<T extends boolean = true> {
+  domain?: T;
+  action?: T;
+  expectedValue?: T;
+  rationale?: T;
+  sourceSignalIds?: T;
+  status?: T;
+  rejectionReason?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "demand-cells_select".
  */
 export interface DemandCellsSelect<T extends boolean = true> {
@@ -5111,6 +5273,31 @@ export interface CaptureAssetsSelect<T extends boolean = true> {
   structure?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "b2b-targets_select".
+ */
+export interface B2BTargetsSelect<T extends boolean = true> {
+  firmName?: T;
+  market?: T;
+  partnerName?: T;
+  revenueBand?: T;
+  status?: T;
+  enriched?: T;
+  outbound?:
+    | T
+    | {
+        subject?: T;
+        body?: T;
+        proof?: T;
+        status?: T;
+        rejectionReason?: T;
+        sentBy?: T;
+        sentAt?: T;
+      };
+  createdAt?: T;
+  updatedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

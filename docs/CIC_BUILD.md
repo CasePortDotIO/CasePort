@@ -47,9 +47,24 @@ Verification: `npm run test` (112 passing), `npx tsc --noEmit` clean, `npm run b
 
 ---
 
+## Phase C. Domain synthesis: DONE (2026-07-06)
+
+The four domain synthesizers producing ranked, sourced artifacts and compliance gated recommendations.
+
+**Checkpoint (met):** each domain produces a ranked, sourced artifact, and the regulatory adversarial suite is green. Proven by `tests/int/intelligence/synthesis.int.spec.ts` (7 tests).
+
+Delivered:
+- `src/lib/intelligence/recommendationGuard.ts`: blocks any recommendation that would make routing smart (W1, H2) or make pricing scale with outcome (W3, H3).
+- `src/services/synthesisPorts.ts`, `SynthesisService.ts`: reads active signals per domain, runs the agentic synthesizer, and applies two gates the synthesizer cannot bypass. Regulatory verification (H5): a finding is asserted only when backed by a sufficiently reliable active signal (regulatory requires an A rated primary source); a hallucinated or under sourced finding is flagged needs-verification, never asserted. Recommendation compliance (H2, H3): a non compliant proposal is rejected before it can be proposed.
+- `src/collections/backend/IntelligenceArtifacts.ts`, `Recommendations.ts`: registered in `payload.config.ts`.
+- `src/services/adapters/payloadSynthesis.ts`, `fakes/synthesisInMemory.ts` (grounded, hallucinating, and non compliant synthesizers).
+
+Verification: `npm run test` (127 passing), `npx tsc --noEmit` clean, `npm run build` compiles. Artifacts and recommendation proposals surface on the `/ops` console.
+
+---
+
 ## Pending phases (do not build ahead)
 
-- **Phase C. Domain synthesis.** The four domain agents producing artifacts and recommendations, joined by the attribution tuple. Checkpoint: each domain produces a ranked, sourced artifact; the regulatory adversarial suite is green.
 - **Phase D. Fusion, briefing, surfaces.** Lead synthesis agent, proactive briefing, on-demand MCP query, alerts. (Confirm D9 channels first.)
 - **Phase E. Self-scoring loop.** Recommendation outcome measurement and recommendation-type self-calibration.
 - **Phase F. Promotion gates.** Versioning and human promotion workflow for SCPS, pricing, qualification weights, and market actions. (Confirm D8 approver policy first.)

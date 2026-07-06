@@ -50,8 +50,11 @@ import {
   Operators,
   IntelligenceSources,
   IntelligenceSignals,
+  IntelligenceArtifacts,
+  Recommendations,
   DemandCells,
   CaptureAssets,
+  B2BTargets,
 } from './collections/backend'
 
 const filename = fileURLToPath(import.meta.url)
@@ -162,12 +165,15 @@ export default buildConfig({
     Disclosures,
     AuditLog,
     Operators,
-    // CasePort Intelligence Core (INTELLIGENCE_CORE.md Phase A)
+    // CasePort Intelligence Core (INTELLIGENCE_CORE.md Phase A and C)
     IntelligenceSources,
     IntelligenceSignals,
-    // CasePort Demand Capture Engine (DEMAND_CAPTURE.md Phase A)
+    IntelligenceArtifacts,
+    Recommendations,
+    // CasePort Demand Capture Engine (DEMAND_CAPTURE.md Phase A and C)
     DemandCells,
     CaptureAssets,
+    B2BTargets,
   ],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature(), CTAButtonFeature()],

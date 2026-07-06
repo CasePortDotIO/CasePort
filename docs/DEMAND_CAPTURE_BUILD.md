@@ -49,6 +49,23 @@ Verification: `npm run test` (112 passing), `npx tsc --noEmit` clean, `npm run b
 
 ## Pending phases (do not build ahead)
 
-- **Phase C. B2B inbound authority and outbound precision.** Authority drafting and the proof of reality outbound arm, human approved before publish or send. Checkpoint: an outbound draft carries accurate, redacted market proof and passes the Rule 7.1 adversarial suite.
+## Phase C. B2B inbound authority and outbound precision: DONE (2026-07-06)
+
+The proof of reality outbound arm and inbound authority drafting, both human gated.
+
+**Checkpoint (met):** an outbound draft carries accurate, redacted market proof and passes the Rule 7.1 adversarial suite. Proven by `tests/int/demand/b2b-outbound.int.spec.ts` (8 tests): a compliant outbound draft attaches redacted representative recent activity and queues for a human send; the Rule 7.1 suite rejects a guarantee, a volume guarantee, an unjustified expectation, and a claimant PII leak before any can queue; the service never sends autonomously (HL4, HL6).
+
+Delivered:
+- `src/lib/compliance/rule71.ts`: the Rule 7.1 gate (guarantee, legal advice, volume guarantee, unjustified expectation, and claimant PII detection).
+- `src/services/b2bPorts.ts`, `B2BCaptureService.ts`: `addTarget`, `proofOfReality` (redacted, PII dropped), `draftOutbound` (research, proof, draft, Rule 7.1 gate, queue pending send), `markSent` (human send gate), `draftAuthority` (Rule 7.1 checked authority draft).
+- `src/collections/backend/B2BTargets.ts`: the target universe with the outreach draft, registered in `payload.config.ts`.
+- `src/services/adapters/payloadB2B.ts`: targets persist; proof reader is backed by the redacted Glass Box feed; authority drafts persist as capture assets.
+
+Verification: `npm run test` (127 passing), `npx tsc --noEmit` clean, `npm run build` compiles. B2B targets and the outbound queue surface on the `/ops` console.
+
+---
+
+## Pending phases (do not build ahead)
+
 - **Phase D. Routing and the self closing paths.** B2C and B2B routing wired to the correct destinations with disclaimers. Checkpoint: every captured path routes to self initiation and no path routes to a call.
 - **Phase E. The learning loop.** Attribution linkage into the CIC and reallocation of effort toward converting cells, plus citation ownership tracking. Checkpoint: a signed case traces back to its originating surface and phrasing, and the CIC reallocates the next cycle.

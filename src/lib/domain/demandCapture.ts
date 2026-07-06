@@ -109,6 +109,27 @@ export const B2B_ROUTES = {
 } as const
 
 /**
+ * B2B target lifecycle (Section 5, Section 10 `b2bTargets`). The enumerable firm
+ * universe moves from added, through enrichment and research, to a drafted
+ * outreach pending a human send (HL4, HL6).
+ */
+export const B2B_TARGET_STATUSES = [
+  { value: 'added', label: 'Added' },
+  { value: 'enriched', label: 'Enriched' },
+  { value: 'drafted', label: 'Outreach Drafted' },
+  { value: 'sent', label: 'Sent' },
+] as const
+export type B2BTargetStatus = (typeof B2B_TARGET_STATUSES)[number]['value']
+
+/** Outbound draft lifecycle. A human sends; a non compliant draft is rejected. */
+export const OUTBOUND_STATUSES = [
+  { value: 'pending-send', label: 'Pending Human Send' },
+  { value: 'rejected', label: 'Rejected (Rule 7.1)' },
+  { value: 'sent', label: 'Sent' },
+] as const
+export type OutboundStatus = (typeof OUTBOUND_STATUSES)[number]['value']
+
+/**
  * The non recommendation words that may never appear on a public surface (HL5,
  * W6). These are content tokens, distinct from the evaluative field key guard
  * in src/lib/compliance/evaluativeFields.ts.
