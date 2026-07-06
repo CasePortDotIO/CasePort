@@ -29,6 +29,7 @@ export function OpsCockpitClient({ cockpit, operator }: { cockpit: OpsCockpit; o
     <div className="ops-root">
       <div className="mx-auto max-w-[1400px] px-5 py-6">
         <Header cockpit={cockpit} operator={operator} />
+        <hr className="ops-rule-gold mt-0 border-0" />
         {!cockpit.online && <OfflineBanner />}
         <Flywheel cockpit={cockpit} />
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
@@ -61,8 +62,11 @@ function Header({ cockpit, operator }: { cockpit: OpsCockpit; operator: string |
           aria-hidden
         />
         <div>
-          <div className="text-sm font-semibold">CasePort Internal Operations</div>
-          <div className="ops-mono text-[11px] uppercase tracking-[0.18em] text-[color:var(--muted-foreground)]">
+          <div className="ops-mono mb-1 text-[10px] uppercase tracking-[0.24em] text-[color:var(--gold-deep)]">
+            CasePort
+          </div>
+          <div className="ops-display text-2xl text-[color:var(--teal-deep)]">Internal Operations</div>
+          <div className="mt-0.5 text-[12px] text-[color:var(--muted-foreground)]">
             Intelligence Core and Demand Capture, one flywheel
           </div>
         </div>
@@ -150,21 +154,21 @@ function FlywheelStage({
   metrics: Array<{ label: string; value: number }>
 }) {
   return (
-    <div className="ops-card p-4">
-      <div className="flex items-center justify-between">
+    <div className="ops-card ops-card-hover p-5">
+      <div className={`lane-wash-${lane} -mx-5 -mt-5 mb-4 flex items-center justify-between rounded-t-[0.75rem] px-5 py-2.5`}>
         <div className="flex items-center gap-2">
           <span className={`lane-${lane} lane-dot`} aria-hidden />
           <span className={`lane-${lane} ops-mono text-[11px] uppercase tracking-[0.16em]`}>{subtitle}</span>
         </div>
         <span className="ops-mono text-[11px] text-[color:var(--muted-foreground)]">{step}</span>
       </div>
-      <div className="mt-3 text-base font-semibold">{title}</div>
-      <p className="mt-1 text-xs leading-relaxed text-[color:var(--secondary-foreground)]">{blurb}</p>
-      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+      <div className="ops-display text-xl text-[color:var(--ink)]">{title}</div>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-[color:var(--secondary-foreground)]">{blurb}</p>
+      <div className="mt-5 flex flex-wrap gap-x-7 gap-y-3">
         {metrics.map((m) => (
           <div key={m.label}>
-            <div className="ops-mono text-2xl font-semibold tabular-nums">{m.value.toLocaleString('en-US')}</div>
-            <div className="ops-mono text-[10px] uppercase tracking-[0.12em] text-[color:var(--muted-foreground)]">
+            <div className={`lane-${lane} ops-display text-4xl`}>{m.value.toLocaleString('en-US')}</div>
+            <div className="ops-mono mt-0.5 text-[10px] uppercase tracking-[0.12em] text-[color:var(--muted-foreground)]">
               {m.label}
             </div>
           </div>
@@ -186,10 +190,10 @@ function Panel({
   children: React.ReactNode
 }) {
   return (
-    <section className="ops-card p-4">
-      <div className="flex items-center gap-2 border-b ops-hairline pb-3">
-        <span className={`lane-${lane} lane-dot`} aria-hidden />
-        <h2 className="text-sm font-semibold">{title}</h2>
+    <section className="ops-card p-5">
+      <div className="flex items-baseline gap-2.5 border-b ops-hairline pb-3">
+        <span className={`lane-${lane} lane-dot self-center`} aria-hidden />
+        <h2 className="ops-display text-lg text-[color:var(--ink)]">{title}</h2>
         <span className="ops-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--muted-foreground)]">
           {subtitle}
         </span>
@@ -417,9 +421,9 @@ function DemandPanel({ cockpit }: { cockpit: OpsCockpit }) {
 function EventFeed({ events, online }: { events: OpsEventRow[]; online: boolean }) {
   return (
     <section className="ops-card flex max-h-[820px] flex-col p-4 lg:sticky lg:top-4 lg:self-start">
-      <div className="flex items-center gap-2 border-b ops-hairline pb-3">
-        <span className="lane-core lane-dot" aria-hidden />
-        <h2 className="text-sm font-semibold">Live event log</h2>
+      <div className="flex items-baseline gap-2.5 border-b ops-hairline pb-3">
+        <span className="lane-core lane-dot self-center" aria-hidden />
+        <h2 className="ops-display text-lg text-[color:var(--ink)]">Live event log</h2>
         <span className="ops-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--muted-foreground)]">
           both engines
         </span>
