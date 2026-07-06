@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import EvidenceCoach from './EvidenceCoach'
+import InsuranceCardScan from './InsuranceCardScan'
+import VoiceStatement from './VoiceStatement'
 
 // City data - all 50 states
 const CITIES: Record<string, string[]> = {
@@ -351,6 +353,7 @@ export default function CheckMyCaseClient() {
   const [momentumMsg, setMomentumMsg] = useState('')
   const [solCallout, setSolCallout] = useState<{ type: 'warning' | 'danger'; title: string; body: string } | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const [nameErr, setNameErr] = useState('')
   const [phoneErr, setPhoneErr] = useState('')
   const [stateErr, setStateErr] = useState('')
@@ -954,11 +957,17 @@ export default function CheckMyCaseClient() {
     // Best effort submit. The claimant is never blocked on a network error; the
     // confirmation is shown regardless and the failure is logged for retry.
     try {
-      await fetch('/api/checkmycase/submit', {
+      const res = await fetch('/api/checkmycase/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submission),
       })
+      if (res.ok) {
+        // Keep the server session handle so any after the fact captures on the
+        // confirmation screen (insurance card, voice statement) tie to this intake.
+        const data = (await res.json()) as { sessionId?: string }
+        if (data?.sessionId) setSessionId(data.sessionId)
+      }
     } catch (err) {
       console.error('[CP] intake submit failed', err)
     }
@@ -2346,6 +2355,14 @@ export default function CheckMyCaseClient() {
                  direction is guarded server side: procedural photographic
                  direction only, never a case assessment. */}
               <EvidenceCoach onFiles={(files) => setUploadedFiles(prev => [...prev, ...files])} />
+
+              {/* Insurance card auto fill and the voice statement with the I heard
+                 you playback (Section 6 steps 2 and 4). Both tie to the intake
+                 session and are guarded server side: card fields and the reflected
+                 statement are organization of the claimant's own account, never a
+                 case assessment (W2, W6). */}
+              <InsuranceCardScan sessionId={sessionId} />
+              <VoiceStatement sessionId={sessionId} />
 
               <div
                 className="upload-zone"

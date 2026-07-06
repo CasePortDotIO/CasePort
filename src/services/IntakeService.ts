@@ -134,6 +134,68 @@ export function createIntakeService(deps: IntakeDeps) {
     return { ...direction, substituted }
   }
 
+  /**
+   * A photo captured and stored (Section 6 step 2). The claimant photographs the
+   * scene, the vehicles, the plates, the damage, the injury. Each shot appends an
+   * immutable PhotoUploaded event carrying only the media key and its kind, so the
+   * dossier can later be assembled from the log alone (Section 4). The photo bytes
+   * live in signed, expiring storage; the event holds the key, never the image.
+   * No evaluation happens here (W2): a photo is documentation, not a score.
+   */
+  async function recordPhoto(
+    sessionId: string,
+    mediaKey: string,
+    kind: string,
+  ): Promise<void> {
+    await emit(sessionId, 'PhotoUploaded', 'intakeSession', sessionId, { mediaKey, kind })
+  }
+
+  /**
+   * The insurance card photographed and parsed by Claude Vision so the claimant
+   * writes nothing down (Section 6 step 2). The card is a photo like any other
+   * (PhotoUploaded, kind insurance-card) and is then read into structured fields
+   * (VisionParsed). The parsed fields are firm facing case material and are never
+   * surfaced to the claimant as any kind of evaluation (W2). Resilient: if Vision
+   * is unavailable it returns an empty field set and the claimant can still type
+   * the details, the intake is never blocked on a paid AI call.
+   */
+  async function parseInsuranceCard(
+    sessionId: string,
+    mediaKey: string,
+  ): Promise<{ fields: Record<string, string> }> {
+    await emit(sessionId, 'PhotoUploaded', 'intakeSession', sessionId, {
+      mediaKey,
+      kind: 'insurance-card',
+    })
+    let fields: Record<string, string> = {}
+    try {
+      fields = await deps.vision.parseInsuranceCard({ mediaKey })
+    } catch {
+      fields = {}
+    }
+    await emit(sessionId, 'VisionParsed', 'intakeSession', sessionId, {
+      mediaKey,
+      kind: 'insurance-card',
+      fieldCount: Object.keys(fields).length,
+    })
+    return { fields }
+  }
+
+  /**
+   * A document captured and stored, for example the police report (Section 6
+   * step 2). Appends an immutable DocumentParsed event carrying the media key and
+   * kind. Like every intake step it is documentation of fact, carrying no
+   * evaluative signal (W2). The bytes live in signed storage; the event holds the
+   * key.
+   */
+  async function recordDocument(
+    sessionId: string,
+    mediaKey: string,
+    kind: string,
+  ): Promise<void> {
+    await emit(sessionId, 'DocumentParsed', 'intakeSession', sessionId, { mediaKey, kind })
+  }
+
   /** Voice captured and transcribed by Deepgram (Section 6 step 2). */
   async function recordVoice(sessionId: string, mediaKey: string): Promise<{ transcript: string }> {
     await emit(sessionId, 'VoiceCaptured', 'intakeSession', sessionId, { mediaKey })
@@ -276,6 +338,9 @@ export function createIntakeService(deps: IntakeDeps) {
   return {
     beginIntake,
     coachNextCapture,
+    recordPhoto,
+    parseInsuranceCard,
+    recordDocument,
     recordVoice,
     showPlayback,
     confirmPlayback,

@@ -54,7 +54,10 @@ export async function POST(req: Request) {
   }
 
   // Claimant safe response only. Geographic and procedural, never evaluative.
+  // sessionId is an opaque handle the confirmation surface uses to tie any
+  // after the fact captures (insurance card, voice statement) to this intake.
   const body = {
+    sessionId: result.sessionId,
     submissionId: result.submissionId,
     status: 'received' as const,
     message: 'Your case file has been received. A firm in your area is reviewing it.',
