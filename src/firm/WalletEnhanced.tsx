@@ -24,10 +24,36 @@ function entryDate(iso: string): string {
   return d.toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
+const TOPUP_PRESETS = [100000, 250000, 500000]; // $1,000 / $2,500 / $5,000
+
 export default function WalletEnhanced() {
   const [, navigate] = useLocation();
   const [autoTopUpEnabled, setAutoTopUpEnabled] = useState(true);
-  const { data, loading, firmName } = useFirmData();
+  const [showTopUp, setShowTopUp] = useState(false);
+  const [funding, setFunding] = useState(false);
+  const { data, loading, firmName, firmId } = useFirmData();
+
+  async function startTopUp(amountCents: number) {
+    if (!firmId || funding) return;
+    setFunding(true);
+    try {
+      const res = await fetch(`/api/firm/${encodeURIComponent(firmId)}/wallet/topup`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ amountCents }),
+      });
+      const body = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (res.ok && body.url) {
+        window.location.href = body.url; // hosted Stripe checkout
+        return;
+      }
+      toast.error(body.error === 'payments not configured' ? 'Payments are not enabled yet.' : 'Could not start checkout. Please try again.');
+    } catch {
+      toast.error('Could not reach the payment service.');
+    } finally {
+      setFunding(false);
+    }
+  }
 
   const wallet = data?.wallet;
   const entries = wallet?.entries ?? [];
@@ -120,16 +146,34 @@ export default function WalletEnhanced() {
                 </NeonCard>
               </div>
 
-              <div className="flex gap-3">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                    onClick={() => toast.info('Wallet funding is processed securely through Stripe.')}
-                  >
-                    Top Up Wallet
-                  </Button>
-                </motion.div>
-                <ExportMenu data={rows} filename="wallet-ledger" title="Export Ledger" />
+              <div className="space-y-3">
+                <div className="flex gap-3 items-center">
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Button
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      onClick={() => setShowTopUp((v) => !v)}
+                    >
+                      Top Up Wallet
+                    </Button>
+                  </motion.div>
+                  <ExportMenu data={rows} filename="wallet-ledger" title="Export Ledger" />
+                </div>
+                {showTopUp && (
+                  <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="flex flex-wrap gap-2 items-center">
+                    <span className="text-xs text-muted-foreground mr-1">Fund via Stripe:</span>
+                    {TOPUP_PRESETS.map((cents) => (
+                      <button
+                        key={cents}
+                        disabled={funding}
+                        onClick={() => startTopUp(cents)}
+                        className="px-4 py-2 rounded-lg text-sm font-semibold border border-border bg-card hover:bg-muted transition-colors disabled:opacity-60 text-foreground"
+                      >
+                        ${dollars(cents)}
+                      </button>
+                    ))}
+                    <span className="text-[11px] text-muted-foreground">Secure checkout. Balance credits on payment.</span>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
 
