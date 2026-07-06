@@ -8,11 +8,11 @@ import type {
   DeliveryRepository,
   MarketRoutingRepository,
   RoutingDeps,
-  TransactionRunner,
 } from '../deliveryPorts'
 import { createWalletService } from '../WalletService'
 import { payloadEventStoreFor } from './payloadEvents'
 import { createPayloadWalletDeps } from './payloadWallet'
+import { newTxContext, payloadTransactionRunner, reqOf, type TxContext } from './txContext'
 
 /**
  * Payload adapters for routing and delivery. The delivery record starts held and
@@ -35,7 +35,7 @@ function toDelivery(doc: Record<string, unknown>): DeliveryRecord {
   }
 }
 
-function payloadDeliveryRepository(payload: Payload): DeliveryRepository {
+function payloadDeliveryRepository(payload: Payload, txCtx?: TxContext): DeliveryRepository {
   return {
     async create({ dossierId, firmId, status }) {
       const created = await payload.create({
@@ -52,11 +52,13 @@ function payloadDeliveryRepository(payload: Payload): DeliveryRepository {
         return null
       }
     },
+    // These two commit inside the debit transaction (when one is open), so the
+    // ledger debit and the delivery billed write land together.
     async markDelivered(id, deliveredAt) {
-      await payload.update({ collection: 'deliveries', id, data: { status: 'delivered', deliveredAt } })
+      await payload.update({ collection: 'deliveries', id, data: { status: 'delivered', deliveredAt }, ...reqOf(txCtx) })
     },
     async markBilled(id) {
-      await payload.update({ collection: 'deliveries', id, data: { status: 'billed', billed: true } })
+      await payload.update({ collection: 'deliveries', id, data: { status: 'billed', billed: true }, ...reqOf(txCtx) })
     },
     async listHeldByFirm(firmId) {
       const res = await payload.find({
@@ -173,17 +175,6 @@ function payloadAuditWriter(payload: Payload): AuditLogWriter {
   }
 }
 
-/**
- * The transaction boundary. Payload's Mongoose adapter does not thread a session
- * through these port level create and update calls, so this is a pass through:
- * the no double charge invariant is guaranteed by the unique idempotency index
- * on ledgerEntries, and marking a delivery billed is idempotent. Full Mongo
- * session threading is a hardening follow up, not a correctness dependency.
- */
-function passThroughRunner(): TransactionRunner {
-  return { run: (fn) => fn() }
-}
-
 export function createPayloadRoutingDeps(payload: Payload): RoutingDeps {
   return {
     markets: payloadMarketRouting(payload),
@@ -194,15 +185,22 @@ export function createPayloadRoutingDeps(payload: Payload): RoutingDeps {
 }
 
 export function createPayloadDeliveryDeps(payload: Payload): DeliveryDeps {
-  const walletDeps = createPayloadWalletDeps(payload)
+  // One transaction context, shared by every write in the debit path (the wallet
+  // ledger + snapshot + event, and the delivery billed write). The runner opens
+  // a Mongo transaction and threads its id here so those writes commit together,
+  // or all roll back. On a Mongo without transaction support it degrades to the
+  // previous pass through behavior; the debit's hard invariants (unique
+  // idempotency index, version filtered CAS) hold either way.
+  const txCtx = newTxContext()
+  const walletDeps = createPayloadWalletDeps(payload, txCtx)
   return {
     dossiers: payloadDossierReader(payload),
-    deliveries: payloadDeliveryRepository(payload),
+    deliveries: payloadDeliveryRepository(payload, txCtx),
     wallet: createWalletService(walletDeps),
     audit: payloadAuditWriter(payload),
     events: payloadEventStoreFor(payload),
     ids: walletDeps.ids,
     clock: walletDeps.clock,
-    tx: passThroughRunner(),
+    tx: payloadTransactionRunner(payload, txCtx),
   }
 }

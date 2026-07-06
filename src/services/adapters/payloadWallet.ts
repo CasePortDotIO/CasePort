@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 import type { CaseTypeValue } from '@/lib/domain/constants'
 import { payloadEventStoreFor } from './payloadEvents'
+import { reqOf, type TxContext } from './txContext'
 import type {
   FirmRepository,
   LedgerRepository,
@@ -41,7 +42,7 @@ function toLedgerEntry(doc: Record<string, unknown>): StoredLedgerEntry {
   }
 }
 
-function payloadLedgerRepository(payload: Payload): LedgerRepository {
+function payloadLedgerRepository(payload: Payload, txCtx?: TxContext): LedgerRepository {
   return {
     async append(entry, balanceAfterCents) {
       try {
@@ -58,6 +59,7 @@ function payloadLedgerRepository(payload: Payload): LedgerRepository {
             balanceAfterCents,
             occurredAt: entry.occurredAt,
           },
+          ...reqOf(txCtx),
         })
         return { created: true, entry: toLedgerEntry(created as never) }
       } catch (err) {
@@ -102,7 +104,7 @@ function payloadLedgerRepository(payload: Payload): LedgerRepository {
   }
 }
 
-function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
+function payloadSnapshotRepository(payload: Payload, txCtx?: TxContext): WalletSnapshotRepository {
   return {
     async get(firmId) {
       const res = await payload.find({
@@ -134,6 +136,7 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
           version: expectedVersion + 1,
           lastRebuiltAt: at,
         } as never,
+        ...reqOf(txCtx),
       })
       const doc = (updated as { docs?: unknown[] }).docs?.[0] as Record<string, unknown> | undefined
       if (doc) {
@@ -155,6 +158,7 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
           const created = await payload.create({
             collection: 'wallets',
             data: { firm: firmId, balanceCents: newBalanceCents, lowBalanceThresholdCents, version: 1, lastRebuiltAt: at },
+            ...reqOf(txCtx),
           })
           const c = created as unknown as Record<string, unknown>
           return {
@@ -182,9 +186,9 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
         lastRebuiltAt: snapshot.lastRebuiltAt,
       }
       if (existing.docs[0]) {
-        await payload.update({ collection: 'wallets', id: (existing.docs[0] as { id: string | number }).id, data })
+        await payload.update({ collection: 'wallets', id: (existing.docs[0] as { id: string | number }).id, data, ...reqOf(txCtx) })
       } else {
-        await payload.create({ collection: 'wallets', data })
+        await payload.create({ collection: 'wallets', data, ...reqOf(txCtx) })
       }
     },
   }
@@ -338,13 +342,13 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
   }
 }
 
-export function createPayloadWalletDeps(payload: Payload): WalletDeps {
+export function createPayloadWalletDeps(payload: Payload, txCtx?: TxContext): WalletDeps {
   let n = 0
   const next = (p: string) => `${p}_${(n += 1).toString(36)}`
   return {
-    events: payloadEventStoreFor(payload),
-    ledger: payloadLedgerRepository(payload),
-    snapshots: payloadSnapshotRepository(payload),
+    events: payloadEventStoreFor(payload, txCtx),
+    ledger: payloadLedgerRepository(payload, txCtx),
+    snapshots: payloadSnapshotRepository(payload, txCtx),
     firms: payloadFirmRepository(payload),
     ids: {
       sessionId: () => next('sess'),

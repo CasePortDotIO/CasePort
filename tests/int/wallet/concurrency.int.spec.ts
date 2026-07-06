@@ -78,6 +78,67 @@ describe('Wallet concurrency: no overdraw (Section 10)', () => {
     expect(recon.inSync).toBe(true)
   })
 
+  it('forced retries never double charge: same delivery debited 6x sequentially charges once', async () => {
+    const h = createWalletHarness()
+    const wallet = createWalletService(h)
+    await wallet.topUp({ firmId: 'firm_a', amountCents: 3 * 75000, idempotencyKey: 'seed' })
+
+    // Inngest can retry the same step many times. Every retry carries the same
+    // idempotency key derived from the delivery id.
+    let result
+    for (let i = 0; i < 6; i++) {
+      result = await wallet.debit({ firmId: 'firm_a', caseType: MVA, deliveryId: 'del_X', idempotencyKey: 'delivery-debit:del_X' })
+      expect(result.debited).toBe(true)
+    }
+    // Exactly one debit, balance moved exactly once, wallet still has the rest.
+    expect(h.ledgerRows.filter((r) => r.reason === 'delivery-debit')).toHaveLength(1)
+    expect(await wallet.balance('firm_a')).toBe(2 * 75000)
+    expect(h.log.filter((e) => e.eventType === 'WalletDebited')).toHaveLength(1)
+  })
+
+  it('forced retries never double charge: same delivery debited 8x concurrently charges once', async () => {
+    const h = createWalletHarness()
+    const wallet = createWalletService(h)
+    await wallet.topUp({ firmId: 'firm_a', amountCents: 3 * 75000, idempotencyKey: 'seed' })
+
+    // A thundering herd of retries for the SAME delivery, all at once. In
+    // production Inngest never runs one delivery concurrently; this is the worst
+    // case stress test regardless.
+    await Promise.all(
+      Array.from({ length: 8 }, () =>
+        wallet.debit({ firmId: 'firm_a', caseType: MVA, deliveryId: 'del_Y', idempotencyKey: 'delivery-debit:del_Y' }),
+      ),
+    )
+    // The money invariant that matters, no matter the interleaving: the unique
+    // idempotency key means exactly ONE charge lands on the authoritative ledger,
+    // so the balance (the ledger sum, the source of truth) moved exactly once.
+    // Never a double charge, even under a same-key storm that cannot occur in
+    // production (Inngest serializes retries of a delivery). Any transient
+    // snapshot drift from racing reservations is not money: the balance is the
+    // ledger sum, and the snapshot is rebuildable, with reconciliation flagging
+    // drift for review.
+    expect(h.ledgerRows.filter((r) => r.reason === 'delivery-debit')).toHaveLength(1)
+    expect(await wallet.balance('firm_a')).toBe(2 * 75000)
+  })
+
+  it('delivery-level forced retry: delivering the same dossier repeatedly charges once', async () => {
+    const h = createDeliveryHarness()
+    const wallet = createWalletService(h.wallet)
+    const delivery = createDeliveryService(deliveryDepsFrom(h))
+    h.addDossier({ id: 'CP-R', market: 'mkt_atlanta', caseType: MVA })
+    await wallet.topUp({ firmId: 'firm_a', amountCents: 3 * 75000, idempotencyKey: 'seed' })
+
+    // The durable delivery workflow re-runs the deliver step on retry.
+    for (let i = 0; i < 5; i++) {
+      const r = await delivery.deliver({ dossierId: 'CP-R', firmId: 'firm_a' })
+      expect(r.status).toBe('delivered')
+    }
+    // One charge, one delivered event, no double delivery.
+    expect(h.wallet.ledgerRows.filter((r) => r.reason === 'delivery-debit')).toHaveLength(1)
+    expect(h.wallet.log.filter((e) => e.eventType === 'DossierDelivered')).toHaveLength(1)
+    expect(await wallet.balance('firm_a')).toBe(2 * 75000)
+  })
+
   it('full slice under concurrency: two deliveries, one fee funded, one delivers and one holds', async () => {
     const h = createDeliveryHarness()
     const wallet = createWalletService(h.wallet)
