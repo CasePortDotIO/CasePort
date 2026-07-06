@@ -19,11 +19,21 @@ import { useFirmData, dollars, relativeTime, toOpportunityRows, type Opportunity
 const STATUSES: OpportunityRow['status'][] = ['Contacted', 'Awaiting Response'];
 const SLAS: OpportunityRow['sla'][] = ['On time', 'Overdue', 'Pending'];
 
+/** A status filter deep-linked from another surface, e.g. the dashboard "Review
+ * now" banner arriving as ?status=Awaiting%20Response. Validated against the known
+ * statuses so only a real filter is ever applied. */
+function initialStatusFromUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+  const q = new URLSearchParams(window.location.search).get('status');
+  return q && (STATUSES as string[]).includes(q) ? q : null;
+}
+
 export default function OpportunitiesExcellent() {
   const [, navigate] = useLocation();
   const { data, loading } = useFirmData();
+  const deepLinkedStatus = useMemo(() => initialStatusFromUrl(), []);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(deepLinkedStatus);
   const [selectedCaseType, setSelectedCaseType] = useState<string | null>(null);
   const [selectedSla, setSelectedSla] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,6 +138,23 @@ export default function OpportunitiesExcellent() {
           </div>
         ) : (
           <>
+            {/* Arrived from the dashboard "Review now" banner: the list is scoped
+                to just the calls the firm owes, never the whole past-cases
+                archive. One tap clears back to every opportunity. */}
+            {selectedStatus === 'Awaiting Response' && (
+              <div className="flex items-center justify-between gap-4 rounded-lg border border-chart-3/30 bg-chart-3/10 px-4 py-3">
+                <p className="text-sm text-foreground">
+                  Showing the {filtered.length} {filtered.length === 1 ? 'case that needs' : 'cases that need'} your first call.
+                </p>
+                <button
+                  onClick={() => { setSelectedStatus(null); setCurrentPage(1); }}
+                  className="text-sm font-semibold text-primary hover:underline whitespace-nowrap"
+                >
+                  Show all opportunities
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
                 Showing {paginated.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} to {Math.min(currentPage * itemsPerPage, filtered.length)} of {filtered.length}

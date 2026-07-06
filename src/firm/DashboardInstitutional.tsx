@@ -7,7 +7,7 @@ import { useAuth } from '@/firm/useAuth';
 import BloombergClock from '@/firm/BloombergClock';
 import DashboardFirstRun from '@/firm/DashboardFirstRun';
 import EmptyState from '@/firm/EmptyState';
-import { useFirmData, dollars, relativeTime, toFirmMetrics, toOpportunityRows, type OpportunityRow } from '@/firm/useFirmData';
+import { useFirmData, dollars, relativeTime, reviewNowTarget, toFirmMetrics, toOpportunityRows, type OpportunityRow } from '@/firm/useFirmData';
 
 /* Where the depth lives. The dashboard is the cockpit; each of these opens a
  * dedicated page carrying the detail that used to crowd the landing screen. */
@@ -70,10 +70,10 @@ export default function DashboardInstitutional() {
   const metrics = toFirmMetrics(data);
   const rows = toOpportunityRows(data?.deliveries ?? []);
   const recent = rows.slice(0, 4);
-  // The single case that needs a first call now. "Review now" jumps straight to
-  // it, so the partner lands on the claimant to call, not a list to scan.
-  const nextCall = rows.find((o) => o.status === 'Awaiting Response') ?? null;
-  const reviewTarget = nextCall ? `/opportunity/${nextCall.deliveryId}` : '/opportunities';
+  // "Review now" takes the partner straight to the calls they owe, never the full
+  // past-cases archive: one call lands on that claimant's detail, more than one on
+  // the opportunities list scoped to exactly those calls (reviewNowTarget).
+  const reviewTarget = reviewNowTarget(rows);
 
   // First login, before any case has flowed. Driven by a preview flag, or by the
   // honest live signal: a resolved firm with no deliveries yet.

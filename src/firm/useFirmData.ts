@@ -200,6 +200,19 @@ export function toOpportunityRows(deliveries: FirmDeliveryView[]): OpportunityRo
     }))
 }
 
+/**
+ * Where the dashboard "Review now" banner should land. The partner is never
+ * dropped into the full past-cases archive: one call they owe goes straight to
+ * that claimant's detail so they can dial; more than one goes to the
+ * opportunities list scoped to exactly those calls. Pure, so it is unit tested.
+ */
+export function reviewNowTarget(rows: OpportunityRow[]): string {
+  const awaiting = rows.filter((o) => o.status === 'Awaiting Response')
+  return awaiting.length === 1
+    ? `/opportunity/${awaiting[0].deliveryId}`
+    : `/opportunities?status=${encodeURIComponent('Awaiting Response')}`
+}
+
 /** Cockpit metrics, every one derived from real Glass Box data. Fields that
  * would require outcome data we do not hold (cost per signed case, conversion
  * rate) are deliberately absent rather than estimated. */
