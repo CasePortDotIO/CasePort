@@ -1,6 +1,7 @@
 import type { AttributionTuple } from './ports'
 import type { IntelligenceDeps } from './intelligencePorts'
 import { defaultV1Model, recalibrate, scpsScore, type ScpsFactors, type ScpsModel } from './scps'
+import { evaluateRecalibration as runRecalibrationEval, type RecalibrationEvaluation } from './scpsEval'
 
 /**
  * IntelligenceService. Section 4, 9, 11. Derived and always recomputable: if the
@@ -192,6 +193,30 @@ export function createIntelligenceService(deps: IntelligenceDeps) {
   }
 
   /**
+   * The experimentation harness (AGENTS.md Section 4.6). Backtest a recalibration
+   * against the active model so a human promotes on evidence, not judgment.
+   * Reports the out of sample (cross validated) AUC lift: does the proposal rank
+   * signed cases better on cases it never saw? Pure and deterministic, so the
+   * result is a reproducible, audit defensible promotion record.
+   *
+   * With no `version`, it evaluates what a fresh recalibration would produce now.
+   * With a `version`, it backtests that specific proposed version. Returns null
+   * when the version does not exist.
+   */
+  async function evaluateRecalibration(
+    version?: string,
+  ): Promise<(RecalibrationEvaluation & { activeVersion: string; proposedVersion: string }) | null> {
+    const active = await activeModel()
+    const samples = await deps.samples.signedCaseSamples()
+    const proposed = version
+      ? await deps.models.get(version)
+      : recalibrate(active, samples, nextModelVersion(active.version), deps.clock.nowIso())
+    if (!proposed) return null
+    const report = runRecalibrationEval(active, proposed, samples)
+    return { ...report, activeVersion: active.version, proposedVersion: proposed.version }
+  }
+
+  /**
    * Read the model lineage for the human review surface: every version, its
    * status, and what it was trained on, newest first. Read only. This is what a
    * human looks at before deciding whether to promote a proposal.
@@ -239,7 +264,7 @@ export function createIntelligenceService(deps: IntelligenceDeps) {
     }
   }
 
-  return { attributionTrace, scoreDossier, recalibrateScps, promoteScpsModel, listScpsModels, acer }
+  return { attributionTrace, scoreDossier, recalibrateScps, promoteScpsModel, evaluateRecalibration, listScpsModels, acer }
 }
 
 /** v1 to v2 to v3. Deterministic and greppable. */
