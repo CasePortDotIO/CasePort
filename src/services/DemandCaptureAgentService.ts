@@ -34,15 +34,25 @@ export function createDemandCaptureAgentService(deps: DemandAgentDeps) {
    * only if it is pursued and not already owned by a published asset. Ranked by
    * score, highest first. Vanity and unfunded questions never appear.
    */
-  async function surfaceOpportunities(input: {
-    market: string
-    surface: CaptureSurface
-    limit: number
-  }): Promise<Opportunity[]> {
+  async function surfaceOpportunities(
+    input: {
+      market: string
+      surface: CaptureSurface
+      limit: number
+    },
+    /**
+     * The learning loop's reallocation (Phase E), a per surface boost from what
+     * actually converted. It reranks the next cycle toward converting surfaces
+     * without changing the compliance score. Absent, ranking is by score alone.
+     */
+    opts?: { boosts?: Record<string, number> },
+  ): Promise<Opportunity[]> {
     const sensed = await deps.sensor.sense(input)
+    const boosts = opts?.boosts ?? {}
     const opportunities: Opportunity[] = []
 
     for (const q of sensed) {
+      const surface = q.surface ?? input.surface
       // Persist the score through the base service so funded gating, the cell
       // record, and the DemandCellScored event all happen exactly once here.
       const cell: DemandCellRecord = await deps.demand.scoreCell({
@@ -50,7 +60,7 @@ export function createDemandCaptureAgentService(deps: DemandAgentDeps) {
         market: q.market,
         caseType: q.caseType,
         legalConcept: q.legalConcept,
-        surface: input.surface,
+        surface,
         uniqueness: q.uniqueness,
         intent: q.intent,
       })
@@ -66,13 +76,16 @@ export function createDemandCaptureAgentService(deps: DemandAgentDeps) {
         market: q.market,
         caseType: q.caseType,
         legalConcept: q.legalConcept,
-        surface: input.surface,
+        surface,
         score: cell.score,
         rationale: q.rationale,
       })
     }
 
-    return opportunities.sort((a, b) => b.score - a.score).slice(0, input.limit)
+    // Rank by the compliance score, lifted by the converted value boost for the
+    // surface. The boost never changes the score, only the order of pursuit.
+    const ranked = (o: Opportunity) => o.score * (1 + (boosts[o.surface] ?? 0))
+    return opportunities.sort((a, b) => ranked(b) - ranked(a)).slice(0, input.limit)
   }
 
   /**

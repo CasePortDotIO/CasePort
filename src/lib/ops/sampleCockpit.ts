@@ -46,6 +46,7 @@ export const SAMPLE_COCKPIT: OpsCockpit = {
       ],
     },
     synthesis: { artifacts: 12, recommendationsProposed: 9, recommendationsRejected: 3 },
+    loop: { measured: 22, paidOff: 15, confidence: 0.68 },
   },
   demand: {
     cells: {
@@ -73,6 +74,7 @@ export const SAMPLE_COCKPIT: OpsCockpit = {
     },
     fundedMarkets: ['va', 'md', 'dc', 'ga'],
     b2b: { targets: 240, outboundPending: 18, outboundSent: 62 },
+    learning: { signedTraced: 41, topSurface: 'answer-engine', topSurfaceSigned: 23, citedQuestions: 17 },
   },
   events: [
     { id: 'e1', eventType: 'IntelligenceSignalIngested', lane: 'intelligence', aggregateType: 'intelligence-signal', aggregateId: 's_2211', actor: 'cic', occurredAt: '2026-07-06T14:19:40.000Z' },

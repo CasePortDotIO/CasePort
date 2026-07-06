@@ -101,9 +101,12 @@ export interface Config {
     'intelligence-signals': IntelligenceSignal;
     'intelligence-artifacts': IntelligenceArtifact;
     recommendations: Recommendation;
+    'recommendation-outcomes': RecommendationOutcome;
     'demand-cells': DemandCell;
     'capture-assets': CaptureAsset;
     'b2b-targets': B2BTarget;
+    'capture-attributions': CaptureAttribution;
+    'surface-presence': SurfacePresence;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -145,9 +148,12 @@ export interface Config {
     'intelligence-signals': IntelligenceSignalsSelect<false> | IntelligenceSignalsSelect<true>;
     'intelligence-artifacts': IntelligenceArtifactsSelect<false> | IntelligenceArtifactsSelect<true>;
     recommendations: RecommendationsSelect<false> | RecommendationsSelect<true>;
+    'recommendation-outcomes': RecommendationOutcomesSelect<false> | RecommendationOutcomesSelect<true>;
     'demand-cells': DemandCellsSelect<false> | DemandCellsSelect<true>;
     'capture-assets': CaptureAssetsSelect<false> | CaptureAssetsSelect<true>;
     'b2b-targets': B2BTargetsSelect<false> | B2BTargetsSelect<true>;
+    'capture-attributions': CaptureAttributionsSelect<false> | CaptureAttributionsSelect<true>;
+    'surface-presence': SurfacePresenceSelect<false> | SurfacePresenceSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -2326,7 +2332,10 @@ export interface Event {
     | 'AuthorityDrafted'
     | 'OutboundDrafted'
     | 'OutboundRejected'
-    | 'OutboundSent';
+    | 'OutboundSent'
+    | 'RecommendationOutcomeMeasured'
+    | 'CaptureAttributionLinked'
+    | 'CitationTracked';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2924,6 +2933,24 @@ export interface Recommendation {
   updatedAt: string;
 }
 /**
+ * Predicted versus actual for executed recommendations. Calibrates the CIC confidence by type.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendation-outcomes".
+ */
+export interface RecommendationOutcome {
+  id: string;
+  recommendationId: string;
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  predicted?: string | null;
+  actualValue?: number | null;
+  paidOff?: boolean | null;
+  note?: string | null;
+  measuredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Geography by case-type by legal-concept cells, scored by defensible data cell logic. Vanity volume scores zero.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3067,6 +3094,70 @@ export interface B2BTarget {
   };
   createdAt: string;
   updatedAt: string;
+}
+/**
+ * Signed cases traced back to the surface and phrasing that produced them. The Answer to Wallet moat.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-attributions".
+ */
+export interface CaptureAttribution {
+  id: string;
+  outcomeId: string;
+  signed?: boolean | null;
+  valueCents?: number | null;
+  surface?: string | null;
+  keyword?: string | null;
+  market?: string | null;
+  caseType?: string | null;
+  /**
+   * False when the trace broke, so a broken link stays visible.
+   */
+  complete?: boolean | null;
+  linkedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Whether answer engines cite CasePort for a target question. Citation ownership, measured.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "surface-presence".
+ */
+export interface SurfacePresence {
+  id: string;
+  question: string;
+  surface?:
+    | (
+        | 'answer-engine'
+        | 'search'
+        | 'question-platform'
+        | 'voice-search'
+        | 'video'
+        | 'local-community'
+        | 'trade-press'
+        | 'expert-citation'
+        | 'repository'
+        | 'linkedin'
+      )
+    | null;
+  market?: string | null;
+  cited?: boolean | null;
+  /**
+   * Which answer engines cite CasePort for this question.
+   */
+  engines?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  checkedAt: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3229,6 +3320,10 @@ export interface PayloadLockedDocument {
         value: string | Recommendation;
       } | null)
     | ({
+        relationTo: 'recommendation-outcomes';
+        value: string | RecommendationOutcome;
+      } | null)
+    | ({
         relationTo: 'demand-cells';
         value: string | DemandCell;
       } | null)
@@ -3239,6 +3334,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'b2b-targets';
         value: string | B2BTarget;
+      } | null)
+    | ({
+        relationTo: 'capture-attributions';
+        value: string | CaptureAttribution;
+      } | null)
+    | ({
+        relationTo: 'surface-presence';
+        value: string | SurfacePresence;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -5238,6 +5341,21 @@ export interface RecommendationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendation-outcomes_select".
+ */
+export interface RecommendationOutcomesSelect<T extends boolean = true> {
+  recommendationId?: T;
+  domain?: T;
+  predicted?: T;
+  actualValue?: T;
+  paidOff?: T;
+  note?: T;
+  measuredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "demand-cells_select".
  */
 export interface DemandCellsSelect<T extends boolean = true> {
@@ -5298,6 +5416,37 @@ export interface B2BTargetsSelect<T extends boolean = true> {
       };
   createdAt?: T;
   updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-attributions_select".
+ */
+export interface CaptureAttributionsSelect<T extends boolean = true> {
+  outcomeId?: T;
+  signed?: T;
+  valueCents?: T;
+  surface?: T;
+  keyword?: T;
+  market?: T;
+  caseType?: T;
+  complete?: T;
+  linkedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "surface-presence_select".
+ */
+export interface SurfacePresenceSelect<T extends boolean = true> {
+  question?: T;
+  surface?: T;
+  market?: T;
+  cited?: T;
+  engines?: T;
+  checkedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

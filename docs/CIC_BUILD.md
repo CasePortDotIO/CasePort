@@ -66,5 +66,10 @@ Verification: `npm run test` (127 passing), `npx tsc --noEmit` clean, `npm run b
 ## Pending phases (do not build ahead)
 
 - **Phase D. Fusion, briefing, surfaces.** Lead synthesis agent, proactive briefing, on-demand MCP query, alerts. (Confirm D9 channels first.)
-- **Phase E. Self-scoring loop.** Recommendation outcome measurement and recommendation-type self-calibration.
 - **Phase F. Promotion gates.** Versioning and human promotion workflow for SCPS, pricing, qualification weights, and market actions. (Confirm D8 approver policy first.)
+
+## Phase E. Self-scoring loop: DONE (2026-07-06)
+
+RecommendationLoopService grades each executed recommendation against its realized outcome and calibrates confidence by recommendation type, so the CIC learns which classes of advice actually produce revenue. New `recommendation-outcomes` collection; `RecommendationOutcomeMeasured` event; ports, fake, and payload adapter.
+
+**Checkpoint (met):** the CIC grades a past recommendation against its real outcome and adjusts confidence. Proven by `tests/int/intelligence/recommendation-loop.int.spec.ts` (3 tests). Confidence surfaces on the `/ops` self-scoring strip. Full suite green (134), tsc clean, build compiles.

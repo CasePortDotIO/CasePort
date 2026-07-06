@@ -76,6 +76,12 @@ export interface OpsCockpit {
       recommendationsProposed: number
       recommendationsRejected: number
     }
+    // Phase E self scoring loop.
+    loop: {
+      measured: number
+      paidOff: number
+      confidence: number | null
+    }
   }
   demand: {
     cells: {
@@ -97,6 +103,13 @@ export interface OpsCockpit {
       outboundPending: number
       outboundSent: number
     }
+    // Phase E learning loop.
+    learning: {
+      signedTraced: number
+      topSurface: string | null
+      topSurfaceSigned: number
+      citedQuestions: number
+    }
   }
   events: OpsEventRow[]
 }
@@ -107,10 +120,12 @@ export function laneFor(eventType: string): OpsLane {
   if (
     eventType.startsWith('DemandCell') ||
     eventType.startsWith('CaptureAsset') ||
+    eventType.startsWith('CaptureAttribution') ||
     eventType.startsWith('KeywordQuestion') ||
     eventType.startsWith('B2B') ||
     eventType.startsWith('Outbound') ||
-    eventType.startsWith('Authority')
+    eventType.startsWith('Authority') ||
+    eventType.startsWith('Citation')
   ) {
     return 'demand'
   }
@@ -130,12 +145,14 @@ function emptyCockpit(online: boolean, generatedAt: string): OpsCockpit {
       sources: { total: 0, byRating: { A: 0, B: 0, C: 0 }, active: 0, prohibited: 0, retired: 0, rows: [] },
       signals: { total: 0, active: 0, superseded: 0, byDomain: { demand: 0, supply: 0, regulatory: 0, market: 0 }, recent: [] },
       synthesis: { artifacts: 0, recommendationsProposed: 0, recommendationsRejected: 0 },
+      loop: { measured: 0, paidOff: 0, confidence: null },
     },
     demand: {
       cells: { total: 0, pursue: 0, ignore: 0, byIgnoreReason: {}, topPursued: [] },
       assets: { total: 0, byStatus: {}, recentPublished: [] },
       fundedMarkets: [],
       b2b: { targets: 0, outboundPending: 0, outboundSent: 0 },
+      learning: { signedTraced: 0, topSurface: null, topSurfaceSigned: 0, citedQuestions: 0 },
     },
     events: [],
   }
@@ -283,6 +300,38 @@ export async function loadOpsCockpit(payload: Payload, generatedAt: string): Pro
     snapshot.demand.b2b.targets = targets.totalDocs
     snapshot.demand.b2b.outboundPending = pending.totalDocs
     snapshot.demand.b2b.outboundSent = sent.totalDocs
+  }, undefined)
+
+  // Phase E CIC self scoring loop: how often recommendations paid off.
+  await safe(async () => {
+    const [measured, paidOff] = await Promise.all([
+      payload.count({ collection: 'recommendation-outcomes' }),
+      payload.count({ collection: 'recommendation-outcomes', where: { paidOff: { equals: true } } }),
+    ])
+    snapshot.cic.loop.measured = measured.totalDocs
+    snapshot.cic.loop.paidOff = paidOff.totalDocs
+    snapshot.cic.loop.confidence = measured.totalDocs > 0 ? Number((paidOff.totalDocs / measured.totalDocs).toFixed(2)) : null
+  }, undefined)
+
+  // Phase E Demand learning loop: signed cases traced back, and citation ownership.
+  await safe(async () => {
+    const [signed, cited, signedRows] = await Promise.all([
+      payload.count({ collection: 'capture-attributions', where: { signed: { equals: true } } }),
+      payload.count({ collection: 'surface-presence', where: { cited: { equals: true } } }),
+      payload.find({ collection: 'capture-attributions', where: { signed: { equals: true } }, limit: 500 }),
+    ])
+    snapshot.demand.learning.signedTraced = signed.totalDocs
+    snapshot.demand.learning.citedQuestions = cited.totalDocs
+    const bySurface = new Map<string, number>()
+    for (const d of signedRows.docs as unknown as Array<Record<string, unknown>>) {
+      const s = String(d.surface ?? '')
+      if (s) bySurface.set(s, (bySurface.get(s) ?? 0) + 1)
+    }
+    let top: string | null = null
+    let topN = 0
+    for (const [s, c] of bySurface) if (c > topN) ((top = s), (topN = c))
+    snapshot.demand.learning.topSurface = top
+    snapshot.demand.learning.topSurfaceSigned = topN
   }, undefined)
 
   // Funded markets, resolved from the real markets, firms, and wallet state (HL3).

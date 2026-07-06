@@ -245,6 +245,18 @@ function IntelligencePanel({ cockpit }: { cockpit: OpsCockpit }) {
             />
           </div>
 
+          <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-md border ops-hairline px-3 py-2">
+            <SubHead>Self scoring</SubHead>
+            <InlineStat label="Recs graded" value={cockpit.cic.loop.measured} />
+            <InlineStat label="Paid off" value={cockpit.cic.loop.paidOff} accent="lane-demand" />
+            <span className="flex items-baseline gap-1.5">
+              <span className="ops-mono text-sm font-semibold tabular-nums lane-intelligence">
+                {cockpit.cic.loop.confidence == null ? 'n/a' : `${Math.round(cockpit.cic.loop.confidence * 100)}%`}
+              </span>
+              <span className="text-[11px] text-[color:var(--secondary-foreground)]">confidence</span>
+            </span>
+          </div>
+
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
               <SubHead>Sources by reliability</SubHead>
@@ -341,6 +353,20 @@ function DemandPanel({ cockpit }: { cockpit: OpsCockpit }) {
             <InlineStat label="Targets" value={cockpit.demand.b2b.targets} />
             <InlineStat label="Pending send" value={cockpit.demand.b2b.outboundPending} accent="text-[color:var(--chart-3)]" />
             <InlineStat label="Sent" value={cockpit.demand.b2b.outboundSent} accent="lane-demand" />
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-md border ops-hairline px-3 py-2">
+            <SubHead>Learning loop</SubHead>
+            <InlineStat label="Signed traced" value={cockpit.demand.learning.signedTraced} accent="lane-demand" />
+            <span className="flex items-baseline gap-1.5">
+              <span className="ops-mono text-sm font-semibold uppercase lane-demand">
+                {cockpit.demand.learning.topSurface ?? 'n/a'}
+              </span>
+              <span className="text-[11px] text-[color:var(--secondary-foreground)]">
+                top converting surface ({cockpit.demand.learning.topSurfaceSigned})
+              </span>
+            </span>
+            <InlineStat label="Cited questions" value={cockpit.demand.learning.citedQuestions} />
           </div>
 
           <div className="mt-5 grid gap-5 md:grid-cols-2">

@@ -23,6 +23,8 @@ export interface SensedQuestion {
   legalConcept: string
   /** Stable cell key: market:caseType:legalConcept. */
   cellKey: string
+  /** Optional per question surface; falls back to the sense input surface. */
+  surface?: CaptureSurface
   /** Can CasePort say something uniquely or better here. 0 to 1. */
   uniqueness: number
   /** Distinct high intent for this question. 0 to 1. */

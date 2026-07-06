@@ -52,9 +52,12 @@ import {
   IntelligenceSignals,
   IntelligenceArtifacts,
   Recommendations,
+  RecommendationOutcomes,
   DemandCells,
   CaptureAssets,
   B2BTargets,
+  CaptureAttributions,
+  SurfacePresence,
 } from './collections/backend'
 
 const filename = fileURLToPath(import.meta.url)
@@ -170,10 +173,13 @@ export default buildConfig({
     IntelligenceSignals,
     IntelligenceArtifacts,
     Recommendations,
-    // CasePort Demand Capture Engine (DEMAND_CAPTURE.md Phase A and C)
+    RecommendationOutcomes,
+    // CasePort Demand Capture Engine (DEMAND_CAPTURE.md Phase A, C, and E)
     DemandCells,
     CaptureAssets,
     B2BTargets,
+    CaptureAttributions,
+    SurfacePresence,
   ],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature(), CTAButtonFeature()],

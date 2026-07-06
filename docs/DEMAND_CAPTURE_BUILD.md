@@ -68,4 +68,9 @@ Verification: `npm run test` (127 passing), `npx tsc --noEmit` clean, `npm run b
 ## Pending phases (do not build ahead)
 
 - **Phase D. Routing and the self closing paths.** B2C and B2B routing wired to the correct destinations with disclaimers. Checkpoint: every captured path routes to self initiation and no path routes to a call.
-- **Phase E. The learning loop.** Attribution linkage into the CIC and reallocation of effort toward converting cells, plus citation ownership tracking. Checkpoint: a signed case traces back to its originating surface and phrasing, and the CIC reallocates the next cycle.
+
+## Phase E. The learning loop: DONE (2026-07-06)
+
+LearningLoopService links signed outcomes back to the exact surface and phrasing that produced them (the Answer to Wallet trace, backed by the existing attribution trace), aggregates converted value per surface and market, and returns a reallocation that reranks the next sensing cycle toward what converts. Citation ownership is tracked, measured not assumed. New `capture-attributions` and `surface-presence` collections; `CaptureAttributionLinked` and `CitationTracked` events; the reallocation feeds `surfaceOpportunities` as a per surface boost that never changes the compliance score, only the order of pursuit.
+
+**Checkpoint (met):** a signed case traces back to its originating surface and phrasing, and the CIC reallocates the engine's next cycle. Proven by `tests/int/demand/learning-loop.int.spec.ts` (4 tests): with the loop boost, the converting answer engine surface outranks a higher base scored search surface. Signed traced, top converting surface, and cited questions surface on the `/ops` learning loop strip. Full suite green (134), tsc clean, build compiles.

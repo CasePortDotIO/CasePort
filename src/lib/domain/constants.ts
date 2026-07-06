@@ -125,6 +125,10 @@ export const EVENT_TYPES = [
   'OutboundDrafted',
   'OutboundRejected',
   'OutboundSent',
+  // Phase E learning loops (INTELLIGENCE_CORE.md Section 9, DEMAND_CAPTURE.md Section 9).
+  'RecommendationOutcomeMeasured',
+  'CaptureAttributionLinked',
+  'CitationTracked',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]
