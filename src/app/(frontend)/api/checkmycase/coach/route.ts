@@ -6,6 +6,7 @@ import { createEvidenceCoachingAgent } from '@/agents/EvidenceCoachingAgent'
 import { ComplianceService } from '@/services/ComplianceService'
 import { emptyInventory, nextEssentialCapture } from '@/lib/domain/captureChecklist'
 import { findClaimantLanguageViolations } from '@/lib/compliance/claimantLanguage'
+import { enforceRateLimit } from '@/lib/rateLimit'
 import type { CaptureDirection, CaptureInventory } from '@/services/ports'
 
 /**
@@ -42,6 +43,11 @@ function toInventory(raw: unknown): CaptureInventory {
 }
 
 export async function POST(req: Request) {
+  // Coaching triggers a paid model call, so it is rate limited per IP. Generous
+  // enough for a real intake (one call per capture), tight enough to blunt abuse.
+  const limited = enforceRateLimit(req, 'coach', { limit: 40, windowMs: 60_000 })
+  if (limited) return limited
+
   let body: unknown
   try {
     body = await req.json()

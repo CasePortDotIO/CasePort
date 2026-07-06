@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import { handleIntakeSubmit, type IntakeSubmission } from '@/services/intakeSubmission'
 import { createPayloadIntakeDeps } from '@/services/adapters/payload'
 import { ComplianceService } from '@/services/ComplianceService'
+import { enforceRateLimit } from '@/lib/rateLimit'
 import { inngest } from '@/inngest/client'
 
 /**
@@ -16,6 +17,11 @@ import { inngest } from '@/inngest/client'
  * serialized.
  */
 export async function POST(req: Request) {
+  // The submit path writes to the database and triggers the durable pipeline, so
+  // it is rate limited per IP. A real claimant submits once; this stops a flood.
+  const limited = enforceRateLimit(req, 'submit', { limit: 8, windowMs: 60_000 })
+  if (limited) return limited
+
   let submission: IntakeSubmission
   try {
     submission = (await req.json()) as IntakeSubmission
