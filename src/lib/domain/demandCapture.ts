@@ -137,3 +137,31 @@ export const PROHIBITED_PUBLIC_EVALUATIVE = [
   'signed case probability',
   'settlement value',
 ] as const
+
+/**
+ * Guarantee and outcome promise language. B2B outbound must be Rule 7.1 clean
+ * and no public surface promises an outcome (HL5, HL6). These never appear.
+ */
+export const PROHIBITED_GUARANTEE_TERMS = [
+  'guarantee',
+  'guaranteed',
+  'we win or you pay nothing',
+  'you will win',
+  'you will recover',
+  'assured settlement',
+  'promise you',
+] as const
+
+/**
+ * Legal advice and case merit language. The author is not a lawyer and content
+ * is educational (HL5). A public asset never tells a specific reader they have a
+ * case, how strong it is, or what to do about it.
+ */
+export const PROHIBITED_ADVICE_TERMS = [
+  'strong case',
+  'you have a case',
+  'you have a strong',
+  'you should sue',
+  'we recommend you',
+  'your case is worth',
+] as const

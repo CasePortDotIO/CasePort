@@ -2310,6 +2310,7 @@ export interface Event {
     | 'DemandCellScored'
     | 'KeywordQuestionClaimed'
     | 'CaptureAssetDrafted'
+    | 'CaptureAssetSubmitted'
     | 'CaptureAssetPublished'
     | 'CaptureAssetRejected';
   aggregateType: string;

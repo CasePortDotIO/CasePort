@@ -30,9 +30,25 @@ Verification: `npm run test` (80 passing), `npx tsc --noEmit` clean, `npm run bu
 
 ---
 
+## Phase B. Ingestion: DONE (2026-07-06)
+
+Durable ingestion feeding the signals store from two directions, both through the epistemic gate.
+
+**Checkpoint (met):** owned intelligence updates in near real time from live events, and rented sources poll on their cadences. Proven by `tests/int/intelligence/ingestion.int.spec.ts` (7 tests green).
+
+Delivered:
+- `src/lib/intelligence/ownedSignals.ts`: `eventToOwnedSignal`, mapping live domain events (outcome, delivery, wallet funded, intake validated, capture published) into first party signals. Returns null for events that carry no intelligence; fabricates nothing.
+- `src/services/ingestionPorts.ts`, `IngestionService.ts`: `consumeEvent` (owned, near real time) and `pollSource` / `pollAll` (rented, per cadence). Both ingest only through the gate; typed summaries, never throws.
+- `src/inngest/intelligenceWorkflows.ts`: pure `ingestOwnedSignalWorkflow` and `pollRentedSourcesWorkflow`. Idempotent under retry (a duplicate is detected, never doubled).
+- `src/services/adapters/payloadIngestion.ts`: owned path fully live; rented fetchers activate one at a time behind the gate (none active yet, so the poller runs dry and observable).
+- `src/inngest/functions.ts`: `ingestOwnedIntelligence` (on outcome and delivery events) and `pollRentedSources` (daily cron), registered.
+
+Verification: `npm run test` (112 passing), `npx tsc --noEmit` clean, `npm run build` compiles. Owned ingestion events surface live on the `/ops` console feed.
+
+---
+
 ## Pending phases (do not build ahead)
 
-- **Phase B. Ingestion.** Durable rented-source Inngest workflows and internal event-log consumers feeding owned and rented signals continuously. Checkpoint: owned intelligence updates in near real time from live events; rented sources poll on their cadences.
 - **Phase C. Domain synthesis.** The four domain agents producing artifacts and recommendations, joined by the attribution tuple. Checkpoint: each domain produces a ranked, sourced artifact; the regulatory adversarial suite is green.
 - **Phase D. Fusion, briefing, surfaces.** Lead synthesis agent, proactive briefing, on-demand MCP query, alerts. (Confirm D9 channels first.)
 - **Phase E. Self-scoring loop.** Recommendation outcome measurement and recommendation-type self-calibration.

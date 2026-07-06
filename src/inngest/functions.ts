@@ -7,10 +7,14 @@ import { createAgentService } from '../services/AgentService'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
 import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
+import { createIngestionService } from '../services/IngestionService'
+import { createPayloadIngestionDeps } from '../services/adapters/payloadIngestion'
 import { outcomeCaptureUrl } from '../lib/outcomeLink'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
 import { deliverDossierWorkflow, reconcileWalletsWorkflow, releaseHeldWorkflow } from './workflows'
+import { ingestOwnedSignalWorkflow, pollRentedSourcesWorkflow } from './intelligenceWorkflows'
+import type { OwnedEventInput } from '@/lib/intelligence/ownedSignals'
 
 /**
  * Inngest functions: the thin durable binding. Each builds the domain services
@@ -177,4 +181,64 @@ export const deliveryAgents = inngest.createFunction(
   },
 )
 
-export const inngestFunctions = [deliverDossier, releaseHeldQueue, reconcileWallets, recalibrateScps, deliveryAgents]
+/**
+ * Owned intelligence ingestion (INTELLIGENCE_CORE.md Phase B). A live outcome or
+ * delivery becomes a first party signal in near real time, through the epistemic
+ * gate. Idempotent: a retry re ingests and the gate detects the duplicate, so a
+ * signal is never doubled. This is how owned intelligence tracks the business.
+ */
+export const ingestOwnedIntelligence = inngest.createFunction(
+  {
+    id: 'ingest-owned-intelligence',
+    retries: 3,
+    triggers: [{ event: 'outcome/reported' }, { event: 'delivery/delivered' }],
+  },
+  async ({ event, step }) => {
+    const payload = await getPayload({ config })
+    const ingestion = createIngestionService(createPayloadIngestionDeps(payload))
+    const occurredAt = new Date().toISOString()
+    const data = event.data as Record<string, unknown>
+    const owned: OwnedEventInput =
+      event.name === 'outcome/reported'
+        ? {
+            eventType: 'OutcomeReported',
+            occurredAt,
+            aggregateId: String(data.outcomeId ?? ''),
+            payload: data,
+          }
+        : {
+            eventType: 'DossierDelivered',
+            occurredAt,
+            aggregateId: String(data.deliveryId ?? ''),
+            payload: data,
+          }
+    return ingestOwnedSignalWorkflow({ ingestion }, toStepRunner(step as InngestStep), owned)
+  },
+)
+
+/**
+ * Rented source ingestion (INTELLIGENCE_CORE.md Phase B). A scheduled pass polls
+ * every activated source on its cadence and ingests each candidate through the
+ * gate. Runs dry and observable until a source in the declared allowlist is
+ * switched on. Regulatory and bar sources warrant the frequent cadence; this
+ * daily pass is the baseline and a per source cadence tightens as sources
+ * activate.
+ */
+export const pollRentedSources = inngest.createFunction(
+  { id: 'poll-rented-sources', triggers: [{ cron: '0 7 * * *' }] },
+  async ({ step }) => {
+    const payload = await getPayload({ config })
+    const ingestion = createIngestionService(createPayloadIngestionDeps(payload))
+    return pollRentedSourcesWorkflow({ ingestion }, toStepRunner(step as InngestStep), {})
+  },
+)
+
+export const inngestFunctions = [
+  deliverDossier,
+  releaseHeldQueue,
+  reconcileWallets,
+  recalibrateScps,
+  deliveryAgents,
+  ingestOwnedIntelligence,
+  pollRentedSources,
+]

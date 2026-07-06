@@ -30,9 +30,25 @@ Verification: `npm run test` (90 passing), `npx tsc --noEmit` clean, `npm run bu
 
 ---
 
+## Phase B. B2C sensing and drafting: DONE (2026-07-06)
+
+The sensing and scoring agent and the drafting agent for answer engine and question platform assets, human published. Uses the provisional D11 identities and D12 approvers; confirm before go live.
+
+**Checkpoint (met):** the engine surfaces a ranked list of unowned high intent questions in a funded market and drafts a compliant, citable answer that a human approves and posts. Proven by `tests/int/demand/sensing-drafting.int.spec.ts` (4 tests). The Section 11 drafting compliance adversarial suite is green: `tests/int/demand/drafting-adversarial.int.spec.ts` (7 tests) proves the pre publish gate defeats every attempt to slip legal advice, evaluative language, a guarantee, a prohibited call to action, an em dash, or a PI abbreviation past it, no matter what the drafter produces.
+
+Delivered:
+- `src/services/demandAgentPorts.ts`: `QuestionSensor` and `AnswerDrafter` ports. The sensor returns questions, never people (HL1).
+- `src/services/DemandCaptureAgentService.ts`: `surfaceOpportunities` (score with funded gating, keep pursued and unowned, rank by score), `draftForOpportunity`, `submitForApproval`, `senseAndDraft`. Drafts only; the only path to a live post is the human approved publish gate.
+- `src/services/DemandCaptureService.ts`: added `submitForApproval` (draft to pending-approval) and the `CaptureAssetSubmitted` event, completing the draft, submit, approve, publish pipeline.
+- `src/lib/compliance/publicCopy.ts`: extended to flag guarantee and legal advice language (HL5, HL6), so the adversarial suite has real teeth.
+- `src/services/fakes/demandAgentInMemory.ts`: a compliant drafter plus one adversarial drafter per attack.
+
+Verification: `npm run test` (112 passing), `npx tsc --noEmit` clean, `npm run build` compiles. Sensing and drafting events surface live on the `/ops` console feed and pipeline panel.
+
+---
+
 ## Pending phases (do not build ahead)
 
-- **Phase B. B2C sensing and drafting.** The sensing and scoring agent and the drafting agent for answer engine and question platform assets, human published. (Confirm D11 identities and D12 approvers first.) Checkpoint: the engine surfaces a ranked list of unowned high intent questions in a funded market and drafts a compliant, citable answer a human approves and posts.
 - **Phase C. B2B inbound authority and outbound precision.** Authority drafting and the proof of reality outbound arm, human approved before publish or send. Checkpoint: an outbound draft carries accurate, redacted market proof and passes the Rule 7.1 adversarial suite.
 - **Phase D. Routing and the self closing paths.** B2C and B2B routing wired to the correct destinations with disclaimers. Checkpoint: every captured path routes to self initiation and no path routes to a call.
 - **Phase E. The learning loop.** Attribution linkage into the CIC and reallocation of effort toward converting cells, plus citation ownership tracking. Checkpoint: a signed case traces back to its originating surface and phrasing, and the CIC reallocates the next cycle.

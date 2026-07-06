@@ -112,6 +112,7 @@ export const EVENT_TYPES = [
   'DemandCellScored',
   'KeywordQuestionClaimed',
   'CaptureAssetDrafted',
+  'CaptureAssetSubmitted',
   'CaptureAssetPublished',
   'CaptureAssetRejected',
 ] as const

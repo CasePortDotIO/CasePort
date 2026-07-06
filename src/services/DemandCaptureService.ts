@@ -128,6 +128,28 @@ export function createDemandCaptureService(deps: DemandCaptureDeps) {
   }
 
   /**
+   * Move a draft into the approval queue (Phase B). The drafting agent produces
+   * a draft; submitting it flags it for a human to approve and post (HL4). It
+   * never publishes. Returns null when the asset is missing or already past draft.
+   */
+  async function submitForApproval(assetId: string): Promise<CaptureAssetRecord | null> {
+    const asset = await deps.assets.get(assetId)
+    if (!asset || asset.status !== 'draft') return null
+    const now = deps.clock.nowIso()
+    const submitted: CaptureAssetRecord = { ...asset, status: 'pending-approval' }
+    await deps.assets.save(submitted)
+    await deps.events.append({
+      eventType: 'CaptureAssetSubmitted',
+      aggregateType: 'capture-asset',
+      aggregateId: asset.id,
+      actor: 'demand-capture',
+      occurredAt: now,
+      payload: { cellKey: asset.cellKey, surface: asset.surface, canonicalQuestion: asset.canonicalQuestion },
+    })
+    return submitted
+  }
+
+  /**
    * The pre publish gate (Section 7, HL4, HL5). An asset publishes only when
    * every condition holds:
    *
@@ -221,7 +243,7 @@ export function createDemandCaptureService(deps: DemandCaptureDeps) {
     return { published: true, asset: published, reasons: [] }
   }
 
-  return { scoreCell, claimQuestion, draftAsset, publishAsset }
+  return { scoreCell, claimQuestion, draftAsset, submitForApproval, publishAsset }
 }
 
 export type DemandCaptureService = ReturnType<typeof createDemandCaptureService>

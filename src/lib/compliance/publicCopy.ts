@@ -1,4 +1,6 @@
 import {
+  PROHIBITED_ADVICE_TERMS,
+  PROHIBITED_GUARANTEE_TERMS,
   PROHIBITED_INTAKE_CTAS,
   PROHIBITED_PUBLIC_EVALUATIVE,
   PROHIBITED_PUBLIC_TERMS,
@@ -22,7 +24,14 @@ import {
  * this gate is how a public asset stays Rule 7.1 clean.
  */
 export interface CopyViolation {
-  rule: 'prohibited-term' | 'public-evaluative' | 'prohibited-cta' | 'em-dash' | 'abbreviation'
+  rule:
+    | 'prohibited-term'
+    | 'public-evaluative'
+    | 'prohibited-cta'
+    | 'guarantee'
+    | 'legal-advice'
+    | 'em-dash'
+    | 'abbreviation'
   match: string
 }
 
@@ -51,6 +60,12 @@ export function findPublicCopyViolations(text: string): CopyViolation[] {
   }
   for (const cta of PROHIBITED_INTAKE_CTAS) {
     if (containsPhrase(lower, cta)) violations.push({ rule: 'prohibited-cta', match: cta })
+  }
+  for (const term of PROHIBITED_GUARANTEE_TERMS) {
+    if (containsPhrase(lower, term)) violations.push({ rule: 'guarantee', match: term })
+  }
+  for (const term of PROHIBITED_ADVICE_TERMS) {
+    if (containsPhrase(lower, term)) violations.push({ rule: 'legal-advice', match: term })
   }
   // Em dash, anywhere (HL7). Figure dash and horizontal bar too. Expressed as
   // unicode escapes so the em dash character never appears literally in source.
