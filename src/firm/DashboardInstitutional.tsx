@@ -12,10 +12,10 @@ import { useFirmData, dollars, relativeTime, toFirmMetrics, toOpportunityRows, t
 /* Where the depth lives. The dashboard is the cockpit; each of these opens a
  * dedicated page carrying the detail that used to crowd the landing screen. */
 const wayfinding = [
-  { to: '/performance', icon: LineChart, label: 'Performance', desc: 'Response trends and cost per signed case' },
-  { to: '/analytics', icon: TrendingUp, label: 'Analytics', desc: 'Cohorts, funnel, and channel attribution' },
-  { to: '/wallet', icon: CreditCard, label: 'Wallet', desc: 'Pre-funded balance and full ledger' },
-  { to: '/leaderboard', icon: Trophy, label: 'Standing', desc: 'Your market rank and benchmarks' },
+  { to: '/wallet', icon: CreditCard, label: 'Wallet', desc: 'Pre-funded balance and full ledger', soon: false },
+  { to: '/performance', icon: LineChart, label: 'Performance', desc: 'Response trends and cost per signed case', soon: true },
+  { to: '/analytics', icon: TrendingUp, label: 'Analytics', desc: 'Cohorts, funnel, and channel attribution', soon: true },
+  { to: '/leaderboard', icon: Trophy, label: 'Standing', desc: 'Your market benchmarks', soon: true },
 ] as const;
 
 /* Calibrated semantic palette, kept separate from the brand teal so meaning
@@ -269,7 +269,11 @@ export default function DashboardInstitutional() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <Icon className="w-5 h-5" style={{ color: TEAL }} />
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                    {w.soon ? (
+                      <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground border border-white/10 rounded px-1.5 py-0.5">Soon</span>
+                    ) : (
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                    )}
                   </div>
                   <div className="text-sm font-semibold text-foreground">{w.label}</div>
                   <div className="text-xs text-muted-foreground mt-1 leading-relaxed">{w.desc}</div>

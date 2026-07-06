@@ -28,10 +28,10 @@ export default function CasePortLayoutEnhanced({ children, currentScreen }: Case
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'opportunities', label: 'Opportunities', icon: Briefcase },
     { id: 'wallet', label: 'Wallet', icon: CreditCard },
-    { id: 'performance', label: 'Performance', icon: BarChart3 },
-    { id: 'feedback', label: 'Outcome Feedback', icon: CheckSquare, badge: 3 },
-    { id: 'analytics', label: 'Advanced Analytics', icon: TrendingUp },
-    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
+    { id: 'performance', label: 'Performance', icon: BarChart3, soon: true },
+    { id: 'feedback', label: 'Outcome Feedback', icon: CheckSquare, soon: true },
+    { id: 'analytics', label: 'Advanced Analytics', icon: TrendingUp, soon: true },
+    { id: 'leaderboard', label: 'Standing', icon: Trophy, soon: true },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -74,14 +74,10 @@ export default function CasePortLayoutEnhanced({ children, currentScreen }: Case
                   <Icon className="w-5 h-5" />
                   <span>{item.label}</span>
                 </div>
-                {item.badge && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-foreground bg-destructive rounded-full"
-                  >
-                    {item.badge}
-                  </motion.span>
+                {item.soon && (
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground border border-border rounded px-1.5 py-0.5">
+                    Soon
+                  </span>
                 )}
               </motion.button>
             );
@@ -91,8 +87,8 @@ export default function CasePortLayoutEnhanced({ children, currentScreen }: Case
         {/* Footer */}
         <div className="border-t border-border p-4 space-y-4">
           <div className="px-2 space-y-1">
-            <p className="text-sm font-semibold text-foreground">Chen & Associates</p>
-            <p className="text-xs text-muted-foreground">Houston, TX</p>
+            <p className="text-sm font-semibold text-foreground">{user?.firmName ?? 'Your firm'}</p>
+            <p className="text-xs text-muted-foreground">{user?.name ?? ''}</p>
           </div>
           <Button
             onClick={handleLogout}
