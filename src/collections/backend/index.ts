@@ -24,3 +24,7 @@ export { Operators } from './Operators'
 // recomputable, internal only. Never a source of truth for any fact.
 export { IntelligenceSources } from './IntelligenceSources'
 export { IntelligenceSignals } from './IntelligenceSignals'
+// CasePort Demand Capture Engine (DEMAND_CAPTURE.md). The reach layer.
+// Recomputable, internal control surface. Harvest, never intercept.
+export { DemandCells } from './DemandCells'
+export { CaptureAssets } from './CaptureAssets'

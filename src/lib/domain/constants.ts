@@ -107,6 +107,13 @@ export const EVENT_TYPES = [
   'IntelligenceSignalIngested',
   'IntelligenceSignalSuperseded',
   'IntelligenceSignalRejected',
+  // CasePort Demand Capture Engine (DEMAND_CAPTURE.md). The reach layer. Every
+  // action emits an event and is replayable. Harvest, never intercept.
+  'DemandCellScored',
+  'KeywordQuestionClaimed',
+  'CaptureAssetDrafted',
+  'CaptureAssetPublished',
+  'CaptureAssetRejected',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]

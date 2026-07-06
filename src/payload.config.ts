@@ -50,6 +50,8 @@ import {
   Operators,
   IntelligenceSources,
   IntelligenceSignals,
+  DemandCells,
+  CaptureAssets,
 } from './collections/backend'
 
 const filename = fileURLToPath(import.meta.url)
@@ -163,6 +165,9 @@ export default buildConfig({
     // CasePort Intelligence Core (INTELLIGENCE_CORE.md Phase A)
     IntelligenceSources,
     IntelligenceSignals,
+    // CasePort Demand Capture Engine (DEMAND_CAPTURE.md Phase A)
+    DemandCells,
+    CaptureAssets,
   ],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature(), CTAButtonFeature()],

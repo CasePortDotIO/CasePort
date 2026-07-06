@@ -99,6 +99,8 @@ export interface Config {
     operators: Operator;
     'intelligence-sources': IntelligenceSource;
     'intelligence-signals': IntelligenceSignal;
+    'demand-cells': DemandCell;
+    'capture-assets': CaptureAsset;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -138,6 +140,8 @@ export interface Config {
     operators: OperatorsSelect<false> | OperatorsSelect<true>;
     'intelligence-sources': IntelligenceSourcesSelect<false> | IntelligenceSourcesSelect<true>;
     'intelligence-signals': IntelligenceSignalsSelect<false> | IntelligenceSignalsSelect<true>;
+    'demand-cells': DemandCellsSelect<false> | DemandCellsSelect<true>;
+    'capture-assets': CaptureAssetsSelect<false> | CaptureAssetsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -2302,7 +2306,12 @@ export interface Event {
     | 'IntelligenceSourceRetired'
     | 'IntelligenceSignalIngested'
     | 'IntelligenceSignalSuperseded'
-    | 'IntelligenceSignalRejected';
+    | 'IntelligenceSignalRejected'
+    | 'DemandCellScored'
+    | 'KeywordQuestionClaimed'
+    | 'CaptureAssetDrafted'
+    | 'CaptureAssetPublished'
+    | 'CaptureAssetRejected';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2842,6 +2851,111 @@ export interface IntelligenceSignal {
   createdAt: string;
 }
 /**
+ * Geography by case-type by legal-concept cells, scored by defensible data cell logic. Vanity volume scores zero.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demand-cells".
+ */
+export interface DemandCell {
+  id: string;
+  /**
+   * market:caseType:legalConcept, for example va:mva:contributory-negligence.
+   */
+  cellKey: string;
+  market: string;
+  caseType: string;
+  legalConcept: string;
+  surface:
+    | 'answer-engine'
+    | 'search'
+    | 'question-platform'
+    | 'voice-search'
+    | 'video'
+    | 'local-community'
+    | 'trade-press'
+    | 'expert-citation'
+    | 'repository'
+    | 'linkedin';
+  /**
+   * 0 to 1. Uniquely or better than any other source.
+   */
+  uniqueness: number;
+  /**
+   * 0 to 1. Distinct high intent.
+   */
+  intent: number;
+  /**
+   * Resolved from the funded market state (HL3). Not a stored judgment.
+   */
+  fundedMonetizable?: boolean | null;
+  status: 'pursue' | 'ignore';
+  /**
+   * Base score in 0 to 1. Zero when any gate fails. Never volume derived.
+   */
+  score?: number | null;
+  /**
+   * Why an ignored cell was deprioritized.
+   */
+  ignoreReason?: ('unfunded-market' | 'not-unique' | 'low-intent') | null;
+  scoredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Produced capture assets and answers. A human approves and publishes anything under a real identity (HL4).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-assets".
+ */
+export interface CaptureAsset {
+  id: string;
+  title: string;
+  cellKey: string;
+  surface:
+    | 'answer-engine'
+    | 'search'
+    | 'question-platform'
+    | 'voice-search'
+    | 'video'
+    | 'local-community'
+    | 'trade-press'
+    | 'expert-citation'
+    | 'repository'
+    | 'linkedin';
+  /**
+   * The one question this asset owns across the domain (Section 7).
+   */
+  canonicalQuestion: string;
+  /**
+   * The canonical URL that owns the question.
+   */
+  url: string;
+  /**
+   * The real named identity for identity based surfaces (HL2). Never an AI or anonymous author.
+   */
+  owningIdentity: string;
+  status: 'draft' | 'pending-approval' | 'published' | 'rejected';
+  /**
+   * The human who approved publication (HL4). Set only when published.
+   */
+  approvedBy?: string | null;
+  publishedAt?: string | null;
+  /**
+   * The asset structure validated by the deterministic placement gate (Section 7).
+   */
+  structure?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -2992,6 +3106,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'intelligence-signals';
         value: string | IntelligenceSignal;
+      } | null)
+    | ({
+        relationTo: 'demand-cells';
+        value: string | DemandCell;
+      } | null)
+    | ({
+        relationTo: 'capture-assets';
+        value: string | CaptureAsset;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -4948,6 +5070,44 @@ export interface IntelligenceSignalsSelect<T extends boolean = true> {
   attributionRef?: T;
   supersededBy?: T;
   supersededAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demand-cells_select".
+ */
+export interface DemandCellsSelect<T extends boolean = true> {
+  cellKey?: T;
+  market?: T;
+  caseType?: T;
+  legalConcept?: T;
+  surface?: T;
+  uniqueness?: T;
+  intent?: T;
+  fundedMonetizable?: T;
+  status?: T;
+  score?: T;
+  ignoreReason?: T;
+  scoredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-assets_select".
+ */
+export interface CaptureAssetsSelect<T extends boolean = true> {
+  title?: T;
+  cellKey?: T;
+  surface?: T;
+  canonicalQuestion?: T;
+  url?: T;
+  owningIdentity?: T;
+  status?: T;
+  approvedBy?: T;
+  publishedAt?: T;
+  structure?: T;
   updatedAt?: T;
   createdAt?: T;
 }
