@@ -48,6 +48,8 @@ import {
   Disclosures,
   AuditLog,
   Operators,
+  IntelligenceSources,
+  IntelligenceSignals,
 } from './collections/backend'
 
 const filename = fileURLToPath(import.meta.url)
@@ -158,6 +160,9 @@ export default buildConfig({
     Disclosures,
     AuditLog,
     Operators,
+    // CasePort Intelligence Core (INTELLIGENCE_CORE.md Phase A)
+    IntelligenceSources,
+    IntelligenceSignals,
   ],
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [...defaultFeatures, EXPERIMENTAL_TableFeature(), CTAButtonFeature()],

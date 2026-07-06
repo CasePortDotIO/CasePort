@@ -20,3 +20,7 @@ export { HipaaAuthorizations } from './HipaaAuthorizations'
 export { Disclosures } from './Disclosures'
 export { AuditLog } from './AuditLog'
 export { Operators } from './Operators'
+// CasePort Intelligence Core (INTELLIGENCE_CORE.md). System of intelligence,
+// recomputable, internal only. Never a source of truth for any fact.
+export { IntelligenceSources } from './IntelligenceSources'
+export { IntelligenceSignals } from './IntelligenceSignals'

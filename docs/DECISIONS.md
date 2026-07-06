@@ -70,3 +70,44 @@ Founder direction: it depends on the market and city, not every city is created 
 The prototype contains unsourced claims (for example "firms who check 15+ times daily see 3.2x higher conversion") and coercive framing (the InvestmentLayer switching-cost and sunk-capital panel, compulsive-checking urgency). These conflict with the Section 14 bar of not a single false claim.
 
 Locked: strip fabricated statistics and coercive framing. Keep the dense, real-time, auditable Bloomberg-terminal texture. Every number on every panel must trace to a real event. Leaderboard, streaks, and any retained engagement mechanics are driven only by real data.
+
+---
+
+# CasePort Intelligence Core: Section 14 gate
+
+`INTELLIGENCE_CORE.md` Section 14 gates Phase A on four items. This section records their resolution, following the same provisional-and-reversible pattern as D3.
+
+## Status of the Section 14 gate
+
+| Item | Topic | Status |
+| ---- | ----- | ------ |
+| 1 | ACER definition | Locked (see D1) |
+| 2 | Rented source allowlist and reliability ratings | Locked (provisional, reversible) |
+| 3 | Promotion approver policy | Provisional default, confirm before Phase F |
+| 4 | Internal delivery channels | Provisional default, confirm before Phase D |
+
+Phase A may begin. Items 3 and 4 do not affect Phase A content (source registry and signals store); their provisional defaults are recorded so the gate is documented, and they are flagged for founder confirmation before the phases that consume them.
+
+## D7. CIC source allowlist and reliability ratings (2026-07-06)
+
+**Locked as provisional and reversible.** The seed allowlist lives in `src/lib/intelligence/sourceAllowlist.ts`, derived directly from the sources named in `INTELLIGENCE_CORE.md` Section 4 and rated by the H5 discipline: A primary or institutional, B industry research, C synthesized or estimated.
+
+- Regulatory sources (ABA model rules, the VA, MD, DC, and GA state bar ethics opinions, state legislature statute trackers) are rated A. These are the highest-leverage domain (Section 4.3) and must be human-verified before any market action regardless of rating.
+- Industry research (Semrush via MCP, Clay enrichment, lead-market-rate benchmarks, injury and settlement benchmarks, the mini-TCPA tracker) is rated B.
+- Inferred or modeled signals (answer-engine citation gaps, competitor pricing) are rated C and always flagged for verification before action.
+- The owned CasePort first party event log is rated A. It is the moat, joined by the attribution tuple.
+
+Like the D3 price table, any entry can be added, retuned, or retired per cell without code changes. The epistemic gate in `IntelligenceCoreService` is source agnostic: the allowlist governs what may be ingested, never how ingestion works. New sources are added only through human review; nothing is auto-trusted, and nothing from an unlisted or prohibited source can enter (H5, proven by the Phase A checkpoint test).
+
+## D8. CIC promotion approver policy (2026-07-06, provisional)
+
+**Provisional default, pending founder confirmation before Phase F.** No production value (SCPS version, price-table cell, qualification weight, or market entry/exit) changes without a logged human approval in `promotionLog` (H1). Provisional authority model:
+
+- An SCPS version or a price-table change requires one approval from an operator with the `admin` role.
+- A regulatory-triggered market action (entry or exit) requires two approvals, because a hallucinated opinion that triggers a market exit is costly and a missed real one is fatal (Section 4.3).
+
+This is a genuine business and authority decision. It does not affect Phase A. Confirm or override before building the Phase F promotion gates.
+
+## D9. CIC internal delivery channels (2026-07-06, provisional)
+
+**Provisional default, pending founder confirmation before Phase D.** Briefings and alerts are internal only (H6) and access controlled. Provisional channels: Resend for the daily and weekly briefing email, and a messaging channel for real-time alerts (Twilio SMS is already in the stack; a Slack or webhook target is to be named). Confirm the exact channels before building the Phase D surfaces.

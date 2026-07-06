@@ -97,6 +97,8 @@ export interface Config {
     disclosures: Disclosure;
     auditLog: AuditLog;
     operators: Operator;
+    'intelligence-sources': IntelligenceSource;
+    'intelligence-signals': IntelligenceSignal;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -134,6 +136,8 @@ export interface Config {
     disclosures: DisclosuresSelect<false> | DisclosuresSelect<true>;
     auditLog: AuditLogSelect<false> | AuditLogSelect<true>;
     operators: OperatorsSelect<false> | OperatorsSelect<true>;
+    'intelligence-sources': IntelligenceSourcesSelect<false> | IntelligenceSourcesSelect<true>;
+    'intelligence-signals': IntelligenceSignalsSelect<false> | IntelligenceSignalsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -2293,7 +2297,12 @@ export interface Event {
     | 'FirmResponded'
     | 'SlaBreached'
     | 'DecayInterrupt'
-    | 'OutcomeRequested';
+    | 'OutcomeRequested'
+    | 'IntelligenceSourceRegistered'
+    | 'IntelligenceSourceRetired'
+    | 'IntelligenceSignalIngested'
+    | 'IntelligenceSignalSuperseded'
+    | 'IntelligenceSignalRejected';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2737,6 +2746,102 @@ export interface Operator {
   createdAt: string;
 }
 /**
+ * Approved intelligence sources with reliability ratings. The ingestion allowlist. Added through human review, never auto-trusted.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-sources".
+ */
+export interface IntelligenceSource {
+  id: string;
+  /**
+   * Stable ingestion handle, for example semrush-mcp or va-bar-ethics.
+   */
+  sourceKey: string;
+  name: string;
+  /**
+   * Owned first party data, or rented external intelligence.
+   */
+  origin: 'owned' | 'rented';
+  /**
+   * A primary or institutional, B industry research, C synthesized or estimated.
+   */
+  reliability: 'A' | 'B' | 'C';
+  /**
+   * The intelligence domains this source feeds.
+   */
+  domains: ('demand' | 'supply' | 'regulatory' | 'market')[];
+  /**
+   * Only an active source can pass the ingestion gate.
+   */
+  status: 'active' | 'retired' | 'prohibited';
+  /**
+   * The human who reviewed and approved this source. Never a system actor.
+   */
+  addedBy: string;
+  notes?: string | null;
+  registeredAt: string;
+  /**
+   * When the source was last polled. Updated on ingestion; does not change trust.
+   */
+  lastCheckedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Ingested intelligence signals, dated, rated, deduplicated, and supersession aware. Never a source of truth for any fact.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-signals".
+ */
+export interface IntelligenceSignal {
+  id: string;
+  /**
+   * The allowlisted source this signal was ingested from.
+   */
+  source: string | IntelligenceSource;
+  sourceKey: string;
+  origin: 'owned' | 'rented';
+  /**
+   * Inherited from the source. A signal never outranks its source.
+   */
+  reliability: 'A' | 'B' | 'C';
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  /**
+   * Identity of the claim: normalized claim plus metric plus geography.
+   */
+  dedupKey: string;
+  claim: string;
+  /**
+   * The date the figure is true as of. Drives supersession.
+   */
+  observedAt: string;
+  ingestedAt: string;
+  status: 'active' | 'superseded';
+  /**
+   * Structured metric, geography, value, units.
+   */
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Attribution tuple reference for owned signals. The join key across owned and rented.
+   */
+  attributionRef?: string | null;
+  /**
+   * Set when a newer figure supersedes this one, or on stale arrival.
+   */
+  supersededBy?: (string | null) | IntelligenceSignal;
+  supersededAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -2879,6 +2984,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'operators';
         value: string | Operator;
+      } | null)
+    | ({
+        relationTo: 'intelligence-sources';
+        value: string | IntelligenceSource;
+      } | null)
+    | ({
+        relationTo: 'intelligence-signals';
+        value: string | IntelligenceSignal;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -4795,6 +4908,46 @@ export interface OperatorsSelect<T extends boolean = true> {
   user?: T;
   role?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-sources_select".
+ */
+export interface IntelligenceSourcesSelect<T extends boolean = true> {
+  sourceKey?: T;
+  name?: T;
+  origin?: T;
+  reliability?: T;
+  domains?: T;
+  status?: T;
+  addedBy?: T;
+  notes?: T;
+  registeredAt?: T;
+  lastCheckedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-signals_select".
+ */
+export interface IntelligenceSignalsSelect<T extends boolean = true> {
+  source?: T;
+  sourceKey?: T;
+  origin?: T;
+  reliability?: T;
+  domain?: T;
+  dedupKey?: T;
+  claim?: T;
+  observedAt?: T;
+  ingestedAt?: T;
+  status?: T;
+  data?: T;
+  attributionRef?: T;
+  supersededBy?: T;
+  supersededAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

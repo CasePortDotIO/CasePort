@@ -100,6 +100,13 @@ export const EVENT_TYPES = [
   'SlaBreached',
   'DecayInterrupt',
   'OutcomeRequested',
+  // CasePort Intelligence Core (INTELLIGENCE_CORE.md). The CIC lives in the
+  // system of intelligence; every CIC action emits an event and is replayable.
+  'IntelligenceSourceRegistered',
+  'IntelligenceSourceRetired',
+  'IntelligenceSignalIngested',
+  'IntelligenceSignalSuperseded',
+  'IntelligenceSignalRejected',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]
