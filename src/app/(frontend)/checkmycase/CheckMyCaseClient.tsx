@@ -354,6 +354,7 @@ export default function CheckMyCaseClient() {
   const [solCallout, setSolCallout] = useState<{ type: 'warning' | 'danger'; title: string; body: string } | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [sessionId, setSessionId] = useState<string | null>(null)
+  const [statusHref, setStatusHref] = useState<string | null>(null)
   const [nameErr, setNameErr] = useState('')
   const [phoneErr, setPhoneErr] = useState('')
   const [stateErr, setStateErr] = useState('')
@@ -965,8 +966,11 @@ export default function CheckMyCaseClient() {
       if (res.ok) {
         // Keep the server session handle so any after the fact captures on the
         // confirmation screen (insurance card, voice statement) tie to this intake.
-        const data = (await res.json()) as { sessionId?: string }
+        // Keep the signed status link so the claimant can return to their living
+        // status page, the anti black hole promise (Section 6 step 8).
+        const data = (await res.json()) as { sessionId?: string; statusPath?: string }
         if (data?.sessionId) setSessionId(data.sessionId)
+        if (data?.statusPath) setStatusHref(data.statusPath)
       }
     } catch (err) {
       console.error('[CP] intake submit failed', err)
@@ -2344,6 +2348,23 @@ export default function CheckMyCaseClient() {
               </div>
               <button className="ref-copy" onClick={() => navigator.clipboard.writeText(fd.submissionId || '')}>Copy</button>
             </div>
+
+            {/* The living status page link, the anti black hole promise. The
+               claimant can return anytime to see motion on their behalf. We also
+               texted and emailed this link the moment the file was received. */}
+            {statusHref && (
+              <a
+                href={statusHref}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                  marginTop: 14, padding: '14px 18px', borderRadius: 12, textDecoration: 'none',
+                  background: 'var(--teal, #0f6e56)', color: '#fff',
+                }}
+              >
+                <span style={{ fontSize: 14, fontWeight: 600 }}>Track your case status</span>
+                <span aria-hidden style={{ fontSize: 16 }}>→</span>
+              </a>
+            )}
 
             <div className="upload-section">
               <div className="upload-boost">⬆ Helps your attorney move faster</div>
