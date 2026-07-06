@@ -1,0 +1,98 @@
+/*
+ * Scoped theme for the internal operations cockpit (/ops).
+ *
+ * The main app already loads Tailwind and the shadcn @theme mapping in
+ * styles.css, so we do not re-import tailwindcss here. We only override the
+ * CasePort brand variables inside .ops-root, exactly as the firm dashboard does
+ * under .firm-root, so every bg-background / text-foreground / bg-primary
+ * utility re-skins this island to the dense, dark, institutional terminal and
+ * nothing outside .ops-root is affected.
+ *
+ * This is an internal surface. It carries no claimant copy and no public
+ * evaluative language; it is a Bloomberg style operations console for the two
+ * engines that share this backend.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+.ops-root {
+  --primary: #12a67c; /* Deep teal */
+  --primary-foreground: #f5f5f5;
+  --chart-1: #1d9e75; /* Accent green */
+  --chart-2: #12a67c; /* Primary teal */
+  --chart-3: #ef9f27; /* Accent amber */
+  --chart-4: #e24b4a; /* Accent red */
+  --chart-5: #7f77dd; /* Accent purple */
+  --radius: 0.5rem;
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #141414;
+  --card-foreground: #f5f5f5;
+  --popover: #141414;
+  --popover-foreground: #f5f5f5;
+  --secondary: #111111;
+  --secondary-foreground: #aaaaaa;
+  --muted: #1c1c1c;
+  --muted-foreground: #888888;
+  --accent: #12a67c;
+  --accent-foreground: #f5f5f5;
+  --destructive: #e24b4a;
+  --destructive-foreground: #f5f5f5;
+  --border: #242424;
+  --input: #242424;
+  --ring: #12a67c;
+
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.005em;
+  min-height: 100vh;
+}
+
+/* Monospace numerals and keys read as a terminal. */
+.ops-root .ops-mono {
+  font-family: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.ops-root .ops-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* The three lane accent colors, used across the fused feed and flywheel. */
+.ops-root .lane-intelligence {
+  color: #7f77dd;
+}
+.ops-root .lane-demand {
+  color: #12a67c;
+}
+.ops-root .lane-core {
+  color: #ef9f27;
+}
+.ops-root .lane-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  display: inline-block;
+  background: currentColor;
+}
+
+.ops-root .ops-hairline {
+  border-color: var(--border);
+}
+
+/* Subtle live pulse on the status dot. */
+@keyframes ops-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.ops-root .ops-live {
+  animation: ops-pulse 2.4s ease-in-out infinite;
+}
