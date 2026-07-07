@@ -129,6 +129,11 @@ export const EVENT_TYPES = [
   'RecommendationOutcomeMeasured',
   'CaptureAttributionLinked',
   'CitationTracked',
+  // CIC Phase D fusion, briefing, and surfaces (INTELLIGENCE_CORE.md Section 8).
+  'BriefingAssembled',
+  'BriefingDelivered',
+  'IntelligenceQueried',
+  'IntelligenceAlertRaised',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]

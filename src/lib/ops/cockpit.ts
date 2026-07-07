@@ -82,6 +82,12 @@ export interface OpsCockpit {
       paidOff: number
       confidence: number | null
     }
+    // Phase D fusion, briefing, alerts.
+    briefing: {
+      briefings: number
+      alerts: number
+      lastBriefingAt: string | null
+    }
   }
   demand: {
     cells: {
@@ -116,7 +122,13 @@ export interface OpsCockpit {
 
 /** Map an event type to its lane so the fused feed reads as one system. */
 export function laneFor(eventType: string): OpsLane {
-  if (eventType.startsWith('Intelligence') || eventType.startsWith('Recommendation')) return 'intelligence'
+  if (
+    eventType.startsWith('Intelligence') ||
+    eventType.startsWith('Recommendation') ||
+    eventType.startsWith('Briefing')
+  ) {
+    return 'intelligence'
+  }
   if (
     eventType.startsWith('DemandCell') ||
     eventType.startsWith('CaptureAsset') ||
@@ -146,6 +158,7 @@ function emptyCockpit(online: boolean, generatedAt: string): OpsCockpit {
       signals: { total: 0, active: 0, superseded: 0, byDomain: { demand: 0, supply: 0, regulatory: 0, market: 0 }, recent: [] },
       synthesis: { artifacts: 0, recommendationsProposed: 0, recommendationsRejected: 0 },
       loop: { measured: 0, paidOff: 0, confidence: null },
+      briefing: { briefings: 0, alerts: 0, lastBriefingAt: null },
     },
     demand: {
       cells: { total: 0, pursue: 0, ignore: 0, byIgnoreReason: {}, topPursued: [] },
@@ -311,6 +324,19 @@ export async function loadOpsCockpit(payload: Payload, generatedAt: string): Pro
     snapshot.cic.loop.measured = measured.totalDocs
     snapshot.cic.loop.paidOff = paidOff.totalDocs
     snapshot.cic.loop.confidence = measured.totalDocs > 0 ? Number((paidOff.totalDocs / measured.totalDocs).toFixed(2)) : null
+  }, undefined)
+
+  // Phase D fusion and surfaces: briefings assembled and alerts raised.
+  await safe(async () => {
+    const [briefings, latest, alerts] = await Promise.all([
+      payload.count({ collection: 'briefings' }),
+      payload.find({ collection: 'briefings', sort: '-generatedAt', limit: 1 }),
+      payload.count({ collection: 'events', where: { eventType: { equals: 'IntelligenceAlertRaised' } } }),
+    ])
+    snapshot.cic.briefing.briefings = briefings.totalDocs
+    snapshot.cic.briefing.alerts = alerts.totalDocs
+    const d = latest.docs[0] as unknown as Record<string, unknown> | undefined
+    snapshot.cic.briefing.lastBriefingAt = d ? iso(d.generatedAt) : null
   }, undefined)
 
   // Phase E Demand learning loop: signed cases traced back, and citation ownership.

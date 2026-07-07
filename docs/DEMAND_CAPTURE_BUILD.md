@@ -65,9 +65,11 @@ Verification: `npm run test` (127 passing), `npx tsc --noEmit` clean, `npm run b
 
 ---
 
-## Pending phases (do not build ahead)
+## Phase D. Routing and the self closing paths: DONE (2026-07-06)
 
-- **Phase D. Routing and the self closing paths.** B2C and B2B routing wired to the correct destinations with disclaimers. Checkpoint: every captured path routes to self initiation and no path routes to a call.
+`src/lib/demand/routing.ts` resolves every captured path to self initiation and blocks any path that routes to a call. B2C routes to caseport.io/checkmycase with the one permitted call to action and the ABA disclaimer; B2B routes by reader psychology (pain awareness to /markets, financial and vendor evaluation to /request-access, pure education to the next pillar). `findCallRoutes` detects phone links, scheduler links, and call to action phrasing, and the check is wired into the placement gate so no asset that invites a call can publish.
+
+**Checkpoint (met):** every captured path routes to self initiation and no path routes to a call. Proven by `tests/int/demand/routing.int.spec.ts` (7 tests).
 
 ## Phase E. The learning loop: DONE (2026-07-06)
 

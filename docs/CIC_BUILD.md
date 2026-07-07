@@ -65,8 +65,13 @@ Verification: `npm run test` (127 passing), `npx tsc --noEmit` clean, `npm run b
 
 ## Pending phases (do not build ahead)
 
-- **Phase D. Fusion, briefing, surfaces.** Lead synthesis agent, proactive briefing, on-demand MCP query, alerts. (Confirm D9 channels first.)
 - **Phase F. Promotion gates.** Versioning and human promotion workflow for SCPS, pricing, qualification weights, and market actions. (Confirm D8 approver policy first.)
+
+## Phase D. Fusion, briefing, and surfaces: DONE (2026-07-06)
+
+BriefingService is the lead synthesis layer: it fuses the latest per domain artifacts into one briefing, ranks the proposed recommendations by expected value, delivers where the principals already live (Resend email plus a messaging channel, per the provisional D9 default), answers natural language questions on demand (a callable shaped to become the Layer 1 internal ops MCP tool, cited, with a confidence), and raises real time alerts. New `briefings` collection; `BriefingAssembled`, `BriefingDelivered`, `IntelligenceQueried`, and `IntelligenceAlertRaised` events.
+
+**Checkpoint (met):** a principal receives a ranked briefing in CasePort numbers and can query it in natural language. Proven by `tests/int/intelligence/briefing.int.spec.ts` (6 tests): the briefing ranks the highest expected value recommendation first, delivers through the channels and records them, answers a query with citations and high confidence, flags low confidence when the intelligence is thin, and raises a cited internal alert. Briefings and alerts surface on the `/ops` console. Full suite green (147), tsc clean, build compiles.
 
 ## Phase E. Self-scoring loop: DONE (2026-07-06)
 

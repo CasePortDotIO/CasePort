@@ -112,6 +112,8 @@ This is a genuine business and authority decision. It does not affect Phase A. C
 
 **Provisional default, pending founder confirmation before Phase D.** Briefings and alerts are internal only (H6) and access controlled. Provisional channels: Resend for the daily and weekly briefing email, and a messaging channel for real-time alerts (Twilio SMS is already in the stack; a Slack or webhook target is to be named). Confirm the exact channels before building the Phase D surfaces.
 
+**Update (2026-07-06): Phase D built on this provisional default.** The BriefingService delivers through a channel abstraction (`BriefingNotifier`): email via Resend to `OPS_BRIEFING_EMAIL`, and the messaging channel via Twilio SMS to `OPS_ALERT_PHONE`. Both dry run cleanly when the env vars are unset, so the surface ships and tests without live channels. Swapping the messaging channel to Slack or a webhook is a one adapter change in `payloadBriefing.ts` behind the same port. Founder still to confirm the final recipients and whether the messaging channel is SMS or Slack; the code does not need to change to switch.
+
 ---
 
 # CasePort Demand Capture Engine: Section 14 gate

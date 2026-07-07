@@ -6,6 +6,7 @@ import {
   type BusinessSide,
 } from '@/lib/domain/demandCapture'
 import { findPublicCopyViolations, type CopyViolation } from '@/lib/compliance/publicCopy'
+import { findCallRoutes } from './routing'
 
 /**
  * Deterministic placement validation (DEMAND_CAPTURE.md Section 7). This is the
@@ -48,6 +49,7 @@ export interface StructureViolation {
     | 'public-copy'
     | 'intake-cta'
     | 'missing-disclaimer'
+    | 'routes-to-call'
   detail: string
   copy?: CopyViolation
 }
@@ -99,6 +101,11 @@ export function validateAssetStructure(asset: AssetStructure): {
   const blocks = [asset.directAnswer, asset.body, ...(asset.faqAnswers ?? [])]
   for (const copy of blocks.flatMap((b) => findPublicCopyViolations(b))) {
     violations.push({ rule: 'public-copy', detail: `${copy.rule}: ${copy.match}`, copy })
+  }
+
+  // Self closing routing (Section 8, Phase D): no path routes to a call, ever.
+  for (const hit of findCallRoutes([asset.intakeCtaHref, asset.body])) {
+    violations.push({ rule: 'routes-to-call', detail: `routes to a call: ${hit}` })
   }
 
   // B2C intake routing (Section 8). Self initiation only, disclaimer required.

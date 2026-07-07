@@ -102,6 +102,7 @@ export interface Config {
     'intelligence-artifacts': IntelligenceArtifact;
     recommendations: Recommendation;
     'recommendation-outcomes': RecommendationOutcome;
+    briefings: Briefing;
     'demand-cells': DemandCell;
     'capture-assets': CaptureAsset;
     'b2b-targets': B2BTarget;
@@ -149,6 +150,7 @@ export interface Config {
     'intelligence-artifacts': IntelligenceArtifactsSelect<false> | IntelligenceArtifactsSelect<true>;
     recommendations: RecommendationsSelect<false> | RecommendationsSelect<true>;
     'recommendation-outcomes': RecommendationOutcomesSelect<false> | RecommendationOutcomesSelect<true>;
+    briefings: BriefingsSelect<false> | BriefingsSelect<true>;
     'demand-cells': DemandCellsSelect<false> | DemandCellsSelect<true>;
     'capture-assets': CaptureAssetsSelect<false> | CaptureAssetsSelect<true>;
     'b2b-targets': B2BTargetsSelect<false> | B2BTargetsSelect<true>;
@@ -2335,7 +2337,11 @@ export interface Event {
     | 'OutboundSent'
     | 'RecommendationOutcomeMeasured'
     | 'CaptureAttributionLinked'
-    | 'CitationTracked';
+    | 'CitationTracked'
+    | 'BriefingAssembled'
+    | 'BriefingDelivered'
+    | 'IntelligenceQueried'
+    | 'IntelligenceAlertRaised';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2951,6 +2957,47 @@ export interface RecommendationOutcome {
   createdAt: string;
 }
 /**
+ * The fused daily and weekly intelligence briefing, ranked in CasePort numbers. Internal only.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "briefings".
+ */
+export interface Briefing {
+  id: string;
+  title: string;
+  summary?: string | null;
+  ranked?:
+    | {
+        recommendationId?: string | null;
+        domain?: string | null;
+        action?: string | null;
+        expectedValue?: string | null;
+        score?: number | null;
+        rank?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  domainSummaries?:
+    | {
+        domain?: string | null;
+        summary?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  deliveredChannels?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  generatedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Geography by case-type by legal-concept cells, scored by defensible data cell logic. Vanity volume scores zero.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3322,6 +3369,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'recommendation-outcomes';
         value: string | RecommendationOutcome;
+      } | null)
+    | ({
+        relationTo: 'briefings';
+        value: string | Briefing;
       } | null)
     | ({
         relationTo: 'demand-cells';
@@ -5351,6 +5402,36 @@ export interface RecommendationOutcomesSelect<T extends boolean = true> {
   paidOff?: T;
   note?: T;
   measuredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "briefings_select".
+ */
+export interface BriefingsSelect<T extends boolean = true> {
+  title?: T;
+  summary?: T;
+  ranked?:
+    | T
+    | {
+        recommendationId?: T;
+        domain?: T;
+        action?: T;
+        expectedValue?: T;
+        score?: T;
+        rank?: T;
+        id?: T;
+      };
+  domainSummaries?:
+    | T
+    | {
+        domain?: T;
+        summary?: T;
+        id?: T;
+      };
+  deliveredChannels?: T;
+  generatedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

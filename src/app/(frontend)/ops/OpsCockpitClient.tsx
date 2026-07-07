@@ -257,6 +257,18 @@ function IntelligencePanel({ cockpit }: { cockpit: OpsCockpit }) {
             </span>
           </div>
 
+          <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-md border ops-hairline px-3 py-2">
+            <SubHead>Briefing and alerts</SubHead>
+            <InlineStat label="Briefings" value={cockpit.cic.briefing.briefings} />
+            <InlineStat label="Alerts raised" value={cockpit.cic.briefing.alerts} accent="text-[color:var(--chart-3)]" />
+            <span className="flex items-baseline gap-1.5">
+              <span className="ops-mono text-sm font-semibold lane-intelligence">
+                {cockpit.cic.briefing.lastBriefingAt ? cockpit.cic.briefing.lastBriefingAt.slice(0, 10) : 'n/a'}
+              </span>
+              <span className="text-[11px] text-[color:var(--secondary-foreground)]">last briefing</span>
+            </span>
+          </div>
+
           <div className="mt-5 grid gap-5 md:grid-cols-2">
             <div>
               <SubHead>Sources by reliability</SubHead>

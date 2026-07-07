@@ -53,6 +53,7 @@ import {
   IntelligenceArtifacts,
   Recommendations,
   RecommendationOutcomes,
+  Briefings,
   DemandCells,
   CaptureAssets,
   B2BTargets,
@@ -174,6 +175,7 @@ export default buildConfig({
     IntelligenceArtifacts,
     Recommendations,
     RecommendationOutcomes,
+    Briefings,
     // CasePort Demand Capture Engine (DEMAND_CAPTURE.md Phase A, C, and E)
     DemandCells,
     CaptureAssets,

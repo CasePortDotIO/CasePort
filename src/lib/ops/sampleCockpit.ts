@@ -47,6 +47,7 @@ export const SAMPLE_COCKPIT: OpsCockpit = {
     },
     synthesis: { artifacts: 12, recommendationsProposed: 9, recommendationsRejected: 3 },
     loop: { measured: 22, paidOff: 15, confidence: 0.68 },
+    briefing: { briefings: 34, alerts: 6, lastBriefingAt: '2026-07-06T07:00:00.000Z' },
   },
   demand: {
     cells: {
