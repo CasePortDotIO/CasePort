@@ -42,5 +42,8 @@ Both run dry (fetch nothing, report not cited) without credentials, so wiring th
 - `PERPLEXITY_API_KEY` (and optional `PERPLEXITY_MODEL`): the answer engine citation checker.
 - `OPS_BRIEFING_EMAIL`, `OPS_ALERT_PHONE`: briefing and alert recipients (Resend, Twilio). Absent means dry run.
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `TWILIO_*`: the delivery rails, already used by the existing notifier.
+- `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD`: activate the DataForSEO keyword and search data source (a pay as you go alternative to the Semrush API). Absent means the poller runs dry.
+- `PERPLEXITY_API_KEY`: activate the Perplexity answer-engine citation checker. Absent means citation checks report not cited.
+- `OPS_HOST`: the internal subdomain the operations console is scoped to (for example `ops.caseport.io`). When set, `src/proxy.ts` makes `/ops` and `/api/ops` reachable only on that host and 404s them everywhere else; the host's root lands on `/ops`. Unset means the console stays reachable on any host (current behavior). Put an identity layer (Cloudflare Access or Vercel SSO) in front of the subdomain for the second lock, with the app's operator auth on top.
 
 None of these are required for the build, the tests, or a preview deploy; each one activates its slice of the live system.
