@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "git": {
+    "deploymentEnabled": {
+      "claude/caseport-intelligence-core-ms1id6": true
+    }
+  }
+}
