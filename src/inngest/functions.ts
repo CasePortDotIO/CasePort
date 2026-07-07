@@ -9,6 +9,14 @@ import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntel
 import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
 import { createIngestionService } from '../services/IngestionService'
 import { createPayloadIngestionDeps } from '../services/adapters/payloadIngestion'
+import { createSynthesisService } from '../services/SynthesisService'
+import { createPayloadSynthesisDeps } from '../services/adapters/payloadSynthesis'
+import { createBriefingService } from '../services/BriefingService'
+import { createPayloadBriefingDeps } from '../services/adapters/payloadBriefing'
+import {
+  createAnthropicDomainSynthesizer,
+  createAnthropicQueryResponder,
+} from '../services/adapters/liveAgents'
 import { outcomeCaptureUrl } from '../lib/outcomeLink'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
@@ -233,6 +241,40 @@ export const pollRentedSources = inngest.createFunction(
   },
 )
 
+/**
+ * Scheduled domain synthesis (INTELLIGENCE_CORE.md Phase C, D). Synthesizes each
+ * domain over the current signals using the live Claude synthesizer (dry when no
+ * key), through the SynthesisService gates: a hallucinated or under sourced
+ * finding is never asserted, and a non compliant recommendation is never
+ * proposed. Runs daily before the briefing.
+ */
+export const synthesizeDomains = inngest.createFunction(
+  { id: 'synthesize-domains', triggers: [{ cron: '0 5 * * *' }] },
+  async ({ step }) => {
+    const payload = await getPayload({ config })
+    const synthesis = createSynthesisService(
+      createPayloadSynthesisDeps(payload, createAnthropicDomainSynthesizer()),
+    )
+    return (step as InngestStep).run('synthesize-all', () => synthesis.synthesizeAll())
+  },
+)
+
+/**
+ * The scheduled fused briefing (INTELLIGENCE_CORE.md Phase D). Assembles the
+ * ranked briefing and delivers it through the internal channels (dry when no
+ * keys). Runs after synthesis.
+ */
+export const runIntelligenceBriefing = inngest.createFunction(
+  { id: 'run-intelligence-briefing', triggers: [{ cron: '30 5 * * *' }] },
+  async ({ step }) => {
+    const payload = await getPayload({ config })
+    const briefing = createBriefingService(
+      createPayloadBriefingDeps(payload, createAnthropicQueryResponder()),
+    )
+    return (step as InngestStep).run('run-briefing', () => briefing.runBriefing())
+  },
+)
+
 export const inngestFunctions = [
   deliverDossier,
   releaseHeldQueue,
@@ -241,4 +283,6 @@ export const inngestFunctions = [
   deliveryAgents,
   ingestOwnedIntelligence,
   pollRentedSources,
+  synthesizeDomains,
+  runIntelligenceBriefing,
 ]
