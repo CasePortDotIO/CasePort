@@ -37,6 +37,7 @@ export interface FirmWalletView {
 export interface FirmDeliveryView {
   deliveryId: string
   dossierId: string
+  reference?: string
   caseType: string
   deliveredAt: string | null
   firmRespondedAt: string | null
@@ -198,7 +199,8 @@ export function toOpportunityRows(deliveries: FirmDeliveryView[]): OpportunityRo
   return [...deliveries]
     .sort((a, b) => Date.parse(b.deliveredAt ?? '') - Date.parse(a.deliveredAt ?? ''))
     .map((d) => ({
-      id: caseReference(d.dossierId),
+      // The human case reference is the public id used in firm URLs.
+      id: d.reference || caseReference(d.dossierId),
       deliveryId: d.deliveryId,
       caseType: CASE_TYPE_LABEL[d.caseType] ?? d.caseType,
       deliveredAt: d.deliveredAt,
@@ -219,7 +221,7 @@ export function toOpportunityRows(deliveries: FirmDeliveryView[]): OpportunityRo
 export function reviewNowTarget(rows: OpportunityRow[]): string {
   const awaiting = rows.filter((o) => o.status === 'Awaiting Response')
   return awaiting.length === 1
-    ? `/opportunity/${awaiting[0].deliveryId}`
+    ? `/opportunity/${awaiting[0].id}`
     : `/opportunities?status=${encodeURIComponent('Awaiting Response')}`
 }
 

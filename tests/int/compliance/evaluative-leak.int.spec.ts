@@ -19,6 +19,7 @@ import { ComplianceService } from '@/services/ComplianceService'
 
 const dossierFixture: Dossier = {
   id: 'CP-2026-000089',
+  reference: 'CP-7Q2K9F',
   claimantId: 'claimant_abc',
   intakeSessionId: 'sess_abc',
   market: 'atlanta-ga',

@@ -1,7 +1,9 @@
+import crypto from 'node:crypto'
 import type { Payload } from 'payload'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Dossier } from '@/lib/compliance/dossierProjections'
 import { nextEssentialCapture } from '@/lib/domain/captureChecklist'
+import { referenceFromBytes } from '@/lib/domain/reference'
 import type {
   ClaimantRepository,
   ConsentClient,
@@ -144,6 +146,7 @@ function payloadDossierRepository(payload: Payload): DossierRepository {
       const created = await payload.create({
         collection: 'dossiers',
         data: {
+          reference: dossier.reference,
           claimant: dossier.claimantId,
           intakeSession: dossier.intakeSessionId ?? undefined,
           market: dossier.market,
@@ -295,6 +298,7 @@ export function createPayloadIntakeDeps(payload: Payload): IntakeDeps {
       dossierId: () => nextId('CP'),
       eventId: () => nextId('evt'),
       submissionId: () => nextId('sub'),
+      reference: () => referenceFromBytes(crypto.randomBytes(8)),
     },
     clock: { nowIso: () => new Date().toISOString() },
   }

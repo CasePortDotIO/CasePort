@@ -32,6 +32,7 @@ function sequentialIds(): IdGenerator {
     dossierId: () => next('CP'),
     eventId: () => next('evt'),
     submissionId: () => next('sub'),
+    reference: () => next('CP-REF'),
   }
 }
 

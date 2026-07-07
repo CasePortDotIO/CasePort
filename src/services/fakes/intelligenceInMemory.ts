@@ -82,6 +82,7 @@ export function createIntelligenceHarness(): IntelligenceHarness {
     dossierId: () => next('CP'),
     eventId: () => next('evt'),
     submissionId: () => next('sub'),
+    reference: () => next('CP-REF'),
   }
   const clock = { nowIso: () => '2026-07-05T12:00:00.000Z' }
 

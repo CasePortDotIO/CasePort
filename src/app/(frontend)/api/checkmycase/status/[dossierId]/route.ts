@@ -4,11 +4,7 @@ import type { Dossier } from '@/payload-types'
 import { ComplianceService } from '@/services/ComplianceService'
 import { buildClaimantTimeline } from '@/lib/claimant/statusTimeline'
 import { verifyStatus } from '@/lib/statusLink'
-
-/** A short, human reference for a dossier id (same shape the firm side shows). */
-function caseReference(dossierId: string): string {
-  return `CP-${String(dossierId).slice(-6).toUpperCase()}`
-}
+import { deriveReference, isReference, normalizeReference } from '@/lib/domain/reference'
 
 /**
  * Claimant facing living status page data (Section 6 step 8). No black hole:
@@ -41,12 +37,26 @@ export async function GET(
   let dossier: Dossier | null = null
   try {
     const payload = await getPayload({ config })
-    dossier = await payload.findByID({
-      collection: 'dossiers',
-      id: dossierId,
-      depth: 0,
-      overrideAccess: false,
-    })
+    // The URL carries the human case reference (CP-XXXXXX). Resolve it, and fall
+    // back to a raw id for any old link that still carries one.
+    if (isReference(dossierId)) {
+      const found = await payload.find({
+        collection: 'dossiers',
+        where: { reference: { equals: normalizeReference(dossierId) } },
+        depth: 0,
+        limit: 1,
+        overrideAccess: false,
+      })
+      dossier = (found.docs[0] as Dossier | undefined) ?? null
+    }
+    if (!dossier) {
+      dossier = await payload.findByID({
+        collection: 'dossiers',
+        id: dossierId,
+        depth: 0,
+        overrideAccess: false,
+      })
+    }
   } catch {
     // A missing dossier or an unavailable backend both resolve to not found; the
     // status page renders a calm, reassuring message rather than an error.
@@ -65,7 +75,7 @@ export async function GET(
   // built from procedural status only, so it can carry no evaluative signal.
   const body = {
     id: dossier.id,
-    reference: caseReference(String(dossier.id)),
+    reference: (dossier.reference as string) || deriveReference(String(dossier.id)),
     status,
     caseType,
     plainLanguageSummary: (dossier.plainLanguageSummary as string) ?? '',

@@ -189,7 +189,7 @@ export default function OpportunitiesExcellent() {
                         >
                           <td className="px-6 py-4">
                             <button
-                              onClick={() => navigate(`/opportunity/${opp.deliveryId}`)}
+                              onClick={() => navigate(`/opportunity/${opp.id}`)}
                               className="font-mono font-semibold text-primary hover:underline cursor-pointer"
                             >
                               {opp.id}
@@ -229,7 +229,7 @@ export default function OpportunitiesExcellent() {
                                   className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-10"
                                 >
                                   <button
-                                    onClick={() => { navigate(`/opportunity/${opp.deliveryId}`); setActiveMenu(null); }}
+                                    onClick={() => { navigate(`/opportunity/${opp.id}`); setActiveMenu(null); }}
                                     className="w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors border-b border-border text-foreground"
                                   >
                                     View Detail

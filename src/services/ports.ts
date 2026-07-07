@@ -194,6 +194,9 @@ export interface IdGenerator {
   dossierId(): string
   eventId(): string
   submissionId(): string
+  /** A short, opaque, human case reference (CP-XXXXXX). The one public id a
+   * claimant or partner ever sees, in place of the raw database id. */
+  reference(): string
 }
 
 export interface Clock {

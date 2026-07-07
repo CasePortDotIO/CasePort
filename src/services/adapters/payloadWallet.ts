@@ -1,6 +1,8 @@
 import type { Payload } from 'payload'
+import crypto from 'node:crypto'
 import type { CaseTypeValue } from '@/lib/domain/constants'
 import { signedMediaPath } from '@/lib/mediaLink'
+import { referenceFromBytes, deriveReference, isReference, normalizeReference } from '@/lib/domain/reference'
 import { payloadEventStoreFor } from './payloadEvents'
 import { reqOf, type TxContext } from './txContext'
 import type {
@@ -272,6 +274,7 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
         return {
           deliveryId: String(doc.id),
           dossierId: relId(doc.dossier),
+          reference: String(dossier?.reference || deriveReference(relId(doc.dossier))),
           caseType: String(dossier?.caseType ?? 'unknown'),
           deliveredAt: (doc.deliveredAt as string) ?? null,
           firmRespondedAt: (doc.firmRespondedAt as string) ?? null,
@@ -281,12 +284,35 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
         }
       })
     },
-    async opportunityForFirm(firmId, deliveryId): Promise<OpportunityDetail | null> {
+    async opportunityForFirm(firmId, deliveryIdOrRef): Promise<OpportunityDetail | null> {
       const relId = (v: unknown) => (v == null ? '' : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
-      const delivery = (await payload.findByID({ collection: 'deliveries', id: deliveryId, depth: 0 }).catch(() => null)) as Record<
-        string,
-        unknown
-      > | null
+      // The firm URL carries the human case reference (CP-XXXXXX). Resolve it to
+      // this firm's delivery: reference to dossier to the delivery for this firm.
+      // Fall back to treating the param as a raw delivery id for any old link.
+      let delivery: Record<string, unknown> | null = null
+      if (isReference(deliveryIdOrRef)) {
+        const dossierByRef = await payload
+          .find({ collection: 'dossiers', where: { reference: { equals: normalizeReference(deliveryIdOrRef) } }, limit: 1, depth: 0 })
+          .catch(() => null)
+        const dossierId = dossierByRef?.docs[0] ? String(dossierByRef.docs[0].id) : ''
+        if (dossierId) {
+          const del = await payload
+            .find({
+              collection: 'deliveries',
+              where: { and: [{ dossier: { equals: dossierId } }, { firm: { equals: firmId } }] },
+              limit: 1,
+              depth: 0,
+            })
+            .catch(() => null)
+          delivery = (del?.docs[0] as Record<string, unknown> | undefined) ?? null
+        }
+      }
+      if (!delivery) {
+        delivery = (await payload.findByID({ collection: 'deliveries', id: deliveryIdOrRef, depth: 0 }).catch(() => null)) as Record<
+          string,
+          unknown
+        > | null
+      }
       if (!delivery) return null
       const dossier = (await payload
         .findByID({ collection: 'dossiers', id: relId(delivery.dossier), depth: 0 })
@@ -350,6 +376,7 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
         dossier: dossier
           ? {
               market: relId(dossier.market),
+              reference: String(dossier.reference || ''),
               caseType: String(dossier.caseType ?? 'unknown'),
               plainLanguageSummary: String(dossier.plainLanguageSummary ?? ''),
               statuteOfLimitationsDate: (dossier.statuteOfLimitationsDate as string) ?? null,
@@ -394,6 +421,7 @@ export function createPayloadWalletDeps(payload: Payload, txCtx?: TxContext): Wa
       dossierId: () => next('CP'),
       eventId: () => next('evt'),
       submissionId: () => next('sub'),
+      reference: () => referenceFromBytes(crypto.randomBytes(8)),
     },
     clock: { nowIso: () => new Date().toISOString() },
   }

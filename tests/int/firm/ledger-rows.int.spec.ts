@@ -157,29 +157,30 @@ describe('cockpit metrics (real Glass Box only, never estimated)', () => {
 })
 
 describe('review-now navigation target', () => {
-  const awaiting = (id: string) => delivery({ deliveryId: id, firmRespondedAt: null })
-  const contacted = (id: string) =>
-    delivery({ deliveryId: id, firmRespondedAt: '2026-07-01T00:10:00.000Z', responseTimeSeconds: 600 })
+  // The URL uses the human case reference, not the raw delivery id.
+  const awaiting = (id: string, ref: string) => delivery({ deliveryId: id, reference: ref, firmRespondedAt: null })
+  const contacted = (id: string, ref: string) =>
+    delivery({ deliveryId: id, reference: ref, firmRespondedAt: '2026-07-01T00:10:00.000Z', responseTimeSeconds: 600 })
 
-  it('one call: lands directly on that claimant detail, not a list', () => {
-    const rows = toOpportunityRows([awaiting('del_solo'), contacted('del_done')])
-    expect(reviewNowTarget(rows)).toBe('/opportunity/del_solo')
+  it('one call: lands directly on that claimant detail by reference, not a list', () => {
+    const rows = toOpportunityRows([awaiting('del_solo', 'CP-SOLO01'), contacted('del_done', 'CP-DONE01')])
+    expect(reviewNowTarget(rows)).toBe('/opportunity/CP-SOLO01')
   })
 
   it('multiple calls: lands on the opportunities list scoped to the awaiting calls', () => {
-    const rows = toOpportunityRows([awaiting('del_a'), awaiting('del_b'), contacted('del_done')])
+    const rows = toOpportunityRows([awaiting('del_a', 'CP-AAA001'), awaiting('del_b', 'CP-BBB002'), contacted('del_done', 'CP-DONE01')])
     expect(reviewNowTarget(rows)).toBe('/opportunities?status=Awaiting%20Response')
   })
 
   it('never targets the raw opportunities archive: no bare /opportunities', () => {
-    const rows = toOpportunityRows([awaiting('del_a'), awaiting('del_b')])
+    const rows = toOpportunityRows([awaiting('del_a', 'CP-AAA001'), awaiting('del_b', 'CP-BBB002')])
     // The whole past-cases list is exactly what the fix must avoid.
     expect(reviewNowTarget(rows)).not.toBe('/opportunities')
     expect(reviewNowTarget(rows)).toContain('status=')
   })
 
   it('no awaiting calls: falls back to the scoped list, still never the bare archive', () => {
-    const rows = toOpportunityRows([contacted('del_done')])
+    const rows = toOpportunityRows([contacted('del_done', 'CP-DONE01')])
     expect(reviewNowTarget(rows)).toBe('/opportunities?status=Awaiting%20Response')
   })
 })

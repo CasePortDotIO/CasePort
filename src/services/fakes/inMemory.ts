@@ -29,6 +29,8 @@ function sequentialIds(): IdGenerator {
     dossierId: () => next('CP-2026-000'),
     eventId: () => next('evt'),
     submissionId: () => next('sub'),
+    // Deterministic references in tests: CP-REF001, CP-REF002, ...
+    reference: () => `CP-REF${String((counters['ref'] = (counters['ref'] ?? 0) + 1)).padStart(3, '0')}`,
   }
 }
 

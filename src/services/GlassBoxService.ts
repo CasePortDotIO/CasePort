@@ -1,3 +1,4 @@
+import { deriveReference } from '@/lib/domain/reference'
 import type { FirmRepository, LedgerRepository, StoredLedgerEntry, WalletSnapshotRepository } from './walletPorts'
 
 /**
@@ -26,6 +27,8 @@ export interface RedactedActivity {
 export interface FirmDeliveryView {
   deliveryId: string
   dossierId: string
+  /** The human case reference (CP-XXXXXX). The public id used in firm URLs. */
+  reference: string
   caseType: string
   deliveredAt: string | null
   firmRespondedAt: string | null
@@ -123,6 +126,7 @@ export function buildOpportunityDetail(input: {
   }
   dossier: {
     market: string
+    reference?: string
     caseType: string
     plainLanguageSummary: string
     statuteOfLimitationsDate: string | null
@@ -154,7 +158,7 @@ export function buildOpportunityDetail(input: {
 
   return {
     deliveryId: input.delivery.id,
-    reference: `CP-${input.delivery.dossierId.slice(-6).toUpperCase()}`,
+    reference: input.dossier.reference || deriveReference(input.delivery.dossierId),
     caseType: input.dossier.caseType,
     market: input.dossier.market,
     deliveredAt: input.delivery.deliveredAt,

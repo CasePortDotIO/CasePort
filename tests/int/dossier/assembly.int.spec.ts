@@ -71,6 +71,7 @@ function eventCollector(): { store: EventStore; log: StoredEvent[] } {
 function seedDossier(id: string): Dossier {
   return DossierService.assemble({
     id,
+    reference: `CP-${id.slice(-6).toUpperCase()}`,
     claimantId: `clm_${id}`,
     intakeSessionId: `sess_${id}`,
     market: 'atlanta-ga',

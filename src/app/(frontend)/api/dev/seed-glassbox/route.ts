@@ -97,11 +97,12 @@ export async function POST(req: Request) {
   if (seededActivity.totalDocs < 3) {
     const claimant = await payload.create({ collection: 'claimants', data: { firstName: 'Sample', lastName: 'Claimant', marketZip: '30303' } as never })
     const types = ['motor-vehicle-accident', 'premises-liability', 'commercial-trucking-accident']
+    const seedRefs = ['CP-SEED01', 'CP-SEED02', 'CP-SEED03']
     for (let i = 0; i < types.length; i++) {
       await payload.create({
         collection: 'dossiers',
         data: {
-          claimant: String(claimant.id), market: marketId, caseType: types[i] as never, status: 'received',
+          reference: seedRefs[i], claimant: String(claimant.id), market: marketId, caseType: types[i] as never, status: 'received',
           plainLanguageSummary: 'Organized from what the claimant told us, for a firm in their area to review.',
           protectionPlan: [{ step: 'Keep every medical appointment.' }],
           receivedAt: new Date(Date.now() - i * 86400000).toISOString(),

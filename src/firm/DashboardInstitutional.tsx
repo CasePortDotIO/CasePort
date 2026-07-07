@@ -211,7 +211,7 @@ export default function DashboardInstitutional() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.25 + idx * 0.05 }}
-                        onClick={() => navigate(`/opportunity/${opp.deliveryId}`)}
+                        onClick={() => navigate(`/opportunity/${opp.id}`)}
                         className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-white/[0.03] transition-colors group"
                       >
                         <div className="min-w-0">

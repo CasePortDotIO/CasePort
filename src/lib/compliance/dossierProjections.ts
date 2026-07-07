@@ -34,6 +34,9 @@ export interface FirmOnlyEvaluation {
 /** Claimant safe half. Procedural and geographic only (W2, W6). */
 export interface ClaimantSafeDossier {
   id: string
+  /** The short, opaque, human case reference (CP-XXXXXX). The one public id a
+   * claimant ever sees, in place of the raw database id. Claimant safe. */
+  reference: string
   market: string
   caseType: string
   status: string
@@ -64,6 +67,7 @@ export interface Dossier extends ClaimantSafeDossier {
 export function toClaimantDossier(dossier: Dossier): ClaimantSafeDossier {
   return {
     id: dossier.id,
+    reference: dossier.reference,
     market: dossier.market,
     caseType: dossier.caseType,
     status: dossier.status,

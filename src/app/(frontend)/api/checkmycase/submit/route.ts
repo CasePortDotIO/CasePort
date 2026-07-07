@@ -20,10 +20,6 @@ function originFor(req: Request): string {
   )
 }
 
-/** A short, human reference for a dossier id (matches the status surface). */
-function caseReference(dossierId: string): string {
-  return `CP-${String(dossierId).slice(-6).toUpperCase()}`
-}
 
 /**
  * Claimant intake submission. The single write path from the CheckMyCase surface
@@ -77,8 +73,8 @@ export async function POST(req: Request) {
   // Best effort and guarded: it no ops without Twilio or Resend keys, and a send
   // failure never affects the claimant response. The copy is guarded as claimant
   // facing text before it can leave the server (W2, W6).
-  const absStatusUrl = statusUrl(originFor(req), result.dossierId)
-  const reference = caseReference(result.dossierId)
+  const absStatusUrl = statusUrl(originFor(req), result.reference)
+  const reference = result.reference
   try {
     const messages = buildConfirmationMessages({
       firstName: submission.contact.firstName,
@@ -111,7 +107,7 @@ export async function POST(req: Request) {
     submissionId: result.submissionId,
     dossierId: result.dossierId,
     reference,
-    statusPath: statusPath(result.dossierId),
+    statusPath: statusPath(result.reference),
     status: 'received' as const,
     message: 'Your case file has been received. A firm in your area is reviewing it.',
   }

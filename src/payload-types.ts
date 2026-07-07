@@ -2447,6 +2447,10 @@ export interface Dossier {
    * The intake session this dossier was assembled from. Carries the attribution trace back to the first touch tuple (Section 11). System reference, not claimant facing.
    */
   intakeSession?: (string | null) | IntakeSession;
+  /**
+   * Short, opaque, human case reference (CP-XXXXXX). The one public id a claimant or partner ever sees, in every shared URL. Claimant safe. Uniqueness is guaranteed by the random generator; the field is indexed for fast lookup but not a unique DB constraint, so dossiers created without one (legacy or seed) never collide on a null.
+   */
+  reference?: string | null;
   claimant: string | Claimant;
   market: string | Market;
   caseType?:
@@ -4632,6 +4636,7 @@ export interface IntakeSessionsSelect<T extends boolean = true> {
  */
 export interface DossiersSelect<T extends boolean = true> {
   intakeSession?: T;
+  reference?: T;
   claimant?: T;
   market?: T;
   caseType?: T;

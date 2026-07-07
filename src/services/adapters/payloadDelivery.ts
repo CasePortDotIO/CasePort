@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
 import type { Dossier, FirmOnlyEvaluation } from '@/lib/compliance/dossierProjections'
+import { deriveReference } from '@/lib/domain/reference'
 import type { DossierRepository } from '../ports'
 import type {
   AuditLogWriter,
@@ -95,6 +96,7 @@ function payloadDossierReader(payload: Payload): DossierRepository {
         const evaluation = (doc.evaluation ?? {}) as Partial<FirmOnlyEvaluation>
         const dossier: Dossier = {
           id: String(doc.id),
+          reference: String(doc.reference || deriveReference(String(doc.id))),
           claimantId: relId(doc.claimant),
           intakeSessionId: doc.intakeSession ? relId(doc.intakeSession) : null,
           market: relId(doc.market),

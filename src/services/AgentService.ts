@@ -95,7 +95,7 @@ export function createAgentService(deps: AgentDeps) {
     // a deep link straight to the closing kit. The link points at a firm scoped
     // page, so the data behind it is protected by the firm's own session.
     const closingKitLink = deps.appBaseUrl
-      ? `${deps.appBaseUrl.replace(/\/$/, '')}/firm/opportunity/${encodeURIComponent(delivery.id)}`
+      ? `${deps.appBaseUrl.replace(/\/$/, '')}/firm/opportunity/${encodeURIComponent(delivery.reference || delivery.id)}`
       : null
     const body =
       `CasePort: ${headline} was just delivered. Call now, within your ${firm.slaCallbackMinutes} minute window, while the claimant is still on the confirmation screen.` +

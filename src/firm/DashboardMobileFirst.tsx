@@ -117,7 +117,7 @@ export default function DashboardMobileFirst() {
                   ) : (
                     opportunities.map((opp, idx) => (
                       <motion.div key={opp.deliveryId} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }}>
-                        <button onClick={() => navigate(`/opportunity/${opp.deliveryId}`)} className="w-full text-left">
+                        <button onClick={() => navigate(`/opportunity/${opp.id}`)} className="w-full text-left">
                           <Card className="p-3 md:p-4 border-border hover:bg-secondary/40 transition-colors">
                             <div className="flex items-start justify-between mb-2">
                               <div>

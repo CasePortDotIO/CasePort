@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 import { payloadEventStoreFor } from './payloadEvents'
 import { httpNotifier } from './notifier'
+import { deriveReference } from '@/lib/domain/reference'
 import type {
   AgentDeliveryStore,
   AgentDeps,
@@ -23,10 +24,14 @@ const relId = (v: unknown) =>
   v == null ? '' : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v)
 
 function toDelivery(doc: Record<string, unknown>): DeliveryForAgent {
+  const dossier = (typeof doc.dossier === 'object' ? doc.dossier : null) as Record<string, unknown> | null
   return {
     id: String(doc.id),
     firmId: relId(doc.firm),
     dossierId: relId(doc.dossier),
+    reference: dossier?.reference
+      ? String(dossier.reference)
+      : deriveReference(relId(doc.dossier)),
     status: (doc.status as DeliveryForAgent['status']) ?? 'held',
     deliveredAt: (doc.deliveredAt as string) ?? null,
     firmRespondedAt: (doc.firmRespondedAt as string) ?? null,
@@ -38,7 +43,9 @@ function toDelivery(doc: Record<string, unknown>): DeliveryForAgent {
 function payloadAgentDeliveryStore(payload: Payload): AgentDeliveryStore {
   return {
     async get(id) {
-      const doc = (await payload.findByID({ collection: 'deliveries', id, depth: 0 }).catch(() => null)) as Record<string, unknown> | null
+      // depth 1 populates the dossier so the case reference is available for the
+      // closing kit deep link.
+      const doc = (await payload.findByID({ collection: 'deliveries', id, depth: 1 }).catch(() => null)) as Record<string, unknown> | null
       return doc ? toDelivery(doc) : null
     },
     async recordResponse(id, respondedAt, responseTimeSeconds) {

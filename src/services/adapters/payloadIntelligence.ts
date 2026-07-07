@@ -1,4 +1,6 @@
+import crypto from 'node:crypto'
 import type { Payload } from 'payload'
+import { referenceFromBytes } from '@/lib/domain/reference'
 import { payloadEventStoreFor } from './payloadEvents'
 import { SCPS_FACTOR_KEYS, type ScpsFactors, type ScpsModel, type ScpsSample } from '../scps'
 import type {
@@ -263,6 +265,7 @@ export function createPayloadOutcomeDeps(payload: Payload): OutcomeDeps {
       dossierId: () => next('CP'),
       eventId: () => next('evt'),
       submissionId: () => next('sub'),
+      reference: () => referenceFromBytes(crypto.randomBytes(8)),
     },
     clock: { nowIso: () => new Date().toISOString() },
   }
@@ -284,6 +287,7 @@ export function createPayloadIntelligenceDeps(payload: Payload): IntelligenceDep
       dossierId: () => next('CP'),
       eventId: () => next('evt'),
       submissionId: () => next('sub'),
+      reference: () => referenceFromBytes(crypto.randomBytes(8)),
     },
     clock: { nowIso: () => new Date().toISOString() },
     ledger: {

@@ -323,6 +323,7 @@ export function createIntakeService(deps: IntakeDeps) {
     if (!session) throw new Error(`intake session ${sessionId} not found`)
     const dossier = DossierService.assemble({
       id: deps.ids.dossierId(),
+      reference: deps.ids.reference(),
       claimantId: session.claimantId,
       intakeSessionId: session.id,
       market: input.marketSlug,

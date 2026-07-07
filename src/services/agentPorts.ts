@@ -14,6 +14,8 @@ export interface DeliveryForAgent {
   id: string
   firmId: string
   dossierId: string
+  /** The human case reference (CP-XXXXXX), for the closing kit deep link. */
+  reference?: string
   status: 'held' | 'delivered' | 'billed'
   deliveredAt: string | null
   firmRespondedAt: string | null
