@@ -97,6 +97,19 @@ export interface Config {
     disclosures: Disclosure;
     auditLog: AuditLog;
     operators: Operator;
+    'intelligence-sources': IntelligenceSource;
+    'intelligence-signals': IntelligenceSignal;
+    'intelligence-artifacts': IntelligenceArtifact;
+    recommendations: Recommendation;
+    'recommendation-outcomes': RecommendationOutcome;
+    briefings: Briefing;
+    promotions: Promotion;
+    'model-versions': ModelVersion;
+    'demand-cells': DemandCell;
+    'capture-assets': CaptureAsset;
+    'b2b-targets': B2BTarget;
+    'capture-attributions': CaptureAttribution;
+    'surface-presence': SurfacePresence;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -134,6 +147,19 @@ export interface Config {
     disclosures: DisclosuresSelect<false> | DisclosuresSelect<true>;
     auditLog: AuditLogSelect<false> | AuditLogSelect<true>;
     operators: OperatorsSelect<false> | OperatorsSelect<true>;
+    'intelligence-sources': IntelligenceSourcesSelect<false> | IntelligenceSourcesSelect<true>;
+    'intelligence-signals': IntelligenceSignalsSelect<false> | IntelligenceSignalsSelect<true>;
+    'intelligence-artifacts': IntelligenceArtifactsSelect<false> | IntelligenceArtifactsSelect<true>;
+    recommendations: RecommendationsSelect<false> | RecommendationsSelect<true>;
+    'recommendation-outcomes': RecommendationOutcomesSelect<false> | RecommendationOutcomesSelect<true>;
+    briefings: BriefingsSelect<false> | BriefingsSelect<true>;
+    promotions: PromotionsSelect<false> | PromotionsSelect<true>;
+    'model-versions': ModelVersionsSelect<false> | ModelVersionsSelect<true>;
+    'demand-cells': DemandCellsSelect<false> | DemandCellsSelect<true>;
+    'capture-assets': CaptureAssetsSelect<false> | CaptureAssetsSelect<true>;
+    'b2b-targets': B2BTargetsSelect<false> | B2BTargetsSelect<true>;
+    'capture-attributions': CaptureAttributionsSelect<false> | CaptureAttributionsSelect<true>;
+    'surface-presence': SurfacePresenceSelect<false> | SurfacePresenceSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -2293,7 +2319,37 @@ export interface Event {
     | 'FirmResponded'
     | 'SlaBreached'
     | 'DecayInterrupt'
-    | 'OutcomeRequested';
+    | 'OutcomeRequested'
+    | 'IntelligenceSourceRegistered'
+    | 'IntelligenceSourceRetired'
+    | 'IntelligenceSignalIngested'
+    | 'IntelligenceSignalSuperseded'
+    | 'IntelligenceSignalRejected'
+    | 'DemandCellScored'
+    | 'KeywordQuestionClaimed'
+    | 'CaptureAssetDrafted'
+    | 'CaptureAssetSubmitted'
+    | 'CaptureAssetPublished'
+    | 'CaptureAssetRejected'
+    | 'IntelligenceArtifactSynthesized'
+    | 'RecommendationProposed'
+    | 'RecommendationRejected'
+    | 'B2BTargetAdded'
+    | 'AuthorityDrafted'
+    | 'OutboundDrafted'
+    | 'OutboundRejected'
+    | 'OutboundSent'
+    | 'RecommendationOutcomeMeasured'
+    | 'CaptureAttributionLinked'
+    | 'CitationTracked'
+    | 'BriefingAssembled'
+    | 'BriefingDelivered'
+    | 'IntelligenceQueried'
+    | 'IntelligenceAlertRaised'
+    | 'PromotionProposed'
+    | 'PromotionApproved'
+    | 'PromotionPromoted'
+    | 'PromotionRejected';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2737,6 +2793,517 @@ export interface Operator {
   createdAt: string;
 }
 /**
+ * Approved intelligence sources with reliability ratings. The ingestion allowlist. Added through human review, never auto-trusted.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-sources".
+ */
+export interface IntelligenceSource {
+  id: string;
+  /**
+   * Stable ingestion handle, for example semrush-mcp or va-bar-ethics.
+   */
+  sourceKey: string;
+  name: string;
+  /**
+   * Owned first party data, or rented external intelligence.
+   */
+  origin: 'owned' | 'rented';
+  /**
+   * A primary or institutional, B industry research, C synthesized or estimated.
+   */
+  reliability: 'A' | 'B' | 'C';
+  /**
+   * The intelligence domains this source feeds.
+   */
+  domains: ('demand' | 'supply' | 'regulatory' | 'market')[];
+  /**
+   * Only an active source can pass the ingestion gate.
+   */
+  status: 'active' | 'retired' | 'prohibited';
+  /**
+   * The human who reviewed and approved this source. Never a system actor.
+   */
+  addedBy: string;
+  notes?: string | null;
+  registeredAt: string;
+  /**
+   * When the source was last polled. Updated on ingestion; does not change trust.
+   */
+  lastCheckedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Ingested intelligence signals, dated, rated, deduplicated, and supersession aware. Never a source of truth for any fact.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-signals".
+ */
+export interface IntelligenceSignal {
+  id: string;
+  /**
+   * The allowlisted source this signal was ingested from.
+   */
+  source: string | IntelligenceSource;
+  sourceKey: string;
+  origin: 'owned' | 'rented';
+  /**
+   * Inherited from the source. A signal never outranks its source.
+   */
+  reliability: 'A' | 'B' | 'C';
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  /**
+   * Identity of the claim: normalized claim plus metric plus geography.
+   */
+  dedupKey: string;
+  claim: string;
+  /**
+   * The date the figure is true as of. Drives supersession.
+   */
+  observedAt: string;
+  ingestedAt: string;
+  status: 'active' | 'superseded';
+  /**
+   * Structured metric, geography, value, units.
+   */
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Attribution tuple reference for owned signals. The join key across owned and rented.
+   */
+  attributionRef?: string | null;
+  /**
+   * Set when a newer figure supersedes this one, or on stale arrival.
+   */
+  supersededBy?: (string | null) | IntelligenceSignal;
+  supersededAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Synthesized per domain briefs. Ranked and sourced; nothing unverified is asserted as fact.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-artifacts".
+ */
+export interface IntelligenceArtifact {
+  id: string;
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  title: string;
+  summary: string;
+  findings?:
+    | {
+        claim: string;
+        signalId?: string | null;
+        sourceKey?: string | null;
+        reliability?: ('A' | 'B' | 'C') | null;
+        rank?: number | null;
+        status?: ('asserted' | 'needs-verification') | null;
+        id?: string | null;
+      }[]
+    | null;
+  generatedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * CIC recommendations. Proposed by the engine, promoted only by a human. Never outcome scaled pricing or smart routing.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendations".
+ */
+export interface Recommendation {
+  id: string;
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  action: string;
+  expectedValue?: string | null;
+  rationale?: string | null;
+  /**
+   * The signals this recommendation rests on.
+   */
+  sourceSignalIds?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  status: 'proposed' | 'approved' | 'rejected' | 'executed';
+  /**
+   * Set when the compliance guard rejected the proposal (H2, H3).
+   */
+  rejectionReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * Predicted versus actual for executed recommendations. Calibrates the CIC confidence by type.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendation-outcomes".
+ */
+export interface RecommendationOutcome {
+  id: string;
+  recommendationId: string;
+  domain: 'demand' | 'supply' | 'regulatory' | 'market';
+  predicted?: string | null;
+  actualValue?: number | null;
+  paidOff?: boolean | null;
+  note?: string | null;
+  measuredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The fused daily and weekly intelligence briefing, ranked in CasePort numbers. Internal only.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "briefings".
+ */
+export interface Briefing {
+  id: string;
+  title: string;
+  summary?: string | null;
+  ranked?:
+    | {
+        recommendationId?: string | null;
+        domain?: string | null;
+        action?: string | null;
+        expectedValue?: string | null;
+        score?: number | null;
+        rank?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  domainSummaries?:
+    | {
+        domain?: string | null;
+        summary?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  deliveredChannels?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  generatedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The human promotion gate for every production change. The CIC proposes; humans promote (H1).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotions".
+ */
+export interface Promotion {
+  id: string;
+  type: 'scps-version' | 'price-change' | 'qualification-weights' | 'market-action';
+  summary: string;
+  /**
+   * The concrete production change proposed.
+   */
+  proposedChange?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * What justifies it: source signals, a recommendation, the data window.
+   */
+  evidence?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  proposedBy?: string | null;
+  status: 'pending' | 'promoted' | 'rejected';
+  requiredApprovers: number;
+  /**
+   * The append only log of human approvals (approver and timestamp).
+   */
+  approvals?:
+    | {
+        approver?: string | null;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The model version this promotion produced, once promoted.
+   */
+  versionId?: string | null;
+  rejectionReason?: string | null;
+  createdAt: string;
+  decidedAt?: string | null;
+  updatedAt: string;
+}
+/**
+ * Versioned production values, each traceable to the promotion and approvers that produced it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-versions".
+ */
+export interface ModelVersion {
+  id: string;
+  type: 'scps-version' | 'price-change' | 'qualification-weights' | 'market-action';
+  version: string;
+  value?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  dataWindow?: string | null;
+  promotionId?: string | null;
+  approvedBy?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * Geography by case-type by legal-concept cells, scored by defensible data cell logic. Vanity volume scores zero.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demand-cells".
+ */
+export interface DemandCell {
+  id: string;
+  /**
+   * market:caseType:legalConcept, for example va:mva:contributory-negligence.
+   */
+  cellKey: string;
+  market: string;
+  caseType: string;
+  legalConcept: string;
+  surface:
+    | 'answer-engine'
+    | 'search'
+    | 'question-platform'
+    | 'voice-search'
+    | 'video'
+    | 'local-community'
+    | 'trade-press'
+    | 'expert-citation'
+    | 'repository'
+    | 'linkedin';
+  /**
+   * 0 to 1. Uniquely or better than any other source.
+   */
+  uniqueness: number;
+  /**
+   * 0 to 1. Distinct high intent.
+   */
+  intent: number;
+  /**
+   * Resolved from the funded market state (HL3). Not a stored judgment.
+   */
+  fundedMonetizable?: boolean | null;
+  status: 'pursue' | 'ignore';
+  /**
+   * Base score in 0 to 1. Zero when any gate fails. Never volume derived.
+   */
+  score?: number | null;
+  /**
+   * Why an ignored cell was deprioritized.
+   */
+  ignoreReason?: ('unfunded-market' | 'not-unique' | 'low-intent') | null;
+  scoredAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Produced capture assets and answers. A human approves and publishes anything under a real identity (HL4).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-assets".
+ */
+export interface CaptureAsset {
+  id: string;
+  title: string;
+  cellKey: string;
+  surface:
+    | 'answer-engine'
+    | 'search'
+    | 'question-platform'
+    | 'voice-search'
+    | 'video'
+    | 'local-community'
+    | 'trade-press'
+    | 'expert-citation'
+    | 'repository'
+    | 'linkedin';
+  /**
+   * The one question this asset owns across the domain (Section 7).
+   */
+  canonicalQuestion: string;
+  /**
+   * The canonical URL that owns the question.
+   */
+  url: string;
+  /**
+   * The real named identity for identity based surfaces (HL2). Never an AI or anonymous author.
+   */
+  owningIdentity: string;
+  status: 'draft' | 'pending-approval' | 'published' | 'rejected';
+  /**
+   * The human who approved publication (HL4). Set only when published.
+   */
+  approvedBy?: string | null;
+  publishedAt?: string | null;
+  /**
+   * The asset structure validated by the deterministic placement gate (Section 7).
+   */
+  structure?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The target firm universe. Outreach drafts are Rule 7.1 clean and wait for a human send.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "b2b-targets".
+ */
+export interface B2BTarget {
+  id: string;
+  firmName: string;
+  market: string;
+  partnerName?: string | null;
+  revenueBand?: string | null;
+  status: 'added' | 'enriched' | 'drafted' | 'sent';
+  enriched?: boolean | null;
+  /**
+   * The outreach draft, pending a human send.
+   */
+  outbound?: {
+    subject?: string | null;
+    body?: string | null;
+    /**
+     * Redacted representative recent activity. No claimant PII.
+     */
+    proof?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+    status?: ('pending-send' | 'rejected' | 'sent') | null;
+    rejectionReason?: string | null;
+    sentBy?: string | null;
+    sentAt?: string | null;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * Signed cases traced back to the surface and phrasing that produced them. The Answer to Wallet moat.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-attributions".
+ */
+export interface CaptureAttribution {
+  id: string;
+  outcomeId: string;
+  signed?: boolean | null;
+  valueCents?: number | null;
+  surface?: string | null;
+  keyword?: string | null;
+  market?: string | null;
+  caseType?: string | null;
+  /**
+   * False when the trace broke, so a broken link stays visible.
+   */
+  complete?: boolean | null;
+  linkedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Whether answer engines cite CasePort for a target question. Citation ownership, measured.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "surface-presence".
+ */
+export interface SurfacePresence {
+  id: string;
+  question: string;
+  surface?:
+    | (
+        | 'answer-engine'
+        | 'search'
+        | 'question-platform'
+        | 'voice-search'
+        | 'video'
+        | 'local-community'
+        | 'trade-press'
+        | 'expert-citation'
+        | 'repository'
+        | 'linkedin'
+      )
+    | null;
+  market?: string | null;
+  cited?: boolean | null;
+  /**
+   * Which answer engines cite CasePort for this question.
+   */
+  engines?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  checkedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -2879,6 +3446,58 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'operators';
         value: string | Operator;
+      } | null)
+    | ({
+        relationTo: 'intelligence-sources';
+        value: string | IntelligenceSource;
+      } | null)
+    | ({
+        relationTo: 'intelligence-signals';
+        value: string | IntelligenceSignal;
+      } | null)
+    | ({
+        relationTo: 'intelligence-artifacts';
+        value: string | IntelligenceArtifact;
+      } | null)
+    | ({
+        relationTo: 'recommendations';
+        value: string | Recommendation;
+      } | null)
+    | ({
+        relationTo: 'recommendation-outcomes';
+        value: string | RecommendationOutcome;
+      } | null)
+    | ({
+        relationTo: 'briefings';
+        value: string | Briefing;
+      } | null)
+    | ({
+        relationTo: 'promotions';
+        value: string | Promotion;
+      } | null)
+    | ({
+        relationTo: 'model-versions';
+        value: string | ModelVersion;
+      } | null)
+    | ({
+        relationTo: 'demand-cells';
+        value: string | DemandCell;
+      } | null)
+    | ({
+        relationTo: 'capture-assets';
+        value: string | CaptureAsset;
+      } | null)
+    | ({
+        relationTo: 'b2b-targets';
+        value: string | B2BTarget;
+      } | null)
+    | ({
+        relationTo: 'capture-attributions';
+        value: string | CaptureAttribution;
+      } | null)
+    | ({
+        relationTo: 'surface-presence';
+        value: string | SurfacePresence;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -4795,6 +5414,262 @@ export interface OperatorsSelect<T extends boolean = true> {
   user?: T;
   role?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-sources_select".
+ */
+export interface IntelligenceSourcesSelect<T extends boolean = true> {
+  sourceKey?: T;
+  name?: T;
+  origin?: T;
+  reliability?: T;
+  domains?: T;
+  status?: T;
+  addedBy?: T;
+  notes?: T;
+  registeredAt?: T;
+  lastCheckedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-signals_select".
+ */
+export interface IntelligenceSignalsSelect<T extends boolean = true> {
+  source?: T;
+  sourceKey?: T;
+  origin?: T;
+  reliability?: T;
+  domain?: T;
+  dedupKey?: T;
+  claim?: T;
+  observedAt?: T;
+  ingestedAt?: T;
+  status?: T;
+  data?: T;
+  attributionRef?: T;
+  supersededBy?: T;
+  supersededAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intelligence-artifacts_select".
+ */
+export interface IntelligenceArtifactsSelect<T extends boolean = true> {
+  domain?: T;
+  title?: T;
+  summary?: T;
+  findings?:
+    | T
+    | {
+        claim?: T;
+        signalId?: T;
+        sourceKey?: T;
+        reliability?: T;
+        rank?: T;
+        status?: T;
+        id?: T;
+      };
+  generatedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendations_select".
+ */
+export interface RecommendationsSelect<T extends boolean = true> {
+  domain?: T;
+  action?: T;
+  expectedValue?: T;
+  rationale?: T;
+  sourceSignalIds?: T;
+  status?: T;
+  rejectionReason?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recommendation-outcomes_select".
+ */
+export interface RecommendationOutcomesSelect<T extends boolean = true> {
+  recommendationId?: T;
+  domain?: T;
+  predicted?: T;
+  actualValue?: T;
+  paidOff?: T;
+  note?: T;
+  measuredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "briefings_select".
+ */
+export interface BriefingsSelect<T extends boolean = true> {
+  title?: T;
+  summary?: T;
+  ranked?:
+    | T
+    | {
+        recommendationId?: T;
+        domain?: T;
+        action?: T;
+        expectedValue?: T;
+        score?: T;
+        rank?: T;
+        id?: T;
+      };
+  domainSummaries?:
+    | T
+    | {
+        domain?: T;
+        summary?: T;
+        id?: T;
+      };
+  deliveredChannels?: T;
+  generatedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotions_select".
+ */
+export interface PromotionsSelect<T extends boolean = true> {
+  type?: T;
+  summary?: T;
+  proposedChange?: T;
+  evidence?: T;
+  proposedBy?: T;
+  status?: T;
+  requiredApprovers?: T;
+  approvals?:
+    | T
+    | {
+        approver?: T;
+        at?: T;
+        id?: T;
+      };
+  versionId?: T;
+  rejectionReason?: T;
+  createdAt?: T;
+  decidedAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-versions_select".
+ */
+export interface ModelVersionsSelect<T extends boolean = true> {
+  type?: T;
+  version?: T;
+  value?: T;
+  dataWindow?: T;
+  promotionId?: T;
+  approvedBy?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "demand-cells_select".
+ */
+export interface DemandCellsSelect<T extends boolean = true> {
+  cellKey?: T;
+  market?: T;
+  caseType?: T;
+  legalConcept?: T;
+  surface?: T;
+  uniqueness?: T;
+  intent?: T;
+  fundedMonetizable?: T;
+  status?: T;
+  score?: T;
+  ignoreReason?: T;
+  scoredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-assets_select".
+ */
+export interface CaptureAssetsSelect<T extends boolean = true> {
+  title?: T;
+  cellKey?: T;
+  surface?: T;
+  canonicalQuestion?: T;
+  url?: T;
+  owningIdentity?: T;
+  status?: T;
+  approvedBy?: T;
+  publishedAt?: T;
+  structure?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "b2b-targets_select".
+ */
+export interface B2BTargetsSelect<T extends boolean = true> {
+  firmName?: T;
+  market?: T;
+  partnerName?: T;
+  revenueBand?: T;
+  status?: T;
+  enriched?: T;
+  outbound?:
+    | T
+    | {
+        subject?: T;
+        body?: T;
+        proof?: T;
+        status?: T;
+        rejectionReason?: T;
+        sentBy?: T;
+        sentAt?: T;
+      };
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "capture-attributions_select".
+ */
+export interface CaptureAttributionsSelect<T extends boolean = true> {
+  outcomeId?: T;
+  signed?: T;
+  valueCents?: T;
+  surface?: T;
+  keyword?: T;
+  market?: T;
+  caseType?: T;
+  complete?: T;
+  linkedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "surface-presence_select".
+ */
+export interface SurfacePresenceSelect<T extends boolean = true> {
+  question?: T;
+  surface?: T;
+  market?: T;
+  cited?: T;
+  engines?: T;
+  checkedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

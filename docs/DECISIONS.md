@@ -70,3 +70,81 @@ Founder direction: it depends on the market and city, not every city is created 
 The prototype contains unsourced claims (for example "firms who check 15+ times daily see 3.2x higher conversion") and coercive framing (the InvestmentLayer switching-cost and sunk-capital panel, compulsive-checking urgency). These conflict with the Section 14 bar of not a single false claim.
 
 Locked: strip fabricated statistics and coercive framing. Keep the dense, real-time, auditable Bloomberg-terminal texture. Every number on every panel must trace to a real event. Leaderboard, streaks, and any retained engagement mechanics are driven only by real data.
+
+---
+
+# CasePort Intelligence Core: Section 14 gate
+
+`INTELLIGENCE_CORE.md` Section 14 gates Phase A on four items. This section records their resolution, following the same provisional-and-reversible pattern as D3.
+
+## Status of the Section 14 gate
+
+| Item | Topic | Status |
+| ---- | ----- | ------ |
+| 1 | ACER definition | Locked (see D1) |
+| 2 | Rented source allowlist and reliability ratings | Locked (provisional, reversible) |
+| 3 | Promotion approver policy | Provisional default, confirm before Phase F |
+| 4 | Internal delivery channels | Provisional default, confirm before Phase D |
+
+Phase A may begin. Items 3 and 4 do not affect Phase A content (source registry and signals store); their provisional defaults are recorded so the gate is documented, and they are flagged for founder confirmation before the phases that consume them.
+
+## D7. CIC source allowlist and reliability ratings (2026-07-06)
+
+**Locked as provisional and reversible.** The seed allowlist lives in `src/lib/intelligence/sourceAllowlist.ts`, derived directly from the sources named in `INTELLIGENCE_CORE.md` Section 4 and rated by the H5 discipline: A primary or institutional, B industry research, C synthesized or estimated.
+
+- Regulatory sources (ABA model rules, the VA, MD, DC, and GA state bar ethics opinions, state legislature statute trackers) are rated A. These are the highest-leverage domain (Section 4.3) and must be human-verified before any market action regardless of rating.
+- Industry research (Semrush via MCP, Clay enrichment, lead-market-rate benchmarks, injury and settlement benchmarks, the mini-TCPA tracker) is rated B.
+- Inferred or modeled signals (answer-engine citation gaps, competitor pricing) are rated C and always flagged for verification before action.
+- The owned CasePort first party event log is rated A. It is the moat, joined by the attribution tuple.
+
+Like the D3 price table, any entry can be added, retuned, or retired per cell without code changes. The epistemic gate in `IntelligenceCoreService` is source agnostic: the allowlist governs what may be ingested, never how ingestion works. New sources are added only through human review; nothing is auto-trusted, and nothing from an unlisted or prohibited source can enter (H5, proven by the Phase A checkpoint test).
+
+## D8. CIC promotion approver policy (2026-07-06, provisional)
+
+**Provisional default, pending founder confirmation before Phase F.** No production value (SCPS version, price-table cell, qualification weight, or market entry/exit) changes without a logged human approval in `promotionLog` (H1). Provisional authority model:
+
+- An SCPS version or a price-table change requires one approval from an operator with the `admin` role.
+- A regulatory-triggered market action (entry or exit) requires two approvals, because a hallucinated opinion that triggers a market exit is costly and a missed real one is fatal (Section 4.3).
+
+This is a genuine business and authority decision. It does not affect Phase A. Confirm or override before building the Phase F promotion gates.
+
+**Update (2026-07-06): Phase F built on this provisional default.** `REQUIRED_APPROVERS` in `src/lib/domain/intelligenceCore.ts` encodes it: one approver for `scps-version`, `price-change`, and `qualification-weights`; two distinct approvers for `market-action`. The count is one constant to change per type. PromotionService enforces distinct approvers (the same human cannot be the second signer) and refuses to even propose an outcome-scaled price change or smart routing (W1, W3). Founder still to confirm whether any non-market promotion should also require two approvers, and which operator roles may approve; changing the policy is a one-line edit to `REQUIRED_APPROVERS`, no other code changes.
+
+## D9. CIC internal delivery channels (2026-07-06, provisional)
+
+**Provisional default, pending founder confirmation before Phase D.** Briefings and alerts are internal only (H6) and access controlled. Provisional channels: Resend for the daily and weekly briefing email, and a messaging channel for real-time alerts (Twilio SMS is already in the stack; a Slack or webhook target is to be named). Confirm the exact channels before building the Phase D surfaces.
+
+**Update (2026-07-06): Phase D built on this provisional default.** The BriefingService delivers through a channel abstraction (`BriefingNotifier`): email via Resend to `OPS_BRIEFING_EMAIL`, and the messaging channel via Twilio SMS to `OPS_ALERT_PHONE`. Both dry run cleanly when the env vars are unset, so the surface ships and tests without live channels. Swapping the messaging channel to Slack or a webhook is a one adapter change in `payloadBriefing.ts` behind the same port. Founder still to confirm the final recipients and whether the messaging channel is SMS or Slack; the code does not need to change to switch.
+
+---
+
+# CasePort Demand Capture Engine: Section 14 gate
+
+`DEMAND_CAPTURE.md` Section 14 gates Phase A on four items. Resolved here in the same provisional-and-reversible manner as D3 and D7.
+
+## Status of the Section 14 gate
+
+| Item | Topic | Status |
+| ---- | ----- | ------ |
+| 1 | Funded markets at build time | Locked (dynamic, launch markets provisional) |
+| 2 | Real identities and credentials | Provisional default, confirm before Phase B and C |
+| 3 | Surface allowlist and human approvers | Provisional default, confirm before Phase B and C |
+| 4 | Intake link migration to checkmycase | Locked |
+
+Phase A may begin. Items 2 and 3 govern identity surfaces and B2B send, which are Phases B and C; their provisional defaults are recorded and flagged for confirmation before those phases.
+
+## D10. Funded markets at build time (2026-07-06)
+
+**Locked: fundedness is resolved dynamically, never hard-coded.** A market is funded when it is active, has an assigned firm, and that firm's wallet balance is positive (HL3). The funded market resolver reads this from the real markets, firms, and wallet state, so B2C capture gating can never drift from whether a firm can actually receive the opportunity. The eligible launch markets are Virginia, Maryland, Washington DC, and Georgia (CLAUDE.md W8); each is funded only while its assigned firm's wallet is positive. This is reversible per market as the footprint changes.
+
+## D11. Real identities and credentials (2026-07-06, provisional)
+
+**Provisional default, pending founder confirmation before Phases B and C.** Identity based surfaces use real named identities with real credentials (HL2), never sockpuppets or AI posing as a human. Provisional identities from the doctrine: Martha for the question platforms (Quora live) and community surfaces; the founders for LinkedIn, expert citation (Qwoted Expert live), and B2B outbound. Credentials are secrets and live in the environment, never in the repository. Confirm the full identity roster and per surface owner before building the identity surface drafting in Phases B and C.
+
+## D12. Surface allowlist and human approvers (2026-07-06, provisional)
+
+**Provisional default, pending founder confirmation before Phases B and C.** The declared surface allowlist is the set enumerated in `src/lib/domain/demandCapture.ts` (`CAPTURE_SURFACES`), derived from Section 4 and Section 5. Provisional approvers: Martha approves and publishes identity surface B2C assets (HL4); a principal approves every B2B outbound send (HL6). Human approval is enforced structurally in the pre publish gate; the specific approver roster is the reversible part. Confirm before Phases B and C.
+
+## D13. Intake link migration to checkmycase (2026-07-06)
+
+**Locked: the one canonical intake destination is caseport.io/checkmycase.** The only permitted claimant call to action is "Send my information"; "free case review", "case review", "case evaluation", and "free consultation" are prohibited (W6, Section 8), and every intake call to action carries the ABA compliance disclaimer. These are enforced in code by the placement gate (`src/lib/demand/placement.ts`) and the public copy checker (`src/lib/compliance/publicCopy.ts`). All older intake links are superseded by this destination.

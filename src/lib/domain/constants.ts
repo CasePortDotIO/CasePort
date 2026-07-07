@@ -100,6 +100,45 @@ export const EVENT_TYPES = [
   'SlaBreached',
   'DecayInterrupt',
   'OutcomeRequested',
+  // CasePort Intelligence Core (INTELLIGENCE_CORE.md). The CIC lives in the
+  // system of intelligence; every CIC action emits an event and is replayable.
+  'IntelligenceSourceRegistered',
+  'IntelligenceSourceRetired',
+  'IntelligenceSignalIngested',
+  'IntelligenceSignalSuperseded',
+  'IntelligenceSignalRejected',
+  // CasePort Demand Capture Engine (DEMAND_CAPTURE.md). The reach layer. Every
+  // action emits an event and is replayable. Harvest, never intercept.
+  'DemandCellScored',
+  'KeywordQuestionClaimed',
+  'CaptureAssetDrafted',
+  'CaptureAssetSubmitted',
+  'CaptureAssetPublished',
+  'CaptureAssetRejected',
+  // CIC Phase C domain synthesis (INTELLIGENCE_CORE.md Section 4, 9).
+  'IntelligenceArtifactSynthesized',
+  'RecommendationProposed',
+  'RecommendationRejected',
+  // Demand Capture Phase C B2B (DEMAND_CAPTURE.md Section 5).
+  'B2BTargetAdded',
+  'AuthorityDrafted',
+  'OutboundDrafted',
+  'OutboundRejected',
+  'OutboundSent',
+  // Phase E learning loops (INTELLIGENCE_CORE.md Section 9, DEMAND_CAPTURE.md Section 9).
+  'RecommendationOutcomeMeasured',
+  'CaptureAttributionLinked',
+  'CitationTracked',
+  // CIC Phase D fusion, briefing, and surfaces (INTELLIGENCE_CORE.md Section 8).
+  'BriefingAssembled',
+  'BriefingDelivered',
+  'IntelligenceQueried',
+  'IntelligenceAlertRaised',
+  // CIC Phase F promotion gates (INTELLIGENCE_CORE.md Section 7, H1).
+  'PromotionProposed',
+  'PromotionApproved',
+  'PromotionPromoted',
+  'PromotionRejected',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]
