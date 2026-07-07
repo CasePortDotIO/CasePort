@@ -54,6 +54,8 @@ import {
   Recommendations,
   RecommendationOutcomes,
   Briefings,
+  Promotions,
+  ModelVersions,
   DemandCells,
   CaptureAssets,
   B2BTargets,
@@ -176,6 +178,8 @@ export default buildConfig({
     Recommendations,
     RecommendationOutcomes,
     Briefings,
+    Promotions,
+    ModelVersions,
     // CasePort Demand Capture Engine (DEMAND_CAPTURE.md Phase A, C, and E)
     DemandCells,
     CaptureAssets,

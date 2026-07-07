@@ -108,3 +108,37 @@ export const SIGNAL_DISPOSITIONS = [
 ] as const
 
 export type SignalDisposition = (typeof SIGNAL_DISPOSITIONS)[number]
+
+/**
+ * Production promotion types (INTELLIGENCE_CORE.md Phase F, H1). The CIC may
+ * propose a change to a production value; a human promotes it. Every promotion
+ * is logged with the approver, the timestamp, the model version, and the
+ * evidence. Nothing changes production silently.
+ */
+export const PROMOTION_TYPES = [
+  { value: 'scps-version', label: 'SCPS Model Version' },
+  { value: 'price-change', label: 'Flat Price Table Change' },
+  { value: 'qualification-weights', label: 'Qualification Signal Weights' },
+  { value: 'market-action', label: 'Market Entry or Exit' },
+] as const
+export type PromotionType = (typeof PROMOTION_TYPES)[number]['value']
+
+/**
+ * The approver policy (decision D8, provisional). How many distinct human
+ * approvers a promotion type requires before it can change production. A market
+ * action requires two because a hallucinated opinion that triggers a market exit
+ * is costly and a missed real one is fatal; the rest require one.
+ */
+export const REQUIRED_APPROVERS: Record<PromotionType, number> = {
+  'scps-version': 1,
+  'price-change': 1,
+  'qualification-weights': 1,
+  'market-action': 2,
+}
+
+export const PROMOTION_STATUSES = [
+  { value: 'pending', label: 'Pending Approval' },
+  { value: 'promoted', label: 'Promoted' },
+  { value: 'rejected', label: 'Rejected' },
+] as const
+export type PromotionStatus = (typeof PROMOTION_STATUSES)[number]['value']

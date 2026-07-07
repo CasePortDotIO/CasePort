@@ -77,6 +77,18 @@ export const SAMPLE_COCKPIT: OpsCockpit = {
     b2b: { targets: 240, outboundPending: 18, outboundSent: 62 },
     learning: { signedTraced: 41, topSurface: 'answer-engine', topSurfaceSigned: 23, citedQuestions: 17 },
   },
+  actionQueue: {
+    pendingPromotions: [
+      { id: 'promo_1', type: 'price-change', summary: 'Raise the flat MVA fee in Atlanta to the premium tier, close rate supports it.', approvals: 0, required: 1 },
+      { id: 'promo_2', type: 'market-action', summary: 'Enter the Richmond market once a firm funds a wallet there.', approvals: 1, required: 2 },
+      { id: 'promo_3', type: 'scps-version', summary: 'Recalibrate SCPS injury verification weight from the latest signed cases.', approvals: 0, required: 1 },
+    ],
+    pendingAssets: [
+      { id: 'asset_1', title: 'Maryland premises liability notice requirements', surface: 'answer-engine', canonicalQuestion: 'What notice is required for a premises liability claim in Maryland?' },
+      { id: 'asset_2', title: 'Virginia trucking accident FMCSA basics', surface: 'search', canonicalQuestion: 'How do FMCSA rules affect a Virginia trucking accident claim?' },
+    ],
+    proposedRecommendations: 9,
+  },
   events: [
     { id: 'e1', eventType: 'IntelligenceSignalIngested', lane: 'intelligence', aggregateType: 'intelligence-signal', aggregateId: 's_2211', actor: 'cic', occurredAt: '2026-07-06T14:19:40.000Z' },
     { id: 'e2', eventType: 'CaptureAssetPublished', lane: 'demand', aggregateType: 'capture-asset', aggregateId: 'a_181', actor: 'Martha', occurredAt: '2026-07-06T14:12:10.000Z' },

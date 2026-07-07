@@ -65,7 +65,17 @@ Verification: `npm run test` (127 passing), `npx tsc --noEmit` clean, `npm run b
 
 ## Pending phases (do not build ahead)
 
-- **Phase F. Promotion gates.** Versioning and human promotion workflow for SCPS, pricing, qualification weights, and market actions. (Confirm D8 approver policy first.)
+## Phase F. Promotion gates: DONE (2026-07-06)
+
+PromotionService is the H1 human gate. The CIC proposes a production change (SCPS version, price cell, qualification weights, market action); a human promotes it. A promotion promotes only once it has the required number of distinct approvers (decision D8: one for most, two for a market action), every approval is logged with the approver and timestamp, and the crossing approval writes a versioned production value so any production value traces to its proposal, evidence, and approvers. A proposal that would make routing smart or pricing outcome scaled is refused outright (W1, W3). New `promotions` and `model-versions` collections; `PromotionProposed`, `PromotionApproved`, `PromotionPromoted`, `PromotionRejected` events.
+
+**Checkpoint (met):** no production value changes without a logged human approval and its evidence. Proven by `tests/int/intelligence/promotion.int.spec.ts` (5 tests). Pending promotions surface in the `/ops` Action Queue where an operator approves or rejects them.
+
+---
+
+## The console is operable (2026-07-06)
+
+`/ops` is now a control surface, not just a read cockpit. An authenticated operator can, from the Action Queue: approve or reject a pending promotion (H1), approve and publish a pending capture asset (HL4), and run the fused briefing on demand. Each action posts to an auth gated endpoint (`/api/ops/*`) that performs it through the existing service with the operator as the logged approver; unauthenticated requests get 401. The gates still hold: an operator cannot publish a non compliant asset or promote a non compliant change.
 
 ## Phase D. Fusion, briefing, and surfaces: DONE (2026-07-06)
 

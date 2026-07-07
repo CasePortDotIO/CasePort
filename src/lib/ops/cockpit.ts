@@ -117,6 +117,12 @@ export interface OpsCockpit {
       citedQuestions: number
     }
   }
+  /** Human gated work waiting on an operator (the operable Action Queue). */
+  actionQueue: {
+    pendingPromotions: Array<{ id: string; type: string; summary: string; approvals: number; required: number }>
+    pendingAssets: Array<{ id: string; title: string; surface: string; canonicalQuestion: string }>
+    proposedRecommendations: number
+  }
   events: OpsEventRow[]
 }
 
@@ -167,6 +173,7 @@ function emptyCockpit(online: boolean, generatedAt: string): OpsCockpit {
       b2b: { targets: 0, outboundPending: 0, outboundSent: 0 },
       learning: { signedTraced: 0, topSurface: null, topSurfaceSigned: 0, citedQuestions: 0 },
     },
+    actionQueue: { pendingPromotions: [], pendingAssets: [], proposedRecommendations: 0 },
     events: [],
   }
 }
@@ -365,6 +372,29 @@ export async function loadOpsCockpit(payload: Payload, generatedAt: string): Pro
     () => demandCaptureDepsForPayload(payload).funded.listFunded(),
     [],
   )
+
+  // The human gated Action Queue: work waiting on an operator.
+  await safe(async () => {
+    const [promos, assets, proposed] = await Promise.all([
+      payload.find({ collection: 'promotions', where: { status: { equals: 'pending' } }, limit: 8, sort: '-createdAt' }),
+      payload.find({ collection: 'capture-assets', where: { status: { equals: 'pending-approval' } }, limit: 8, sort: '-createdAt' }),
+      payload.count({ collection: 'recommendations', where: { status: { equals: 'proposed' } } }),
+    ])
+    snapshot.actionQueue.pendingPromotions = (promos.docs as unknown as Array<Record<string, unknown>>).map((d) => ({
+      id: String(d.id),
+      type: String(d.type ?? ''),
+      summary: String(d.summary ?? ''),
+      approvals: Array.isArray(d.approvals) ? (d.approvals as unknown[]).length : 0,
+      required: Number(d.requiredApprovers ?? 1),
+    }))
+    snapshot.actionQueue.pendingAssets = (assets.docs as unknown as Array<Record<string, unknown>>).map((d) => ({
+      id: String(d.id),
+      title: String(d.title ?? ''),
+      surface: String(d.surface ?? ''),
+      canonicalQuestion: String(d.canonicalQuestion ?? ''),
+    }))
+    snapshot.actionQueue.proposedRecommendations = proposed.totalDocs
+  }, undefined)
 
   // The fused event feed. The shared audit log across both engines and the core.
   await safe(async () => {

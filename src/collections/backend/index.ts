@@ -28,6 +28,8 @@ export { IntelligenceArtifacts } from './IntelligenceArtifacts'
 export { Recommendations } from './Recommendations'
 export { RecommendationOutcomes } from './RecommendationOutcomes'
 export { Briefings } from './Briefings'
+export { Promotions } from './Promotions'
+export { ModelVersions } from './ModelVersions'
 // CasePort Demand Capture Engine (DEMAND_CAPTURE.md). The reach layer.
 // Recomputable, internal control surface. Harvest, never intercept.
 export { DemandCells } from './DemandCells'

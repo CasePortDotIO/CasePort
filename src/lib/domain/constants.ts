@@ -134,6 +134,11 @@ export const EVENT_TYPES = [
   'BriefingDelivered',
   'IntelligenceQueried',
   'IntelligenceAlertRaised',
+  // CIC Phase F promotion gates (INTELLIGENCE_CORE.md Section 7, H1).
+  'PromotionProposed',
+  'PromotionApproved',
+  'PromotionPromoted',
+  'PromotionRejected',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]

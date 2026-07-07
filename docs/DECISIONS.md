@@ -108,6 +108,8 @@ Like the D3 price table, any entry can be added, retuned, or retired per cell wi
 
 This is a genuine business and authority decision. It does not affect Phase A. Confirm or override before building the Phase F promotion gates.
 
+**Update (2026-07-06): Phase F built on this provisional default.** `REQUIRED_APPROVERS` in `src/lib/domain/intelligenceCore.ts` encodes it: one approver for `scps-version`, `price-change`, and `qualification-weights`; two distinct approvers for `market-action`. The count is one constant to change per type. PromotionService enforces distinct approvers (the same human cannot be the second signer) and refuses to even propose an outcome-scaled price change or smart routing (W1, W3). Founder still to confirm whether any non-market promotion should also require two approvers, and which operator roles may approve; changing the policy is a one-line edit to `REQUIRED_APPROVERS`, no other code changes.
+
 ## D9. CIC internal delivery channels (2026-07-06, provisional)
 
 **Provisional default, pending founder confirmation before Phase D.** Briefings and alerts are internal only (H6) and access controlled. Provisional channels: Resend for the daily and weekly briefing email, and a messaging channel for real-time alerts (Twilio SMS is already in the stack; a Slack or webhook target is to be named). Confirm the exact channels before building the Phase D surfaces.

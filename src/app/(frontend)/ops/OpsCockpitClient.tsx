@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { OpsCockpit, OpsEventRow, OpsLane } from '@/lib/ops/cockpit'
 
 /**
@@ -34,6 +35,7 @@ export function OpsCockpitClient({ cockpit, operator }: { cockpit: OpsCockpit; o
         <Flywheel cockpit={cockpit} />
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
           <div className="flex flex-col gap-4 lg:col-span-2">
+            <ActionQueue cockpit={cockpit} operable={cockpit.online && Boolean(operator)} />
             <IntelligencePanel cockpit={cockpit} />
             <DemandPanel cockpit={cockpit} />
           </div>
@@ -175,6 +177,146 @@ function FlywheelStage({
         ))}
       </div>
     </div>
+  )
+}
+
+/**
+ * The operable Action Queue. Human gated work an operator can act on from here:
+ * approve or reject a pending promotion (H1), approve and publish a pending
+ * capture asset (HL4), and run the briefing on demand. Each action posts to an
+ * authenticated endpoint that performs it through the existing service, with the
+ * operator as the logged approver, then the view refreshes.
+ */
+function ActionQueue({ cockpit, operable }: { cockpit: OpsCockpit; operable: boolean }) {
+  const router = useRouter()
+  const [busy, setBusy] = useState<string | null>(null)
+  const q = cockpit.actionQueue
+  const nothing = q.pendingPromotions.length === 0 && q.pendingAssets.length === 0
+
+  async function act(key: string, url: string, body?: unknown) {
+    if (!operable || busy) return
+    setBusy(key)
+    try {
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined,
+      })
+      router.refresh()
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <section className="ops-card p-5" style={{ borderColor: 'var(--gold)' }}>
+      <div className="flex items-baseline justify-between gap-2 border-b ops-hairline pb-3">
+        <div className="flex items-baseline gap-2.5">
+          <span className="lane-dot self-center" style={{ background: 'var(--gold-deep)' }} aria-hidden />
+          <h2 className="ops-display text-lg text-[color:var(--ink)]">Action queue</h2>
+          <span className="ops-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--muted-foreground)]">
+            human gated
+          </span>
+        </div>
+        <button
+          type="button"
+          disabled={!operable || busy !== null}
+          onClick={() => act('briefing', '/api/ops/briefing')}
+          className="ops-mono rounded-md border px-3 py-1 text-[11px] uppercase tracking-[0.1em] disabled:opacity-40"
+          style={{ borderColor: 'var(--teal-deep)', color: 'var(--teal-deep)' }}
+        >
+          {busy === 'briefing' ? 'Running...' : 'Run briefing'}
+        </button>
+      </div>
+
+      <div className="pt-4">
+        {nothing ? (
+          <p className="py-2 text-xs text-[color:var(--muted-foreground)]">
+            Nothing awaiting approval. Proposed recommendations in review: {q.proposedRecommendations}.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {q.pendingPromotions.length > 0 && (
+              <div>
+                <SubHead>Promotions awaiting the human gate (H1)</SubHead>
+                <div className="mt-2 space-y-2">
+                  {q.pendingPromotions.map((p) => (
+                    <div key={p.id} className="flex items-start justify-between gap-3 border-b ops-hairline pb-2 last:border-0">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="ops-mono text-[10px] uppercase tracking-[0.12em] lane-intelligence">{p.type}</span>
+                          <span className="ops-mono text-[10px] text-[color:var(--muted-foreground)]">
+                            {p.approvals}/{p.required} approvals
+                          </span>
+                        </div>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-[color:var(--secondary-foreground)]">{p.summary}</p>
+                      </div>
+                      <div className="flex shrink-0 gap-1.5">
+                        <ActionButton label="Approve" tone="go" busy={busy === `pa:${p.id}`} disabled={!operable}
+                          onClick={() => act(`pa:${p.id}`, `/api/ops/promotion/${p.id}`, { decision: 'approve' })} />
+                        <ActionButton label="Reject" tone="stop" busy={busy === `pr:${p.id}`} disabled={!operable}
+                          onClick={() => act(`pr:${p.id}`, `/api/ops/promotion/${p.id}`, { decision: 'reject' })} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {q.pendingAssets.length > 0 && (
+              <div>
+                <SubHead>Capture assets awaiting publish (HL4)</SubHead>
+                <div className="mt-2 space-y-2">
+                  {q.pendingAssets.map((a) => (
+                    <div key={a.id} className="flex items-start justify-between gap-3 border-b ops-hairline pb-2 last:border-0">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-xs font-medium">{a.title}</span>
+                          <span className="ops-mono text-[10px] uppercase tracking-[0.12em] lane-demand">{a.surface}</span>
+                        </div>
+                        <p className="mt-0.5 line-clamp-1 text-[11px] text-[color:var(--muted-foreground)]">{a.canonicalQuestion}</p>
+                      </div>
+                      <ActionButton label="Approve and publish" tone="go" busy={busy === `ap:${a.id}`} disabled={!operable}
+                        onClick={() => act(`ap:${a.id}`, `/api/ops/asset/${a.id}`)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {!operable && (
+          <p className="mt-3 text-[11px] text-[color:var(--muted-foreground)]">Sign in as an operator to act.</p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+function ActionButton({
+  label,
+  tone,
+  busy,
+  disabled,
+  onClick,
+}: {
+  label: string
+  tone: 'go' | 'stop'
+  busy: boolean
+  disabled: boolean
+  onClick: () => void
+}) {
+  const color = tone === 'go' ? 'var(--sage-2)' : 'var(--terra-deep)'
+  return (
+    <button
+      type="button"
+      disabled={disabled || busy}
+      onClick={onClick}
+      className="ops-mono whitespace-nowrap rounded-md border px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] disabled:opacity-40"
+      style={{ borderColor: color, color }}
+    >
+      {busy ? '...' : label}
+    </button>
   )
 }
 
@@ -499,8 +641,9 @@ function EventFeed({ events, online }: { events: OpsEventRow[]; online: boolean 
 function Footer({ cockpit }: { cockpit: OpsCockpit }) {
   return (
     <footer className="mt-6 border-t ops-hairline pt-4 text-[11px] text-[color:var(--muted-foreground)]">
-      Internal operations console. Read only in this cut. Derived and recomputable from the event log; it holds no
-      fact that exists nowhere else, and every number traces to a real record or event. Snapshot at{' '}
+      Internal operations console. Actions are human gated and run through the domain services, with the operator as
+      the logged approver. Derived and recomputable from the event log; it holds no fact that exists nowhere else, and
+      every number traces to a real record or event. Snapshot at{' '}
       <span className="ops-mono">{t(cockpit.generatedAt)}</span> on {d(cockpit.generatedAt)}.
     </footer>
   )

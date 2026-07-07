@@ -103,6 +103,8 @@ export interface Config {
     recommendations: Recommendation;
     'recommendation-outcomes': RecommendationOutcome;
     briefings: Briefing;
+    promotions: Promotion;
+    'model-versions': ModelVersion;
     'demand-cells': DemandCell;
     'capture-assets': CaptureAsset;
     'b2b-targets': B2BTarget;
@@ -151,6 +153,8 @@ export interface Config {
     recommendations: RecommendationsSelect<false> | RecommendationsSelect<true>;
     'recommendation-outcomes': RecommendationOutcomesSelect<false> | RecommendationOutcomesSelect<true>;
     briefings: BriefingsSelect<false> | BriefingsSelect<true>;
+    promotions: PromotionsSelect<false> | PromotionsSelect<true>;
+    'model-versions': ModelVersionsSelect<false> | ModelVersionsSelect<true>;
     'demand-cells': DemandCellsSelect<false> | DemandCellsSelect<true>;
     'capture-assets': CaptureAssetsSelect<false> | CaptureAssetsSelect<true>;
     'b2b-targets': B2BTargetsSelect<false> | B2BTargetsSelect<true>;
@@ -2341,7 +2345,11 @@ export interface Event {
     | 'BriefingAssembled'
     | 'BriefingDelivered'
     | 'IntelligenceQueried'
-    | 'IntelligenceAlertRaised';
+    | 'IntelligenceAlertRaised'
+    | 'PromotionProposed'
+    | 'PromotionApproved'
+    | 'PromotionPromoted'
+    | 'PromotionRejected';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2998,6 +3006,95 @@ export interface Briefing {
   createdAt: string;
 }
 /**
+ * The human promotion gate for every production change. The CIC proposes; humans promote (H1).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotions".
+ */
+export interface Promotion {
+  id: string;
+  type: 'scps-version' | 'price-change' | 'qualification-weights' | 'market-action';
+  summary: string;
+  /**
+   * The concrete production change proposed.
+   */
+  proposedChange?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * What justifies it: source signals, a recommendation, the data window.
+   */
+  evidence?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  proposedBy?: string | null;
+  status: 'pending' | 'promoted' | 'rejected';
+  requiredApprovers: number;
+  /**
+   * The append only log of human approvals (approver and timestamp).
+   */
+  approvals?:
+    | {
+        approver?: string | null;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The model version this promotion produced, once promoted.
+   */
+  versionId?: string | null;
+  rejectionReason?: string | null;
+  createdAt: string;
+  decidedAt?: string | null;
+  updatedAt: string;
+}
+/**
+ * Versioned production values, each traceable to the promotion and approvers that produced it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-versions".
+ */
+export interface ModelVersion {
+  id: string;
+  type: 'scps-version' | 'price-change' | 'qualification-weights' | 'market-action';
+  version: string;
+  value?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  dataWindow?: string | null;
+  promotionId?: string | null;
+  approvedBy?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
  * Geography by case-type by legal-concept cells, scored by defensible data cell logic. Vanity volume scores zero.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3373,6 +3470,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'briefings';
         value: string | Briefing;
+      } | null)
+    | ({
+        relationTo: 'promotions';
+        value: string | Promotion;
+      } | null)
+    | ({
+        relationTo: 'model-versions';
+        value: string | ModelVersion;
       } | null)
     | ({
         relationTo: 'demand-cells';
@@ -5434,6 +5539,45 @@ export interface BriefingsSelect<T extends boolean = true> {
   generatedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotions_select".
+ */
+export interface PromotionsSelect<T extends boolean = true> {
+  type?: T;
+  summary?: T;
+  proposedChange?: T;
+  evidence?: T;
+  proposedBy?: T;
+  status?: T;
+  requiredApprovers?: T;
+  approvals?:
+    | T
+    | {
+        approver?: T;
+        at?: T;
+        id?: T;
+      };
+  versionId?: T;
+  rejectionReason?: T;
+  createdAt?: T;
+  decidedAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "model-versions_select".
+ */
+export interface ModelVersionsSelect<T extends boolean = true> {
+  type?: T;
+  version?: T;
+  value?: T;
+  dataWindow?: T;
+  promotionId?: T;
+  approvedBy?: T;
+  createdAt?: T;
+  updatedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
