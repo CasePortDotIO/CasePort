@@ -16,13 +16,22 @@ import type { SourceRecordInput } from '@/services/intelligenceCorePorts'
 export const SEED_SOURCE_ALLOWLIST: readonly SourceRecordInput[] = [
   // Demand and B2C (Section 4.1). Search and answer-engine landscape.
   {
+    sourceKey: 'dataforseo',
+    name: 'DataForSEO (keyword volume and search data)',
+    origin: 'rented',
+    reliability: 'B',
+    domains: ['demand', 'market'],
+    addedBy: 'founder',
+    notes: 'Pay as you go keyword volume, SERP, and People Also Ask. The active keyword and search data fetcher (a cheaper alternative to the Semrush API).',
+  },
+  {
     sourceKey: 'semrush-mcp',
     name: 'Semrush (search and keyword trends via MCP)',
     origin: 'rented',
     reliability: 'B',
     domains: ['demand', 'market'],
     addedBy: 'founder',
-    notes: 'Search and voice query trends, keyword volume, competitor organic footprint.',
+    notes: 'Retained for ad hoc competitive lookups via the session MCP. Not the programmatic fetcher; DataForSEO is cheaper for harvesting at scale.',
   },
   {
     sourceKey: 'answer-engine-citations',

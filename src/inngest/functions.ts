@@ -17,6 +17,8 @@ import {
   createAnthropicDomainSynthesizer,
   createAnthropicQueryResponder,
 } from '../services/adapters/liveAgents'
+import { createLearningLoopService } from '../services/LearningLoopService'
+import { createPayloadLearningDeps } from '../services/adapters/payloadLearning'
 import { outcomeCaptureUrl } from '../lib/outcomeLink'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
@@ -275,6 +277,22 @@ export const runIntelligenceBriefing = inngest.createFunction(
   },
 )
 
+/**
+ * The scheduled learning loop (DEMAND_CAPTURE.md Phase E). Links signed outcomes
+ * back to the surface and phrasing that produced them, so the next cycle's
+ * reallocation reflects what actually converted. The attribution trace is the
+ * moat; this keeps it current. Citation ownership tracking runs through the
+ * Perplexity checker, dry until its key is set.
+ */
+export const runLearningLoop = inngest.createFunction(
+  { id: 'run-learning-loop', triggers: [{ cron: '0 4 * * *' }] },
+  async ({ step }) => {
+    const payload = await getPayload({ config })
+    const loop = createLearningLoopService(createPayloadLearningDeps(payload))
+    return (step as InngestStep).run('link-outcomes', () => loop.linkAll())
+  },
+)
+
 export const inngestFunctions = [
   deliverDossier,
   releaseHeldQueue,
@@ -285,4 +303,5 @@ export const inngestFunctions = [
   pollRentedSources,
   synthesizeDomains,
   runIntelligenceBriefing,
+  runLearningLoop,
 ]

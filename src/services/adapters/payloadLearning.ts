@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 import { payloadEventStoreFor } from './payloadEvents'
 import { createIntelligenceService } from '../IntelligenceService'
 import { createPayloadIntelligenceDeps } from './payloadIntelligence'
+import { createPerplexityCitationChecker } from './perplexityCitationChecker'
 import type {
   AttributionResolver,
   CaptureAttributionRecord,
@@ -139,7 +140,10 @@ function payloadPresenceRepository(payload: Payload): SurfacePresenceRepository 
 
 const payloadLearningIds: LearningIdGenerator = { attributionId: () => '', presenceId: () => '' }
 
-export function createPayloadLearningDeps(payload: Payload, citations: CitationChecker): LearningLoopDeps {
+export function createPayloadLearningDeps(
+  payload: Payload,
+  citations: CitationChecker = createPerplexityCitationChecker(),
+): LearningLoopDeps {
   return {
     resolver: payloadAttributionResolver(payload),
     outcomes: payloadOutcomeSource(payload),

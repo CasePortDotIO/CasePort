@@ -20,15 +20,26 @@ Every adapter's output still passes the existing gates:
 
 Proven by `tests/int/agents/live-adapters.int.spec.ts`: without a key each adapter returns a safe fallback and the synthesizer's output still flows through the gates.
 
+## Rented data sources (chosen for cost, not just quality)
+
+The Semrush API is the most expensive way to get keyword and search data (a ~$500/mo Business plan floor plus per-row API units). Because the engine is provider agnostic behind the `SourceFetcher` and `CitationChecker` ports, we wired cheaper, equally good sources:
+
+- **DataForSEO** (`src/services/adapters/dataForSeoFetcher.ts`) is the keyword and search data fetcher, registered as source `dataforseo`. Pay as you go, no subscription (~$0.0006 per SERP, ~$0.0001 per keyword). It derives its keyword list from the pursued funded cells, so it only ever spends on cells that can monetize, and signals dedup and supersede so unchanged data is never refetched. At CasePort's scope this is single digit dollars per month versus $500+ for Semrush. Activate with `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`.
+- **Perplexity** (`src/services/adapters/perplexityCitationChecker.ts`) is the answer engine citation checker: it asks the Perplexity API a target question and matches CasePort in the citations. CasePort's coined terms make this a near trivial, dirt cheap match. Activate with `PERPLEXITY_API_KEY`. A managed tracker (Otterly, Peec) is a drop in replacement behind the same port.
+- The Semrush MCP (the session tool) is retained in the allowlist for ad hoc competitive lookups, not the programmatic pipeline.
+
+Both run dry (fetch nothing, report not cited) without credentials, so wiring them commits no spend, and the `pollRentedSources` and `runLearningLoop` crons stay observable.
+
 ## What is still a documented seam
 
-- **Rented source fetchers** (`SourceFetcher`): `ACTIVATED_FETCHERS` in `src/services/adapters/payloadIngestion.ts` is empty. Semrush data arrives through the Semrush MCP, which is a session tool rather than a server-callable API, so the fetcher for it is activated when that integration is available. The `pollRentedSources` cron runs and is observable meanwhile; adding a fetcher is one entry in `ACTIVATED_FETCHERS`, behind the same epistemic gate.
-- **Question sensor** (`QuestionSensor`) and **citation checker** (`CitationChecker`): agentic reads of answer engines and search surfaces. These activate when the reading integration (Semrush MCP, answer-engine access) is wired; the demand sensing and drafting orchestration is otherwise complete.
+- **Question sensor** (`QuestionSensor`): agentic reading of unowned high intent questions on answer engines and question platforms. Can be backed by DataForSEO SERP or Perplexity next; the sensing and drafting orchestration is otherwise complete.
 - **Prospect researcher** (`ProspectResearcher`): firm and partner research, activated with the enrichment integration (Clay).
 
 ## Environment variables
 
 - `ANTHROPIC_API_KEY`: activates every Claude adapter.
+- `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD` (and optional `DATAFORSEO_LOCATION_CODE`): the keyword and search data fetcher.
+- `PERPLEXITY_API_KEY` (and optional `PERPLEXITY_MODEL`): the answer engine citation checker.
 - `OPS_BRIEFING_EMAIL`, `OPS_ALERT_PHONE`: briefing and alert recipients (Resend, Twilio). Absent means dry run.
 - `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `TWILIO_*`: the delivery rails, already used by the existing notifier.
 
