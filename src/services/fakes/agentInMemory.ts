@@ -113,6 +113,7 @@ export function createAgentHarness(initialNow = '2026-07-05T12:00:00.000Z'): Age
     notify,
     events,
     clock,
+    appBaseUrl: 'https://app.caseport.test',
     setNow: (iso) => {
       now = iso
     },

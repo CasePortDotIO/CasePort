@@ -87,4 +87,7 @@ export interface AgentDeps {
   /** Optional. When present, the speed callback also texts the claimant that an
    * attorney is about to call. Absent in dry scaffolding; wired in production. */
   claimants?: ClaimantReachRepository
+  /** Optional absolute app origin, used to build the closing kit deep link in the
+   * delivery notification so the case file arrives where the firm already lives. */
+  appBaseUrl?: string
 }

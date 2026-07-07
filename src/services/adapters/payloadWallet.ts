@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
 import type { CaseTypeValue } from '@/lib/domain/constants'
+import { signedMediaPath } from '@/lib/mediaLink'
 import { payloadEventStoreFor } from './payloadEvents'
 import { reqOf, type TxContext } from './txContext'
 import type {
@@ -319,12 +320,16 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
             depth: 0,
           })
           .catch(() => null)
+        const nowMs = Date.now()
         for (const ev of evers?.docs ?? []) {
           const row = ev as unknown as Record<string, unknown>
           const p = (row.payload ?? {}) as { mediaKey?: unknown; kind?: unknown }
-          const url = typeof p.mediaKey === 'string' ? p.mediaKey : ''
+          const rawKey = typeof p.mediaKey === 'string' ? p.mediaKey : ''
           const kind = typeof p.kind === 'string' ? p.kind : 'other'
-          if (!url) continue
+          if (!rawKey) continue
+          // W5: the firm receives a signed, expiring link, never the raw storage
+          // URL. The bytes are served by /api/media/access only while it is valid.
+          const url = signedMediaPath(rawKey, nowMs)
           if (row.eventType === 'PhotoUploaded') photos.push({ kind, url })
           else documents.push({ kind, url })
         }

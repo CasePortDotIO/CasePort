@@ -91,7 +91,15 @@ export function createAgentService(deps: AgentDeps) {
     }
 
     const headline = input.caseHeadline ?? `a new ${PERSONAL_INJURY} opportunity in your market`
-    const body = `CasePort: ${headline} was just delivered. Call now, within your ${firm.slaCallbackMinutes} minute window, while the claimant is still on the confirmation screen.`
+    // The case file arrives where the firm already lives: the notification carries
+    // a deep link straight to the closing kit. The link points at a firm scoped
+    // page, so the data behind it is protected by the firm's own session.
+    const closingKitLink = deps.appBaseUrl
+      ? `${deps.appBaseUrl.replace(/\/$/, '')}/firm/opportunity/${encodeURIComponent(delivery.id)}`
+      : null
+    const body =
+      `CasePort: ${headline} was just delivered. Call now, within your ${firm.slaCallbackMinutes} minute window, while the claimant is still on the confirmation screen.` +
+      (closingKitLink ? ` Open the case file: ${closingKitLink}` : '')
     const results = await notifyFirm(firm, `New ${PERSONAL_INJURY} case delivered`, body)
 
     // The other half of the magic: tell the claimant to expect the call, so a
@@ -124,6 +132,7 @@ export function createAgentService(deps: AgentDeps) {
         channels: results.map((r) => r.channel),
         dryRun: results.some((r) => r.dryRun),
         claimantNotified,
+        closingKitLink,
       },
     })
 

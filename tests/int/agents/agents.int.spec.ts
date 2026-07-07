@@ -68,6 +68,19 @@ describe('speed callback loop (Section 6 step 9)', () => {
     expect(h.log.filter((e) => e.eventType === 'SpeedCallbackNotified')).toHaveLength(0)
   })
 
+  it('carries the closing kit deep link in the notification, so the case file arrives where the firm lives', async () => {
+    const h = createAgentHarness()
+    h.addFirm(activeFirm())
+    h.addDelivery(delivery())
+    const agents = createAgentService(h)
+
+    await agents.notifyOnDelivery({ deliveryId: 'del_1' })
+    const firmMsg = h.sent.find((m) => m.to === '+14045551212' || m.channel === 'email')
+    expect(firmMsg?.body).toContain('https://app.caseport.test/firm/opportunity/del_1')
+    const evt = h.log.find((e) => e.eventType === 'SpeedCallbackNotified')
+    expect((evt?.payload as { closingKitLink?: string }).closingKitLink).toBe('https://app.caseport.test/firm/opportunity/del_1')
+  })
+
   it('also texts the claimant to expect the call when the SLA is active', async () => {
     const h = createAgentHarness()
     h.addFirm(activeFirm())
