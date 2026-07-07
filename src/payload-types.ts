@@ -2323,7 +2323,8 @@ export interface Event {
     | 'FirmResponded'
     | 'SlaBreached'
     | 'DecayInterrupt'
-    | 'OutcomeRequested';
+    | 'OutcomeRequested'
+    | 'FirmCallbackSlaActivated';
   aggregateType: string;
   aggregateId: string;
   /**

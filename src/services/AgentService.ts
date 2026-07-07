@@ -1,4 +1,5 @@
 import type { AgentDeps, DeliveryForAgent, FirmContact } from './agentPorts'
+import { findClaimantLanguageViolations } from '@/lib/compliance/claimantLanguage'
 
 /**
  * The post signing agents and the speed callback loop (Section 6 step 9, Section
@@ -39,6 +40,21 @@ export function slaStatus(input: {
 
 const PERSONAL_INJURY = 'personal injury'
 
+/**
+ * The claimant heads up for the speed callback (Section 6 step 9). The instant a
+ * firm is prompted to call, the claimant is told to expect it, so a call from a
+ * local number is welcome, not a surprise. Procedural and factual only: it names
+ * the firm that is calling and asks them to keep their phone nearby. It makes no
+ * claim about the case (W2, W6). Pure, so the copy is unit tested and guarded.
+ */
+export function speedCallbackClaimantMessage(input: { firstName?: string; firmName: string }): string {
+  const name = input.firstName?.trim() ? `${input.firstName.trim()}, ` : ''
+  return (
+    `CasePort: ${name}an attorney from ${input.firmName} is about to call you about your ${PERSONAL_INJURY} case. ` +
+    `Keep your phone nearby. The call comes from a local number.`
+  )
+}
+
 export function createAgentService(deps: AgentDeps) {
   async function load(deliveryId: string): Promise<{ delivery: DeliveryForAgent; firm: FirmContact } | null> {
     const delivery = await deps.deliveries.get(deliveryId)
@@ -63,19 +79,39 @@ export function createAgentService(deps: AgentDeps) {
   async function notifyOnDelivery(input: { deliveryId: string; caseHeadline?: string }): Promise<{
     activated: boolean
     notified: number
+    claimantNotified: boolean
   }> {
     const loaded = await load(input.deliveryId)
-    if (!loaded) return { activated: false, notified: 0 }
+    if (!loaded) return { activated: false, notified: 0, claimantNotified: false }
     const { delivery, firm } = loaded
 
     if (!firm.callbackSlaActive) {
       // Scaffolded, not yet activated. No message is sent before firm one.
-      return { activated: false, notified: 0 }
+      return { activated: false, notified: 0, claimantNotified: false }
     }
 
     const headline = input.caseHeadline ?? `a new ${PERSONAL_INJURY} opportunity in your market`
     const body = `CasePort: ${headline} was just delivered. Call now, within your ${firm.slaCallbackMinutes} minute window, while the claimant is still on the confirmation screen.`
     const results = await notifyFirm(firm, `New ${PERSONAL_INJURY} case delivered`, body)
+
+    // The other half of the magic: tell the claimant to expect the call, so a
+    // local number ringing seconds after they finished is welcome, not a
+    // surprise. Best effort and guarded: the copy is checked for legal
+    // evaluation and non recommendation language, and skipped if it ever drifts
+    // or the claimant has no phone. It never blocks the firm notification.
+    let claimantNotified = false
+    try {
+      const claimant = deps.claimants ? await deps.claimants.forDossier(delivery.dossierId) : null
+      if (claimant?.phone) {
+        const message = speedCallbackClaimantMessage({ firstName: claimant.firstName, firmName: firm.name })
+        if (findClaimantLanguageViolations(message).length === 0) {
+          const r = await deps.notify.sms({ to: claimant.phone, body: message })
+          claimantNotified = r.sent
+        }
+      }
+    } catch {
+      claimantNotified = false
+    }
 
     await deps.events.append({
       eventType: 'SpeedCallbackNotified',
@@ -83,10 +119,15 @@ export function createAgentService(deps: AgentDeps) {
       aggregateId: delivery.id,
       actor: 'agent',
       occurredAt: deps.clock.nowIso(),
-      payload: { firmId: firm.id, channels: results.map((r) => r.channel), dryRun: results.some((r) => r.dryRun) },
+      payload: {
+        firmId: firm.id,
+        channels: results.map((r) => r.channel),
+        dryRun: results.some((r) => r.dryRun),
+        claimantNotified,
+      },
     })
 
-    return { activated: true, notified: results.filter((r) => r.sent).length }
+    return { activated: true, notified: results.filter((r) => r.sent).length, claimantNotified }
   }
 
   /** The firm records that it made contact. Response time is measured against the SLA. */

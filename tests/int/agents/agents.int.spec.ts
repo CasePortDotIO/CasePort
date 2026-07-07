@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { createAgentService, slaStatus } from '@/services/AgentService'
+import { createAgentService, slaStatus, speedCallbackClaimantMessage } from '@/services/AgentService'
 import { createAgentHarness } from '@/services/fakes/agentInMemory'
+import { findClaimantLanguageViolations } from '@/lib/compliance/claimantLanguage'
+import { findEvaluativeLeaks } from '@/lib/compliance/assertNoEvaluativeLeak'
 import type { DeliveryForAgent, FirmContact } from '@/services/agentPorts'
 
 /**
@@ -55,12 +57,68 @@ describe('speed callback loop (Section 6 step 9)', () => {
     const h = createAgentHarness()
     h.addFirm(activeFirm({ callbackSlaActive: false }))
     h.addDelivery(delivery())
+    h.addClaimant('CP-1', { firstName: 'Jordan', phone: '+14045550100' })
     const agents = createAgentService(h)
 
     const res = await agents.notifyOnDelivery({ deliveryId: 'del_1' })
     expect(res.activated).toBe(false)
+    expect(res.claimantNotified).toBe(false)
+    // Not even the claimant is texted before firm one.
     expect(h.sent).toHaveLength(0)
     expect(h.log.filter((e) => e.eventType === 'SpeedCallbackNotified')).toHaveLength(0)
+  })
+
+  it('also texts the claimant to expect the call when the SLA is active', async () => {
+    const h = createAgentHarness()
+    h.addFirm(activeFirm())
+    h.addDelivery(delivery())
+    h.addClaimant('CP-1', { firstName: 'Jordan', phone: '+14045550100' })
+    const agents = createAgentService(h)
+
+    const res = await agents.notifyOnDelivery({ deliveryId: 'del_1' })
+    expect(res.activated).toBe(true)
+    expect(res.claimantNotified).toBe(true)
+
+    const claimantSms = h.sent.find((m) => m.to === '+14045550100')
+    expect(claimantSms).toBeDefined()
+    // Names the firm that is calling, procedural only, and spells personal injury out.
+    expect(claimantSms!.body).toContain('Peachtree Injury Partners')
+    expect(claimantSms!.body).toContain('personal injury')
+    // Claimant facing text: must carry no legal evaluation or non compliant language.
+    expect(findClaimantLanguageViolations(claimantSms!.body)).toHaveLength(0)
+    // The event records that the claimant was notified.
+    const evt = h.log.find((e) => e.eventType === 'SpeedCallbackNotified')
+    expect((evt?.payload as { claimantNotified?: boolean }).claimantNotified).toBe(true)
+  })
+
+  it('notifies the firm even when the claimant has no reachable phone', async () => {
+    const h = createAgentHarness()
+    h.addFirm(activeFirm())
+    h.addDelivery(delivery())
+    h.addClaimant('CP-1', { firstName: 'Jordan', phone: null })
+    const agents = createAgentService(h)
+
+    const res = await agents.notifyOnDelivery({ deliveryId: 'del_1' })
+    expect(res.activated).toBe(true)
+    expect(res.claimantNotified).toBe(false)
+    expect(res.notified).toBe(2) // firm sms + email still fire
+  })
+})
+
+describe('speed callback claimant message (pure, compliant)', () => {
+  it('is procedural, names the firm, and makes no case claim', () => {
+    const msg = speedCallbackClaimantMessage({ firstName: 'Sam', firmName: 'Peachtree Injury Partners' })
+    expect(msg).toContain('Sam')
+    expect(msg).toContain('Peachtree Injury Partners')
+    expect(msg).toContain('personal injury')
+    expect(findClaimantLanguageViolations(msg)).toHaveLength(0)
+    expect(findEvaluativeLeaks({ msg })).toHaveLength(0)
+  })
+
+  it('works without a first name', () => {
+    const msg = speedCallbackClaimantMessage({ firmName: 'Peachtree Injury Partners' })
+    expect(findClaimantLanguageViolations(msg)).toHaveLength(0)
+    expect(msg.startsWith('CasePort:')).toBe(true)
   })
 })
 

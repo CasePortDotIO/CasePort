@@ -41,6 +41,19 @@ export interface FirmContactRepository {
   get(firmId: string): Promise<FirmContact | null>
 }
 
+/** Just enough of the claimant to send the speed callback heads up: their first
+ * name and a phone. No case facts, no evaluative signal ever reaches here (W2). */
+export interface ClaimantReach {
+  firstName: string
+  phone: string | null
+}
+
+/** Resolve the claimant behind a delivered dossier, so the speed callback can
+ * text them that an attorney is about to call. Read only. */
+export interface ClaimantReachRepository {
+  forDossier(dossierId: string): Promise<ClaimantReach | null>
+}
+
 /** Whether a firm has reported an outcome for a delivery yet. Read only. */
 export interface OutcomeLookup {
   hasOutcome(deliveryId: string): Promise<boolean>
@@ -71,4 +84,7 @@ export interface AgentDeps {
   notify: Notifier
   events: EventStore
   clock: Clock
+  /** Optional. When present, the speed callback also texts the claimant that an
+   * attorney is about to call. Absent in dry scaffolding; wired in production. */
+  claimants?: ClaimantReachRepository
 }

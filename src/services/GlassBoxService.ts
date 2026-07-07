@@ -239,6 +239,22 @@ export function createGlassBoxService(deps: GlassBoxDeps) {
     return { market: firm.marketId, framing: REPRESENTATIVE_FRAMING, items }
   }
 
+  /**
+   * Proof of reality for a market, before any firm record exists. This is the
+   * pre funding skeptic converter (Section 7 step 1): a prospective partner sees
+   * what actually came through their territory, redacted, framed as
+   * representative and never as a volume guarantee. Keyed by market, not firm, so
+   * it serves a prospect who has not signed or funded anything yet. Carries no
+   * PII and no evaluative signal (reality, not quality).
+   */
+  async function proofOfRealityForMarket(
+    marketId: string,
+    limit = 12,
+  ): Promise<{ market: string; framing: string; items: RedactedActivity[] }> {
+    const items = await deps.activity.recentMarketActivity(marketId, limit)
+    return { market: marketId, framing: REPRESENTATIVE_FRAMING, items }
+  }
+
   /** The firm's own Glass Box: its deliveries and response times. Firm scoped. */
   async function firmGlassBox(firmId: string): Promise<{
     firmId: string
@@ -261,7 +277,7 @@ export function createGlassBoxService(deps: GlassBoxDeps) {
     return deps.activity.opportunityForFirm(firmId, deliveryId)
   }
 
-  return { walletView, proofOfRealityFeed, firmGlassBox, sampleDossier, opportunityDetail }
+  return { walletView, proofOfRealityFeed, proofOfRealityForMarket, firmGlassBox, sampleDossier, opportunityDetail }
 }
 
 const REPRESENTATIVE_FRAMING =

@@ -4,6 +4,8 @@ import { httpNotifier } from './notifier'
 import type {
   AgentDeliveryStore,
   AgentDeps,
+  ClaimantReach,
+  ClaimantReachRepository,
   DeliveryForAgent,
   FirmContact,
   FirmContactRepository,
@@ -65,6 +67,42 @@ function payloadFirmContactRepository(payload: Payload): FirmContactRepository {
   }
 }
 
+function payloadClaimantReachRepository(payload: Payload): ClaimantReachRepository {
+  return {
+    async forDossier(dossierId): Promise<ClaimantReach | null> {
+      // The dossier carries the claimant relationship; one populated read gets
+      // the first name and phone. Nothing evaluative is read here (W2).
+      const dossier = (await payload
+        .findByID({ collection: 'dossiers', id: dossierId, depth: 1 })
+        .catch(() => null)) as Record<string, unknown> | null
+      if (!dossier) return null
+      const intake = (dossier.intakeSession ?? null) as Record<string, unknown> | null
+      const claimant = (intake && typeof intake === 'object' ? intake.claimant : null) as
+        | Record<string, unknown>
+        | null
+      // The claimant may live under the dossier's intake session, or be resolved
+      // directly. Fall back to a claimants lookup by the dossier's claimant id.
+      let firstName = String(claimant?.firstName ?? '')
+      let phone = (claimant?.phone as string) ?? null
+      if (!phone) {
+        const claimantId =
+          (claimant && typeof claimant === 'object' ? String(claimant.id) : '') ||
+          String((dossier.claimant as { id?: unknown })?.id ?? dossier.claimant ?? '')
+        if (claimantId) {
+          const c = (await payload
+            .findByID({ collection: 'claimants', id: claimantId, depth: 0 })
+            .catch(() => null)) as Record<string, unknown> | null
+          if (c) {
+            firstName = firstName || String(c.firstName ?? '')
+            phone = (c.phone as string) ?? null
+          }
+        }
+      }
+      return { firstName, phone }
+    },
+  }
+}
+
 function payloadOutcomeLookup(payload: Payload): OutcomeLookup {
   return {
     async hasOutcome(deliveryId) {
@@ -79,6 +117,7 @@ export function createPayloadAgentDeps(payload: Payload): AgentDeps {
     deliveries: payloadAgentDeliveryStore(payload),
     firms: payloadFirmContactRepository(payload),
     outcomes: payloadOutcomeLookup(payload),
+    claimants: payloadClaimantReachRepository(payload),
     notify: httpNotifier(),
     events: payloadEventStoreFor(payload),
     clock: { nowIso: () => new Date().toISOString() },

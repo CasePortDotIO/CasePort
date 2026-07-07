@@ -105,6 +105,7 @@ export const EVENT_TYPES = [
   'SlaBreached',
   'DecayInterrupt',
   'OutcomeRequested',
+  'FirmCallbackSlaActivated',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]
