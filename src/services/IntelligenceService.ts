@@ -2,6 +2,7 @@ import type { AttributionTuple } from './ports'
 import type { IntelligenceDeps } from './intelligencePorts'
 import { defaultV1Model, recalibrate, scpsScore, type ScpsFactors, type ScpsModel } from './scps'
 import { evaluateRecalibration as runRecalibrationEval, type RecalibrationEvaluation } from './scpsEval'
+import { computeAcer } from '@/lib/domain/acer'
 
 /**
  * IntelligenceService. Section 4, 9, 11. Derived and always recomputable: if the
@@ -250,18 +251,9 @@ export function createIntelligenceService(deps: IntelligenceDeps) {
       .filter((e) => e.reason === 'delivery-debit')
       .reduce((s, e) => s + Math.abs(e.amountCents), 0)
     const outcomes = await deps.outcomes.listByFirm(firmId)
-    const reported = outcomes.length > 0
-    const signedCases = outcomes.filter((o) => o.result === 'retained' || o.result === 'settled').length
-    return {
-      firmId,
-      feesPaidCents,
-      signedCases,
-      costPerSignedCaseCents: signedCases > 0 ? Math.round(feesPaidCents / signedCases) : null,
-      reported,
-      // Their true cost per signed case is unknowable until they tell us what
-      // signed. Feeding outcomes unlocks the number they came for.
-      locked: feesPaidCents > 0 && !reported,
-    }
+    // The formula is locked in one place (src/lib/domain/acer.ts) so the number
+    // is identical on the dashboard, the API, and the closing kit.
+    return { firmId, ...computeAcer({ feesPaidCents, outcomeResults: outcomes.map((o) => o.result) }) }
   }
 
   return { attributionTrace, scoreDossier, recalibrateScps, promoteScpsModel, evaluateRecalibration, listScpsModels, acer }

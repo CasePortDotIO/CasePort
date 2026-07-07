@@ -22,7 +22,7 @@ interface CasePortLayoutProps {
 
 export default function CasePortLayoutEnhanced({ children, currentScreen }: CasePortLayoutProps) {
   const [, navigate] = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
@@ -84,21 +84,36 @@ export default function CasePortLayoutEnhanced({ children, currentScreen }: Case
           })}
         </nav>
 
-        {/* Footer */}
+        {/* Footer. The identity and the action reflect the real session: a signed
+           in partner sees their firm and a working Logout; a visitor exploring
+           without a login sees a clear Demo mode badge and a Sign in button. This
+           is what makes logout visibly effective rather than silently masked. */}
         <div className="border-t border-border p-4 space-y-4">
-          <div className="px-2 space-y-1">
-            <p className="text-sm font-semibold text-foreground">{user?.firmName ?? 'Your firm'}</p>
-            <p className="text-xs text-muted-foreground">{user?.name ?? ''}</p>
-          </div>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            size="sm"
-            className="w-full justify-start gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <div className="px-2 space-y-1">
+                <p className="text-sm font-semibold text-foreground">{user?.firmName ?? 'Your firm'}</p>
+                <p className="text-xs text-muted-foreground">{user?.name ?? ''}</p>
+              </div>
+              <Button onClick={handleLogout} variant="outline" size="sm" className="w-full justify-start gap-2">
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="px-2 space-y-1">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border border-border rounded px-1.5 py-0.5">
+                  Demo mode
+                </span>
+                <p className="text-xs text-muted-foreground pt-1">Exploring without a login.</p>
+              </div>
+              <Button onClick={() => navigate('/login')} variant="outline" size="sm" className="w-full justify-start gap-2">
+                <LogOut className="w-4 h-4 rotate-180" />
+                Sign in
+              </Button>
+            </>
+          )}
         </div>
       </aside>
 

@@ -298,8 +298,41 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
           > | null)
         : null
 
+      // Categorized evidence, assembled from the intake event log. Photos and
+      // documents each carry a kind and a viewable media URL. The event payload
+      // holds the media key, never the bytes (Section 4, W5).
+      const photos: Array<{ kind: string; url: string }> = []
+      const documents: Array<{ kind: string; url: string }> = []
+      const sessionId = dossier ? relId(dossier.intakeSession) : ''
+      if (sessionId) {
+        const evers = await payload
+          .find({
+            collection: 'events',
+            where: {
+              and: [
+                { intakeSession: { equals: sessionId } },
+                { eventType: { in: ['PhotoUploaded', 'DocumentParsed'] } },
+              ],
+            },
+            sort: 'occurredAt',
+            limit: 100,
+            depth: 0,
+          })
+          .catch(() => null)
+        for (const ev of evers?.docs ?? []) {
+          const row = ev as unknown as Record<string, unknown>
+          const p = (row.payload ?? {}) as { mediaKey?: unknown; kind?: unknown }
+          const url = typeof p.mediaKey === 'string' ? p.mediaKey : ''
+          const kind = typeof p.kind === 'string' ? p.kind : 'other'
+          if (!url) continue
+          if (row.eventType === 'PhotoUploaded') photos.push({ kind, url })
+          else documents.push({ kind, url })
+        }
+      }
+
       // The firm scoping and mapping live in the pure builder, unit tested.
       return buildOpportunityDetail({
+        evidence: { photos, documents },
         firmId,
         delivery: {
           id: String(delivery.id),

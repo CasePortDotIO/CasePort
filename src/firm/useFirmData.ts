@@ -53,11 +53,21 @@ export interface RedactedActivity {
   status: string
 }
 
+/** ACER, the locked true cost per signed case. See docs/ACER.md. */
+export interface FirmAcer {
+  feesPaidCents: number
+  signedCases: number
+  costPerSignedCaseCents: number | null
+  reported: boolean
+  locked: boolean
+}
+
 export interface FirmGlassBox {
   firmId: string
   wallet: FirmWalletView
   deliveries: FirmDeliveryView[]
   proofFeed: { market: string | null; framing: string; items: RedactedActivity[] }
+  acer?: FirmAcer
 }
 
 export interface FirmDataState {

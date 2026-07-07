@@ -2,6 +2,8 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { createGlassBoxService } from '@/services/GlassBoxService'
 import { createPayloadGlassBoxDeps } from '@/services/adapters/payloadWallet'
+import { createIntelligenceService } from '@/services/IntelligenceService'
+import { createPayloadIntelligenceDeps } from '@/services/adapters/payloadIntelligence'
 import { guardFirmAccess } from '@/lib/firmAuth'
 
 /**
@@ -20,11 +22,15 @@ export async function GET(_req: Request, { params }: { params: Promise<{ firmId:
     const denied = await guardFirmAccess(payload, _req, firmId)
     if (denied) return denied
     const glass = createGlassBoxService(createPayloadGlassBoxDeps(payload))
+    const intel = createIntelligenceService(createPayloadIntelligenceDeps(payload))
 
-    const [wallet, proofFeed, deliveries] = await Promise.all([
+    const [wallet, proofFeed, deliveries, acer] = await Promise.all([
       glass.walletView(firmId),
       glass.proofOfRealityFeed(firmId, 12),
       glass.firmGlassBox(firmId),
+      // ACER, the locked true cost per signed case. Locked until the firm reports
+      // an outcome; the dashboard renders the honest locked state until then.
+      intel.acer(firmId),
     ])
 
     return Response.json({
@@ -33,6 +39,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ firmId:
       proofFeed,
       deliveries: deliveries.deliveries,
       sampleDossier: glass.sampleDossier(),
+      acer,
     })
   } catch {
     // Degrade gracefully so the firm dashboard renders its honest empty state

@@ -159,6 +159,30 @@ export default function DashboardInstitutional() {
           </div>
         )}
 
+        {/* ACER, the number the firm came for: their true cost per signed case
+            (docs/ACER.md). Real when they have reported an outcome, honestly
+            locked until then. Never estimated. */}
+        {!loading && data?.acer && (data.acer.reported || data.acer.locked) && (
+          <div
+            className="mb-10 rounded-2xl border p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+            style={{ borderColor: 'rgba(34,197,141,0.24)', background: 'linear-gradient(120deg, rgba(34,197,141,0.08), rgba(34,197,141,0.01) 60%)' }}
+          >
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground mb-1">Your true cost per signed case</p>
+              {data.acer.costPerSignedCaseCents != null ? (
+                <p className="text-3xl font-light tabular-nums text-foreground">${dollars(data.acer.costPerSignedCaseCents)}</p>
+              ) : (
+                <p className="text-xl font-light text-foreground">Report an outcome to unlock it</p>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              {data.acer.costPerSignedCaseCents != null
+                ? `Across ${data.acer.signedCases} signed ${data.acer.signedCases === 1 ? 'case' : 'cases'} and $${dollars(data.acer.feesPaidCents)} in delivery fees. Compare it to your cost per signed case through ads and shared leads.`
+                : 'This is the one number we cannot estimate. The moment you report what signed, we compute it from your own ledger and show it here.'}
+            </p>
+          </div>
+        )}
+
         {/* Two column: recent opportunities + this-month summary, all real. */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2">

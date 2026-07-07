@@ -64,6 +64,18 @@ export interface OpportunityDetail {
     factors: Array<{ label: string; value: number }>
   }
   hipaaExecutedInFirmName: boolean
+  /** Categorized evidence the claimant captured: photos and documents, each with
+   * its kind and a viewable URL. Assembled from the intake event log. */
+  evidence: {
+    photos: Array<{ kind: string; url: string }>
+    documents: Array<{ kind: string; url: string }>
+  }
+}
+
+/** Raw captured media for a dossier, read from the intake event log. */
+export interface DossierEvidence {
+  photos: Array<{ kind: string; url: string }>
+  documents: Array<{ kind: string; url: string }>
 }
 
 export interface GlassBoxReadPort {
@@ -125,6 +137,7 @@ export function buildOpportunityDetail(input: {
     }
   } | null
   claimant: { firstName?: string; lastName?: string; phone?: string | null; email?: string | null; location?: string } | null
+  evidence?: DossierEvidence
 }): OpportunityDetail | null {
   // The Glass Box invariant: a firm can only ever read its own case.
   if (input.delivery.firmId !== input.firmId) return null
@@ -165,6 +178,10 @@ export function buildOpportunityDetail(input: {
       factors,
     },
     hipaaExecutedInFirmName: true,
+    evidence: {
+      photos: input.evidence?.photos ?? [],
+      documents: input.evidence?.documents ?? [],
+    },
   }
 }
 

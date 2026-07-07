@@ -42,7 +42,13 @@ interface Detail {
     factors: { label: string; value: number }[];
   };
   hipaaExecutedInFirmName: boolean;
+  evidence?: { photos: { kind: string; url: string }[]; documents: { kind: string; url: string }[] };
 }
+
+const EVIDENCE_KIND_LABEL: Record<string, string> = {
+  wide: 'Wide scene', damage: 'Vehicle damage', plate: 'License plate', scene: 'Scene', injury: 'Injury',
+  'insurance-card': 'Insurance card', 'police-report': 'Police report', other: 'Other',
+};
 
 const CASE_TYPE_LABEL: Record<string, string> = {
   'motor-vehicle-accident': 'Motor Vehicle Accident',
@@ -189,6 +195,46 @@ export default function OpportunityDetailProduction() {
             </div>
             <p className="text-[15px] text-foreground leading-relaxed">{detail.statement || 'The claimant statement is being assembled.'}</p>
           </Card>
+
+          {/* Categorized evidence, captured by the claimant during guided intake.
+             Real photos and documents from the case file, each labeled by kind.
+             Shown only when present; never mocked. */}
+          {detail.evidence && (detail.evidence.photos.length > 0 || detail.evidence.documents.length > 0) && (
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="w-4 h-4" style={{ color: TEAL }} />
+                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">The evidence</h2>
+                <span className="ml-auto text-[11px] text-muted-foreground">
+                  {detail.evidence.photos.length} photo{detail.evidence.photos.length === 1 ? '' : 's'}
+                  {detail.evidence.documents.length > 0 ? `, ${detail.evidence.documents.length} document${detail.evidence.documents.length === 1 ? '' : 's'}` : ''}
+                </span>
+              </div>
+              {detail.evidence.photos.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                  {detail.evidence.photos.map((p, i) => (
+                    <a key={i} href={p.url} target="_blank" rel="noopener noreferrer" className="group block">
+                      <div className="aspect-[4/3] rounded-lg overflow-hidden border border-white/[0.08] bg-muted/30">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={p.url} alt={EVIDENCE_KIND_LABEL[p.kind] ?? p.kind} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform" loading="lazy" />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1.5">{EVIDENCE_KIND_LABEL[p.kind] ?? p.kind}</p>
+                    </a>
+                  ))}
+                </div>
+              )}
+              {detail.evidence.documents.length > 0 && (
+                <div className="space-y-2">
+                  {detail.evidence.documents.map((d, i) => (
+                    <a key={i} href={d.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border border-white/[0.08] px-4 py-2.5 hover:border-white/25 transition-colors">
+                      <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <span className="text-sm text-foreground">{EVIDENCE_KIND_LABEL[d.kind] ?? d.kind}</span>
+                      <Download className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </Card>
+          )}
         </div>
 
         {/* Triage + actions */}
@@ -239,12 +285,15 @@ export default function OpportunityDetailProduction() {
             <p className="text-sm text-foreground leading-relaxed">
               Executed by the claimant in the name of <b className="font-semibold">{firmName}</b>. Request records directly from providers, no waiting.
             </p>
-            <button
-              onClick={() => toast.success('HIPAA authorization downloaded.')}
+            <a
+              href={firmId ? `/api/firm/${encodeURIComponent(firmId)}/opportunity/${encodeURIComponent(detail.deliveryId)}/hipaa` : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => { if (!firmId) toast.error('Sign in to download the authorization.'); }}
               className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold border border-white/[0.1] hover:border-white/25 transition-colors text-foreground"
             >
               <Download className="w-4 h-4" /> Download authorization
-            </button>
+            </a>
           </Card>
 
           {/* Report the outcome. This is the moat's ignition: a reported outcome
