@@ -4,17 +4,19 @@
  */
 import 'dotenv/config'
 import { getPayload } from 'payload'
-import config from './src/payload.config'
+import config from '../payload.config'
 
 const run = async () => {
   const payload = await getPayload({ config })
 
   // ─── Find Car Accidents category ─────────────────────────────────────────────
-  let category = await payload.find({
-    collection: 'guideCategories',
-    where: { slug: { equals: 'car-accidents' } },
-    limit: 1,
-  }).then(r => r.docs[0])
+  let category = await payload
+    .find({
+      collection: 'guideCategories',
+      where: { slug: { equals: 'car-accidents' } },
+      limit: 1,
+    })
+    .then((r) => r.docs[0])
 
   if (!category) {
     throw new Error('Car Accidents category not found. Run the main seed first.')
@@ -97,13 +99,55 @@ const run = async () => {
     {
       blockType: 'categorySettlementBreakdown',
       items: [
-        { injuryType: 'Whiplash / Neck Injury', settlementAmount: '$75,000', minAmount: '$10,000', maxAmount: '$150,000', recoveryTime: '2–6 months' },
-        { injuryType: 'Herniated Disc', settlementAmount: '$150,000', minAmount: '$50,000', maxAmount: '$350,000', recoveryTime: '4–12 months' },
-        { injuryType: 'Back Injury (Lumbar)', settlementAmount: '$125,000', minAmount: '$30,000', maxAmount: '$300,000', recoveryTime: '3–10 months' },
-        { injuryType: 'Broken Bones / Fractures', settlementAmount: '$100,000', minAmount: '$25,000', maxAmount: '$250,000', recoveryTime: '2–8 months' },
-        { injuryType: 'Concussion / TBI', settlementAmount: '$200,000', minAmount: '$50,000', maxAmount: '$500,000', recoveryTime: '6–18 months' },
-        { injuryType: 'Lacerations / Scarring', settlementAmount: '$60,000', minAmount: '$15,000', maxAmount: '$125,000', recoveryTime: '2–5 months' },
-        { injuryType: 'Wrongful Death', settlementAmount: '$1,000,000+', minAmount: '$250,000', maxAmount: 'No limit', recoveryTime: '12–36 months' },
+        {
+          injuryType: 'Whiplash / Neck Injury',
+          settlementAmount: '$75,000',
+          minAmount: '$10,000',
+          maxAmount: '$150,000',
+          recoveryTime: '2–6 months',
+        },
+        {
+          injuryType: 'Herniated Disc',
+          settlementAmount: '$150,000',
+          minAmount: '$50,000',
+          maxAmount: '$350,000',
+          recoveryTime: '4–12 months',
+        },
+        {
+          injuryType: 'Back Injury (Lumbar)',
+          settlementAmount: '$125,000',
+          minAmount: '$30,000',
+          maxAmount: '$300,000',
+          recoveryTime: '3–10 months',
+        },
+        {
+          injuryType: 'Broken Bones / Fractures',
+          settlementAmount: '$100,000',
+          minAmount: '$25,000',
+          maxAmount: '$250,000',
+          recoveryTime: '2–8 months',
+        },
+        {
+          injuryType: 'Concussion / TBI',
+          settlementAmount: '$200,000',
+          minAmount: '$50,000',
+          maxAmount: '$500,000',
+          recoveryTime: '6–18 months',
+        },
+        {
+          injuryType: 'Lacerations / Scarring',
+          settlementAmount: '$60,000',
+          minAmount: '$15,000',
+          maxAmount: '$125,000',
+          recoveryTime: '2–5 months',
+        },
+        {
+          injuryType: 'Wrongful Death',
+          settlementAmount: '$1,000,000+',
+          minAmount: '$250,000',
+          maxAmount: 'No limit',
+          recoveryTime: '12–36 months',
+        },
       ],
     },
     // ── Attorney Comparison ───────────────────────────────────────────────
@@ -113,22 +157,26 @@ const run = async () => {
         {
           label: 'Initial Settlement Offer',
           withoutAttorney: 'Insurance company offers the bare minimum — or nothing at all.',
-          withAttorney: 'Attorneys counter with evidence-backed demand letters backed by evidence and state law.',
+          withAttorney:
+            'Attorneys counter with evidence-backed demand letters backed by evidence and state law.',
         },
         {
           label: 'Proving Fault',
           withoutAttorney: 'You navigate complicated liability rules alone.',
-          withAttorney: 'Attorneys gather accident reports, CCTV footage, expert witnesses, and reconstruct the scene.',
+          withAttorney:
+            'Attorneys gather accident reports, CCTV footage, expert witnesses, and reconstruct the scene.',
         },
         {
           label: 'Medical Evidence',
           withoutAttorney: 'You manage your own records and risk missing critical documentation.',
-          withAttorney: 'Attorneys work with medical professionals to fully document every injury and future impact.',
+          withAttorney:
+            'Attorneys work with medical professionals to fully document every injury and future impact.',
         },
         {
           label: 'Statute of Limitations',
           withoutAttorney: 'One missed deadline can destroy your entire case forever.',
-          withAttorney: 'Attorneys track every legal deadline so you never lose your right to compensation.',
+          withAttorney:
+            'Attorneys track every legal deadline so you never lose your right to compensation.',
         },
         {
           label: 'Dealing With Insurance',
@@ -137,7 +185,8 @@ const run = async () => {
         },
         {
           label: 'Maximum Compensation',
-          withoutAttorney: 'Average claimant receives a small fraction of what their case is worth.',
+          withoutAttorney:
+            'Average claimant receives a small fraction of what their case is worth.',
           withAttorney: 'Clients with legal representation recover 3–5× more on average.',
         },
       ],
@@ -170,14 +219,14 @@ const run = async () => {
             'Every case is different. Factors include the severity of your injuries, medical expenses, lost wages, property damage, and the strength of evidence showing the other driver was at fault. CasePort-connected attorneys offer free case reviews so you understand what your specific claim could be worth — with no obligation.',
         },
         {
-          question: "What if the accident was partially my fault?",
+          question: 'What if the accident was partially my fault?',
           answer:
             'You may still recover compensation. Most states use comparative fault rules, meaning your settlement is reduced by your percentage of fault — but not eliminated unless you were more than 50% responsible. An attorney helps build the strongest possible case to minimize your fault and maximize your recovery.',
         },
         {
           question: 'Do I need a lawyer for a minor car accident?',
           answer:
-            'Even minor accidents can result in injuries that appear weeks later — like whiplash or concussions. Insurance companies often come back months later to reconsider claims they\'ve paid. Having an attorney from the start ensures your rights are protected from day one and that any settlement reflects the true value of your injuries.',
+            "Even minor accidents can result in injuries that appear weeks later — like whiplash or concussions. Insurance companies often come back months later to reconsider claims they've paid. Having an attorney from the start ensures your rights are protected from day one and that any settlement reflects the true value of your injuries.",
         },
         {
           question: 'How long does a car accident claim take?',
@@ -192,7 +241,7 @@ const run = async () => {
         {
           question: 'What should I do right after a car accident?',
           answer:
-            'First, call 911 and get medical attention — even if you feel fine, some injuries don\'t show symptoms immediately. Then, if possible: take photos of vehicles and the scene, exchange information with the other driver, get witness contact info, and file a police report. Do not admit fault at the scene. Then contact a car accident attorney as soon as possible.',
+            "First, call 911 and get medical attention — even if you feel fine, some injuries don't show symptoms immediately. Then, if possible: take photos of vehicles and the scene, exchange information with the other driver, get witness contact info, and file a police report. Do not admit fault at the scene. Then contact a car accident attorney as soon as possible.",
         },
       ],
     },
@@ -206,9 +255,9 @@ const run = async () => {
             'Pain and suffering is typically calculated using either the "multiplier method" (multiplying your medical costs by a number between 1.5 and 5 based on injury severity) or the "per diem method" (assigning a daily rate for each day you suffer). Insurance companies use their own formulas, which is why having an attorney ensures you fight for a fair number.',
         },
         {
-          question: 'Can I sue the other driver\'s insurance company directly?',
+          question: "Can I sue the other driver's insurance company directly?",
           answer:
-            'Yes, you can — and often must — file a claim or lawsuit against the at-fault driver\'s insurance company to recover compensation. If their insurer refuses to pay fairly, your attorney can file suit in civil court. This is different from your own insurance policy, which covers your damages up to your policy limits.',
+            "Yes, you can — and often must — file a claim or lawsuit against the at-fault driver's insurance company to recover compensation. If their insurer refuses to pay fairly, your attorney can file suit in civil court. This is different from your own insurance policy, which covers your damages up to your policy limits.",
         },
         {
           question: 'What if the at-fault driver has no insurance?',

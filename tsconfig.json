@@ -53,6 +53,9 @@
     "files-4",
     "check-*.ts",
     "fix-*.ts",
-    "verify-*.ts"
+    "verify-*.ts",
+    "seed-accident-pages.ts",
+    "seed-city-types-only.ts",
+    "seed-*.ts"
   ]
 }

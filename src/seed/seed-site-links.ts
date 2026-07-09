@@ -4,7 +4,7 @@
  */
 import 'dotenv/config'
 import { getPayload } from 'payload'
-import config from './src/payload.config'
+import config from '../payload.config'
 
 const SITE_LINKS = [
   { name: 'Home', url: '/' },

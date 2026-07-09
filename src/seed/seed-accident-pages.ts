@@ -1,32 +1,78 @@
 import 'dotenv/config'
 import { getPayload } from 'payload'
-import configPromise from './src/payload.config'
 import {
-  accidentTypes,
   accidentTypeOrder,
+  accidentTypes,
   cityData,
+  crashFor,
+  quickAnswerOrder,
+  quickAnswers,
   stateData,
   stateLawFor,
   stateLawTopics,
-  crashFor,
-  quickAnswers,
-  quickAnswerOrder,
-  type City,
-} from './src/data'
-import { reviewer } from './src/lib/accidents-constants'
-import { severityTable } from './src/lib/accidents-accident'
-import { firstHourSteps } from './src/lib/accidents-firstHour'
+} from '../data'
+import { severityTable } from '../lib/accidents-accident'
+import { reviewer } from '../lib/accidents-constants'
+import { firstHourSteps } from '../lib/accidents-firstHour'
+import configPromise from '../payload.config'
 
 // ─── All 51 states + DC ──────────────────────────────────────────────────────
 const ALL_STATES = [
-  'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN',
-  'IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH',
-  'NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT',
-  'VT','VA','WA','WV','WI','WY',
+  'AL',
+  'AK',
+  'AZ',
+  'AR',
+  'CA',
+  'CO',
+  'CT',
+  'DE',
+  'DC',
+  'FL',
+  'GA',
+  'HI',
+  'ID',
+  'IL',
+  'IN',
+  'IA',
+  'KS',
+  'KY',
+  'LA',
+  'ME',
+  'MD',
+  'MA',
+  'MI',
+  'MN',
+  'MS',
+  'MO',
+  'MT',
+  'NE',
+  'NV',
+  'NH',
+  'NJ',
+  'NM',
+  'NY',
+  'NC',
+  'ND',
+  'OH',
+  'OK',
+  'OR',
+  'PA',
+  'RI',
+  'SC',
+  'SD',
+  'TN',
+  'TX',
+  'UT',
+  'VT',
+  'VA',
+  'WA',
+  'WV',
+  'WI',
+  'WY',
 ]
 
 // States that have city data in cityData
-const CITY_DATA_STATES = ['va','md','dc','ga','ca','tx','ny','fl','il','az']
+const CITY_DATA_STATES = ['va', 'md', 'dc', 'ga', 'ca', 'tx', 'ny', 'fl', 'il', 'az']
 
 // ─── Payload helpers ────────────────────────────────────────────────────────
 
@@ -105,9 +151,7 @@ async function upsertDoc(
 // Cached author ID
 let _authorId: string | null = null
 
-async function getAuthorId(
-  payload: Awaited<ReturnType<typeof getPayload>>,
-): Promise<string> {
+async function getAuthorId(payload: Awaited<ReturnType<typeof getPayload>>): Promise<string> {
   if (_authorId) return _authorId
   const { docs } = await payload.find({
     collection: 'authors',
@@ -185,10 +229,7 @@ async function seedAccidentTypes(
         heading: `How ${t.category.toLowerCase()} claims work — and what yours may be worth`,
         lead: t.directAnswer,
         voiceAnswer: t.directAnswer.split('.')[0] + '.',
-        speakableCssSelectors: [
-          { selector: '.cap-lead' },
-          { selector: '.direct-answer h2' },
-        ],
+        speakableCssSelectors: [{ selector: '.cap-lead' }, { selector: '.direct-answer h2' }],
         label: 'Typical settlement range by injury severity',
         head: [
           { cell: 'Injury severity' },
@@ -271,10 +312,7 @@ async function seedAccidentTypes(
         heading: `How ${t.category.toLowerCase()} claims work — and what yours may be worth`,
         lead: t.directAnswer,
         voiceAnswer: t.directAnswer.split('.')[0] + '.',
-        speakableCssSelectors: [
-          { selector: '.cap-lead' },
-          { selector: '.direct-answer h2' },
-        ],
+        speakableCssSelectors: [{ selector: '.cap-lead' }, { selector: '.direct-answer h2' }],
         label: 'Typical settlement range by injury severity',
         head: [
           { cell: 'Injury severity' },
@@ -341,9 +379,7 @@ async function seedAccidentTypes(
 
 // ─── Quick Answer seed ───────────────────────────────────────────────────────
 
-async function seedQuickAnswers(
-  payload: Awaited<ReturnType<typeof getPayload>>,
-): Promise<void> {
+async function seedQuickAnswers(payload: Awaited<ReturnType<typeof getPayload>>): Promise<void> {
   let count = 0
   for (const qaKey of quickAnswerOrder) {
     const qa = quickAnswers[qaKey]
@@ -477,11 +513,7 @@ async function seedStates(
         heading: `Accident law in ${s.name}, in one place`,
         lead: `In ${s.name}, the ${s.label.toLowerCase()} rule governs every accident claim: ${s.faultThreshold}. You have ${s.statuteYears} year${s.statuteYears > 1 ? 's' : ''} from the date of injury to file.`,
         label: `${s.name} vs. the national average`,
-        head: [
-          { cell: 'Metric' },
-          { cell: s.name },
-          { cell: 'National avg' },
-        ],
+        head: [{ cell: 'Metric' }, { cell: s.name }, { cell: 'National avg' }],
         rows: [
           {
             cells: [
@@ -525,9 +557,7 @@ async function seedStates(
         blockType: 'stateTopicsGrid',
         topics,
       },
-      ...(cities.length > 0
-        ? [{ blockType: 'citiesGrid', cities }]
-        : []),
+      ...(cities.length > 0 ? [{ blockType: 'citiesGrid', cities }] : []),
       {
         blockType: 'stateFaqBlock',
         title: `Frequently Asked Questions — ${s.name}`,
@@ -546,9 +576,7 @@ async function seedStates(
           },
           {
             question: `Is there a cap on damages in ${s.name}?`,
-            answer:
-              lawTopics.damage_caps?.direct_answer ||
-              s.damageCap,
+            answer: lawTopics.damage_caps?.direct_answer || s.damageCap,
           },
           {
             question: `Do I need a lawyer in ${s.name}?`,
@@ -573,7 +601,8 @@ async function seedStates(
       {
         blockType: 'actionKit',
         title: `Your ${s.name} Action Kit — Copy, Paste, Send`,
-        intro: 'Four scripts that protect your claim in the first days — written for you, ready to use. Most accident victims never get these in time. You can send them today.',
+        intro:
+          'Four scripts that protect your claim in the first days — written for you, ready to use. Most accident victims never get these in time. You can send them today.',
         scripts: [
           {
             id: 'preserve',
@@ -600,7 +629,7 @@ async function seedStates(
             why: "Read or email this verbatim when the other driver's adjuster calls. You are not required to give a recorded statement or sign a blanket medical release — both are used to reduce your claim.",
             to: "Say to: the other driver's insurance adjuster",
             subject: 'Re: Claim #[CLAIM NUMBER] — Communication Preference',
-            body: "Thank you for reaching out. I am not providing a recorded statement at this time, and I do not consent to a blanket medical-records authorization.\n\nI am still under medical care and cannot evaluate any settlement until my treatment is complete. Please direct all further communication regarding this claim to me in writing at [YOUR EMAIL].\n\nI will authorize only the records directly related to injuries from this accident, for the relevant treatment dates.\n\nThank you.",
+            body: 'Thank you for reaching out. I am not providing a recorded statement at this time, and I do not consent to a blanket medical-records authorization.\n\nI am still under medical care and cannot evaluate any settlement until my treatment is complete. Please direct all further communication regarding this claim to me in writing at [YOUR EMAIL].\n\nI will authorize only the records directly related to injuries from this accident, for the relevant treatment dates.\n\nThank you.',
           },
           {
             id: 'records',
@@ -609,7 +638,7 @@ async function seedStates(
             why: 'Your medical records are the backbone of your claim value. Request the complete file — notes, imaging, and itemized billing — early.',
             to: "Send to: your treating provider's medical-records department",
             subject: 'Medical Records Request — [YOUR NAME], DOB [DOB]',
-            body: "To the Medical Records Department,\n\nI am requesting a complete copy of my medical records for treatment on and after [ACCIDENT DATE], including:\n\n• Physician and nursing notes\n• Imaging (X-ray, CT, MRI) and radiology reports\n• Test and lab results\n• An itemized billing statement\n\nPatient: [YOUR FULL NAME]\nDate of birth: [DOB]\nDates of service: [START] to [PRESENT]\n\nPlease send the records to [YOUR ADDRESS / EMAIL], or advise your release process and any fee.\n\nThank you,\n[YOUR FULL NAME]",
+            body: 'To the Medical Records Department,\n\nI am requesting a complete copy of my medical records for treatment on and after [ACCIDENT DATE], including:\n\n• Physician and nursing notes\n• Imaging (X-ray, CT, MRI) and radiology reports\n• Test and lab results\n• An itemized billing statement\n\nPatient: [YOUR FULL NAME]\nDate of birth: [DOB]\nDates of service: [START] to [PRESENT]\n\nPlease send the records to [YOUR ADDRESS / EMAIL], or advise your release process and any fee.\n\nThank you,\n[YOUR FULL NAME]',
           },
         ],
       },
@@ -634,10 +663,11 @@ async function seedStates(
       state: stateKey,
       blocks,
       metaTitle: `Accident Law in ${s.name} | CasePort`,
-      metaDescription: `${s.name} applies ${s.label}. Filing deadline ${s.statuteYears} years. Average settlement $${s.avgSettlement}K. ${s.topCause} is the top cause.`.slice(
-        0,
-        160,
-      ),
+      metaDescription:
+        `${s.name} applies ${s.label}. Filing deadline ${s.statuteYears} years. Average settlement $${s.avgSettlement}K. ${s.topCause} is the top cause.`.slice(
+          0,
+          160,
+        ),
       focusKeyword: `personal injury lawyer ${s.name}`,
       publishedDate: new Date().toISOString(),
     })
@@ -674,10 +704,7 @@ async function seedStateTopics(
         {
           blockType: 'directAnswer',
           lead: c.direct_answer,
-          speakableCssSelectors: [
-            { selector: '.cap-lead' },
-            { selector: '.direct-answer h2' },
-          ],
+          speakableCssSelectors: [{ selector: '.cap-lead' }, { selector: '.direct-answer h2' }],
         },
         ...(c.sections && c.sections.length > 0
           ? [
@@ -695,16 +722,12 @@ async function seedStateTopics(
           title: `Frequently Asked Questions About ${stateKey} Accident Law`,
           items: [
             { question: c.title, answerText: c.direct_answer },
-            ...(c.sections || [])
-              .slice(0, 4)
-              .map((sec: any) => ({
-                question: sec.title,
-                answerText: sec.content,
-              })),
+            ...(c.sections || []).slice(0, 4).map((sec: any) => ({
+              question: sec.title,
+              answerText: sec.content,
+            })),
           ],
-          aiCitationSummary: c.direct_answer
-            ? c.direct_answer.slice(0, 200)
-            : undefined,
+          aiCitationSummary: c.direct_answer ? c.direct_answer.slice(0, 200) : undefined,
         },
         {
           blockType: 'sources',
@@ -735,7 +758,9 @@ async function seedStateTopics(
       count++
     }
   }
-  console.log(`✅ Seeded ${count} state topic pages (${ALL_STATES.length} states × ${stateLawTopics.length} topics)`)
+  console.log(
+    `✅ Seeded ${count} state topic pages (${ALL_STATES.length} states × ${stateLawTopics.length} topics)`,
+  )
 }
 
 // ─── City Type seed (10 city-data states × all accident types) ───────────────
@@ -824,10 +849,7 @@ async function seedCityTypes(
             heading: `${typeName} claims in ${city.name}, ${s.abbr}`,
             lead: `If you were injured in a ${typeName.toLowerCase()} in ${city.name}, ${s.name} law controls your claim: ${s.name} uses the ${s.label.toLowerCase()} rule (${s.faultThreshold}), and you have ${s.statuteYears} year${s.statuteYears > 1 ? 's' : ''} from the date of injury to file. ${city.name} is a ${city.accidentRate.toLowerCase()}-accident-rate area, so evidence and witnesses move fast — the first 72 hours matter most.`,
             voiceAnswer: `${s.name} uses the ${s.label.toLowerCase()} rule. You have ${s.statuteYears} year${s.statuteYears > 1 ? 's' : ''} to file.`,
-            speakableCssSelectors: [
-              { selector: '.cap-lead' },
-              { selector: '.direct-answer h2' },
-            ],
+            speakableCssSelectors: [{ selector: '.cap-lead' }, { selector: '.direct-answer h2' }],
             label: `${city.name} at a glance`,
             head: [{ cell: 'Factor' }, { cell: 'Detail' }],
             rows: [
@@ -842,10 +864,7 @@ async function seedCityTypes(
                 ],
               },
               {
-                cells: [
-                  { cell: `Avg ${s.name} settlement` },
-                  { cell: `$${s.avgSettlement}K` },
-                ],
+                cells: [{ cell: `Avg ${s.name} settlement` }, { cell: `$${s.avgSettlement}K` }],
               },
             ],
           },
@@ -902,8 +921,7 @@ async function seedCityTypes(
               {
                 icon: 'doc',
                 title: `What to Do After an Accident in ${city.name}`,
-                description:
-                  'The exact steps and copy-paste scripts for the first hours.',
+                description: 'The exact steps and copy-paste scripts for the first hours.',
                 url: `/accidents/${cityKey}/${city.slug}/what-to-do-after`,
               },
               {
@@ -978,7 +996,8 @@ async function seedCityTypes(
           cityTypeIds.set(typeKey, id)
           totalCount++
           cityCount++
-          if (cityCount % 50 === 0) process.stderr.write(`   ...${cityCount} city type pages seeded\n`)
+          if (cityCount % 50 === 0)
+            process.stderr.write(`   ...${cityCount} city type pages seeded\n`)
         } catch (err: any) {
           console.error(`   ERROR on ${fullSlug}: ${err.message}`)
         }
@@ -986,7 +1005,7 @@ async function seedCityTypes(
     }
 
     console.log(
-      `   ${cd.name}: ${cityTypeIds.size} city type pages → ${cd.cities.length} cities × ${accidentTypeOrder.length} types [${((Date.now()-t0)/1000).toFixed(1)}s]`,
+      `   ${cd.name}: ${cityTypeIds.size} city type pages → ${cd.cities.length} cities × ${accidentTypeOrder.length} types [${((Date.now() - t0) / 1000).toFixed(1)}s]`,
     )
   }
 
