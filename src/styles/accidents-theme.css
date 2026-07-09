@@ -414,7 +414,14 @@ html:not(.fonts-ready) #app { opacity: 0; }
 /* ============================================================
    HERO PHOTO TREATMENT (editorial placeholder for real photography)
    ============================================================ */
-.hero-photo { position: relative; min-height: 26rem; display: flex; align-items: flex-end; overflow: hidden; margin-top: 0; background: linear-gradient(135deg, #143b48 0%, #1a4a5a 45%, #0f2e3a 100%); }
+.hero-photo { position: relative; min-height: 26rem; display: flex; align-items: flex-end; overflow: hidden; margin-top: 0; margin-bottom: 0; background: linear-gradient(135deg, #143b48 0%, #1a4a5a 45%, #0f2e3a 100%); }
+
+.section + .toc-card,
+.toc-card {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.5rem;
+}
 .hero-photo-img { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; background-size: cover; background-position: center; }
 @media (min-width:768px){ .hero-photo { min-height: 30rem; } }
 .hero-photo-bg { position: absolute; inset: 0; z-index: 0;
@@ -441,6 +448,15 @@ html:not(.fonts-ready) #app { opacity: 0; }
 .hero-photo .crumbs a, .hero-photo .crumbs .sep { color: rgba(255,255,255,0.6); }
 .hero-photo .crumbs a:hover { color: #fff; }
 .hero-photo .crumbs .here { color: #d9c489; }
+
+/* Hero table (used inside hero-photo when directAnswer has table data) */
+.hero-table { max-width: 56rem; margin-top: 1.25rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: .75rem; padding: 1.25rem 1.4rem; backdrop-filter: blur(4px); }
+.hero-table-label { font-family: var(--code); font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: .85rem; }
+.hero-table .table-wrap { overflow-x: auto; }
+.hero-table table.data { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.hero-table table.data th { color: rgba(255,255,255,0.6); font-weight: 600; text-align: left; padding: .4rem .6rem; border-bottom: 1px solid rgba(255,255,255,0.15); white-space: nowrap; }
+.hero-table table.data td { color: rgba(255,255,255,0.9); padding: .4rem .6rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.hero-table table.data td .num { color: #d9c489; }
 
 /* page intro (non-photo) */
 .page-intro { padding: 7.5rem 1.5rem 2.5rem; }
@@ -601,8 +617,8 @@ html:not(.fonts-ready) #app { opacity: 0; }
    ACTION KIT — copy-paste scripts
    ============================================================ */
 .ak-list { display: flex; flex-direction: column; gap: .85rem; }
-.ak-card { border: 1px solid var(--line); border-radius: 1rem; background: #fff; overflow: hidden; transition: box-shadow .25s var(--ease), border-color .25s; }
-.ak-card.open { border-color: var(--gold-line, rgba(201,168,76,0.5)); box-shadow: var(--shadow-card); }
+.ak-card { border: 1px solid var(--line); border-radius: 1rem; background: #fff; overflow: hidden; opacity: 1; transform: none; transition: box-shadow .25s var(--ease), border-color .25s; }
+.ak-card.open { opacity: 1; transform: none; border-color: var(--gold-line, rgba(201,168,76,0.5)); box-shadow: var(--shadow-card); }
 .ak-head { width: 100%; display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.4rem; text-align: left; }
 .ak-ic { width: 42px; height: 42px; border-radius: .6rem; background: rgba(74,140,126,0.1); color: var(--sage); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .ak-ic svg { width: 20px; height: 20px; }

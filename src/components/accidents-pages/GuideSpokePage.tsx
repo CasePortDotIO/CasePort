@@ -452,7 +452,7 @@ export function GuideSpokePage({
         </div>
       </section>
 
-      <Expert bg="bg-cream" medical={isMedical} />
+      <Expert bg="bg-cream" reviewType={isMedical ? "medical" : "legal"} />
 
       <FAQ faqs={meta.faq} bg="bg-cream" title="Frequently Asked Questions" />
 

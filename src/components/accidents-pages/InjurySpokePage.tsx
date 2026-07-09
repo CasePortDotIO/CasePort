@@ -300,7 +300,7 @@ export function InjurySpokePage({ slug, spokeSlug }: { slug: string; spokeSlug: 
         </div>
       </section>
 
-      <Expert bg="bg-white" medical />
+      <Expert bg="bg-white" reviewType="medical" />
 
       <Sources medical citeTitle={meta.title} citeUrl={`/injuries/${slug}/${spokeSlug}`} />
 

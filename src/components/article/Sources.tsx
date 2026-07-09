@@ -4,36 +4,39 @@ import { Icon } from '@/components/Icon'
 import { SITE_URL } from '@/lib/accidents-constants'
 import { useState } from 'react'
 
-const SRC_LEGAL: [string, string][] = [
+type SourceItem = { name: string; url: string }
+
+const DEFAULT_SOURCES: [string, string][] = [
   ['National Highway Traffic Safety Administration (NHTSA)', 'https://www.nhtsa.gov/'],
   ['Insurance Information Institute', 'https://www.iii.org/'],
   ['American Bar Association', 'https://www.americanbar.org/'],
   ['Insurance Research Council', 'https://www.insurance-research.org/'],
 ]
-const SRC_MED: [string, string][] = [
-  ['Centers for Disease Control and Prevention (CDC)', 'https://www.cdc.gov/'],
-  ['National Institutes of Health (NIH / MedlinePlus)', 'https://medlineplus.gov/'],
-  ['NHTSA — Traffic Safety Facts', 'https://www.nhtsa.gov/'],
-  ['American Medical Association', 'https://www.ama-assn.org/'],
-]
 
 /**
- * "Sources & Citations" — on every article page, before the final CTA. Real
- * outbound links + a "Cite this page" block with a working Copy button that
- * stacks on mobile. Mirrors the sources block built in `enhanceArticle`.
+ * "Sources & Citations" — on every article page, before the final CTA.
+ * Uses sources from the CMS block when available, falls back to defaults.
  */
 export function Sources({
   medical = false,
   citeTitle,
   citeUrl,
+  sources = [],
 }: {
   medical?: boolean
-  citeTitle: string
-  citeUrl: string
+  citeTitle?: string
+  citeUrl?: string
+  sources?: SourceItem[]
 }) {
   const [copied, setCopied] = useState(false)
-  const src = medical ? SRC_MED : SRC_LEGAL
-  const cite = `CasePort. "${citeTitle}." CasePort, 2026. ${SITE_URL}${citeUrl}`
+
+  const srcList: [string, string][] = sources.length > 0
+    ? sources.map((s) => [s.name, s.url])
+    : DEFAULT_SOURCES
+
+  const title = citeTitle || 'Accident Law'
+  const path = citeUrl ? `/${citeUrl.replace(/^\//, '')}` : ''
+  const cite = `CasePort. "${title}." CasePort, 2026. ${SITE_URL}${path}`
 
   const copy = () => {
     const done = () => setCopied(true)
@@ -50,9 +53,9 @@ export function Sources({
             Sources &amp; Citations
           </div>
           <ul className="sources-list">
-            {src.map(([name, url]) => (
-              <li key={url + name}>
-                <a href={url} target="_blank" rel="nofollow noopener">
+            {srcList.map(([name, url]) => (
+              <li key={name}>
+                <a href={url || '#'} target="_blank" rel="nofollow noopener">
                   <Icon name="arrow" />
                   {name}
                 </a>

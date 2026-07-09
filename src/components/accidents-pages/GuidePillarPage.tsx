@@ -231,7 +231,7 @@ export function GuidePillarPage({ slug }: { slug: string }) {
         </div>
       </section>
 
-      <Expert bg={sections.length ? 'bg-cream' : 'bg-white'} medical={isMedical} />
+      <Expert bg={sections.length ? 'bg-cream' : 'bg-white'} reviewType={isMedical ? "medical" : "legal"} />
 
       <FAQ faqs={faqs} bg="bg-white" title={`Frequently Asked Questions — ${name}`} />
 

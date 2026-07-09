@@ -201,7 +201,7 @@ export default function InjuriesHub() {
         </div>
       </section>
 
-      <Expert bg="bg-cream" medical />
+      <Expert bg="bg-cream" reviewType="medical" />
 
       <FAQ faqs={faqs} bg="bg-white" title="Frequently Asked Questions About Accident Injuries" />
 
