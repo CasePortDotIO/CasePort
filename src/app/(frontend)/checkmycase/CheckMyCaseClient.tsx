@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import EvidenceCoach from './EvidenceCoach'
+import InsuranceCardScan from './InsuranceCardScan'
+import VoiceStatement from './VoiceStatement'
 
 // City data - all 50 states
 const CITIES: Record<string, string[]> = {
@@ -350,6 +353,8 @@ export default function CheckMyCaseClient() {
   const [momentumMsg, setMomentumMsg] = useState('')
   const [solCallout, setSolCallout] = useState<{ type: 'warning' | 'danger'; title: string; body: string } | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [statusHref, setStatusHref] = useState<string | null>(null)
   const [nameErr, setNameErr] = useState('')
   const [phoneErr, setPhoneErr] = useState('')
   const [stateErr, setStateErr] = useState('')
@@ -920,6 +925,17 @@ export default function CheckMyCaseClient() {
           steps: behaviorRef.current,
           totalSteps: behaviorRef.current.length,
           userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+          // First party intake behavior, the moat's raw material. Folded into the
+          // immutable tuple so a signed case can later be correlated not just to a
+          // keyword, but to how that claimant behaved during intake.
+          timeToSubmitMs: (() => {
+            const first = attributionRef.current?.firstTouchAt;
+            const t = typeof first === 'string' ? Date.parse(first) : NaN;
+            return Number.isFinite(t) ? Math.max(0, Date.now() - t) : null;
+          })(),
+          uploadedFileCount: uploadedFiles.length,
+          documentedCase: uploadedFiles.length > 0,
+          deviceType: typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
         },
       },
       meta: { submissionId, phoneVerified: fd.phoneVerified, uploadedFileCount: uploadedFiles.length },
@@ -942,11 +958,20 @@ export default function CheckMyCaseClient() {
     // Best effort submit. The claimant is never blocked on a network error; the
     // confirmation is shown regardless and the failure is logged for retry.
     try {
-      await fetch('/api/checkmycase/submit', {
+      const res = await fetch('/api/checkmycase/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submission),
       })
+      if (res.ok) {
+        // Keep the server session handle so any after the fact captures on the
+        // confirmation screen (insurance card, voice statement) tie to this intake.
+        // Keep the signed status link so the claimant can return to their living
+        // status page, the anti black hole promise (Section 6 step 8).
+        const data = (await res.json()) as { sessionId?: string; statusPath?: string }
+        if (data?.sessionId) setSessionId(data.sessionId)
+        if (data?.statusPath) setStatusHref(data.statusPath)
+      }
     } catch (err) {
       console.error('[CP] intake submit failed', err)
     }
@@ -2324,11 +2349,42 @@ export default function CheckMyCaseClient() {
               <button className="ref-copy" onClick={() => navigator.clipboard.writeText(fd.submissionId || '')}>Copy</button>
             </div>
 
+            {/* The living status page link, the anti black hole promise. The
+               claimant can return anytime to see motion on their behalf. We also
+               texted and emailed this link the moment the file was received. */}
+            {statusHref && (
+              <a
+                href={statusHref}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                  marginTop: 14, padding: '14px 18px', borderRadius: 12, textDecoration: 'none',
+                  background: 'var(--teal, #0f6e56)', color: '#fff',
+                }}
+              >
+                <span style={{ fontSize: 14, fontWeight: 600 }}>Track your case status</span>
+                <span aria-hidden style={{ fontSize: 16 }}>→</span>
+              </a>
+            )}
+
             <div className="upload-section">
               <div className="upload-boost">⬆ Helps your attorney move faster</div>
               <div className="upload-kicker">Optional — but it helps</div>
               <h3 className="upload-headline">Strengthen your file while you wait.</h3>
               <p className="upload-body">Cases with documentation move faster. Upload photos, police reports, medical receipts, or insurance letters.</p>
+
+              {/* Guided, shot by shot documentation (AGENTS.md Section 4.1). Every
+                 direction is guarded server side: procedural photographic
+                 direction only, never a case assessment. */}
+              <EvidenceCoach onFiles={(files) => setUploadedFiles(prev => [...prev, ...files])} />
+
+              {/* Insurance card auto fill and the voice statement with the I heard
+                 you playback (Section 6 steps 2 and 4). Both tie to the intake
+                 session and are guarded server side: card fields and the reflected
+                 statement are organization of the claimant's own account, never a
+                 case assessment (W2, W6). */}
+              <InsuranceCardScan sessionId={sessionId} />
+              <VoiceStatement sessionId={sessionId} />
+
               <div
                 className="upload-zone"
                 onDragOver={(e) => e.preventDefault()}

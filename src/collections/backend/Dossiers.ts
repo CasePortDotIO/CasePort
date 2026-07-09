@@ -53,6 +53,15 @@ export const Dossiers: CollectionConfig = {
           label: 'Claimant Safe',
           description: 'Procedural and geographic only. Safe to show a claimant (W2, W6).',
           fields: [
+            {
+              name: 'reference',
+              type: 'text',
+              index: true,
+              admin: {
+                description:
+                  'Short, opaque, human case reference (CP-XXXXXX). The one public id a claimant or partner ever sees, in every shared URL. Claimant safe. Uniqueness is guaranteed by the random generator; the field is indexed for fast lookup but not a unique DB constraint, so dossiers created without one (legacy or seed) never collide on a null.',
+              },
+            },
             { name: 'claimant', type: 'relationship', relationTo: 'claimants', required: true },
             { name: 'market', type: 'relationship', relationTo: 'markets', required: true, index: true },
             { name: 'caseType', type: 'select', options: CASE_TYPES.map((c) => ({ label: c.label, value: c.value })) },

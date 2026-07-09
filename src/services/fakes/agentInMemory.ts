@@ -2,6 +2,8 @@ import type { EventStore, StoredEvent } from '../ports'
 import type {
   AgentDeps,
   AgentDeliveryStore,
+  ClaimantReach,
+  ClaimantReachRepository,
   DeliveryForAgent,
   FirmContact,
   FirmContactRepository,
@@ -29,11 +31,14 @@ export interface AgentHarness extends AgentDeps {
   deliveryRows: Map<string, DeliveryForAgent>
   firmRows: Map<string, FirmContact>
   outcomeDeliveryIds: Set<string>
+  claimantRows: Map<string, ClaimantReach>
   clock: { nowIso: () => string }
   setNow(iso: string): void
   addDelivery(d: DeliveryForAgent): void
   addFirm(f: FirmContact): void
   addOutcome(deliveryId: string): void
+  /** Attach a reachable claimant to a dossier so the speed callback can text them. */
+  addClaimant(dossierId: string, reach: ClaimantReach): void
 }
 
 export function createAgentHarness(initialNow = '2026-07-05T12:00:00.000Z'): AgentHarness {
@@ -42,6 +47,7 @@ export function createAgentHarness(initialNow = '2026-07-05T12:00:00.000Z'): Age
   const deliveryRows = new Map<string, DeliveryForAgent>()
   const firmRows = new Map<string, FirmContact>()
   const outcomeDeliveryIds = new Set<string>()
+  const claimantRows = new Map<string, ClaimantReach>()
   let now = initialNow
   let n = 0
 
@@ -78,6 +84,10 @@ export function createAgentHarness(initialNow = '2026-07-05T12:00:00.000Z'): Age
     hasOutcome: async (deliveryId) => outcomeDeliveryIds.has(deliveryId),
   }
 
+  const claimants: ClaimantReachRepository = {
+    forDossier: async (dossierId) => claimantRows.get(dossierId) ?? null,
+  }
+
   const notify: Notifier = {
     sms: async ({ to, body }): Promise<NotifyResult> => {
       sent.push({ channel: 'sms', to, body })
@@ -95,17 +105,21 @@ export function createAgentHarness(initialNow = '2026-07-05T12:00:00.000Z'): Age
     deliveryRows,
     firmRows,
     outcomeDeliveryIds,
+    claimantRows,
     deliveries,
     firms,
     outcomes,
+    claimants,
     notify,
     events,
     clock,
+    appBaseUrl: 'https://app.caseport.test',
     setNow: (iso) => {
       now = iso
     },
     addDelivery: (d) => deliveryRows.set(d.id, d),
     addFirm: (f) => firmRows.set(f.id, f),
     addOutcome: (deliveryId) => outcomeDeliveryIds.add(deliveryId),
+    addClaimant: (dossierId, reach) => claimantRows.set(dossierId, reach),
   }
 }

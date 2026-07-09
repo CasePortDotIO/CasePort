@@ -1,4 +1,5 @@
 import type { Dossier } from '@/lib/compliance/dossierProjections'
+import { nextEssentialCapture } from '@/lib/domain/captureChecklist'
 import type {
   ClaimantContact,
   IdGenerator,
@@ -28,6 +29,8 @@ function sequentialIds(): IdGenerator {
     dossierId: () => next('CP-2026-000'),
     eventId: () => next('evt'),
     submissionId: () => next('sub'),
+    // Deterministic references in tests: CP-REF001, CP-REF002, ...
+    reference: () => `CP-REF${String((counters['ref'] = (counters['ref'] ?? 0) + 1)).padStart(3, '0')}`,
   }
 }
 
@@ -103,6 +106,10 @@ export function createInMemoryHarness(
         return dossier
       },
       get: async (id) => createdDossiers.find((d) => d.id === id) ?? null,
+      attachEvaluation: async (id, evaluation) => {
+        const d = createdDossiers.find((row) => row.id === id)
+        if (d) d.evaluation = evaluation
+      },
     },
     markets: {
       resolveByLocation: async (loc) => {
@@ -127,6 +134,7 @@ export function createInMemoryHarness(
       }),
       evidenceCoaching: async () =>
         'Next, take a wide photo showing both vehicles and the intersection.',
+      nextCaptureDirection: async ({ inventory }) => nextEssentialCapture(inventory),
       protectionPlan: async () => [
         'Keep every medical appointment.',
         'Do not post about the accident.',

@@ -1,1141 +1,210 @@
-# Payload CMS Development Rules
-
-You are an expert Payload CMS developer. When working with Payload projects, follow these rules:
-
-## Core Principles
-
-1. **TypeScript-First**: Always use TypeScript with proper types from Payload
-2. **Security-Critical**: Follow all security patterns, especially access control
-3. **Type Generation**: Run `generate:types` script after schema changes
-4. **Transaction Safety**: Always pass `req` to nested operations in hooks
-5. **Access Control**: Understand Local API bypasses access control by default
-6. **Access Control**: Ensure roles exist when modifiyng collection or globals with access controls
-
-### Code Validation
-
-- To validate typescript correctness after modifying code run `tsc --noEmit`
-- Generate import maps after creating or modifying components.
-
-## Project Structure
-
-```
-src/
-├── app/
-│   ├── (frontend)/          # Frontend routes
-│   └── (payload)/           # Payload admin routes
-├── collections/             # Collection configs
-├── globals/                 # Global configs
-├── components/              # Custom React components
-├── hooks/                   # Hook functions
-├── access/                  # Access control functions
-└── payload.config.ts        # Main config
-```
-
-## Configuration
-
-### Minimal Config Pattern
-
-```typescript
-import { buildConfig } from 'payload'
-import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
-
-export default buildConfig({
-  admin: {
-    user: 'users',
-    importMap: {
-      baseDir: path.resolve(dirname),
-    },
-  },
-  collections: [Users, Media],
-  editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET,
-  typescript: {
-    outputFile: path.resolve(dirname, 'payload-types.ts'),
-  },
-  db: mongooseAdapter({
-    url: process.env.DATABASE_URL,
-  }),
-})
-```
-
-## Collections
-
-### Basic Collection
-
-```typescript
-import type { CollectionConfig } from 'payload'
-
-export const Posts: CollectionConfig = {
-  slug: 'posts',
-  admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'author', 'status', 'createdAt'],
-  },
-  fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'slug', type: 'text', unique: true, index: true },
-    { name: 'content', type: 'richText' },
-    { name: 'author', type: 'relationship', relationTo: 'users' },
-  ],
-  timestamps: true,
-}
-```
-
-### Auth Collection with RBAC
-
-```typescript
-export const Users: CollectionConfig = {
-  slug: 'users',
-  auth: true,
-  fields: [
-    {
-      name: 'roles',
-      type: 'select',
-      hasMany: true,
-      options: ['admin', 'editor', 'user'],
-      defaultValue: ['user'],
-      required: true,
-      saveToJWT: true, // Include in JWT for fast access checks
-      access: {
-        update: ({ req: { user } }) => user?.roles?.includes('admin'),
-      },
-    },
-  ],
-}
-```
-
-## Fields
-
-### Common Patterns
-
-```typescript
-// Auto-generate slugs
-import { slugField } from 'payload'
-slugField({ fieldToUse: 'title' })
-
-// Relationship with filtering
-{
-  name: 'category',
-  type: 'relationship',
-  relationTo: 'categories',
-  filterOptions: { active: { equals: true } },
-}
-
-// Conditional field
-{
-  name: 'featuredImage',
-  type: 'upload',
-  relationTo: 'media',
-  admin: {
-    condition: (data) => data.featured === true,
-  },
-}
-
-// Virtual field
-{
-  name: 'fullName',
-  type: 'text',
-  virtual: true,
-  hooks: {
-    afterRead: [({ siblingData }) => `${siblingData.firstName} ${siblingData.lastName}`],
-  },
-}
-```
-
-## CRITICAL SECURITY PATTERNS
-
-### 1. Local API Access Control (MOST IMPORTANT)
-
-```typescript
-// ❌ SECURITY BUG: Access control bypassed
-await payload.find({
-  collection: 'posts',
-  user: someUser, // Ignored! Operation runs with ADMIN privileges
-})
-
-// ✅ SECURE: Enforces user permissions
-await payload.find({
-  collection: 'posts',
-  user: someUser,
-  overrideAccess: false, // REQUIRED
-})
-
-// ✅ Administrative operation (intentional bypass)
-await payload.find({
-  collection: 'posts',
-  // No user, overrideAccess defaults to true
-})
-```
-
-**Rule**: When passing `user` to Local API, ALWAYS set `overrideAccess: false`
-
-### 2. Transaction Safety in Hooks
-
-```typescript
-// ❌ DATA CORRUPTION RISK: Separate transaction
-hooks: {
-  afterChange: [
-    async ({ doc, req }) => {
-      await req.payload.create({
-        collection: 'audit-log',
-        data: { docId: doc.id },
-        // Missing req - runs in separate transaction!
-      })
-    },
-  ],
-}
-
-// ✅ ATOMIC: Same transaction
-hooks: {
-  afterChange: [
-    async ({ doc, req }) => {
-      await req.payload.create({
-        collection: 'audit-log',
-        data: { docId: doc.id },
-        req, // Maintains atomicity
-      })
-    },
-  ],
-}
-```
-
-**Rule**: ALWAYS pass `req` to nested operations in hooks
-
-### 3. Prevent Infinite Hook Loops
-
-```typescript
-// ❌ INFINITE LOOP
-hooks: {
-  afterChange: [
-    async ({ doc, req }) => {
-      await req.payload.update({
-        collection: 'posts',
-        id: doc.id,
-        data: { views: doc.views + 1 },
-        req,
-      }) // Triggers afterChange again!
-    },
-  ],
-}
-
-// ✅ SAFE: Use context flag
-hooks: {
-  afterChange: [
-    async ({ doc, req, context }) => {
-      if (context.skipHooks) return
-
-      await req.payload.update({
-        collection: 'posts',
-        id: doc.id,
-        data: { views: doc.views + 1 },
-        context: { skipHooks: true },
-        req,
-      })
-    },
-  ],
-}
-```
-
-## Access Control
-
-### Collection-Level Access
-
-```typescript
-import type { Access } from 'payload'
-
-// Boolean return
-const authenticated: Access = ({ req: { user } }) => Boolean(user)
-
-// Query constraint (row-level security)
-const ownPostsOnly: Access = ({ req: { user } }) => {
-  if (!user) return false
-  if (user?.roles?.includes('admin')) return true
-
-  return {
-    author: { equals: user.id },
-  }
-}
-
-// Async access check
-const projectMemberAccess: Access = async ({ req, id }) => {
-  const { user, payload } = req
-
-  if (!user) return false
-  if (user.roles?.includes('admin')) return true
-
-  const project = await payload.findByID({
-    collection: 'projects',
-    id: id as string,
-    depth: 0,
-  })
-
-  return project.members?.includes(user.id)
-}
-```
-
-### Field-Level Access
-
-```typescript
-// Field access ONLY returns boolean (no query constraints)
-{
-  name: 'salary',
-  type: 'number',
-  access: {
-    read: ({ req: { user }, doc }) => {
-      // Self can read own salary
-      if (user?.id === doc?.id) return true
-      // Admin can read all
-      return user?.roles?.includes('admin')
-    },
-    update: ({ req: { user } }) => {
-      // Only admins can update
-      return user?.roles?.includes('admin')
-    },
-  },
-}
-```
-
-### Common Access Patterns
-
-```typescript
-// Anyone
-export const anyone: Access = () => true
-
-// Authenticated only
-export const authenticated: Access = ({ req: { user } }) => Boolean(user)
-
-// Admin only
-export const adminOnly: Access = ({ req: { user } }) => {
-  return user?.roles?.includes('admin')
-}
-
-// Admin or self
-export const adminOrSelf: Access = ({ req: { user } }) => {
-  if (user?.roles?.includes('admin')) return true
-  return { id: { equals: user?.id } }
-}
-
-// Published or authenticated
-export const authenticatedOrPublished: Access = ({ req: { user } }) => {
-  if (user) return true
-  return { _status: { equals: 'published' } }
-}
-```
-
-## Hooks
-
-### Common Hook Patterns
-
-```typescript
-import type { CollectionConfig } from 'payload'
-
-export const Posts: CollectionConfig = {
-  slug: 'posts',
-  hooks: {
-    // Before validation - format data
-    beforeValidate: [
-      async ({ data, operation }) => {
-        if (operation === 'create') {
-          data.slug = slugify(data.title)
-        }
-        return data
-      },
-    ],
-
-    // Before save - business logic
-    beforeChange: [
-      async ({ data, req, operation, originalDoc }) => {
-        if (operation === 'update' && data.status === 'published') {
-          data.publishedAt = new Date()
-        }
-        return data
-      },
-    ],
-
-    // After save - side effects
-    afterChange: [
-      async ({ doc, req, operation, previousDoc, context }) => {
-        // Check context to prevent loops
-        if (context.skipNotification) return
-
-        if (operation === 'create') {
-          await sendNotification(doc)
-        }
-        return doc
-      },
-    ],
-
-    // After read - computed fields
-    afterRead: [
-      async ({ doc, req }) => {
-        doc.viewCount = await getViewCount(doc.id)
-        return doc
-      },
-    ],
-
-    // Before delete - cascading deletes
-    beforeDelete: [
-      async ({ req, id }) => {
-        await req.payload.delete({
-          collection: 'comments',
-          where: { post: { equals: id } },
-          req, // Important for transaction
-        })
-      },
-    ],
-  },
-}
-```
-
-## Queries
-
-### Local API
-
-```typescript
-// Find with complex query
-const posts = await payload.find({
-  collection: 'posts',
-  where: {
-    and: [{ status: { equals: 'published' } }, { 'author.name': { contains: 'john' } }],
-  },
-  depth: 2, // Populate relationships
-  limit: 10,
-  sort: '-createdAt',
-  select: {
-    title: true,
-    author: true,
-  },
-})
-
-// Find by ID
-const post = await payload.findByID({
-  collection: 'posts',
-  id: '123',
-  depth: 2,
-})
-
-// Create
-const newPost = await payload.create({
-  collection: 'posts',
-  data: {
-    title: 'New Post',
-    status: 'draft',
-  },
-})
-
-// Update
-await payload.update({
-  collection: 'posts',
-  id: '123',
-  data: { status: 'published' },
-})
-
-// Delete
-await payload.delete({
-  collection: 'posts',
-  id: '123',
-})
-```
-
-### Query Operators
-
-```typescript
-// Equals
-{ status: { equals: 'published' } }
-
-// Not equals
-{ status: { not_equals: 'draft' } }
-
-// Greater than / less than
-{ price: { greater_than: 100 } }
-{ age: { less_than_equal: 65 } }
-
-// Contains (case-insensitive)
-{ title: { contains: 'payload' } }
-
-// Like (all words present)
-{ description: { like: 'cms headless' } }
-
-// In array
-{ category: { in: ['tech', 'news'] } }
-
-// Exists
-{ image: { exists: true } }
-
-// Near (geospatial)
-{ location: { near: [-122.4194, 37.7749, 10000] } }
-```
-
-### AND/OR Logic
-
-```typescript
-{
-  or: [
-    { status: { equals: 'published' } },
-    { author: { equals: user.id } },
-  ],
-}
-
-{
-  and: [
-    { status: { equals: 'published' } },
-    { featured: { equals: true } },
-  ],
-}
-```
-
-## Getting Payload Instance
-
-```typescript
-// In API routes (Next.js)
-import { getPayload } from 'payload'
-import config from '@payload-config'
-
-export async function GET() {
-  const payload = await getPayload({ config })
-
-  const posts = await payload.find({
-    collection: 'posts',
-  })
-
-  return Response.json(posts)
-}
-
-// In Server Components
-import { getPayload } from 'payload'
-import config from '@payload-config'
-
-export default async function Page() {
-  const payload = await getPayload({ config })
-  const { docs } = await payload.find({ collection: 'posts' })
-
-  return <div>{docs.map(post => <h1 key={post.id}>{post.title}</h1>)}</div>
-}
-```
-
-## Components
-
-The Admin Panel can be extensively customized using React Components. Custom Components can be Server Components (default) or Client Components.
-
-### Defining Components
-
-Components are defined using **file paths** (not direct imports) in your config:
-
-**Component Path Rules:**
-
-- Paths are relative to project root or `config.admin.importMap.baseDir`
-- Named exports: use `#ExportName` suffix or `exportName` property
-- Default exports: no suffix needed
-- File extensions can be omitted
-
-```typescript
-import { buildConfig } from 'payload'
-
-export default buildConfig({
-  admin: {
-    components: {
-      // Logo and branding
-      graphics: {
-        Logo: '/components/Logo',
-        Icon: '/components/Icon',
-      },
-
-      // Navigation
-      Nav: '/components/CustomNav',
-      beforeNavLinks: ['/components/CustomNavItem'],
-      afterNavLinks: ['/components/NavFooter'],
-
-      // Header
-      header: ['/components/AnnouncementBanner'],
-      actions: ['/components/ClearCache', '/components/Preview'],
-
-      // Dashboard
-      beforeDashboard: ['/components/WelcomeMessage'],
-      afterDashboard: ['/components/Analytics'],
-
-      // Auth
-      beforeLogin: ['/components/SSOButtons'],
-      logout: { Button: '/components/LogoutButton' },
-
-      // Settings
-      settingsMenu: ['/components/SettingsMenu'],
-
-      // Views
-      views: {
-        dashboard: { Component: '/components/CustomDashboard' },
-      },
-    },
-  },
-})
-```
-
-**Component Path Rules:**
-
-- Paths are relative to project root or `config.admin.importMap.baseDir`
-- Named exports: use `#ExportName` suffix or `exportName` property
-- Default exports: no suffix needed
-- File extensions can be omitted
-
-### Component Types
-
-1. **Root Components** - Global Admin Panel (logo, nav, header)
-2. **Collection Components** - Collection-specific (edit view, list view)
-3. **Global Components** - Global document views
-4. **Field Components** - Custom field UI and cells
-
-### Component Types
-
-1. **Root Components** - Global Admin Panel (logo, nav, header)
-2. **Collection Components** - Collection-specific (edit view, list view)
-3. **Global Components** - Global document views
-4. **Field Components** - Custom field UI and cells
-
-### Server vs Client Components
-
-**All components are Server Components by default** (can use Local API directly):
-
-```tsx
-// Server Component (default)
-import type { Payload } from 'payload'
-
-async function MyServerComponent({ payload }: { payload: Payload }) {
-  const posts = await payload.find({ collection: 'posts' })
-  return <div>{posts.totalDocs} posts</div>
-}
-
-export default MyServerComponent
-```
-
-**Client Components** need the `'use client'` directive:
-
-```tsx
-'use client'
-import { useState } from 'react'
-import { useAuth } from '@payloadcms/ui'
-
-export function MyClientComponent() {
-  const [count, setCount] = useState(0)
-  const { user } = useAuth()
-
-  return (
-    <button onClick={() => setCount(count + 1)}>
-      {user?.email}: Clicked {count} times
-    </button>
-  )
-}
-```
-
-### Using Hooks (Client Components Only)
-
-```tsx
-'use client'
-import {
-  useAuth, // Current user
-  useConfig, // Payload config (client-safe)
-  useDocumentInfo, // Document info (id, collection, etc.)
-  useField, // Field value and setter
-  useForm, // Form state
-  useFormFields, // Multiple field values (optimized)
-  useLocale, // Current locale
-  useTranslation, // i18n translations
-  usePayload, // Local API methods
-} from '@payloadcms/ui'
-
-export function MyComponent() {
-  const { user } = useAuth()
-  const { config } = useConfig()
-  const { id, collection } = useDocumentInfo()
-  const locale = useLocale()
-  const { t } = useTranslation()
-
-  return <div>Hello {user?.email}</div>
-}
-```
-
-### Collection/Global Components
-
-```typescript
-export const Posts: CollectionConfig = {
-  slug: 'posts',
-  admin: {
-    components: {
-      // Edit view
-      edit: {
-        PreviewButton: '/components/PostPreview',
-        SaveButton: '/components/CustomSave',
-        SaveDraftButton: '/components/SaveDraft',
-        PublishButton: '/components/Publish',
-      },
-
-      // List view
-      list: {
-        Header: '/components/ListHeader',
-        beforeList: ['/components/BulkActions'],
-        afterList: ['/components/ListFooter'],
-      },
-    },
-  },
-}
-```
-
-### Field Components
-
-```typescript
-{
-  name: 'status',
-  type: 'select',
-  options: ['draft', 'published'],
-  admin: {
-    components: {
-      // Edit view field
-      Field: '/components/StatusField',
-      // List view cell
-      Cell: '/components/StatusCell',
-      // Field label
-      Label: '/components/StatusLabel',
-      // Field description
-      Description: '/components/StatusDescription',
-      // Error message
-      Error: '/components/StatusError',
-    },
-  },
-}
-```
-
-**UI Field** (presentational only, no data):
-
-```typescript
-{
-  name: 'refundButton',
-  type: 'ui',
-  admin: {
-    components: {
-      Field: '/components/RefundButton',
-    },
-  },
-}
-```
-
-### Performance Best Practices
-
-1. **Import correctly:**
-
-   - Admin Panel: `import { Button } from '@payloadcms/ui'`
-   - Frontend: `import { Button } from '@payloadcms/ui/elements/Button'`
-
-2. **Optimize re-renders:**
-
-   ```tsx
-   // ❌ BAD: Re-renders on every form change
-   const { fields } = useForm()
-
-   // ✅ GOOD: Only re-renders when specific field changes
-   const value = useFormFields(([fields]) => fields[path])
-   ```
-
-3. **Prefer Server Components** - Only use Client Components when you need:
-
-   - State (useState, useReducer)
-   - Effects (useEffect)
-   - Event handlers (onClick, onChange)
-   - Browser APIs (localStorage, window)
-
-4. **Minimize serialized props** - Server Components serialize props sent to client
-
-### Styling Components
-
-```tsx
-import './styles.scss'
-
-export function MyComponent() {
-  return <div className="my-component">Content</div>
-}
-```
-
-```scss
-// Use Payload's CSS variables
-.my-component {
-  background-color: var(--theme-elevation-500);
-  color: var(--theme-text);
-  padding: var(--base);
-  border-radius: var(--border-radius-m);
-}
-
-// Import Payload's SCSS library
-@import '~@payloadcms/ui/scss';
-
-.my-component {
-  @include mid-break {
-    background-color: var(--theme-elevation-900);
-  }
-}
-```
-
-### Type Safety
-
-```tsx
-import type {
-  TextFieldServerComponent,
-  TextFieldClientComponent,
-  TextFieldCellComponent,
-  SelectFieldServerComponent,
-  // ... etc
-} from 'payload'
-
-export const MyField: TextFieldClientComponent = (props) => {
-  // Fully typed props
-}
-```
-
-### Import Map
-
-Payload auto-generates `app/(payload)/admin/importMap.js` to resolve component paths.
-
-**Regenerate manually:**
-
-```bash
-payload generate:importmap
-```
-
-**Set custom location:**
-
-```typescript
-export default buildConfig({
-  admin: {
-    importMap: {
-      baseDir: path.resolve(dirname, 'src'),
-      importMapFile: path.resolve(dirname, 'app', 'custom-import-map.js'),
-    },
-  },
-})
-```
-
-## Custom Endpoints
-
-```typescript
-import type { Endpoint } from 'payload'
-import { APIError } from 'payload'
-
-// Always check authentication
-export const protectedEndpoint: Endpoint = {
-  path: '/protected',
-  method: 'get',
-  handler: async (req) => {
-    if (!req.user) {
-      throw new APIError('Unauthorized', 401)
-    }
-
-    // Use req.payload for database operations
-    const data = await req.payload.find({
-      collection: 'posts',
-      where: { author: { equals: req.user.id } },
-    })
-
-    return Response.json(data)
-  },
-}
-
-// Route parameters
-export const trackingEndpoint: Endpoint = {
-  path: '/:id/tracking',
-  method: 'get',
-  handler: async (req) => {
-    const { id } = req.routeParams
-
-    const tracking = await getTrackingInfo(id)
-
-    if (!tracking) {
-      return Response.json({ error: 'not found' }, { status: 404 })
-    }
-
-    return Response.json(tracking)
-  },
-}
-```
-
-## Drafts & Versions
-
-```typescript
-export const Pages: CollectionConfig = {
-  slug: 'pages',
-  versions: {
-    drafts: {
-      autosave: true,
-      schedulePublish: true,
-      validate: false, // Don't validate drafts
-    },
-    maxPerDoc: 100,
-  },
-  access: {
-    read: ({ req: { user } }) => {
-      // Public sees only published
-      if (!user) return { _status: { equals: 'published' } }
-      // Authenticated sees all
-      return true
-    },
-  },
-}
-
-// Create draft
-await payload.create({
-  collection: 'pages',
-  data: { title: 'Draft Page' },
-  draft: true, // Skips required field validation
-})
-
-// Read with drafts
-const page = await payload.findByID({
-  collection: 'pages',
-  id: '123',
-  draft: true, // Returns draft if available
-})
-```
-
-## Field Type Guards
-
-```typescript
-import {
-  fieldAffectsData,
-  fieldHasSubFields,
-  fieldIsArrayType,
-  fieldIsBlockType,
-  fieldSupportsMany,
-  fieldHasMaxDepth,
-} from 'payload'
-
-function processField(field: Field) {
-  // Check if field stores data
-  if (fieldAffectsData(field)) {
-    console.log(field.name) // Safe to access
-  }
-
-  // Check if field has nested fields
-  if (fieldHasSubFields(field)) {
-    field.fields.forEach(processField) // Safe to access
-  }
-
-  // Check field type
-  if (fieldIsArrayType(field)) {
-    console.log(field.minRows, field.maxRows)
-  }
-
-  // Check capabilities
-  if (fieldSupportsMany(field) && field.hasMany) {
-    console.log('Multiple values supported')
-  }
-}
-```
-
-## Plugins
-
-### Using Plugins
-
-```typescript
-import { seoPlugin } from '@payloadcms/plugin-seo'
-import { redirectsPlugin } from '@payloadcms/plugin-redirects'
-
-export default buildConfig({
-  plugins: [
-    seoPlugin({
-      collections: ['posts', 'pages'],
-    }),
-    redirectsPlugin({
-      collections: ['pages'],
-    }),
-  ],
-})
-```
-
-### Creating Plugins
-
-```typescript
-import type { Config, Plugin } from 'payload'
-
-interface MyPluginConfig {
-  collections?: string[]
-  enabled?: boolean
-}
-
-export const myPlugin =
-  (options: MyPluginConfig): Plugin =>
-  (config: Config): Config => ({
-    ...config,
-    collections: config.collections?.map((collection) => {
-      if (options.collections?.includes(collection.slug)) {
-        return {
-          ...collection,
-          fields: [...collection.fields, { name: 'pluginField', type: 'text' }],
-        }
-      }
-      return collection
-    }),
-  })
-```
-
-## Best Practices
-
-### Security
-
-1. Always set `overrideAccess: false` when passing `user` to Local API
-2. Field-level access only returns boolean (no query constraints)
-3. Default to restrictive access, gradually add permissions
-4. Never trust client-provided data
-5. Use `saveToJWT: true` for roles to avoid database lookups
-
-### Performance
-
-1. Index frequently queried fields
-2. Use `select` to limit returned fields
-3. Set `maxDepth` on relationships to prevent over-fetching
-4. Use query constraints over async operations in access control
-5. Cache expensive operations in `req.context`
-
-### Data Integrity
-
-1. Always pass `req` to nested operations in hooks
-2. Use context flags to prevent infinite hook loops
-3. Enable transactions for MongoDB (requires replica set) and Postgres
-4. Use `beforeValidate` for data formatting
-5. Use `beforeChange` for business logic
-
-### Type Safety
-
-1. Run `generate:types` after schema changes
-2. Import types from generated `payload-types.ts`
-3. Type your user object: `import type { User } from '@/payload-types'`
-4. Use `as const` for field options
-5. Use field type guards for runtime type checking
-
-### Organization
-
-1. Keep collections in separate files
-2. Extract access control to `access/` directory
-3. Extract hooks to `hooks/` directory
-4. Use reusable field factories for common patterns
-5. Document complex access control with comments
-
-## Common Gotchas
-
-1. **Local API Default**: Access control bypassed unless `overrideAccess: false`
-2. **Transaction Safety**: Missing `req` in nested operations breaks atomicity
-3. **Hook Loops**: Operations in hooks can trigger the same hooks
-4. **Field Access**: Cannot use query constraints, only boolean
-5. **Relationship Depth**: Default depth is 2, set to 0 for IDs only
-6. **Draft Status**: `_status` field auto-injected when drafts enabled
-7. **Type Generation**: Types not updated until `generate:types` runs
-8. **MongoDB Transactions**: Require replica set configuration
-9. **SQLite Transactions**: Disabled by default, enable with `transactionOptions: {}`
-10. **Point Fields**: Not supported in SQLite
-
-## Additional Context Files
-
-For deeper exploration of specific topics, refer to the context files located in `.cursor/rules/`:
-
-### Available Context Files
-
-1. **`payload-overview.md`** - High-level architecture and core concepts
-
-   - Payload structure and initialization
-   - Configuration fundamentals
-   - Database adapters overview
-
-2. **`security-critical.md`** - Critical security patterns (⚠️ IMPORTANT)
-
-   - Local API access control
-   - Transaction safety in hooks
-   - Preventing infinite hook loops
-
-3. **`collections.md`** - Collection configurations
-
-   - Basic collection patterns
-   - Auth collections with RBAC
-   - Upload collections
-   - Drafts and versioning
-   - Globals
-
-4. **`fields.md`** - Field types and patterns
-
-   - All field types with examples
-   - Conditional fields
-   - Virtual fields
-   - Field validation
-   - Common field patterns
-
-5. **`field-type-guards.md`** - TypeScript field type utilities
-
-   - Field type checking utilities
-   - Safe type narrowing
-   - Runtime field validation
-
-6. **`access-control.md`** - Permission patterns
-
-   - Collection-level access
-   - Field-level access
-   - Row-level security
-   - RBAC patterns
-   - Multi-tenant access control
-
-7. **`access-control-advanced.md`** - Complex access patterns
-
-   - Nested document access
-   - Cross-collection permissions
-   - Dynamic role hierarchies
-   - Performance optimization
-
-8. **`hooks.md`** - Lifecycle hooks
-
-   - Collection hooks
-   - Field hooks
-   - Hook context patterns
-   - Common hook recipes
-
-9. **`queries.md`** - Database operations
-
-   - Local API usage
-   - Query operators
-   - Complex queries with AND/OR
-   - Performance optimization
-
-10. **`endpoints.md`** - Custom API endpoints
-
-    - REST endpoint patterns
-    - Authentication in endpoints
-    - Error handling
-    - Route parameters
-
-11. **`adapters.md`** - Database and storage adapters
-
-    - MongoDB, PostgreSQL, SQLite patterns
-    - Storage adapter usage (S3, Azure, GCS, etc.)
-    - Custom adapter development
-
-12. **`plugin-development.md`** - Creating plugins
-
-    - Plugin architecture
-    - Modifying configuration
-    - Plugin hooks
-    - Best practices
-
-13. **`components.md`** - Custom Components
-
-    - Component types (Root, Collection, Global, Field)
-    - Server vs Client Components
-    - Component paths and definition
-    - Default and custom props
-    - Using hooks
-    - Performance best practices
-    - Styling components
-
-## Resources
-
-- Docs: https://payloadcms.com/docs
-- LLM Context: https://payloadcms.com/llms-full.txt
-- GitHub: https://github.com/payloadcms/payload
-- Examples: https://github.com/payloadcms/payload/tree/main/examples
-- Templates: https://github.com/payloadcms/payload/tree/main/templates
+# CasePort Agentic Architecture Doctrine
+
+Version 1.0. Internal. Companion to the CasePort Backend Master Prompt. Save this as `AGENTS.md` at the repository root. Claude Code reads both `CLAUDE.md` and this file every session. Where they overlap, the Wall in `CLAUDE.md` governs.
+
+---
+
+## 0. Purpose
+
+This document defines where agentic capability belongs in CasePort, where it is forbidden, and how every agent is built so it stays bounded, auditable, and compliant. The count of agents is a vanity metric, exactly like a 10,000-page content target. One agent that makes the dossier undeniable beats ten that decorate the funnel. Build only the agents specified here, in the order specified here, and give the flagship agent attention out of proportion to the rest.
+
+---
+
+## 1. The decision rule: agent, workflow, or deterministic code
+
+Apply this rule before writing anything. Most tasks that people call agentic should not be agents.
+
+Build a **true agent** (an observe, decide, act, repeat loop toward a goal) only when all four are true:
+
+1. Open-ended: the next correct action depends on what previous actions revealed and cannot be fully enumerated in advance.
+2. Recurring: it happens often enough to justify the complexity and the eval burden.
+3. Recoverable: a wrong action can be caught, corrected, or reversed without irreversible harm and without any compliance breach.
+4. Boundable: the entire action space can be reduced to a small allowlist of safe, audited domain services.
+
+Build a **durable workflow with agentic sub-steps** (a fixed sequence where individual steps use model inference) when the goal and the steps are known but the content of each step varies. Retryability and observability matter more than autonomy here.
+
+Build **deterministic code** when the input is bounded and the output must be consistent. If the task needs reproducibility and audit (scoring), use a versioned narrow inference call that records its model version and inputs, not an agent.
+
+If a task decides which firm receives a case, it is **forbidden** from being an agent. See Section 2. This is not a judgment call.
+
+State which of the three patterns you are using at the top of every module, and why, referencing this rule.
+
+---
+
+## 2. The forbidden zone: routing and scoring are never agentic
+
+Two components must never be agents, and this is non-negotiable.
+
+**Routing.** `RoutingService` decides which firm receives a dossier. If an agent makes that decision, CasePort is analyzing a legal problem to determine which lawyer receives the referral, which is the exact conduct that produced state bar findings against Avvo in five jurisdictions. Routing stays deterministic and geographic only, forever. Its inputs are market and a validation boolean. Nothing else is reachable. See Wall rule W1.
+
+**Scoring.** SCPS must be reproducible and versioned so the Signed-Case Feedback Loop can trust its own history and so any output is auditable. An agentic score you cannot reproduce is a moat you cannot defend and an audit you cannot pass. SCPS is a versioned, deterministic-given-version inference that records model version and exact inputs on every score. It is computed after routing, firm-facing only, and never a routing input. See Wall rules W1 and W2.
+
+Do not make either of these clever. Their value is that they are boring and provable.
+
+---
+
+## 3. How every agent is built in this codebase
+
+These rules apply to every agent and workflow without exception.
+
+- **The action space is the domain service layer.** No agent has raw database, external API, filesystem, or network access. An agent acts only by calling IntakeService, QualificationService, DossierService, WalletService, ComplianceService, OutcomeService, IntelligenceService, or ProspectingService. This makes an agent's capability equal to a small, audited, testable set of functions. This is the primary safety mechanism.
+- **Every agent action emits an event.** Agent behavior is appended to the event log and fully replayable. There is no agent action that is not recorded.
+- **Every agent is bounded.** A declared per-agent tool allowlist, a maximum step count, and a timeout. No open-ended tool access. No agent that can call anything.
+- **Every agent runs inside an Inngest durable function.** Steps are persisted, retryable, and observable. A crash mid-run resumes, it does not corrupt state.
+- **Human-in-the-loop is mandatory for three things:** sending any B2B outreach, promoting any SCPS model version, and any irreversible money movement. Agents draft and propose. Humans approve these three.
+- **No agent output on a claimant-facing surface contains evaluative data.** SCPS, severity, value, probability, or 5LQS reasoning never reach a claimant through any agent. Tested, not trusted.
+- **Every agent ships with an eval harness.** Golden cases, adversarial cases, and compliance regression cases. The evidence agent's adversarial suite specifically tries to make it emit legal evaluation and must fail every attempt. No agent merges without its eval harness green in CI.
+- **Every agent run is observable and budgeted.** Traced in PostHog and the event log, with a token and cost ceiling per run.
+
+---
+
+## 4. The agent roster
+
+Each card is a build spec. Follow the phase gating.
+
+### 4.1 Evidence and Intake Coaching Agent (flagship, build first)
+
+**Pattern:** True agent. Every accident differs, so the next best photo or question depends on what has already been captured. Cannot be scripted.
+
+**Why it matters:** This is the single highest-value place in the system. It makes the injured person feel received while quietly assembling the most defensible dossier in the category. One backend, two magics. A form-based competitor structurally cannot copy it. This agent is the painkiller.
+
+**Trigger:** After each capture event during intake (photo uploaded, voice segment captured, document added).
+
+**Inputs:** Current capture inventory and what Claude Vision and Deepgram extracted. Never any legal evaluation.
+
+**Tools (via IntakeService only):** Read captured-media metadata, call Claude Vision for gap analysis, return the next capture direction, generate the reflective playback summary, generate the protection plan.
+
+**Hard boundaries:** Photographic and factual direction only. Zero legal evaluation. Never says strong case, never estimates value, never mentions SCPS or probability. A court reporter, not a judge. It cannot see or emit any evaluative field. Its entire vocabulary is procedural: the wide shot, both vehicles in frame, the second angle, the follow-up detail.
+
+**Compliance spine:** Wall W2 and W6. Reflective playback reflects the claimant's own words back as organization, never as legal assessment.
+
+**Success criteria:** Dossier completeness improves (firm-facing metric), claimant completion rate improves, and the adversarial eval suite proves zero evaluative language leaks under provocation.
+
+**Phase:** Now. Phase 1.
+
+### 4.2 Dossier Assembly Orchestrator
+
+**Pattern:** Durable workflow with agentic sub-steps, not a true agent. The goal and the steps are known. Only the content of each step varies. Determinism and retryability beat autonomy here.
+
+**Sequence:** Parse police report, transcribe and structure the claimant statement, categorize photos, extract insurance card fields, resolve statute status, compute SCPS as firm-facing triage, assemble the firm-facing package, and populate the HIPAA authorization with the firm name at routing.
+
+**Tools:** DossierService, QualificationService, ComplianceService.
+
+**Hard boundaries:** SCPS computed in this workflow is attached to the dossier after routing, as firm-facing triage. It is never a routing input. The HIPAA authorization is named only at routing, and CasePort never stores medical records.
+
+**Success criteria:** Idempotent assembly, clean audience split (claimant-safe versus firm-only fields), full attribution tuple carried through.
+
+**Phase:** Now. Phases 1 through 3.
+
+### 4.3 B2B Prospecting and Proof-of-Reality Agent
+
+**Pattern:** True agent. Research is open-ended.
+
+**Why it matters:** This is the only agentic work that moves the binding constraint, which is signing Founding Partner one. It cannot close the first skeptic, a human does that, but it manufactures the personalized proof at scale that makes the human close land. It deserves attention out of proportion to its glamour.
+
+**Trigger:** Manual (a target firm is named) or list-driven from a target set.
+
+**Inputs:** Target firm and its market.
+
+**Tools (via ProspectingService):** Clay enrichment, web research on the firm and partner, pull the redacted representative recent activity for that market (the proof-of-reality read API), and draft the personalized outreach.
+
+**Hard boundaries:** It drafts, a human sends (Section 3). It cannot make any claim that violates Rule 7.1: no guarantees, no unjustified expectations, no promised outcomes. Proof-of-reality is representative recent activity with claimant PII redacted, framed as what came through the market, never as a volume guarantee.
+
+**Compliance spine:** Rule 7.1 truthful and non-misleading. PII redaction enforced on any market activity surfaced.
+
+**Success criteria:** Accurate, personalized, compliant drafts. Higher reply rate. Zero non-compliant claims in the adversarial eval.
+
+**Phase:** Now. It moves the bottleneck.
+
+### 4.4 Abandoned Intake Recovery Agent
+
+**Pattern:** Light true agent. It decides timing, channel, and message to re-engage a half-finished intake.
+
+**Trigger:** An intake session goes stale past a threshold with no completion.
+
+**Tools:** IntakeService (resume link generation), Resend, Twilio, read session state.
+
+**Hard boundaries:** Claimant-initiated flow only. It re-engages a claimant who already started an intake. It never cold-contacts anyone. It sends only on a channel where consent is already captured. No legal evaluation in any message.
+
+**Compliance spine:** ABA Formal Opinion 501 forbids proactively contacting claimants who did not initiate contact. This agent only touches sessions the claimant started. TCPA consent gates every channel.
+
+**Success criteria:** Recovered completion rate, zero contact to non-initiators, consent verified before every send.
+
+**Phase:** Now, claimant side.
+
+### 4.5 SLA Watchdog and Decay Interrupt
+
+**Pattern:** SLA Watchdog is mostly deterministic monitoring with alerting and light agency in the escalation decision. Decay Interrupt is a light agent deciding the nudge inside the decay curve.
+
+**Trigger:** SLA Watchdog runs on delivery-to-response timing against the firm's contractual SLA. Decay Interrupt runs when a delivered opportunity sits unworked inside the decay window.
+
+**Tools:** Read delivery and response records, OutcomeService, Twilio, Resend, alerting.
+
+**Hard boundaries:** These act on firm behavior, never on the claimant. Neither ever re-routes, because single-firm-per-market means there is no backup firm. They alert and nudge only.
+
+**Compliance spine:** Firm-facing operations only. No claimant contact.
+
+**Phase:** Gated. Both require a signed firm with an SLA. Scaffold now, activate at firm one.
+
+### 4.6 Compounding Intelligence and SCPS Recalibration Agent
+
+**Pattern:** Proposal agent, not autonomous in production. It reads the Signed-Case Feedback Loop, proposes recalibrated weights for the next SCPS version, and updates attribution intelligence.
+
+**Hard boundaries:** It proposes a new SCPS version. A human promotes it (Section 3). A scorer that silently rewrites itself breaks auditability and the trust the feedback loop depends on. Every proposed version records the outcome data it learned from.
+
+**Compliance spine:** SCPS stays firm-facing and versioned. Recalibration never touches any fee. Outcome data flows only into intelligence, never into billing.
+
+**Phase:** Wire the loop now. Activate the brain after the first cases close, because it has nothing to learn from until then. This is the long-term moat, not an early feature.
+
+### 4.7 Internal Operations MCP (Layer 1)
+
+**Pattern:** A natural-language operations wrapper over the domain services, so two people can run the business in language instead of clicking dashboards.
+
+**Design note:** The domain services are the MCP tools. This is the payoff for designing every service as MCP-ready from day one in the master prompt. Do not build a separate tool layer. Expose the services that already exist.
+
+**Hard boundaries:** The MCP inherits every service access control and every Wall rule. No tool mutates a wallet outside an ACID transaction. No tool exposes evaluative data on a claimant surface. No tool routes on anything but geography.
+
+**Phase:** Build the MCP after the core is proven, but the service-as-tool discipline that enables it happens now.
+
+### 4.8 Firm-facing MCP (Layer 2)
+
+**Pattern:** CasePort intelligence embedded inside a firm's own AI workflows.
+
+**Phase:** After Founding Partner one. Out of scope until then.
+
+---
+
+## 5. Build order
+
+Ordered by impact against the binding constraint and by what is safe to build before a firm exists.
+
+1. **Now, Phase 1:** Evidence and Intake Coaching Agent. Dossier Assembly Orchestrator. Abandoned Intake Recovery Agent.
+2. **Now, parallel:** B2B Prospecting and Proof-of-Reality Agent, because it moves the bottleneck of signing firm one.
+3. **Wire now, activate at firm one:** SLA Watchdog and Decay Interrupt scaffolding. The speed callback loop hooks in here.
+4. **Wire now, activate after first cases close:** Compounding Intelligence and SCPS Recalibration proposal agent.
+5. **After core is proven:** Internal Operations MCP.
+6. **After firm one:** Firm-facing MCP.
+
+Do not build ahead of this order. Every agent above the line you have reached should be shippable and evaluated before the next begins.
+
+---
+
+## 6. Definition of done for any agent
+
+- The pattern (agent, workflow, or deterministic) is declared and justified against the Section 1 rule.
+- The action space is domain services only. No raw access anywhere.
+- Every action emits an event and is replayable.
+- Bounded: tool allowlist, step cap, timeout declared.
+- Runs inside an Inngest durable function.
+- Human-in-the-loop enforced where Section 3 requires it.
+- Eval harness green in CI, including the compliance adversarial suite.
+- Observable and cost-budgeted per run.
+- Nothing it produces violates the Wall.
+
+One agent that makes the dossier undeniable is worth more than ten that decorate the funnel. Build the coaching agent, the assembly pipeline, and the prospecting agent first. Everything else waits for the case that proves the loop.
+
+---
+
+## Appendix. Payload CMS engineering rules
+
+The Payload CMS v3 development ruleset (access control, transaction safety, hooks, components, query patterns) that previously lived in this file is preserved verbatim at `docs/PAYLOAD_RULES.md`. It is the mechanical how-to for working in this Payload codebase. This doctrine governs where agentic capability belongs; `docs/PAYLOAD_RULES.md` governs how the Payload primitives are used safely. Read both. On any conflict about agent boundaries or the Wall, this doctrine and `CLAUDE.md` win.

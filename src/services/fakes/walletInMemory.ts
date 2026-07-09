@@ -32,6 +32,7 @@ function sequentialIds(): IdGenerator {
     dossierId: () => next('CP'),
     eventId: () => next('evt'),
     submissionId: () => next('sub'),
+    reference: () => next('CP-REF'),
   }
 }
 
@@ -125,6 +126,7 @@ export function glassBoxDepsFrom(
     activity: {
       recentMarketActivity: activity.recentMarketActivity ?? (async () => []),
       firmDeliveries: activity.firmDeliveries ?? (async () => []),
+      opportunityForFirm: activity.opportunityForFirm ?? (async () => null),
     },
   }
 }

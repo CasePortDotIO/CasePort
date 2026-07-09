@@ -1,6 +1,10 @@
 import type { Payload } from 'payload'
+import crypto from 'node:crypto'
 import type { CaseTypeValue } from '@/lib/domain/constants'
+import { signedMediaPath } from '@/lib/mediaLink'
+import { referenceFromBytes, deriveReference, isReference, normalizeReference } from '@/lib/domain/reference'
 import { payloadEventStoreFor } from './payloadEvents'
+import { reqOf, type TxContext } from './txContext'
 import type {
   FirmRepository,
   LedgerRepository,
@@ -9,7 +13,14 @@ import type {
   WalletSnapshot,
   WalletSnapshotRepository,
 } from '../walletPorts'
-import type { GlassBoxDeps, GlassBoxReadPort, RedactedActivity, FirmDeliveryView } from '../GlassBoxService'
+import {
+  buildOpportunityDetail,
+  type GlassBoxDeps,
+  type GlassBoxReadPort,
+  type RedactedActivity,
+  type FirmDeliveryView,
+  type OpportunityDetail,
+} from '../GlassBoxService'
 
 /**
  * Payload adapters for the wallet and Glass Box ports. The ledger is authoritative;
@@ -34,7 +45,7 @@ function toLedgerEntry(doc: Record<string, unknown>): StoredLedgerEntry {
   }
 }
 
-function payloadLedgerRepository(payload: Payload): LedgerRepository {
+function payloadLedgerRepository(payload: Payload, txCtx?: TxContext): LedgerRepository {
   return {
     async append(entry, balanceAfterCents) {
       try {
@@ -51,6 +62,7 @@ function payloadLedgerRepository(payload: Payload): LedgerRepository {
             balanceAfterCents,
             occurredAt: entry.occurredAt,
           },
+          ...reqOf(txCtx),
         })
         return { created: true, entry: toLedgerEntry(created as never) }
       } catch (err) {
@@ -95,7 +107,7 @@ function payloadLedgerRepository(payload: Payload): LedgerRepository {
   }
 }
 
-function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
+function payloadSnapshotRepository(payload: Payload, txCtx?: TxContext): WalletSnapshotRepository {
   return {
     async get(firmId) {
       const res = await payload.find({
@@ -127,6 +139,7 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
           version: expectedVersion + 1,
           lastRebuiltAt: at,
         } as never,
+        ...reqOf(txCtx),
       })
       const doc = (updated as { docs?: unknown[] }).docs?.[0] as Record<string, unknown> | undefined
       if (doc) {
@@ -148,6 +161,7 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
           const created = await payload.create({
             collection: 'wallets',
             data: { firm: firmId, balanceCents: newBalanceCents, lowBalanceThresholdCents, version: 1, lastRebuiltAt: at },
+            ...reqOf(txCtx),
           })
           const c = created as unknown as Record<string, unknown>
           return {
@@ -175,9 +189,9 @@ function payloadSnapshotRepository(payload: Payload): WalletSnapshotRepository {
         lastRebuiltAt: snapshot.lastRebuiltAt,
       }
       if (existing.docs[0]) {
-        await payload.update({ collection: 'wallets', id: (existing.docs[0] as { id: string | number }).id, data })
+        await payload.update({ collection: 'wallets', id: (existing.docs[0] as { id: string | number }).id, data, ...reqOf(txCtx) })
       } else {
-        await payload.create({ collection: 'wallets', data })
+        await payload.create({ collection: 'wallets', data, ...reqOf(txCtx) })
       }
     },
   }
@@ -260,6 +274,7 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
         return {
           deliveryId: String(doc.id),
           dossierId: relId(doc.dossier),
+          reference: String(dossier?.reference || deriveReference(relId(doc.dossier))),
           caseType: String(dossier?.caseType ?? 'unknown'),
           deliveredAt: (doc.deliveredAt as string) ?? null,
           firmRespondedAt: (doc.firmRespondedAt as string) ?? null,
@@ -269,16 +284,136 @@ function payloadGlassBoxReadPort(payload: Payload): GlassBoxReadPort {
         }
       })
     },
+    async opportunityForFirm(firmId, deliveryIdOrRef): Promise<OpportunityDetail | null> {
+      const relId = (v: unknown) => (v == null ? '' : typeof v === 'object' ? String((v as { id: unknown }).id) : String(v))
+      // The firm URL carries the human case reference (CP-XXXXXX). Resolve it to
+      // this firm's delivery: reference to dossier to the delivery for this firm.
+      // Fall back to treating the param as a raw delivery id for any old link.
+      let delivery: Record<string, unknown> | null = null
+      if (isReference(deliveryIdOrRef)) {
+        const dossierByRef = await payload
+          .find({ collection: 'dossiers', where: { reference: { equals: normalizeReference(deliveryIdOrRef) } }, limit: 1, depth: 0 })
+          .catch(() => null)
+        const dossierId = dossierByRef?.docs[0] ? String(dossierByRef.docs[0].id) : ''
+        if (dossierId) {
+          const del = await payload
+            .find({
+              collection: 'deliveries',
+              where: { and: [{ dossier: { equals: dossierId } }, { firm: { equals: firmId } }] },
+              limit: 1,
+              depth: 0,
+            })
+            .catch(() => null)
+          delivery = (del?.docs[0] as Record<string, unknown> | undefined) ?? null
+        }
+      }
+      if (!delivery) {
+        delivery = (await payload.findByID({ collection: 'deliveries', id: deliveryIdOrRef, depth: 0 }).catch(() => null)) as Record<
+          string,
+          unknown
+        > | null
+      }
+      if (!delivery) return null
+      const dossier = (await payload
+        .findByID({ collection: 'dossiers', id: relId(delivery.dossier), depth: 0 })
+        .catch(() => null)) as Record<string, unknown> | null
+      const evaluation = (dossier?.evaluation ?? {}) as Record<string, unknown>
+      const claimant = dossier?.claimant
+        ? ((await payload.findByID({ collection: 'claimants', id: relId(dossier.claimant), depth: 0 }).catch(() => null)) as Record<
+            string,
+            unknown
+          > | null)
+        : null
+
+      // Categorized evidence, assembled from the intake event log. Photos and
+      // documents each carry a kind and a viewable media URL. The event payload
+      // holds the media key, never the bytes (Section 4, W5).
+      const photos: Array<{ kind: string; url: string }> = []
+      const documents: Array<{ kind: string; url: string }> = []
+      const sessionId = dossier ? relId(dossier.intakeSession) : ''
+      if (sessionId) {
+        const evers = await payload
+          .find({
+            collection: 'events',
+            where: {
+              and: [
+                { intakeSession: { equals: sessionId } },
+                { eventType: { in: ['PhotoUploaded', 'DocumentParsed'] } },
+              ],
+            },
+            sort: 'occurredAt',
+            limit: 100,
+            depth: 0,
+          })
+          .catch(() => null)
+        const nowMs = Date.now()
+        for (const ev of evers?.docs ?? []) {
+          const row = ev as unknown as Record<string, unknown>
+          const p = (row.payload ?? {}) as { mediaKey?: unknown; kind?: unknown }
+          const rawKey = typeof p.mediaKey === 'string' ? p.mediaKey : ''
+          const kind = typeof p.kind === 'string' ? p.kind : 'other'
+          if (!rawKey) continue
+          // W5: the firm receives a signed, expiring link, never the raw storage
+          // URL. The bytes are served by /api/media/access only while it is valid.
+          const url = signedMediaPath(rawKey, nowMs)
+          if (row.eventType === 'PhotoUploaded') photos.push({ kind, url })
+          else documents.push({ kind, url })
+        }
+      }
+
+      // The firm scoping and mapping live in the pure builder, unit tested.
+      return buildOpportunityDetail({
+        evidence: { photos, documents },
+        firmId,
+        delivery: {
+          id: String(delivery.id),
+          firmId: relId(delivery.firm),
+          dossierId: relId(delivery.dossier),
+          deliveredAt: (delivery.deliveredAt as string) ?? null,
+          firmRespondedAt: (delivery.firmRespondedAt as string) ?? null,
+          slaBreached: Boolean(delivery.slaBreached),
+        },
+        dossier: dossier
+          ? {
+              market: relId(dossier.market),
+              reference: String(dossier.reference || ''),
+              caseType: String(dossier.caseType ?? 'unknown'),
+              plainLanguageSummary: String(dossier.plainLanguageSummary ?? ''),
+              statuteOfLimitationsDate: (dossier.statuteOfLimitationsDate as string) ?? null,
+              evaluation: {
+                scpsScore: Number(evaluation.scpsScore ?? 0),
+                scpsVersion: String(evaluation.scpsVersion ?? 'v1'),
+                qualificationTier: String(evaluation.qualificationTier ?? 'D'),
+                injurySeverity: String(evaluation.injurySeverity ?? ''),
+                liabilityAssessment: String(evaluation.liabilityAssessment ?? ''),
+                statuteStatus: String(evaluation.statuteStatus ?? ''),
+                qualificationBreakdown: Array.isArray(evaluation.qualificationBreakdown)
+                  ? (evaluation.qualificationBreakdown as Array<{ layer: string; score: number; max?: number }>)
+                  : [],
+              },
+            }
+          : null,
+        claimant: claimant
+          ? {
+              firstName: (claimant.firstName as string) ?? '',
+              lastName: (claimant.lastName as string) ?? '',
+              phone: (claimant.phone as string) ?? null,
+              email: (claimant.email as string) ?? null,
+              location: String(claimant.marketZip ?? ''),
+            }
+          : null,
+      })
+    },
   }
 }
 
-export function createPayloadWalletDeps(payload: Payload): WalletDeps {
+export function createPayloadWalletDeps(payload: Payload, txCtx?: TxContext): WalletDeps {
   let n = 0
   const next = (p: string) => `${p}_${(n += 1).toString(36)}`
   return {
-    events: payloadEventStoreFor(payload),
-    ledger: payloadLedgerRepository(payload),
-    snapshots: payloadSnapshotRepository(payload),
+    events: payloadEventStoreFor(payload, txCtx),
+    ledger: payloadLedgerRepository(payload, txCtx),
+    snapshots: payloadSnapshotRepository(payload, txCtx),
     firms: payloadFirmRepository(payload),
     ids: {
       sessionId: () => next('sess'),
@@ -286,6 +421,7 @@ export function createPayloadWalletDeps(payload: Payload): WalletDeps {
       dossierId: () => next('CP'),
       eventId: () => next('evt'),
       submissionId: () => next('sub'),
+      reference: () => referenceFromBytes(crypto.randomBytes(8)),
     },
     clock: { nowIso: () => new Date().toISOString() },
   }

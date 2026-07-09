@@ -58,6 +58,26 @@ describe('buildAttributionTuple', () => {
     expect(direct.source).toBe('direct')
     expect(direct.firstTouchAt).toBe('2026-07-05T12:00:00.000Z')
   })
+
+  it('carries first party intake behavior into the immutable tuple (moat depth)', () => {
+    const tuple = buildAttributionTuple(
+      {
+        utmSource: 'google',
+        keyword: 'atlanta car accident lawyer',
+        sessionBehavior: { timeToSubmitMs: 184_000, uploadedFileCount: 4, documentedCase: true, deviceType: 'mobile' },
+      },
+      '2026-07-05T12:00:00.000Z',
+    )
+    // A signed case can later be correlated not just to the keyword, but to how
+    // this claimant behaved during intake. That richer signal is the moat.
+    expect(tuple.keyword).toBe('atlanta car accident lawyer')
+    expect(tuple.sessionBehavior?.timeToSubmitMs).toBe(184_000)
+    expect(tuple.sessionBehavior?.uploadedFileCount).toBe(4)
+    expect(tuple.sessionBehavior?.documentedCase).toBe(true)
+    expect(tuple.sessionBehavior?.deviceType).toBe('mobile')
+    // Marketing attribution is preserved alongside it.
+    expect(tuple.sessionBehavior?.utmSource).toBe('google')
+  })
 })
 
 describe('summarizeIntake', () => {
@@ -124,6 +144,7 @@ describe('handleIntakeSubmit (moat write path)', () => {
     harness.narrative = {
       reflectivePlayback: async () => ({ summary: '', points: [] }),
       evidenceCoaching: async () => '',
+      nextCaptureDirection: async () => ({ direction: '', done: true }),
       protectionPlan: async () => {
         throw new Error('narrative outage')
       },

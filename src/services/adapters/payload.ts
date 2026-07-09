@@ -1,6 +1,9 @@
+import crypto from 'node:crypto'
 import type { Payload } from 'payload'
 import Anthropic from '@anthropic-ai/sdk'
 import type { Dossier } from '@/lib/compliance/dossierProjections'
+import { nextEssentialCapture } from '@/lib/domain/captureChecklist'
+import { referenceFromBytes } from '@/lib/domain/reference'
 import type {
   ClaimantRepository,
   ConsentClient,
@@ -16,6 +19,8 @@ import type {
   VisionClient,
 } from '../ports'
 import { createAnthropicNarrativeClient } from './AnthropicNarrativeClient'
+import { createAnthropicVisionClient } from './AnthropicVisionClient'
+import { createDeepgramTranscriptionClient } from './DeepgramTranscriptionClient'
 import { payloadEventStoreFor } from './payloadEvents'
 
 /**
@@ -141,6 +146,7 @@ function payloadDossierRepository(payload: Payload): DossierRepository {
       const created = await payload.create({
         collection: 'dossiers',
         data: {
+          reference: dossier.reference,
           claimant: dossier.claimantId,
           intakeSession: dossier.intakeSessionId ?? undefined,
           market: dossier.market,
@@ -157,6 +163,14 @@ function payloadDossierRepository(payload: Payload): DossierRepository {
     },
     async get() {
       return null
+    },
+    async attachEvaluation(id, evaluation) {
+      await payload.update({
+        collection: 'dossiers',
+        id,
+        data: { evaluation: evaluation as never },
+        overrideAccess: true,
+      })
     },
   }
 }
@@ -213,21 +227,31 @@ function trustedFormConsentClient(): ConsentClient {
   }
 }
 
-/* Media, transcription, and vision are defined but their concrete R2, Deepgram,
- * and Claude Vision adapters land in a follow up. The structured intake submit
- * path does not invoke them, so they throw a clear error if called early. */
-function unimplemented(name: string): never {
-  throw new Error(`${name} adapter is not wired yet (Phase 1 follow up).`)
+/* Media storage is served by Payload's Vercel Blob adapter, which returns
+ * fetchable URLs. This passthrough treats an already resolved URL as its own
+ * signed URL, so the Vision and transcription clients can fetch the media. It
+ * degrades gracefully rather than throwing. */
+const passthroughMedia: MediaStorage = {
+  put: async ({ key }) => ({ key }),
+  signedUrl: async (key) => key,
 }
-const stubMedia: MediaStorage = {
-  put: () => unimplemented('MediaStorage.put'),
-  signedUrl: () => unimplemented('MediaStorage.signedUrl'),
+
+/* Transcription: real Deepgram client when a key is present, else a graceful
+ * empty client so a missing recording never blocks intake. */
+function resolveTranscriptionClient(): TranscriptionClient {
+  if (process.env.DEEPGRAM_API_KEY) {
+    return createDeepgramTranscriptionClient(process.env.DEEPGRAM_API_KEY)
+  }
+  return { transcribe: async () => ({ transcript: '' }) }
 }
-const stubTranscription: TranscriptionClient = {
-  transcribe: () => unimplemented('TranscriptionClient.transcribe'),
-}
-const stubVision: VisionClient = {
-  parseInsuranceCard: () => unimplemented('VisionClient.parseInsuranceCard'),
+
+/* Vision: real Claude Vision client when an API key is present, else a graceful
+ * empty client so a card that cannot be read never blocks intake. */
+function resolveVisionClient(): VisionClient {
+  if (process.env.ANTHROPIC_API_KEY) {
+    return createAnthropicVisionClient(new Anthropic())
+  }
+  return { parseInsuranceCard: async () => ({}) }
 }
 
 /* Narrative: real Claude client when an API key is present, else an empty
@@ -239,6 +263,9 @@ function resolveNarrativeClient(): NarrativeClient {
   return {
     reflectivePlayback: async () => ({ summary: '', points: [] }),
     evidenceCoaching: async () => '',
+    // No API key: coaching falls back to the deterministic, compliant checklist
+    // so a claimant is still guided through the essential captures.
+    nextCaptureDirection: async ({ inventory }) => nextEssentialCapture(inventory),
     protectionPlan: async () => [],
   }
 }
@@ -262,15 +289,16 @@ export function createPayloadIntakeDeps(payload: Payload): IntakeDeps {
     markets: payloadMarketResolver(payload),
     consent: trustedFormConsentClient(),
     narrative: resolveNarrativeClient(),
-    media: stubMedia,
-    transcription: stubTranscription,
-    vision: stubVision,
+    media: passthroughMedia,
+    transcription: resolveTranscriptionClient(),
+    vision: resolveVisionClient(),
     ids: {
       sessionId: () => nextId('sess'),
       claimantId: () => nextId('clm'),
       dossierId: () => nextId('CP'),
       eventId: () => nextId('evt'),
       submissionId: () => nextId('sub'),
+      reference: () => referenceFromBytes(crypto.randomBytes(8)),
     },
     clock: { nowIso: () => new Date().toISOString() },
   }

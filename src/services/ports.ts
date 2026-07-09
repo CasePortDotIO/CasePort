@@ -1,4 +1,4 @@
-import type { Dossier } from '@/lib/compliance/dossierProjections'
+import type { Dossier, FirmOnlyEvaluation } from '@/lib/compliance/dossierProjections'
 import type { EventType } from '@/lib/domain/constants'
 
 /**
@@ -91,6 +91,15 @@ export interface ClaimantRepository {
 export interface DossierRepository {
   create(dossier: Dossier): Promise<Dossier>
   get(id: string): Promise<Dossier | null>
+  /**
+   * Attach the firm only evaluation half after routing (Section 8, Phase 3;
+   * AGENTS.md Section 4.2). This is the one write that populates SCPS and the
+   * qualification factors as firm facing triage. It happens after the geographic
+   * routing decision, never before, so a quality signal can never reach routing
+   * (W1). It writes only the evaluation half; the claimant safe half is
+   * immutable from assembly.
+   */
+  attachEvaluation(id: string, evaluation: FirmOnlyEvaluation): Promise<void>
 }
 
 /* Resolves a market from a geographic location. Geographic only (W1). No
@@ -112,10 +121,46 @@ export interface PlaybackResult {
   points: string[]
 }
 
+/**
+ * What the claimant has captured so far in an intake session. The observation a
+ * coaching decision is made from: the next best shot depends on what is already
+ * in hand (AGENTS.md Section 4.1, why the coaching is a true agent). Carries no
+ * evaluative signal, only kinds and counts of captured media.
+ */
+export interface CaptureInventory {
+  /** Photos captured, by kind (wide, vehicle, plate, damage, injury, scene, other). */
+  photos: Array<{ kind: string }>
+  /** Documents captured, by kind (police-report, insurance-card, other). */
+  documents: Array<{ kind: string }>
+  voiceCaptured: boolean
+  insuranceCardParsed: boolean
+}
+
+/**
+ * One coaching decision. Photographic and factual direction only, zero legal
+ * evaluation (AGENTS.md Section 4.1 hard boundaries). A court reporter, not a
+ * judge.
+ */
+export interface CaptureDirection {
+  /** One short procedural instruction for the next capture. */
+  direction: string
+  /** True when the essential captures are in hand and coaching can stop. */
+  done: boolean
+  /** Optional category the next shot belongs to (wide, plate, damage, scene, documents). */
+  focus?: string
+}
+
 /* Claude backed narrative. Contains zero legal evaluation (W2). */
 export interface NarrativeClient {
   reflectivePlayback(input: { transcript: string }): Promise<PlaybackResult>
   evidenceCoaching(input: { photosSoFar: number; lastPhotoKind?: string }): Promise<string>
+  /**
+   * The inventory aware next capture decision that powers the Evidence and
+   * Intake Coaching Agent. Given everything captured so far, return the single
+   * next photographic or factual direction, or done when the essentials are in
+   * hand. Photographic and factual direction only (W2, W6).
+   */
+  nextCaptureDirection(input: { inventory: CaptureInventory }): Promise<CaptureDirection>
   protectionPlan(input: { summary: string; caseType: string }): Promise<string[]>
 }
 
@@ -149,6 +194,9 @@ export interface IdGenerator {
   dossierId(): string
   eventId(): string
   submissionId(): string
+  /** A short, opaque, human case reference (CP-XXXXXX). The one public id a
+   * claimant or partner ever sees, in place of the raw database id. */
+  reference(): string
 }
 
 export interface Clock {

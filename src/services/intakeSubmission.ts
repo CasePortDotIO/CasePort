@@ -57,6 +57,8 @@ export interface IntakeSubmission {
 export interface IntakeSubmissionResult {
   sessionId: string
   dossierId: string
+  /** The short, opaque, human case reference. The public id in every shared URL. */
+  reference: string
   submissionId: string
   market: string | null
   status: 'received'
@@ -197,6 +199,7 @@ export async function handleIntakeSubmit(
   return {
     sessionId,
     dossierId: dossier.id,
+    reference: dossier.reference,
     submissionId: submission.meta?.submissionId || sessionId,
     market: marketId,
     status: 'received',

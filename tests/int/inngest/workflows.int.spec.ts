@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { createWalletService } from '@/services/WalletService'
 import { createRoutingService } from '@/services/RoutingService'
 import { createDeliveryService } from '@/services/DeliveryService'
+import { createDossierAssemblyService } from '@/services/DossierAssemblyService'
+import { scpsScore, defaultV1Model, type ScpsFactors } from '@/services/scps'
 import { createDeliveryHarness, deliveryDepsFrom, type DeliveryHarness } from '@/services/fakes/deliveryInMemory'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from '@/inngest/stepPort'
 import {
@@ -48,12 +50,45 @@ function memoizingStep(store: Map<string, unknown> = new Map()) {
   return { runner, store, events }
 }
 
+/** A real DossierAssemblyService over the delivery harness. The firm handles the
+ * case type, no documentation is present, and the SCPS is scored against v1 so
+ * the assembly step is exercised faithfully in the workflow tests. */
+function assembleFirmPackageFor(h: DeliveryHarness): WorkflowDeps['assembleFirmPackage'] {
+  const assembly = createDossierAssemblyService({
+    dossiers: h.dossiers,
+    firms: {
+      get: async (id) => ({ id, caseTypes: [MVA], slaCallbackMinutes: 15 }),
+    },
+    documentation: {
+      forDossier: async () => ({
+        injuryPhoto: false,
+        voiceStatement: false,
+        policeReport: false,
+        scenePhotos: false,
+        platePhotos: false,
+        insuranceCard: false,
+      }),
+    },
+    score: async (_dossierId, factors: ScpsFactors) => ({
+      score: scpsScore(defaultV1Model('t'), factors),
+      modelVersion: 'v1',
+    }),
+    events: h.wallet.events,
+    clock: h.wallet.clock,
+  })
+  return async (dossierId, firmId) => {
+    const r = await assembly.assembleFirmPackage(dossierId, firmId)
+    return r ? { scpsScore: r.scpsScore, scpsVersion: r.scpsVersion } : null
+  }
+}
+
 function workflowDepsFrom(h: DeliveryHarness): WorkflowDeps {
   return {
     routing: createRoutingService({ markets: h.markets, audit: h.audit, events: h.wallet.events, clock: h.wallet.clock }),
     delivery: createDeliveryService(deliveryDepsFrom(h)),
     wallet: createWalletService(h.wallet),
     loadDossier: (id) => h.dossiers.get(id),
+    assembleFirmPackage: assembleFirmPackageFor(h),
   }
 }
 
@@ -112,6 +147,7 @@ describe('deliverDossierWorkflow', () => {
       },
       wallet: createWalletService(h.wallet),
       loadDossier: (id) => h.dossiers.get(id),
+      assembleFirmPackage: assembleFirmPackageFor(h),
     }
     h.addDossier({ id: 'CP-4', market: 'mkt_atlanta', caseType: MVA })
     await deps.wallet.topUp({ firmId: 'firm_a', amountCents: 200000, idempotencyKey: 'seed' })

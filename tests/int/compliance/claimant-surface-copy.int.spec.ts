@@ -16,7 +16,10 @@ import { join } from 'node:path'
  * does not false positive on CSS class names or internal identifiers.
  */
 
-const CLAIMANT_SURFACES = ['src/app/(frontend)/checkmycase/CheckMyCaseClient.tsx']
+const CLAIMANT_SURFACES = [
+  'src/app/(frontend)/checkmycase/CheckMyCaseClient.tsx',
+  'src/app/(frontend)/checkmycase/EvidenceCoach.tsx',
+]
 
 /** Phrases that must never appear in a claimant surface. */
 const FORBIDDEN_PHRASES = [
@@ -54,8 +57,10 @@ describe('claimant surface copy compliance (W2, W6)', () => {
       }
     })
 
-    it(`${rel} shows the compliant protection plan instead of a score`, () => {
-      expect(source).toContain('Your protection plan')
-    })
+    if (rel.includes('CheckMyCaseClient')) {
+      it(`${rel} shows the compliant protection plan instead of a score`, () => {
+        expect(source).toContain('Your protection plan')
+      })
+    }
   }
 })

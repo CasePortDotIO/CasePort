@@ -32,6 +32,13 @@ export async function deliverDossierWorkflow(
   }
 
   const firmId = decision.firmId
+
+  // Assemble the firm facing package AFTER routing (AGENTS.md Section 4.2): the
+  // versioned SCPS and the qualification triage are computed and attached here,
+  // once the firm is already resolved. Routing never saw any of it (W1). The
+  // SCPS rides along as triage; it does not gate whether this delivers.
+  await step.run('assemble-firm-package', () => deps.assembleFirmPackage(input.dossierId, firmId))
+
   const outcome = await step.run('deliver', () => deps.delivery.deliver({ dossierId: input.dossierId, firmId }))
 
   if (outcome.status === 'held') {

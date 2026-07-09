@@ -77,6 +77,16 @@ export async function POST(req: Request) {
     firmId = String(firm.id)
   }
 
+  // 2b. A firm partner login bound to this firm, so the dashboard can be entered
+  // as a real authenticated partner (email partner@peachtreeinjury.example).
+  const existingFirmUser = await payload.find({ collection: 'firmUsers', where: { email: { equals: 'partner@peachtreeinjury.example' } }, limit: 1 })
+  if (!existingFirmUser.docs[0]) {
+    await payload.create({
+      collection: 'firmUsers',
+      data: { email: 'partner@peachtreeinjury.example', password: 'caseport-demo', name: 'Michael Adeyemi', firm: firmId, role: 'partner' } as never,
+    })
+  }
+
   // 3. Fund the wallet through the WalletService (real ledger credits).
   const wallet = createWalletService(createPayloadWalletDeps(payload))
   await wallet.topUp({ firmId, amountCents: 5000000, idempotencyKey: `seed_${firmId}_1`, stripeRef: 'seed_topup_1' })
@@ -87,11 +97,12 @@ export async function POST(req: Request) {
   if (seededActivity.totalDocs < 3) {
     const claimant = await payload.create({ collection: 'claimants', data: { firstName: 'Sample', lastName: 'Claimant', marketZip: '30303' } as never })
     const types = ['motor-vehicle-accident', 'premises-liability', 'commercial-trucking-accident']
+    const seedRefs = ['CP-SEED01', 'CP-SEED02', 'CP-SEED03']
     for (let i = 0; i < types.length; i++) {
       await payload.create({
         collection: 'dossiers',
         data: {
-          claimant: String(claimant.id), market: marketId, caseType: types[i] as never, status: 'received',
+          reference: seedRefs[i], claimant: String(claimant.id), market: marketId, caseType: types[i] as never, status: 'received',
           plainLanguageSummary: 'Organized from what the claimant told us, for a firm in their area to review.',
           protectionPlan: [{ step: 'Keep every medical appointment.' }],
           receivedAt: new Date(Date.now() - i * 86400000).toISOString(),

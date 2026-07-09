@@ -1,101 +1,140 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
-import {
-  ChevronLeft, Phone, MapPin, Calendar, ShieldCheck, FileText, Camera, Image as ImageIcon,
-  Gauge, Scale, Clock, FileCheck2, Download, ArrowUpRight, User,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ChevronLeft, Phone, User, FileText, Gauge, ShieldCheck, Download, Clock, MapPin, Calendar, Scale, Activity } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/firm/useAuth';
+import EmptyState from '@/firm/EmptyState';
+import { relativeTime, dollars } from '@/firm/useFirmData';
 
-/*
- * The closing kit (Section 7 step 5). The screen a partner opens on a delivered
- * case where the involuntary thought is "I could sign this on the first call".
- * Everything is already done and visible, no tabs to dig through: the claimant
- * and how to reach them, their organized statement, the categorized evidence
- * with severity, the parsed police report, the SCPS triage, the statute clock,
- * and the HIPAA authorization already executed in the firm's name. All they do
- * is call and sign.
+/**
+ * The closing kit for one delivered opportunity, from the firm's real Glass Box.
+ *
+ * Everything visible is real and firm facing: the claimant and how to reach them,
+ * their organized statement, the SCPS triage with its factor bars, the statute
+ * status, and the HIPAA authorization executed in the firm's name. What is not
+ * persisted (categorized photos, the parsed police report) is not shown rather
+ * than mocked, and there is no fabricated case value. Nothing is estimated.
  */
 
 const TEAL = '#22c58d';
 const POS = '#34d39a';
 const WARN = '#f5b544';
-const NEG = '#fb7185';
 
-interface Kit {
-  id: string;
+interface Detail {
+  deliveryId: string;
+  reference: string;
   caseType: string;
   market: string;
-  receivedAgo: string;
-  claimant: { name: string; phone: string; location: string; incidentDate: string };
+  deliveredAt: string | null;
+  firmRespondedAt: string | null;
+  slaBreached: boolean;
+  claimant: { name: string; phone: string | null; email: string | null; location: string };
   statement: string;
-  facts: string[];
-  photos: { group: string; icon: typeof Camera; items: { label: string; severity?: 'severe' | 'moderate' | 'mild' }[] }[];
-  police: { number: string; finding: string; filed: string };
-  scps: number;
-  factors: { label: string; value: number }[];
-  injury: string;
-  liability: string;
-  estValue: string;
-  insurance: string;
-  statuteDays: number;
-}
-
-function buildKit(id: string): Kit {
-  return {
-    id,
-    caseType: 'Motor Vehicle Accident',
-    market: 'Houston, TX',
-    receivedAgo: '6 minutes ago',
-    claimant: { name: 'Marcus Delgado', phone: '+1 (713) 555-0148', location: 'Houston, TX 77002', incidentDate: 'July 2, 2026' },
-    statement:
-      'I was stopped at the light on Smith Street when a delivery truck ran the red and hit the driver side of my car. My neck and lower back started hurting that evening. I went to the emergency room the next morning and I have a follow up with a physical therapist this week. The other driver got a ticket at the scene.',
-    facts: [
-      'Rear and side impact at a signaled intersection, claimant was stopped',
-      'Emergency room visit within 24 hours, physical therapy scheduled',
-      'Other driver cited at the scene',
-    ],
-    photos: [
-      { group: 'Scene', icon: MapPin, items: [{ label: 'Intersection, wide' }, { label: 'Traffic signal' }, { label: 'Skid marks' }] },
-      { group: 'Vehicle damage', icon: Camera, items: [{ label: 'Driver door', severity: 'severe' }, { label: 'Front quarter panel', severity: 'moderate' }] },
-      { group: 'Injuries', icon: ImageIcon, items: [{ label: 'Neck bruising', severity: 'moderate' }, { label: 'Left wrist', severity: 'mild' }] },
-    ],
-    police: { number: 'HPD-2026-118437', finding: 'Other driver cited for failure to obey a traffic signal.', filed: 'July 2, 2026' },
-    scps: 87,
-    factors: [
-      { label: 'Injury verification', value: 90 },
-      { label: 'Liability clarity', value: 95 },
-      { label: 'Statute headroom', value: 100 },
-      { label: 'Case type match', value: 88 },
-    ],
-    injury: 'Neck and lower back, soft tissue with ongoing treatment',
-    liability: 'Clear, other party cited, police report on file',
-    estValue: '$45,000 - $85,000',
-    insurance: 'Commercial auto, $250K liability limit',
-    statuteDays: 548,
+  statuteOfLimitationsDate: string | null;
+  evaluation: {
+    scpsScore: number;
+    scpsVersion: string;
+    qualificationTier: string;
+    injurySeverity: string;
+    liabilityAssessment: string;
+    statuteStatus: string;
+    factors: { label: string; value: number }[];
   };
+  hipaaExecutedInFirmName: boolean;
+  evidence?: { photos: { kind: string; url: string }[]; documents: { kind: string; url: string }[] };
 }
 
-const sevColor = (s?: 'severe' | 'moderate' | 'mild') => (s === 'severe' ? NEG : s === 'moderate' ? WARN : POS);
+const EVIDENCE_KIND_LABEL: Record<string, string> = {
+  wide: 'Wide scene', damage: 'Vehicle damage', plate: 'License plate', scene: 'Scene', injury: 'Injury',
+  'insurance-card': 'Insurance card', 'police-report': 'Police report', other: 'Other',
+};
+
+const CASE_TYPE_LABEL: Record<string, string> = {
+  'motor-vehicle-accident': 'Motor Vehicle Accident',
+  'commercial-trucking-accident': 'Commercial Trucking Accident',
+  'premises-liability': 'Premises Liability',
+  'medical-malpractice': 'Medical Malpractice',
+  'wrongful-death': 'Wrongful Death',
+  'dog-bite': 'Dog Bite and Animal Attack',
+};
 
 export default function OpportunityDetailProduction() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
   const firmName = user?.firmName ?? 'your firm';
-  const [kit, setKit] = useState<Kit | null>(null);
+  const [detail, setDetail] = useState<Detail | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'empty'>('loading');
+  const [firmId, setFirmId] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<{ phase: 'idle' | 'saving' | 'saved'; label?: string; costPerSignedCaseCents?: number | null }>({ phase: 'idle' });
 
   useEffect(() => {
     const m = window.location.pathname.match(/\/opportunity\/([^/]+)/);
-    setKit(buildKit(m ? decodeURIComponent(m[1]) : 'CP-2026-000089'));
+    const deliveryId = m ? decodeURIComponent(m[1]) : '';
+    let cancelled = false;
+    (async () => {
+      try {
+        const cur = (await fetch('/api/firm/current').then((r) => r.json())) as { firmId: string | null };
+        if (!cur.firmId || !deliveryId) { if (!cancelled) setStatus('empty'); return; }
+        if (!cancelled) setFirmId(cur.firmId);
+        const res = await fetch(`/api/firm/${encodeURIComponent(cur.firmId)}/opportunity/${encodeURIComponent(deliveryId)}`);
+        if (!res.ok) { if (!cancelled) setStatus('empty'); return; }
+        const d = (await res.json()) as Detail;
+        if (!cancelled) { setDetail(d); setStatus('ready'); }
+      } catch {
+        if (!cancelled) setStatus('empty');
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
-  if (!kit) return <div className="min-h-screen bg-background" />;
-  const c = kit.claimant;
-  const firstName = c.name.split(' ')[0];
+  if (status === 'loading') return <div className="min-h-screen bg-background" />;
 
-  const report = (label: string) => toast.success(`Recorded as ${label}. Your cost per signed case just sharpened.`);
+  if (status === 'empty' || !detail) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-8 py-16">
+          <button onClick={() => navigate('/opportunities')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6">
+            <ChevronLeft className="w-4 h-4" /> Opportunities
+          </button>
+          <Card className="border-border">
+            <EmptyState icon={FileText} title="Case not available" body="This opportunity could not be found in your market. It may belong to a different firm, or it has not been delivered yet." />
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const c = detail.claimant;
+  const firstName = c.name.split(' ')[0] || 'the claimant';
+  const nowMs = Date.now();
+  const caseTypeLabel = CASE_TYPE_LABEL[detail.caseType] ?? detail.caseType;
+  const responded = Boolean(detail.firmRespondedAt);
+
+  const OUTCOME_LABEL: Record<string, string> = {
+    retained: 'signed',
+    'still-evaluating': 'still being worked',
+    'not-retained': 'not signed',
+  };
+
+  async function submitOutcome(result: 'retained' | 'still-evaluating' | 'not-retained') {
+    if (!firmId || !detail || outcome.phase === 'saving') return;
+    setOutcome({ phase: 'saving' });
+    try {
+      const res = await fetch(`/api/firm/${encodeURIComponent(firmId)}/opportunity/${encodeURIComponent(detail.deliveryId)}/outcome`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ result }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { acer?: { costPerSignedCaseCents?: number | null } };
+      if (!res.ok) throw new Error('failed');
+      setOutcome({ phase: 'saved', label: OUTCOME_LABEL[result], costPerSignedCaseCents: data.acer?.costPerSignedCaseCents ?? null });
+      toast.success(`Recorded as ${OUTCOME_LABEL[result]}. Your cost per signed case just sharpened.`);
+    } catch {
+      setOutcome({ phase: 'idle' });
+      toast.error('Could not record the outcome. Please try again.');
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,22 +147,24 @@ export default function OpportunityDetailProduction() {
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-3 mb-1.5">
-                <h1 className="text-[26px] leading-none font-light tracking-tight text-foreground">{kit.caseType}</h1>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ color: WARN, background: 'rgba(245,181,68,0.12)' }}>
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: WARN }} /> Awaiting your call
+                <h1 className="text-[26px] leading-none font-light tracking-tight text-foreground">{caseTypeLabel}</h1>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ color: responded ? POS : WARN, background: responded ? 'rgba(52,211,154,0.12)' : 'rgba(245,181,68,0.12)' }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: responded ? POS : WARN }} /> {responded ? 'Contacted' : 'Awaiting your call'}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                <span className="font-mono">{kit.id}</span> · {kit.market} · delivered {kit.receivedAgo}
+                <span className="font-mono">{detail.reference}</span> · {detail.market} · delivered {relativeTime(detail.deliveredAt, nowMs)}
               </p>
             </div>
-            <a
-              href={`tel:${c.phone.replace(/[^+\d]/g, '')}`}
-              className="inline-flex items-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold transition-transform hover:-translate-y-0.5"
-              style={{ background: `linear-gradient(120deg, ${TEAL}, ${POS})`, color: '#052018' }}
-            >
-              <Phone className="w-4 h-4" /> Call {firstName} now
-            </a>
+            {c.phone && (
+              <a
+                href={`tel:${c.phone.replace(/[^+\d]/g, '')}`}
+                className="inline-flex items-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+                style={{ background: `linear-gradient(120deg, ${TEAL}, ${POS})`, color: '#052018' }}
+              >
+                <Phone className="w-4 h-4" /> Call {firstName} now
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -139,9 +180,9 @@ export default function OpportunityDetailProduction() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
               <Field label="Name" value={c.name} />
-              <Field label="Phone" value={c.phone} mono />
-              <Field label="Location" value={c.location} icon={MapPin} />
-              <Field label="Incident" value={c.incidentDate} icon={Calendar} />
+              <Field label="Phone" value={c.phone ?? '—'} mono />
+              {c.location && <Field label="Location" value={c.location} icon={MapPin} />}
+              <Field label="Delivered" value={detail.deliveredAt ? new Date(detail.deliveredAt).toLocaleDateString() : '—'} icon={Calendar} />
             </div>
           </Card>
 
@@ -152,65 +193,48 @@ export default function OpportunityDetailProduction() {
               <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">What happened</h2>
               <span className="ml-auto text-[11px] text-muted-foreground">in their words, organized</span>
             </div>
-            <p className="text-[15px] text-foreground leading-relaxed mb-5">{kit.statement}</p>
-            <div className="space-y-2">
-              {kit.facts.map((f) => (
-                <div key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: TEAL }} />
-                  {f}
-                </div>
-              ))}
-            </div>
+            <p className="text-[15px] text-foreground leading-relaxed">{detail.statement || 'The claimant statement is being assembled.'}</p>
           </Card>
 
-          {/* Evidence */}
-          <Card className="p-6">
-            <div className="flex items-center gap-2 mb-5">
-              <Camera className="w-4 h-4" style={{ color: TEAL }} />
-              <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Evidence</h2>
-              <span className="ml-auto text-[11px] text-muted-foreground">categorized · signed, expiring links</span>
-            </div>
-            <div className="space-y-5">
-              {kit.photos.map((grp) => {
-                const Icon = grp.icon;
-                return (
-                  <div key={grp.group}>
-                    <div className="flex items-center gap-2 mb-2.5">
-                      <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-                      <span className="text-xs font-semibold text-foreground">{grp.group}</span>
-                      <span className="text-[11px] text-muted-foreground">· {grp.items.length}</span>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {grp.items.map((it) => (
-                        <div key={it.label} className="rounded-lg overflow-hidden border border-white/[0.07]" style={{ background: 'rgba(255,255,255,0.02)' }}>
-                          <div className="h-24 grid place-items-center" style={{ background: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 10px, transparent 10px 20px)' }}>
-                            <Camera className="w-5 h-5 text-white/20" />
-                          </div>
-                          <div className="px-3 py-2.5 flex items-center justify-between gap-2">
-                            <span className="text-xs text-foreground truncate">{it.label}</span>
-                            {it.severity && (
-                              <span className="text-[10px] font-semibold uppercase tracking-wide flex-shrink-0" style={{ color: sevColor(it.severity) }}>{it.severity}</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Police report, parsed */}
-              <div className="rounded-lg p-4 border border-white/[0.07]" style={{ background: 'rgba(255,255,255,0.02)' }}>
-                <div className="flex items-center gap-2 mb-2">
-                  <FileCheck2 className="w-4 h-4" style={{ color: POS }} />
-                  <span className="text-xs font-semibold text-foreground">Police report, parsed</span>
-                  <span className="ml-auto font-mono text-[11px] text-muted-foreground">{kit.police.number}</span>
-                </div>
-                <p className="text-sm text-foreground">{kit.police.finding}</p>
-                <p className="text-[11px] text-muted-foreground mt-1.5">Filed {kit.police.filed}</p>
+          {/* Categorized evidence, captured by the claimant during guided intake.
+             Real photos and documents from the case file, each labeled by kind.
+             Shown only when present; never mocked. */}
+          {detail.evidence && (detail.evidence.photos.length > 0 || detail.evidence.documents.length > 0) && (
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="w-4 h-4" style={{ color: TEAL }} />
+                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">The evidence</h2>
+                <span className="ml-auto text-[11px] text-muted-foreground">
+                  {detail.evidence.photos.length} photo{detail.evidence.photos.length === 1 ? '' : 's'}
+                  {detail.evidence.documents.length > 0 ? `, ${detail.evidence.documents.length} document${detail.evidence.documents.length === 1 ? '' : 's'}` : ''}
+                </span>
               </div>
-            </div>
-          </Card>
+              {detail.evidence.photos.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                  {detail.evidence.photos.map((p, i) => (
+                    <a key={i} href={p.url} target="_blank" rel="noopener noreferrer" className="group block">
+                      <div className="aspect-[4/3] rounded-lg overflow-hidden border border-white/[0.08] bg-muted/30">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={p.url} alt={EVIDENCE_KIND_LABEL[p.kind] ?? p.kind} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform" loading="lazy" />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1.5">{EVIDENCE_KIND_LABEL[p.kind] ?? p.kind}</p>
+                    </a>
+                  ))}
+                </div>
+              )}
+              {detail.evidence.documents.length > 0 && (
+                <div className="space-y-2">
+                  {detail.evidence.documents.map((d, i) => (
+                    <a key={i} href={d.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border border-white/[0.08] px-4 py-2.5 hover:border-white/25 transition-colors">
+                      <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      <span className="text-sm text-foreground">{EVIDENCE_KIND_LABEL[d.kind] ?? d.kind}</span>
+                      <Download className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </Card>
+          )}
         </div>
 
         {/* Triage + actions */}
@@ -220,14 +244,15 @@ export default function OpportunityDetailProduction() {
             <div className="flex items-center gap-2 mb-3">
               <Gauge className="w-4 h-4" style={{ color: TEAL }} />
               <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">SCPS triage</h2>
-              <span className="ml-auto text-[10px] text-muted-foreground">firm only · v1</span>
+              <span className="ml-auto text-[10px] text-muted-foreground">firm only · {detail.evaluation.scpsVersion}</span>
             </div>
             <div className="flex items-baseline gap-1.5 mb-4">
-              <span className="text-[40px] leading-none font-light tabular-nums text-foreground">{kit.scps}</span>
+              <span className="text-[40px] leading-none font-light tabular-nums text-foreground">{detail.evaluation.scpsScore}</span>
               <span className="text-lg text-muted-foreground">%</span>
+              <span className="ml-2 text-xs text-muted-foreground">tier {detail.evaluation.qualificationTier}</span>
             </div>
             <div className="space-y-2.5">
-              {kit.factors.map((f) => (
+              {detail.evaluation.factors.map((f) => (
                 <div key={f.label}>
                   <div className="flex justify-between text-[11px] mb-1">
                     <span className="text-muted-foreground">{f.label}</span>
@@ -241,15 +266,13 @@ export default function OpportunityDetailProduction() {
             </div>
           </Card>
 
-          {/* Snapshot */}
+          {/* Snapshot, real fields only */}
           <Card className="p-6">
             <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-4">Case snapshot</h2>
             <div className="space-y-3.5">
-              <Row icon={ImageIcon} label="Injury" value={kit.injury} />
-              <Row icon={Scale} label="Liability" value={kit.liability} />
-              <Row icon={ArrowUpRight} label="Estimated value" value={kit.estValue} accent />
-              <Row icon={ShieldCheck} label="Insurance" value={kit.insurance} />
-              <Row icon={Clock} label="Statute" value={`${kit.statuteDays} days remaining`} />
+              <Row icon={Activity} label="Injury (documentation)" value={detail.evaluation.injurySeverity || '—'} />
+              <Row icon={Scale} label="Liability (documentation)" value={detail.evaluation.liabilityAssessment || '—'} />
+              <Row icon={Clock} label="Statute" value={detail.evaluation.statuteStatus || '—'} />
             </div>
           </Card>
 
@@ -262,29 +285,54 @@ export default function OpportunityDetailProduction() {
             <p className="text-sm text-foreground leading-relaxed">
               Executed by the claimant in the name of <b className="font-semibold">{firmName}</b>. Request records directly from providers, no waiting.
             </p>
-            <button
-              onClick={() => toast.success('HIPAA authorization downloaded.')}
+            <a
+              href={firmId ? `/api/firm/${encodeURIComponent(firmId)}/opportunity/${encodeURIComponent(detail.deliveryId)}/hipaa` : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => { if (!firmId) toast.error('Sign in to download the authorization.'); }}
               className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold border border-white/[0.1] hover:border-white/25 transition-colors text-foreground"
             >
               <Download className="w-4 h-4" /> Download authorization
-            </button>
+            </a>
           </Card>
 
-          {/* Report the outcome */}
+          {/* Report the outcome. This is the moat's ignition: a reported outcome
+             feeds the SCPS feedback loop and unlocks the firm's true cost per
+             signed case. It never touches the fee (W4). */}
           <Card className="p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1">After your call</h2>
-            <p className="text-xs text-muted-foreground mb-4">One tap. It unlocks your true cost per signed case.</p>
-            <div className="space-y-2.5">
-              <button onClick={() => report('signed')} className="w-full rounded-lg py-2.5 text-sm font-semibold transition-colors" style={{ color: '#052018', background: `linear-gradient(120deg, ${TEAL}, ${POS})` }}>
-                It signed
-              </button>
-              <button onClick={() => report('still being worked')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-foreground">
-                Still working it
-              </button>
-              <button onClick={() => report('not signed')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-muted-foreground">
-                It did not sign
-              </button>
-            </div>
+            {outcome.phase === 'saved' ? (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldCheck className="w-4 h-4" style={{ color: POS }} />
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Outcome recorded</h2>
+                </div>
+                <p className="text-sm text-foreground leading-relaxed">
+                  Recorded as <b className="font-semibold">{outcome.label}</b>. This tunes your market intelligence and the signed case model.
+                </p>
+                {outcome.costPerSignedCaseCents != null && (
+                  <div className="mt-4 rounded-lg p-4" style={{ background: 'rgba(34,197,141,0.08)', border: '1px solid rgba(34,197,141,0.2)' }}>
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.13em] mb-1">Your true cost per signed case</p>
+                    <p className="text-2xl font-light tabular-nums text-foreground">${dollars(outcome.costPerSignedCaseCents)}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-1">After your call</h2>
+                <p className="text-xs text-muted-foreground mb-4">One tap. It unlocks your true cost per signed case.</p>
+                <div className="space-y-2.5">
+                  <button disabled={outcome.phase === 'saving'} onClick={() => submitOutcome('retained')} className="w-full rounded-lg py-2.5 text-sm font-semibold transition-colors disabled:opacity-60" style={{ color: '#052018', background: `linear-gradient(120deg, ${TEAL}, ${POS})` }}>
+                    It signed
+                  </button>
+                  <button disabled={outcome.phase === 'saving'} onClick={() => submitOutcome('still-evaluating')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-foreground disabled:opacity-60">
+                    Still working it
+                  </button>
+                  <button disabled={outcome.phase === 'saving'} onClick={() => submitOutcome('not-retained')} className="w-full rounded-lg py-2.5 text-sm font-medium border border-white/[0.1] hover:border-white/25 transition-colors text-muted-foreground disabled:opacity-60">
+                    It did not sign
+                  </button>
+                </div>
+              </>
+            )}
           </Card>
         </div>
       </div>
@@ -304,13 +352,13 @@ function Field({ label, value, mono, icon: Icon }: { label: string; value: strin
   );
 }
 
-function Row({ icon: Icon, label, value, accent }: { icon: typeof MapPin; label: string; value: string; accent?: boolean }) {
+function Row({ icon: Icon, label, value }: { icon: typeof MapPin; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3">
       <Icon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
       <div>
         <p className="text-[11px] text-muted-foreground">{label}</p>
-        <p className="text-sm mt-0.5" style={accent ? { color: TEAL, fontWeight: 600 } : { color: 'var(--foreground)' }}>{value}</p>
+        <p className="text-sm mt-0.5 text-foreground">{value}</p>
       </div>
     </div>
   );

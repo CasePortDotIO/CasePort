@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    firmUsers: FirmUserAuthOperations;
   };
   blocks: {};
   collections: {
@@ -97,6 +98,7 @@ export interface Config {
     disclosures: Disclosure;
     auditLog: AuditLog;
     operators: Operator;
+    firmUsers: FirmUser;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -134,6 +136,7 @@ export interface Config {
     disclosures: DisclosuresSelect<false> | DisclosuresSelect<true>;
     auditLog: AuditLogSelect<false> | AuditLogSelect<true>;
     operators: OperatorsSelect<false> | OperatorsSelect<true>;
+    firmUsers: FirmUsersSelect<false> | FirmUsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -159,7 +162,7 @@ export interface Config {
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: User | FirmUser;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -183,12 +186,34 @@ export interface UserAuthOperations {
     password: string;
   };
 }
+export interface FirmUserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: string;
+  /**
+   * Admins can promote SCPS model versions and manage roles.
+   */
+  role: 'admin' | 'operator';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -2281,7 +2306,9 @@ export interface Event {
     | 'IntakeValidated'
     | 'ProtectionPlanGenerated'
     | 'StatusViewed'
+    | 'AbandonedIntakeNudged'
     | 'GeographicRouteResolved'
+    | 'DossierAssembled'
     | 'DossierDelivered'
     | 'DeliveryHeld'
     | 'WalletFunded'
@@ -2289,11 +2316,15 @@ export interface Event {
     | 'LowBalanceAlerted'
     | 'OutcomeReported'
     | 'SCPSRecalibrated'
+    | 'SCPSPromoted'
+    | 'ProspectResearched'
+    | 'ProspectDraftCreated'
     | 'SpeedCallbackNotified'
     | 'FirmResponded'
     | 'SlaBreached'
     | 'DecayInterrupt'
-    | 'OutcomeRequested';
+    | 'OutcomeRequested'
+    | 'FirmCallbackSlaActivated';
   aggregateType: string;
   aggregateId: string;
   /**
@@ -2416,6 +2447,10 @@ export interface Dossier {
    * The intake session this dossier was assembled from. Carries the attribution trace back to the first touch tuple (Section 11). System reference, not claimant facing.
    */
   intakeSession?: (string | null) | IntakeSession;
+  /**
+   * Short, opaque, human case reference (CP-XXXXXX). The one public id a claimant or partner ever sees, in every shared URL. Claimant safe. Uniqueness is guaranteed by the random generator; the field is indexed for fast lookup but not a unique DB constraint, so dossiers created without one (legacy or seed) never collide on a null.
+   */
+  reference?: string | null;
   claimant: string | Claimant;
   market: string | Market;
   caseType?:
@@ -2607,6 +2642,10 @@ export interface ScpsModel {
   id: string;
   version: string;
   /**
+   * Recalibration writes proposed models. A human promotes to active through the intelligence service; a proposed model never scores. Section 4.6.
+   */
+  status: 'proposed' | 'active';
+  /**
    * Factor weights, normalized to sum to one.
    */
   weights: {
@@ -2735,6 +2774,39 @@ export interface Operator {
   status?: ('active' | 'inactive' | 'on-leave') | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * Partner logins for the firm dashboard. Each belongs to one firm.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "firmUsers".
+ */
+export interface FirmUser {
+  id: string;
+  name: string;
+  /**
+   * The firm this partner belongs to. Scopes all their reads.
+   */
+  firm: string | Firm;
+  role: 'partner' | 'staff';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'firmUsers';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2879,12 +2951,21 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'operators';
         value: string | Operator;
+      } | null)
+    | ({
+        relationTo: 'firmUsers';
+        value: string | FirmUser;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'firmUsers';
+        value: string | FirmUser;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -2894,10 +2975,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'users';
-    value: string | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: string | User;
+      }
+    | {
+        relationTo: 'firmUsers';
+        value: string | FirmUser;
+      };
   key?: string | null;
   value?:
     | {
@@ -2927,6 +3013,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -4549,6 +4636,7 @@ export interface IntakeSessionsSelect<T extends boolean = true> {
  */
 export interface DossiersSelect<T extends boolean = true> {
   intakeSession?: T;
+  reference?: T;
   claimant?: T;
   market?: T;
   caseType?: T;
@@ -4695,6 +4783,7 @@ export interface ScpsScoresSelect<T extends boolean = true> {
  */
 export interface ScpsModelsSelect<T extends boolean = true> {
   version?: T;
+  status?: T;
   weights?:
     | T
     | {
@@ -4797,6 +4886,31 @@ export interface OperatorsSelect<T extends boolean = true> {
   status?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "firmUsers_select".
+ */
+export interface FirmUsersSelect<T extends boolean = true> {
+  name?: T;
+  firm?: T;
+  role?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

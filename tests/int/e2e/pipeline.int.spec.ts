@@ -129,10 +129,20 @@ describe('end to end pipeline', () => {
     // ---- attribution trace: signed case -> originating keyword -----------
     const models = new Map<string, ScpsModel>()
     const modelRepo: ScpsModelRepository = {
-      active: async () => [...models.values()].sort((a, b) => Number(b.version.slice(1)) - Number(a.version.slice(1)))[0] ?? null,
+      active: async () =>
+        [...models.values()]
+          .filter((m) => m.status === 'active')
+          .sort((a, b) => Number(b.version.slice(1)) - Number(a.version.slice(1)))[0] ?? null,
       get: async (v) => models.get(v) ?? null,
       save: async (m) => void models.set(m.version, m),
       list: async () => [...models.values()],
+      promote: async (v) => {
+        const m = models.get(v)
+        if (!m) return null
+        const promoted = { ...m, status: 'active' as const }
+        models.set(v, promoted)
+        return promoted
+      },
     }
     const trace: TraceReader = {
       outcome: async (id) => {

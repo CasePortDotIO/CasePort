@@ -1,7 +1,11 @@
 import type { Dossier } from '@/lib/compliance/dossierProjections'
+import { findClaimantLanguageViolations } from '@/lib/compliance/claimantLanguage'
+import { nextEssentialCapture } from '@/lib/domain/captureChecklist'
 import type { EventType } from '@/lib/domain/constants'
 import type {
   AttributionTuple,
+  CaptureDirection,
+  CaptureInventory,
   ClaimantContact,
   IntakeDeps,
   PlaybackResult,
@@ -78,6 +82,118 @@ export function createIntakeService(deps: IntakeDeps) {
       marketId: market?.id ?? null,
       marketSlug: market?.slug ?? null,
     }
+  }
+
+  /**
+   * The single guarded action of the Evidence and Intake Coaching Agent
+   * (AGENTS.md Section 4.1). Given everything captured so far, ask the narrative
+   * client for the next photographic or factual direction, then hold it to the
+   * Wall before it can reach the claimant.
+   *
+   * This is the compliance boundary, tested not trusted (W2, W6). Every
+   * generated direction is scanned for legal evaluation and non recommendation
+   * language. If the model drifts even once, the violating text is never
+   * surfaced: it is replaced with the next deterministic, compliant checklist
+   * direction, and the substitution is recorded on the event so the drift is
+   * auditable. The claimant only ever sees procedural direction.
+   *
+   * The action space of the agent is exactly this method (and the other
+   * IntakeService methods). It has no raw model, database, or network access.
+   */
+  async function coachNextCapture(
+    sessionId: string,
+    inventory: CaptureInventory,
+  ): Promise<CaptureDirection & { substituted: boolean }> {
+    let proposed: CaptureDirection
+    try {
+      proposed = await deps.narrative.nextCaptureDirection({ inventory })
+    } catch {
+      // Narrative outage: fall straight to the compliant checklist floor.
+      proposed = nextEssentialCapture(inventory)
+    }
+
+    const violations = findClaimantLanguageViolations(proposed.direction)
+    let direction = proposed
+    let substituted = false
+    if (violations.length > 0 || !proposed.direction.trim()) {
+      // Never surface a violating or empty direction. Substitute the safe floor.
+      direction = nextEssentialCapture(inventory)
+      substituted = true
+    }
+
+    await emit(sessionId, 'EvidenceCoachingShown', 'intakeSession', sessionId, {
+      direction: direction.direction,
+      focus: direction.focus ?? null,
+      done: direction.done,
+      substituted,
+      // What the drift was, so a substitution is auditable without storing the
+      // violating text itself.
+      violationKinds: violations.map((v) => v.kind),
+    })
+
+    return { ...direction, substituted }
+  }
+
+  /**
+   * A photo captured and stored (Section 6 step 2). The claimant photographs the
+   * scene, the vehicles, the plates, the damage, the injury. Each shot appends an
+   * immutable PhotoUploaded event carrying only the media key and its kind, so the
+   * dossier can later be assembled from the log alone (Section 4). The photo bytes
+   * live in signed, expiring storage; the event holds the key, never the image.
+   * No evaluation happens here (W2): a photo is documentation, not a score.
+   */
+  async function recordPhoto(
+    sessionId: string,
+    mediaKey: string,
+    kind: string,
+  ): Promise<void> {
+    await emit(sessionId, 'PhotoUploaded', 'intakeSession', sessionId, { mediaKey, kind })
+  }
+
+  /**
+   * The insurance card photographed and parsed by Claude Vision so the claimant
+   * writes nothing down (Section 6 step 2). The card is a photo like any other
+   * (PhotoUploaded, kind insurance-card) and is then read into structured fields
+   * (VisionParsed). The parsed fields are firm facing case material and are never
+   * surfaced to the claimant as any kind of evaluation (W2). Resilient: if Vision
+   * is unavailable it returns an empty field set and the claimant can still type
+   * the details, the intake is never blocked on a paid AI call.
+   */
+  async function parseInsuranceCard(
+    sessionId: string,
+    mediaKey: string,
+  ): Promise<{ fields: Record<string, string> }> {
+    await emit(sessionId, 'PhotoUploaded', 'intakeSession', sessionId, {
+      mediaKey,
+      kind: 'insurance-card',
+    })
+    let fields: Record<string, string> = {}
+    try {
+      fields = await deps.vision.parseInsuranceCard({ mediaKey })
+    } catch {
+      fields = {}
+    }
+    await emit(sessionId, 'VisionParsed', 'intakeSession', sessionId, {
+      mediaKey,
+      kind: 'insurance-card',
+      fieldCount: Object.keys(fields).length,
+    })
+    return { fields }
+  }
+
+  /**
+   * A document captured and stored, for example the police report (Section 6
+   * step 2). Appends an immutable DocumentParsed event carrying the media key and
+   * kind. Like every intake step it is documentation of fact, carrying no
+   * evaluative signal (W2). The bytes live in signed storage; the event holds the
+   * key.
+   */
+  async function recordDocument(
+    sessionId: string,
+    mediaKey: string,
+    kind: string,
+  ): Promise<void> {
+    await emit(sessionId, 'DocumentParsed', 'intakeSession', sessionId, { mediaKey, kind })
   }
 
   /** Voice captured and transcribed by Deepgram (Section 6 step 2). */
@@ -207,6 +323,7 @@ export function createIntakeService(deps: IntakeDeps) {
     if (!session) throw new Error(`intake session ${sessionId} not found`)
     const dossier = DossierService.assemble({
       id: deps.ids.dossierId(),
+      reference: deps.ids.reference(),
       claimantId: session.claimantId,
       intakeSessionId: session.id,
       market: input.marketSlug,
@@ -221,6 +338,10 @@ export function createIntakeService(deps: IntakeDeps) {
 
   return {
     beginIntake,
+    coachNextCapture,
+    recordPhoto,
+    parseInsuranceCard,
+    recordDocument,
     recordVoice,
     showPlayback,
     confirmPlayback,

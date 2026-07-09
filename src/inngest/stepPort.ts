@@ -28,4 +28,14 @@ export interface WorkflowDeps {
   delivery: DeliveryService
   wallet: WalletService
   loadDossier(dossierId: string): Promise<Dossier | null>
+  /**
+   * Assemble the firm facing package (AGENTS.md Section 4.2): compute and attach
+   * the versioned SCPS triage to the dossier. Called after routing resolves the
+   * firm and before delivery, so a quality signal can never reach routing (W1).
+   * Returns null when the dossier or firm is missing.
+   */
+  assembleFirmPackage(
+    dossierId: string,
+    firmId: string,
+  ): Promise<{ scpsScore: number; scpsVersion: string } | null>
 }

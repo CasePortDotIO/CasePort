@@ -41,6 +41,7 @@ export const DossierService = {
   assemble(input: Omit<ClaimantSafeDossier, 'status'> & { claimantId: string; intakeSessionId?: string | null }): Dossier {
     return {
       id: input.id,
+      reference: input.reference,
       claimantId: input.claimantId,
       intakeSessionId: input.intakeSessionId ?? null,
       market: input.market,

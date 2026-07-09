@@ -4,9 +4,19 @@ import { createRoutingService } from '../services/RoutingService'
 import { createDeliveryService } from '../services/DeliveryService'
 import { createIntelligenceService } from '../services/IntelligenceService'
 import { createAgentService } from '../services/AgentService'
+import { createIntakeService } from '../services/IntakeService'
+import { createDossierAssemblyService } from '../services/DossierAssemblyService'
+import { createPayloadAssemblyDeps } from '../services/adapters/payloadAssembly'
+import { createEvidenceCoachingAgent } from '../agents/EvidenceCoachingAgent'
+import { createAbandonedIntakeRecoveryAgent } from '../agents/AbandonedIntakeRecoveryAgent'
+import { createPayloadRecoveryDeps } from '../services/adapters/payloadRecovery'
+import { createProspectingService } from '../services/ProspectingService'
+import { createProspectingAgent } from '../agents/ProspectingAgent'
+import { createPayloadProspectingDeps } from '../services/adapters/payloadProspecting'
 import { createPayloadDeliveryDeps, createPayloadRoutingDeps } from '../services/adapters/payloadDelivery'
 import { createPayloadIntelligenceDeps } from '../services/adapters/payloadIntelligence'
 import { createPayloadAgentDeps } from '../services/adapters/payloadAgents'
+import { createPayloadIntakeDeps } from '../services/adapters/payload'
 import { outcomeCaptureUrl } from '../lib/outcomeLink'
 import { inngest, type CaseportEvents } from './client'
 import type { StepRunner, WorkflowDeps, WorkflowEvent } from './stepPort'
@@ -21,11 +31,16 @@ import { deliverDossierWorkflow, reconcileWalletsWorkflow, releaseHeldWorkflow }
 /** Build the workflow service bundle from a Payload instance. */
 export function buildWorkflowDeps(payload: Payload): WorkflowDeps {
   const deliveryDeps = createPayloadDeliveryDeps(payload)
+  const assembly = createDossierAssemblyService(createPayloadAssemblyDeps(payload))
   return {
     routing: createRoutingService(createPayloadRoutingDeps(payload)),
     delivery: createDeliveryService(deliveryDeps),
     wallet: deliveryDeps.wallet,
     loadDossier: (id) => deliveryDeps.dossiers.get(id),
+    assembleFirmPackage: async (dossierId, firmId) => {
+      const result = await assembly.assembleFirmPackage(dossierId, firmId)
+      return result ? { scpsScore: result.scpsScore, scpsVersion: result.scpsVersion } : null
+    },
   }
 }
 
@@ -86,11 +101,12 @@ export const reconcileWallets = inngest.createFunction(
 )
 
 /**
- * The Signed Case Feedback Loop (Section 9). Recalibrates the SCPS model from
- * firm reported outcomes on a daily cadence, so the model versions once per day
- * rather than churning a new version per outcome. The loop is wired from day one
- * even though it has nothing to learn from until the first cases close. Never
- * touches a fee (W4).
+ * The Signed Case Feedback Loop (Section 9, AGENTS.md Section 4.6). Recalibrates
+ * the SCPS model from firm reported outcomes on a daily cadence and saves it as a
+ * PROPOSAL. It never activates the new version: a human promotes a proposal to
+ * active through the intelligence service, so the scorer can never silently
+ * rewrite itself. The loop is wired from day one even though it has nothing to
+ * learn from until the first cases close. Never touches a fee (W4).
  */
 export const recalibrateScps = inngest.createFunction(
   { id: 'recalibrate-scps', triggers: [{ cron: '0 6 * * *' }] },
@@ -177,4 +193,71 @@ export const deliveryAgents = inngest.createFunction(
   },
 )
 
-export const inngestFunctions = [deliverDossier, releaseHeldQueue, reconcileWallets, recalibrateScps, deliveryAgents]
+/**
+ * The Evidence and Intake Coaching Agent (AGENTS.md Section 4.1), as a durable
+ * step. Triggered after each capture during intake. It observes the current
+ * capture inventory and returns the single next photographic or factual
+ * direction, guarded so nothing evaluative can reach the claimant (W2, W6). One
+ * durable step per capture: a retry re runs the same guarded decision, and the
+ * EvidenceCoachingShown event is emitted inside the service, so replays are
+ * clean. Bounded by the agent's step cap, timeout, and direction budget.
+ */
+export const coachEvidence = inngest.createFunction(
+  { id: 'evidence-coaching', retries: 2, triggers: [{ event: 'intake/coach.requested' }] },
+  async ({ event, step }) => {
+    const data = event.data as CaseportEvents['intake/coach.requested']
+    const payload = await getPayload({ config })
+    const intake = createIntakeService(createPayloadIntakeDeps(payload))
+    const agent = createEvidenceCoachingAgent({ coachNextCapture: intake.coachNextCapture })
+    const direction = await (step as InngestStep).run('coach-next', () =>
+      agent.coachOnce(data.sessionId, data.inventory),
+    )
+    return { sessionId: data.sessionId, direction }
+  },
+)
+
+/**
+ * The Abandoned Intake Recovery Agent (AGENTS.md Section 4.4). A scheduled scan
+ * that re engages claimants who started an intake and did not finish. It only
+ * ever touches existing, incomplete sessions on a channel where consent was
+ * captured, so it never cold contacts anyone (ABA Formal Opinion 501, TCPA). No
+ * message carries legal evaluation; the send is guarded. Bounded per session.
+ */
+export const recoverAbandonedIntakes = inngest.createFunction(
+  { id: 'recover-abandoned-intakes', triggers: [{ cron: '0 */4 * * *' }] },
+  async ({ step }) => {
+    const payload = await getPayload({ config })
+    const agent = createAbandonedIntakeRecoveryAgent(createPayloadRecoveryDeps(payload))
+    return (step as InngestStep).run('recover-stale', () => agent.recoverStale())
+  },
+)
+
+/**
+ * The B2B Prospecting and Proof of Reality Agent (AGENTS.md Section 4.3).
+ * Triggered when a target firm is named. It researches the firm and drafts
+ * personalized outreach with redacted proof of reality. It NEVER sends: the
+ * draft is the output, awaiting human review and send (Section 3, human in the
+ * loop for all B2B outreach). Every draft is guarded against Rule 7.1.
+ */
+export const prospectFirm = inngest.createFunction(
+  { id: 'prospect-firm', retries: 2, triggers: [{ event: 'prospect/requested' }] },
+  async ({ event, step }) => {
+    const data = event.data as CaseportEvents['prospect/requested']
+    const payload = await getPayload({ config })
+    const agent = createProspectingAgent(createProspectingService(createPayloadProspectingDeps(payload)))
+    const result = await (step as InngestStep).run('prospect', () => agent.prospect(data))
+    // The draft is returned for a human to review and send. Nothing is sent here.
+    return { firmId: data.firmId, status: 'draft', awaitingHumanApproval: true, draft: result.draft }
+  },
+)
+
+export const inngestFunctions = [
+  deliverDossier,
+  releaseHeldQueue,
+  reconcileWallets,
+  recalibrateScps,
+  deliveryAgents,
+  coachEvidence,
+  recoverAbandonedIntakes,
+  prospectFirm,
+]

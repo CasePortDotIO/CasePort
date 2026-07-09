@@ -8,11 +8,28 @@ import DashboardInstitutional from '@/firm/DashboardInstitutional'
 import OpportunitiesExcellent from '@/firm/OpportunitiesExcellent'
 import OpportunityDetailProduction from '@/firm/OpportunityDetailProduction'
 import WalletEnhanced from '@/firm/WalletEnhanced'
-import OutcomeFeedbackEnhanced from '@/firm/OutcomeFeedbackEnhanced'
-import PerformanceEnhanced from '@/firm/PerformanceEnhanced'
-import AnalyticsDashboard from '@/firm/AnalyticsDashboard'
 import SettingsPage from '@/firm/SettingsPage'
-import LeaderboardPage from '@/firm/LeaderboardPage'
+import FirmLogin from '@/firm/FirmLogin'
+import ComingSoon from '@/firm/ComingSoon'
+
+/*
+ * Surfaces not yet backed by real data are routed to an honest placeholder
+ * rather than shown with fabricated numbers (performance, analytics, ranking,
+ * and the outcome-feedback rollup). Real outcome reporting lives on each
+ * opportunity's closing kit; these rollups activate once real cases accumulate.
+ */
+const PerformanceSoon = () => (
+  <ComingSoon title="Performance" blurb="Response-time trends and your true cost per signed case will appear here once your firm has delivered and reported on real cases." />
+);
+const AnalyticsSoon = () => (
+  <ComingSoon title="Advanced Analytics" blurb="Cohort, funnel, and channel-attribution views build from your own delivered cases and reported outcomes. They activate as that history accumulates." />
+);
+const LeaderboardSoon = () => (
+  <ComingSoon title="Market Standing" blurb="Benchmarks against your market are shown only when there is enough real, comparable activity to be meaningful and fair. Never a fabricated rank." />
+);
+const FeedbackSoon = () => (
+  <ComingSoon title="Outcome Feedback" blurb="Report outcomes with one tap on each opportunity's closing kit. A portfolio rollup of your reported outcomes will appear here as they accumulate." />
+);
 
 /**
  * The ported Manus Law Firm dashboard, mounted as a single client island under
@@ -22,6 +39,9 @@ import LeaderboardPage from '@/firm/LeaderboardPage'
  */
 function FirmRouter() {
   const [location] = useLocation()
+
+  // Login stands alone, without the dashboard chrome.
+  if (location === '/login') return <FirmLogin />
 
   const getCurrentScreen = () => {
     if (location.startsWith('/opportunities') || location.startsWith('/opportunity')) return 'opportunities'
@@ -42,10 +62,10 @@ function FirmRouter() {
         <Route path="/opportunities" component={OpportunitiesExcellent} />
         <Route path="/opportunity/:id" component={OpportunityDetailProduction} />
         <Route path="/wallet" component={WalletEnhanced} />
-        <Route path="/performance" component={PerformanceEnhanced} />
-        <Route path="/feedback" component={OutcomeFeedbackEnhanced} />
-        <Route path="/analytics" component={AnalyticsDashboard} />
-        <Route path="/leaderboard" component={LeaderboardPage} />
+        <Route path="/performance" component={PerformanceSoon} />
+        <Route path="/feedback" component={FeedbackSoon} />
+        <Route path="/analytics" component={AnalyticsSoon} />
+        <Route path="/leaderboard" component={LeaderboardSoon} />
         <Route path="/settings" component={SettingsPage} />
         <Route component={DashboardMobileFirst} />
       </Switch>

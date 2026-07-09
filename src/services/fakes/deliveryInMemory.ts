@@ -1,4 +1,5 @@
 import type { Dossier } from '@/lib/compliance/dossierProjections'
+import { deriveReference } from '@/lib/domain/reference'
 import type { CaseTypeValue } from '@/lib/domain/constants'
 import type { DossierRepository } from '../ports'
 import type {
@@ -50,6 +51,7 @@ export interface DeliveryHarness {
 function makeDossier(input: { id: string; market: string; caseType: CaseTypeValue; scpsScore?: number }): Dossier {
   return {
     id: input.id,
+    reference: deriveReference(input.id),
     claimantId: `clm_${input.id}`,
     intakeSessionId: `sess_${input.id}`,
     market: input.market,
@@ -91,6 +93,10 @@ export function createDeliveryHarness(
       return d
     },
     get: async (id) => dossierRows.get(id) ?? null,
+    attachEvaluation: async (id, evaluation) => {
+      const d = dossierRows.get(id)
+      if (d) dossierRows.set(id, { ...d, evaluation })
+    },
   }
 
   const deliveries: DeliveryRepository = {

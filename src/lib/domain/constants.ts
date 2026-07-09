@@ -87,7 +87,9 @@ export const EVENT_TYPES = [
   'IntakeValidated',
   'ProtectionPlanGenerated',
   'StatusViewed',
+  'AbandonedIntakeNudged',
   'GeographicRouteResolved',
+  'DossierAssembled',
   'DossierDelivered',
   'DeliveryHeld',
   'WalletFunded',
@@ -95,11 +97,15 @@ export const EVENT_TYPES = [
   'LowBalanceAlerted',
   'OutcomeReported',
   'SCPSRecalibrated',
+  'SCPSPromoted',
+  'ProspectResearched',
+  'ProspectDraftCreated',
   'SpeedCallbackNotified',
   'FirmResponded',
   'SlaBreached',
   'DecayInterrupt',
   'OutcomeRequested',
+  'FirmCallbackSlaActivated',
 ] as const
 
 export type EventType = (typeof EVENT_TYPES)[number]
