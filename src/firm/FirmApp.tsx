@@ -10,6 +10,8 @@ import OpportunityDetailProduction from '@/firm/OpportunityDetailProduction'
 import WalletEnhanced from '@/firm/WalletEnhanced'
 import SettingsPage from '@/firm/SettingsPage'
 import FirmLogin from '@/firm/FirmLogin'
+import FirmForgot from '@/firm/FirmForgot'
+import FirmActivate from '@/firm/FirmActivate'
 import ComingSoon from '@/firm/ComingSoon'
 
 /*
@@ -40,8 +42,10 @@ const FeedbackSoon = () => (
 function FirmRouter() {
   const [location] = useLocation()
 
-  // Login stands alone, without the dashboard chrome.
+  // Auth surfaces stand alone, without the dashboard chrome.
   if (location === '/login') return <FirmLogin />
+  if (location === '/forgot') return <FirmForgot />
+  if (location === '/activate') return <FirmActivate />
 
   const getCurrentScreen = () => {
     if (location.startsWith('/opportunities') || location.startsWith('/opportunity')) return 'opportunities'

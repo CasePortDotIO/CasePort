@@ -83,6 +83,13 @@ export default function FirmLogin() {
           >
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
+          <button
+            type="button"
+            onClick={() => navigate('/forgot')}
+            className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Forgot your password?
+          </button>
         </form>
 
         <button onClick={() => navigate('/')} className="mt-6 text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">

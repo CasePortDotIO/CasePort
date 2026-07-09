@@ -1,18 +1,31 @@
+import crypto from 'node:crypto'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import { requireInternal } from '@/lib/adminAuth'
+import { issueFirmPasswordLink } from '@/lib/firm/passwordLink'
 
 /**
- * Mint a partner login (admin only). Creates a firmUser bound to a firm so a
- * managing partner can sign in to the firm dashboard. This is the production safe
- * way to provision the first login without the dev seed: create the first admin
- * at /admin, then call this. Firm users can also be created directly in the
- * Payload admin under Firm Users; this endpoint is the scriptable equivalent.
+ * Provision a partner login (admin only). Creates a firmUser bound to a firm and
+ * sends a branded activation link so the partner sets their own password on a
+ * secure page. CasePort is invite only, so this is the whole onboarding motion:
+ * a firm is provisioned after a signed agreement, never self served.
  *
- * It never returns the password. The firm binding scopes every read on the Glass
- * Box to that partner's firm, from the session, not a path parameter.
+ * A password is not required; when omitted a random one is set and the partner
+ * replaces it via the activation link, so no password is ever shared. The
+ * activation link is always returned too, so an admin can deliver it by hand when
+ * email is not configured. The firm binding scopes every read on the Glass Box to
+ * that partner's firm, from the session, not a path parameter.
  */
 export const dynamic = 'force-dynamic'
+
+function originFor(req: Request): string {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.APP_URL ||
+    new URL(req.url).origin
+  )
+}
 
 export async function POST(req: Request) {
   let body: { email?: unknown; password?: unknown; name?: unknown; firmId?: unknown; role?: unknown }
@@ -23,16 +36,18 @@ export async function POST(req: Request) {
   }
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
-  const password = typeof body.password === 'string' ? body.password : ''
+  // Password is optional: when omitted, a random one is set and the partner sets
+  // their own through the activation link.
+  const password =
+    typeof body.password === 'string' && body.password.length >= 8
+      ? body.password
+      : crypto.randomBytes(24).toString('base64url')
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const firmId = typeof body.firmId === 'string' ? body.firmId : ''
   const role = body.role === 'staff' ? 'staff' : 'partner'
 
-  if (!email || !password || !name || !firmId) {
-    return Response.json({ error: 'email, password, name, and firmId are required' }, { status: 400 })
-  }
-  if (password.length < 8) {
-    return Response.json({ error: 'password must be at least 8 characters' }, { status: 400 })
+  if (!email || !name || !firmId) {
+    return Response.json({ error: 'email, name, and firmId are required' }, { status: 400 })
   }
 
   try {
@@ -40,7 +55,9 @@ export async function POST(req: Request) {
     const auth = await requireInternal(payload, req, { admin: true })
     if ('response' in auth) return auth.response
 
-    const firm = await payload.findByID({ collection: 'firms', id: firmId, depth: 0 }).catch(() => null)
+    const firm = (await payload.findByID({ collection: 'firms', id: firmId, depth: 0 }).catch(() => null)) as
+      | { name?: string }
+      | null
     if (!firm) return Response.json({ error: 'firm not found' }, { status: 404 })
 
     const existing = await payload.find({ collection: 'firmUsers', where: { email: { equals: email } }, limit: 1 })
@@ -53,12 +70,24 @@ export async function POST(req: Request) {
       data: { email, password, name, firm: firmId, role } as never,
     })
 
+    // Send the activation invite so the partner sets their own password.
+    const invite = await issueFirmPasswordLink(payload, {
+      email,
+      name,
+      firmName: firm.name,
+      origin: originFor(req),
+      kind: 'invite',
+    }).catch(() => ({ sent: false, activationLink: null }))
+
     return Response.json({
       created: true,
       firmUserId: String((created as { id: string | number }).id),
       email,
       firmId,
       role,
+      invited: invite.sent,
+      // Deliver the link by hand when email is not configured.
+      activationLink: invite.activationLink,
       signInAt: '/firm/login',
     })
   } catch {

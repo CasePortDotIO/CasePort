@@ -11,7 +11,12 @@ import type { CollectionConfig } from 'payload'
  */
 export const FirmUsers: CollectionConfig = {
   slug: 'firmUsers',
-  auth: true,
+  auth: {
+    // A provisioned partner may open the activation email later, so the set your
+    // password token lasts three days. Reset links are single use and consumed on
+    // use, so this window is comfortable without being loose.
+    forgotPassword: { expiration: 1000 * 60 * 60 * 24 * 3 },
+  },
   admin: {
     group: 'Firms',
     useAsTitle: 'email',
