@@ -91,16 +91,16 @@ export function Footer() {
             <h4>By State</h4>
             <ul>
               <li>
-                <Link href="/accidents/virginia">Virginia</Link>
+                <Link href="/accidents/va">Virginia</Link>
               </li>
               <li>
-                <Link href="/accidents/maryland">Maryland</Link>
+                <Link href="/accidents/md">Maryland</Link>
               </li>
               <li>
-                <Link href="/accidents/district-of-columbia">Washington, D.C.</Link>
+                <Link href="/accidents/dc">Washington, D.C.</Link>
               </li>
               <li>
-                <Link href="/accidents/georgia">Georgia</Link>
+                <Link href="/accidents/ga">Georgia</Link>
               </li>
             </ul>
           </div>

@@ -148,7 +148,7 @@ export function DelayedSymptomsPage() {
           />
         </div>
       </section>
-      <Expert bg="bg-white" medical />
+      <Expert bg="bg-white" reviewType="medical" />
       <FAQ faqs={DS_FAQS} bg="bg-cream" title="Delayed Symptoms — FAQ" />
       <Sources
         medical
@@ -299,7 +299,7 @@ export function WhenToSeeDoctorPage() {
           />
         </div>
       </section>
-      <Expert bg="bg-white" medical />
+      <Expert bg="bg-white" reviewType="medical" />
       <FAQ faqs={WD_FAQS} bg="bg-cream" title="When to See a Doctor — FAQ" />
       <Sources
         medical

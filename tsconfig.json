@@ -50,6 +50,9 @@
     "injured-complete",
     "_Guide CoNTENT HUB",
     "Injured Updated Version",
-    "files-4"
+    "files-4",
+    "check-*.ts",
+    "fix-*.ts",
+    "verify-*.ts"
   ]
 }

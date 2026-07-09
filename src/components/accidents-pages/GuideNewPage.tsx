@@ -383,7 +383,7 @@ function RenderCTABridge({ block }: { block: Block }) {
 // ─── Expert Renderer ────────────────────────────────────────────────────────
 
 function RenderExpert({ block }: { block: Block }) {
-  return <Expert bg="bg-cream" medical={block.showMedical} />
+  return <Expert bg="bg-cream" reviewType={block.showMedical ? "medical" : "legal"} />
 }
 
 // ─── Sources Renderer ───────────────────────────────────────────────────────
@@ -477,7 +477,7 @@ function renderBlock(block: Block) {
     case 'hero':            return <RenderHero key={block.id || block._id} block={block} />
     case 'statTiles':       return <RenderStatTiles key={block.id || block._id} block={block} />
     case 'keyTakeaways':    return <RenderKeyTakeaways key={block.id || block._id} block={block} />
-    case 'capsule':         return <RenderCapsule key={block.id || block._id} block={block} />
+    case 'directAnswer':         return <RenderCapsule key={block.id || block._id} block={block} />
     case 'sectionToc':      return block.enabled !== false ? <SectionTOC key="section-toc" /> : null
     case 'richText':        return <RenderRichText key={block.id || block._id} block={block} />
     case 'directAnswer':    return <RenderDirectAnswer key={block.id || block._id} block={block} />
@@ -607,7 +607,7 @@ export function GuideNewPage({
         </section>
 
         {/* Expert */}
-        <Expert bg="bg-cream" medical={isMedical} />
+        <Expert bg="bg-cream" reviewType={isMedical ? "medical" : "legal"} />
 
         {/* FAQ */}
         {allFaqs.length > 0 && (
@@ -698,7 +698,7 @@ export function GuideNewPage({
         </section>
 
         {/* Expert */}
-        <Expert bg="bg-cream" medical={isMedical} />
+        <Expert bg="bg-cream" reviewType={isMedical ? "medical" : "legal"} />
 
         {/* FAQ */}
         {allFaqs.length > 0 && (

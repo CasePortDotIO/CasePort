@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import { Icon } from "@/components/Icon";
 import { statesSorted, stateData, NATIONAL } from "@/data";
 
@@ -197,10 +197,196 @@ function CmpResult({ aAbbr, bAbbr }: { aAbbr: string; bAbbr: string | null }) {
   );
 }
 
+// ─── Searchable state select ───────────────────────────────────────────────────
+
+type StateOption = { abbr: string; name: string };
+
+function SearchableSelect({
+  value,
+  onChange,
+  placeholder,
+  includeNational,
+}: {
+  value: string;
+  onChange: (abbr: string) => void;
+  placeholder: string;
+  includeNational?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const allOptions: StateOption[] = statesSorted();
+  const filtered = query
+    ? allOptions.filter(
+        (o) =>
+          o.name.toLowerCase().includes(query.toLowerCase()) ||
+          o.abbr.toLowerCase().includes(query.toLowerCase())
+      )
+    : allOptions;
+
+  // When value changes externally (e.g. initialA), sync the input display
+  useEffect(() => {
+    if (!open) {
+      const opt = allOptions.find((o) => o.abbr === value);
+      setQuery(opt ? opt.name : "");
+    }
+  }, [value, open, allOptions]);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (!inputRef.current?.parentElement?.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery(value ? (allOptions.find((o) => o.abbr === value)?.name ?? "") : "");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open, value, allOptions]);
+
+  const selectedName = allOptions.find((o) => o.abbr === value)?.name ?? "";
+
+  const handleSelect = (abbr: string) => {
+    onChange(abbr);
+    const opt = allOptions.find((o) => o.abbr === abbr);
+    setQuery(opt ? opt.name : "");
+    setOpen(false);
+    inputRef.current?.blur();
+  };
+
+  const handleFocus = () => {
+    setOpen(true);
+    setQuery(selectedName);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setOpen(false);
+      setQuery(selectedName);
+    }
+  };
+
+  return (
+    <div className="field" style={{ margin: 0, position: "relative" }}>
+      <label>{placeholder}</label>
+      <div style={{ position: "relative" }}>
+        <input
+          ref={inputRef}
+          type="text"
+          value={open ? query : selectedName}
+          placeholder={placeholder}
+          onFocus={handleFocus}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+          autoComplete="off"
+          style={{
+            width: "100%",
+            padding: "0.6rem 2.5rem 0.6rem 0.75rem",
+            border: "1px solid var(--line-2)",
+            borderRadius: "var(--radius)",
+            fontSize: "0.95rem",
+            background: "var(--bg-warm)",
+            color: "var(--ink)",
+            cursor: "text",
+          }}
+        />
+        <Icon
+          name="chev"
+          style={{
+            position: "absolute",
+            right: "0.6rem",
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 14,
+            height: 14,
+            color: "var(--text-4)",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
+      {open && (
+        <ul
+          ref={listRef}
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: "var(--bg-warm)",
+            border: "1px solid var(--line-2)",
+            borderRadius: "var(--radius)",
+            maxHeight: "220px",
+            overflowY: "auto",
+            listStyle: "none",
+            margin: 0,
+            padding: "0.25rem 0",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          }}
+        >
+          {includeNational && !query && (
+            <li
+              onMouseDown={() => handleSelect("")}
+              style={{
+                padding: "0.5rem 0.75rem",
+                cursor: "pointer",
+                fontSize: "0.9rem",
+                color: "var(--text-3)",
+                fontStyle: "italic",
+              }}
+            >
+              National Average
+            </li>
+          )}
+          {filtered.length === 0 && (
+            <li style={{ padding: "0.5rem 0.75rem", fontSize: "0.9rem", color: "var(--text-4)" }}>
+              No states found
+            </li>
+          )}
+          {filtered.map((opt) => (
+            <li
+              key={opt.abbr}
+              onMouseDown={() => handleSelect(opt.abbr)}
+              style={{
+                padding: "0.5rem 0.75rem",
+                cursor: "pointer",
+                fontSize: "0.9rem",
+                background: opt.abbr === value ? "var(--sage)18" : "transparent",
+                color: "var(--ink)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+              onMouseEnter={(e) => {
+                if (opt.abbr !== value) (e.currentTarget as HTMLLIElement).style.background = "var(--line)";
+              }}
+              onMouseLeave={(e) => {
+                if (opt.abbr !== value) (e.currentTarget as HTMLLIElement).style.background = "transparent";
+              }}
+            >
+              <span>{opt.name}</span>
+              <span style={{ fontSize: "0.75rem", color: "var(--text-4)", fontFamily: "var(--mono)" }}>
+                {opt.abbr}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ─── Main component ────────────────────────────────────────────────────────────
+
 export function StateComparison({ initialA = "" }: { initialA?: string }) {
   const [a, setA] = useState(initialA);
   const [b, setB] = useState("");
-  const options = statesSorted();
 
   return (
     <section className="section bg-white" data-widget="comparison">
@@ -214,7 +400,6 @@ export function StateComparison({ initialA = "" }: { initialA?: string }) {
         </div>
         <div className="calc-card" style={{ maxWidth: "46rem", margin: "0 auto 2rem" }}>
           <div
-            className="cmp-select"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr auto 1fr",
@@ -222,31 +407,20 @@ export function StateComparison({ initialA = "" }: { initialA?: string }) {
               alignItems: "end",
             }}
           >
-            <div className="field" style={{ margin: 0 }}>
-              <label htmlFor="cmpA">Your State</label>
-              <select id="cmpA" value={a} onChange={(e) => setA(e.target.value)}>
-                <option value="">Select state…</option>
-                {options.map((s) => (
-                  <option key={s.abbr} value={s.abbr}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SearchableSelect
+              value={a}
+              onChange={setA}
+              placeholder="Your State"
+            />
             <div style={{ paddingBottom: ".7rem", fontWeight: 700, color: "var(--text-4)" }}>
               vs
             </div>
-            <div className="field" style={{ margin: 0 }}>
-              <label htmlFor="cmpB">Compare Against</label>
-              <select id="cmpB" value={b} onChange={(e) => setB(e.target.value)}>
-                <option value="">National Average</option>
-                {options.map((s) => (
-                  <option key={s.abbr} value={s.abbr}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <SearchableSelect
+              value={b}
+              onChange={setB}
+              placeholder="Compare Against"
+              includeNational
+            />
           </div>
         </div>
         <div id="cmpResult" style={{ maxWidth: "46rem", margin: "0 auto" }}>

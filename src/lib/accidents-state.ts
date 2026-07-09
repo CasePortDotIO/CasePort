@@ -1,8 +1,8 @@
 import { stateData, slugToAbbr, type StateData } from "@/data";
 
-/** Canonical hyphenated state slug from a 2-letter abbr (e.g. "CA" → "california"). */
+/** Canonical state key for URLs from a 2-letter abbr (e.g. "CA" → "ca"). */
 export function stateSlug(abbr: string): string {
-  return stateData[abbr].name.toLowerCase().replace(/[^a-z]+/g, "-");
+  return abbr.toLowerCase();
 }
 
 export interface ResolvedState {

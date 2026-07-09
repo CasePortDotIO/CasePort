@@ -8,6 +8,10 @@ interface Head {
   label: string;
 }
 
+interface SectionTOCProps {
+  initialHeads?: Head[];
+}
+
 const EXCLUDE =
   /^(explore|other |more on |more in |related|keep reading|browse|find your|the key questions|take the next step|frequently asked|people also ask|ready to|questions about|protect your|not sure|injured in|living with|just had|already|worried|hurt on|have a|didn.t find|still have|about these)/i;
 
@@ -17,26 +21,32 @@ const EXCLUDE =
  * mirroring the heading logic in source `enhanceArticle`. Renders only when 3+
  * real content sections exist.
  */
-export function SectionTOC() {
-  const [heads, setHeads] = useState<Head[]>([]);
-  const [active, setActive] = useState<string>("");
+export function SectionTOC({ initialHeads }: SectionTOCProps) {
+  const [heads, setHeads] = useState<Head[]>(initialHeads || []);
+  const [active, setActive] = useState<string>(initialHeads?.[0]?.id || "");
 
   useEffect(() => {
+    // If we already have heads from CMS, skip DOM discovery
+    if (heads.length > 0) {
+      setActive(heads[0].id);
+      return;
+    }
+
     const app = document.getElementById("app");
     if (!app) return;
 
     let els = Array.from(
       app.querySelectorAll<HTMLElement>(".prose h2, .prose-sec h2")
     ).filter((h) => (h.textContent || "").trim().length > 1);
-    if (els.length < 3) {
-      els = Array.from(app.querySelectorAll<HTMLElement>("section h2.section-h")).filter(
+    if (els.length < 2) {
+      els = Array.from(app.querySelectorAll<HTMLElement>(".section-head h2, section h2.section-h")).filter(
         (h) => {
           const t = (h.textContent || "").trim();
           return t.length > 1 && !EXCLUDE.test(t);
         }
       );
     }
-    if (els.length < 3) {
+    if (els.length < 2) {
       setHeads([]);
       return;
     }
@@ -77,7 +87,7 @@ export function SectionTOC() {
     };
   }, []);
 
-  if (heads.length < 3) return null;
+  if (heads.length < 2) return null;
 
   const jump = (e: React.MouseEvent, id: string) => {
     e.preventDefault();

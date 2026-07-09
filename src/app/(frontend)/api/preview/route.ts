@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-type CollectionSlug = 'articles' | 'guideArticles'
+type CollectionSlug = 'articles' | 'guideArticles' | 'accidentPages'
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
   const slug = searchParams.get('slug')
   const id = searchParams.get('id')
-  const collectionParam = searchParams.get('collection') || 'articles'
+  const collectionParam = searchParams.get('collection') || 'accidentPages'
 
   if (!slug && !id) {
     return NextResponse.json(
@@ -18,15 +18,16 @@ export async function GET(req: NextRequest) {
   }
 
   const collectionSlug: CollectionSlug =
-    collectionParam === 'guideArticles' ? 'guideArticles'
+    collectionParam === 'accidentPages' ? 'accidentPages'
+    : collectionParam === 'guideArticles' ? 'guideArticles'
     : 'articles'
 
   try {
     const payload = await getPayload({ config })
 
-    let article: any
+    let doc: any
     if (id) {
-      article = await payload.findByID({
+      doc = await payload.findByID({
         collection: collectionSlug,
         id,
         draft: true,
@@ -34,27 +35,26 @@ export async function GET(req: NextRequest) {
     } else {
       const result = await payload.find({
         collection: collectionSlug,
-        where: {
-          slug: { equals: slug },
-        },
+        where: { fullSlug: { equals: slug } },
         draft: true,
         limit: 1,
       })
       if (!result.docs.length) {
-        return NextResponse.json({ error: 'Article not found' }, { status: 404 })
+        return NextResponse.json({ error: 'Page not found' }, { status: 404 })
       }
-      article = result.docs[0]
+      doc = result.docs[0]
     }
 
-    const targetSlug = article.slug
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin
-
     let frontendUrl: string
-    if (collectionSlug === 'guideArticles') {
-      const categorySlug = article.guideCategory?.slug || article.guideCategory
-      frontendUrl = `${siteUrl}/guides/${categorySlug}/${targetSlug}?preview=true&draft=${article.id}`
+
+    if (collectionSlug === 'accidentPages') {
+      frontendUrl = `${siteUrl}/accidents/${doc.fullSlug}?preview=true`
+    } else if (collectionSlug === 'guideArticles') {
+      const categorySlug = doc.guideCategory?.slug || doc.guideCategory
+      frontendUrl = `${siteUrl}/guides/${categorySlug}/${doc.slug}?preview=true&draft=${doc.id}`
     } else {
-      frontendUrl = `${siteUrl}/insights/${targetSlug}?preview=true&draft=${article.id}`
+      frontendUrl = `${siteUrl}/insights/${doc.slug}?preview=true&draft=${doc.id}`
     }
 
     return NextResponse.redirect(frontendUrl)

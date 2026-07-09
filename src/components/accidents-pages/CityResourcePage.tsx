@@ -50,7 +50,7 @@ export function CityResourcePage({
   const s = r.data;
   const base: Crumb[] = [
     { label: "Accidents", href: "/accidents" },
-    { label: s.name, href: `/accidents/${r.slug}` },
+    { label: s.name, href: `/accidents/${r.cityKey}` },
     { label: city.name, href: `/accidents/${r.cityKey}/${city.slug}` },
   ];
   const cr = crashFor(s.abbr);
@@ -96,7 +96,7 @@ export function CityResourcePage({
           </div>
         </section>
         <ActionKit bg="bg-white" title={`Send these today — ${city.name} Action Kit`} />
-        <ReportBlock state={s.abbr} name={s.name} statuteYears={s.statuteYears} bg="bg-cream" />
+        <ReportBlock stateName={s.name} statuteYears={s.statuteYears} bg="bg-cream" />
         <FAQ faqs={faqs} bg="bg-white" title="Frequently Asked Questions" />
         <Sources citeTitle={`What to Do After an Accident in ${city.name}, ${s.abbr}`} citeUrl={`/accidents/${r.cityKey}/${city.slug}/what-to-do-after`} />
         <CTABand title={`Injured in ${city.name}?`} sub="Get a free, confidential case review — understand what your accident is worth before you talk to any insurer." btn="Get Free Case Review" />
@@ -134,7 +134,7 @@ export function CityResourcePage({
         />
         <KeyTakeaways items={["Where", "How", "When", "Why it matters"]} />
         <Capsule heading={`Where to get your ${city.name}, ${s.abbr} crash report`} lead={lead} />
-        <ReportBlock state={s.abbr} name={s.name} statuteYears={s.statuteYears} bg="bg-cream" />
+        <ReportBlock stateName={s.name} statuteYears={s.statuteYears} bg="bg-cream" />
         <ActionKit bg="bg-white" title="Copy-paste your crash-report request" />
         <FAQ faqs={faqs} bg="bg-cream" title={`Crash Report FAQ — ${city.name}`} />
         <Sources citeTitle={`Get Your ${city.name}, ${s.abbr} Crash Report — Step by Step`} citeUrl={`/accidents/${r.cityKey}/${city.slug}/police-report`} />
