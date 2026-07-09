@@ -6,6 +6,20 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
   },
   auth: true,
+  hooks: {
+    // Bootstrap: the very first internal user is an admin, so a fresh deployment
+    // is never locked out of the admin only tooling. Only an admin can change a
+    // role afterward, so this is the single sanctioned path to the first admin.
+    // Every subsequent user defaults to operator.
+    beforeChange: [
+      async ({ req, operation, data }) => {
+        if (operation !== 'create') return data
+        const existing = await req.payload.count({ collection: 'users' })
+        if (existing.totalDocs === 0) return { ...data, role: 'admin' }
+        return data
+      },
+    ],
+  },
   fields: [
     // Email added by default.
     {
