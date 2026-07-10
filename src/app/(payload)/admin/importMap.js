@@ -33,7 +33,6 @@ import { MarkInjuredLeadsSeen as MarkInjuredLeadsSeen_ad05ed314b22c958e10e8f46b7
 import { IntelligenceUnseenBadge as IntelligenceUnseenBadge_1fd28808ad591e47f6c08a7a0e56d02c } from '@/components/admin/IntelligenceUnseenBadge'
 import { InjuredLeadsUnseenBadge as InjuredLeadsUnseenBadge_ae0d41fc200ef1581b81ce289131391a } from '@/components/admin/InjuredLeadsUnseenBadge'
 import { ApplicationsUnseenBadge as ApplicationsUnseenBadge_6cea0a6342ba3909df419f8a12b4ef0b } from '@/components/admin/ApplicationsUnseenBadge'
-import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -73,6 +72,5 @@ export const importMap = {
   "@/components/admin/IntelligenceUnseenBadge#IntelligenceUnseenBadge": IntelligenceUnseenBadge_1fd28808ad591e47f6c08a7a0e56d02c,
   "@/components/admin/InjuredLeadsUnseenBadge#InjuredLeadsUnseenBadge": InjuredLeadsUnseenBadge_ae0d41fc200ef1581b81ce289131391a,
   "@/components/admin/ApplicationsUnseenBadge#ApplicationsUnseenBadge": ApplicationsUnseenBadge_6cea0a6342ba3909df419f8a12b4ef0b,
-  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

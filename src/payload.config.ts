@@ -12,8 +12,6 @@ import { Applications } from './collections/Applications'
 import { Articles } from './collections/Articles'
 import { Authors } from './collections/Authors'
 import { Categories } from './collections/Categories'
-import { AccidentArticles } from './collections/AccidentArticles'
-import { AccidentCategories } from './collections/AccidentCategories'
 import { AccidentPages } from './collections/AccidentPages'
 import { GuideNew } from './collections/GuideNew'
 import { GuideNewCategories } from './collections/GuideNewCategories'
@@ -116,8 +114,8 @@ export default buildConfig({
     Categories,
     GuideNew,
     GuideNewCategories,
-    AccidentArticles,
-    AccidentCategories,
+    // AccidentArticles,
+    // AccidentCategories,
     AccidentPages,
     SiteLinks,
     Authors,
