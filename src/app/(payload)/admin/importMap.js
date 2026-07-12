@@ -28,12 +28,14 @@ import { MarkApplicationsSeen as MarkApplicationsSeen_f5de8d2f34876f4286b86e85ac
 import { MarkIntelligenceSeen as MarkIntelligenceSeen_585a13567123a6c801b451d8af611e29 } from '@/components/admin/MarkIntelligenceSeen'
 import { default as default_ba3af612294d2e3004e11de163683c93 } from '@/components/admin/GuidePreviewButton'
 import { default as default_b3ff7363135ae581539a6d6af679901d } from '@/components/admin/AccidentPagePreviewButton'
+import { default as default_913199b622f58437f1fd0fb80afd3797 } from '@/components/admin/InjuryPreviewButton'
+import { default as default_48b133be3312064798fc4241c8149216 } from '@/components/admin/InjuryTypePreviewButton'
+import { default as default_360ed920917d44490abaf54565b9591b } from '@/components/admin/InjuryArticlePreviewButton'
 import { default as default_5f32e6dab79a8c9d0707d0d5893b327a } from '../../../components/admin/PreviewButton'
 import { MarkInjuredLeadsSeen as MarkInjuredLeadsSeen_ad05ed314b22c958e10e8f46b76d0eca } from '@/components/admin/MarkInjuredLeadsSeen'
 import { IntelligenceUnseenBadge as IntelligenceUnseenBadge_1fd28808ad591e47f6c08a7a0e56d02c } from '@/components/admin/IntelligenceUnseenBadge'
 import { InjuredLeadsUnseenBadge as InjuredLeadsUnseenBadge_ae0d41fc200ef1581b81ce289131391a } from '@/components/admin/InjuredLeadsUnseenBadge'
 import { ApplicationsUnseenBadge as ApplicationsUnseenBadge_6cea0a6342ba3909df419f8a12b4ef0b } from '@/components/admin/ApplicationsUnseenBadge'
-import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -68,11 +70,13 @@ export const importMap = {
   "@/components/admin/MarkIntelligenceSeen#MarkIntelligenceSeen": MarkIntelligenceSeen_585a13567123a6c801b451d8af611e29,
   "@/components/admin/GuidePreviewButton#default": default_ba3af612294d2e3004e11de163683c93,
   "@/components/admin/AccidentPagePreviewButton#default": default_b3ff7363135ae581539a6d6af679901d,
+  "@/components/admin/InjuryPreviewButton#default": default_913199b622f58437f1fd0fb80afd3797,
+  "@/components/admin/InjuryTypePreviewButton#default": default_48b133be3312064798fc4241c8149216,
+  "@/components/admin/InjuryArticlePreviewButton#default": default_360ed920917d44490abaf54565b9591b,
   "/components/admin/PreviewButton#default": default_5f32e6dab79a8c9d0707d0d5893b327a,
   "@/components/admin/MarkInjuredLeadsSeen#MarkInjuredLeadsSeen": MarkInjuredLeadsSeen_ad05ed314b22c958e10e8f46b76d0eca,
   "@/components/admin/IntelligenceUnseenBadge#IntelligenceUnseenBadge": IntelligenceUnseenBadge_1fd28808ad591e47f6c08a7a0e56d02c,
   "@/components/admin/InjuredLeadsUnseenBadge#InjuredLeadsUnseenBadge": InjuredLeadsUnseenBadge_ae0d41fc200ef1581b81ce289131391a,
   "@/components/admin/ApplicationsUnseenBadge#ApplicationsUnseenBadge": ApplicationsUnseenBadge_6cea0a6342ba3909df419f8a12b4ef0b,
-  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

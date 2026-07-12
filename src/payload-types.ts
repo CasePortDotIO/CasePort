@@ -77,6 +77,9 @@ export interface Config {
     guideArticles: GuideArticle;
     guideCategories: GuideCategory;
     accidentPages: AccidentPage;
+    injuries: Injury;
+    injuryTypes: InjuryType;
+    injuryArticles: InjuryArticle;
     siteLinks: SiteLink;
     authors: Author;
     articles: Article;
@@ -98,6 +101,9 @@ export interface Config {
     guideArticles: GuideArticlesSelect<false> | GuideArticlesSelect<true>;
     guideCategories: GuideCategoriesSelect<false> | GuideCategoriesSelect<true>;
     accidentPages: AccidentPagesSelect<false> | AccidentPagesSelect<true>;
+    injuries: InjuriesSelect<false> | InjuriesSelect<true>;
+    injuryTypes: InjuryTypesSelect<false> | InjuryTypesSelect<true>;
+    injuryArticles: InjuryArticlesSelect<false> | InjuryArticlesSelect<true>;
     siteLinks: SiteLinksSelect<false> | SiteLinksSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
@@ -1699,6 +1705,777 @@ export interface AccidentPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injuries".
+ */
+export interface Injury {
+  id: string;
+  /**
+   * Injury name, e.g. "Whiplash"
+   */
+  title: string;
+  /**
+   * URL slug, e.g. "whiplash"
+   */
+  slug: string;
+  /**
+   * Category label, e.g. "Neck & Soft Tissue"
+   */
+  category: string;
+  /**
+   * Icon name key, e.g. "steth"
+   */
+  icon?: string | null;
+  /**
+   * Scene image key, e.g. "clinical" or "scan"
+   */
+  sceneImg?: string | null;
+  displayOrder?: number | null;
+  /**
+   * AEO-optimized overview — shown in featured snippets and voice search. ~2–3 sentences.
+   */
+  directAnswer: string;
+  /**
+   * 4 stat tiles shown below the hero.
+   */
+  stats?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Key facts shown in the KeyTakeaways block.
+   */
+  keyFacts?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Top-level prose sections (fallback for ProseSections).
+   */
+  sections?:
+    | {
+        title?: string | null;
+        content?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Symptom arrays for spoke pages.
+   */
+  symptoms?: {
+    immediate?:
+      | {
+          item?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    delayed?:
+      | {
+          item?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    emergency?:
+      | {
+          item?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Treatment steps for spoke pages.
+   */
+  treatment?:
+    | {
+        name?: string | null;
+        desc?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Recovery phases for spoke pages.
+   */
+  recovery?:
+    | {
+        phase?: string | null;
+        time?: string | null;
+        desc?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Settlement factors for spoke pages.
+   */
+  settlement?:
+    | {
+        factor?: string | null;
+        desc?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  blocks?:
+    | (
+        | {
+            heroTitle?: string | null;
+            heroSubtitle?: string | null;
+            eyebrow?: string | null;
+            scene?: string | null;
+            heroImage?: (string | null) | Media;
+            reviewerName?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            sections?:
+              | {
+                  title?: string | null;
+                  content?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'proseSections';
+          }
+        | {
+            /**
+             * Symptoms that appear right away.
+             */
+            immediate?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Delayed symptoms — hours to days later.
+             */
+            delayed?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Emergency symptoms — call 911.
+             */
+            emergency?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'symptomsBlock';
+          }
+        | {
+            steps?:
+              | {
+                  name: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'treatmentStep';
+          }
+        | {
+            phases?:
+              | {
+                  phase: string;
+                  time: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'recoveryPhase';
+          }
+        | {
+            factors?:
+              | {
+                  factor: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'settlementFactor';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Primary AEO answer for featured snippets.
+             */
+            lead?: string | null;
+            text?: string | null;
+            /**
+             * Voice search answer — keep under 35 words.
+             */
+            voiceAnswer?: string | null;
+            speakableCssSelectors?:
+              | {
+                  selector?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            table?: {
+              label?: string | null;
+              head?:
+                | {
+                    cell?: string | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              rows?:
+                | {
+                    cells?:
+                      | {
+                          cell?: string | null;
+                          id?: string | null;
+                        }[]
+                      | null;
+                    id?: string | null;
+                  }[]
+                | null;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'directAnswer';
+          }
+        | {
+            items?:
+              | {
+                  question?: string | null;
+                  answerText?: string | null;
+                  voiceQuestion?: string | null;
+                  slug?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            aiCitationSummary?: string | null;
+            conversationalQueryVariants?:
+              | {
+                  query?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+        | {
+            items?:
+              | {
+                  item?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'keyTakeaways';
+          }
+        | {
+            author?: (string | null) | Author;
+            reviewType?: ('legal' | 'medical') | null;
+            sourceText?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'expert';
+          }
+        | {
+            citeTitle?: string | null;
+            citeUrl?: string | null;
+            sources?:
+              | {
+                  name?: string | null;
+                  url?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'sources';
+          }
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            link?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+        | {
+            category?: string | null;
+            pages?: (string | Injury)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'exploreMore';
+          }
+        | {
+            title?: string | null;
+            items?:
+              | {
+                  item?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'takeHome';
+          }
+        | {
+            text?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'howWeKeepAccurate';
+          }
+      )[]
+    | null;
+  focusKeyword?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  publishedDate?: string | null;
+  /**
+   * Auto-calculated 0–100 AEO score.
+   */
+  aeoScore?: number | null;
+  /**
+   * Auto-calculated 0–100 SEO score.
+   */
+  seoScore?: number | null;
+  /**
+   * Auto-calculated read time in minutes.
+   */
+  readTime?: number | null;
+  /**
+   * Auto-set to 90 days from last save.
+   */
+  nextReviewDue?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injuryTypes".
+ */
+export interface InjuryType {
+  id: string;
+  /**
+   * Injury name, e.g. "Whiplash"
+   */
+  title: string;
+  /**
+   * URL slug, e.g. "whiplash"
+   */
+  slug: string;
+  /**
+   * Category label, e.g. "Neck & Soft Tissue"
+   */
+  category: string;
+  /**
+   * Icon name key, e.g. "steth"
+   */
+  icon?: string | null;
+  /**
+   * Scene image key, e.g. "clinical" or "scan"
+   */
+  sceneImg?: string | null;
+  displayOrder?: number | null;
+  /**
+   * AEO-optimized overview — shown in featured snippets and voice search. ~2–3 sentences.
+   */
+  directAnswer: string;
+  /**
+   * 4 stat tiles shown below the hero.
+   */
+  stats?:
+    | {
+        label: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Key facts shown in the KeyTakeaways block.
+   */
+  keyFacts?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Symptom arrays for hub page / RecoveryViz fallback.
+   */
+  symptoms?: {
+    immediate?:
+      | {
+          item?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    delayed?:
+      | {
+          item?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    emergency?:
+      | {
+          item?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Treatment steps — referenced by the hub page.
+   */
+  treatment?:
+    | {
+        name?: string | null;
+        desc?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Recovery phases for the hub page RecoveryViz section.
+   */
+  recovery?:
+    | {
+        phase?: string | null;
+        time?: string | null;
+        desc?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Settlement factors — referenced by the hub page.
+   */
+  settlement?:
+    | {
+        factor?: string | null;
+        desc?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  blocks?:
+    | (
+        | {
+            heading?: string | null;
+            /**
+             * Primary AEO answer — shown in featured snippets and voice search.
+             */
+            lead?: string | null;
+            author?: (string | null) | Author;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeDirectAnswer';
+          }
+        | {
+            items?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeKeyTakeaways';
+          }
+        | {
+            sections?:
+              | {
+                  title: string;
+                  content: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeProseSections';
+          }
+        | {
+            items?:
+              | {
+                  question: string;
+                  answerText: string;
+                  id?: string | null;
+                }[]
+              | null;
+            aiCitationSummary?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeFAQ';
+          }
+        | {
+            author?: (string | null) | Author;
+            reviewType?: ('legal' | 'medical') | null;
+            sourceText?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeExpert';
+          }
+        | {
+            citeTitle?: string | null;
+            citeUrl?: string | null;
+            sources?:
+              | {
+                  name: string;
+                  url?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeSources';
+          }
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            link?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeCTA';
+          }
+        | {
+            items?:
+              | {
+                  label: string;
+                  value: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeStatTiles';
+          }
+        | {
+            pages?: (string | InjuryArticle)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeExploreMore';
+          }
+      )[]
+    | null;
+  focusKeyword?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  publishedDate?: string | null;
+  /**
+   * Auto-calculated 0–100 AEO score.
+   */
+  aeoScore?: number | null;
+  /**
+   * Auto-calculated 0–100 SEO score.
+   */
+  seoScore?: number | null;
+  /**
+   * Auto-calculated read time in minutes.
+   */
+  readTime?: number | null;
+  /**
+   * Auto-set to 90 days from last save.
+   */
+  nextReviewDue?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injuryArticles".
+ */
+export interface InjuryArticle {
+  id: string;
+  /**
+   * Article title, e.g. "Whiplash Symptoms"
+   */
+  title: string;
+  /**
+   * URL slug, e.g. "whiplash-symptoms"
+   */
+  slug: string;
+  /**
+   * The parent injury type this article belongs to.
+   */
+  injuryType: string | InjuryType;
+  spokeType: 'symptoms' | 'treatment' | 'recovery-timeline' | 'settlement-factors';
+  blocks?:
+    | (
+        | {
+            /**
+             * Symptoms that appear right away.
+             */
+            immediate?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Delayed symptoms — hours to days later.
+             */
+            delayed?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Emergency symptoms — call 911.
+             */
+            emergency?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleSymptoms';
+          }
+        | {
+            steps?:
+              | {
+                  name: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleTreatment';
+          }
+        | {
+            phases?:
+              | {
+                  phase: string;
+                  time: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleRecovery';
+          }
+        | {
+            factors?:
+              | {
+                  factor: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleSettlement';
+          }
+        | {
+            sections?:
+              | {
+                  title: string;
+                  content: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleProseSections';
+          }
+        | {
+            items?:
+              | {
+                  item: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleKeyTakeaways';
+          }
+        | {
+            items?:
+              | {
+                  question: string;
+                  answerText: string;
+                  id?: string | null;
+                }[]
+              | null;
+            aiCitationSummary?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleFAQ';
+          }
+        | {
+            author?: (string | null) | Author;
+            reviewType?: ('legal' | 'medical') | null;
+            sourceText?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleExpert';
+          }
+        | {
+            citeTitle?: string | null;
+            citeUrl?: string | null;
+            sources?:
+              | {
+                  name: string;
+                  url?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleSources';
+          }
+        | {
+            title?: string | null;
+            subtitle?: string | null;
+            link?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleCTA';
+          }
+      )[]
+    | null;
+  focusKeyword?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  publishedDate?: string | null;
+  /**
+   * Auto-calculated 0–100 AEO score.
+   */
+  aeoScore?: number | null;
+  /**
+   * Auto-calculated 0–100 SEO score.
+   */
+  seoScore?: number | null;
+  /**
+   * Auto-calculated read time in minutes.
+   */
+  readTime?: number | null;
+  /**
+   * Auto-set to 90 days from last save.
+   */
+  nextReviewDue?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "siteLinks".
  */
 export interface SiteLink {
@@ -2391,6 +3168,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'accidentPages';
         value: string | AccidentPage;
+      } | null)
+    | ({
+        relationTo: 'injuries';
+        value: string | Injury;
+      } | null)
+    | ({
+        relationTo: 'injuryTypes';
+        value: string | InjuryType;
+      } | null)
+    | ({
+        relationTo: 'injuryArticles';
+        value: string | InjuryArticle;
       } | null)
     | ({
         relationTo: 'siteLinks';
@@ -3571,6 +4360,667 @@ export interface AccidentPagesSelect<T extends boolean = true> {
   readTime?: T;
   nextReviewDue?: T;
   displayOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injuries_select".
+ */
+export interface InjuriesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  icon?: T;
+  sceneImg?: T;
+  displayOrder?: T;
+  directAnswer?: T;
+  stats?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  keyFacts?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  sections?:
+    | T
+    | {
+        title?: T;
+        content?: T;
+        id?: T;
+      };
+  symptoms?:
+    | T
+    | {
+        immediate?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        delayed?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        emergency?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+      };
+  treatment?:
+    | T
+    | {
+        name?: T;
+        desc?: T;
+        id?: T;
+      };
+  recovery?:
+    | T
+    | {
+        phase?: T;
+        time?: T;
+        desc?: T;
+        id?: T;
+      };
+  settlement?:
+    | T
+    | {
+        factor?: T;
+        desc?: T;
+        id?: T;
+      };
+  blocks?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              heroTitle?: T;
+              heroSubtitle?: T;
+              eyebrow?: T;
+              scene?: T;
+              heroImage?: T;
+              reviewerName?: T;
+              id?: T;
+              blockName?: T;
+            };
+        proseSections?:
+          | T
+          | {
+              sections?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        symptomsBlock?:
+          | T
+          | {
+              immediate?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              delayed?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              emergency?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        treatmentStep?:
+          | T
+          | {
+              steps?:
+                | T
+                | {
+                    name?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        recoveryPhase?:
+          | T
+          | {
+              phases?:
+                | T
+                | {
+                    phase?: T;
+                    time?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        settlementFactor?:
+          | T
+          | {
+              factors?:
+                | T
+                | {
+                    factor?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        directAnswer?:
+          | T
+          | {
+              heading?: T;
+              lead?: T;
+              text?: T;
+              voiceAnswer?: T;
+              speakableCssSelectors?:
+                | T
+                | {
+                    selector?: T;
+                    id?: T;
+                  };
+              table?:
+                | T
+                | {
+                    label?: T;
+                    head?:
+                      | T
+                      | {
+                          cell?: T;
+                          id?: T;
+                        };
+                    rows?:
+                      | T
+                      | {
+                          cells?:
+                            | T
+                            | {
+                                cell?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                        };
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answerText?: T;
+                    voiceQuestion?: T;
+                    slug?: T;
+                    id?: T;
+                  };
+              aiCitationSummary?: T;
+              conversationalQueryVariants?:
+                | T
+                | {
+                    query?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        keyTakeaways?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        expert?:
+          | T
+          | {
+              author?: T;
+              reviewType?: T;
+              sourceText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        sources?:
+          | T
+          | {
+              citeTitle?: T;
+              citeUrl?: T;
+              sources?:
+                | T
+                | {
+                    name?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              link?: T;
+              id?: T;
+              blockName?: T;
+            };
+        exploreMore?:
+          | T
+          | {
+              category?: T;
+              pages?: T;
+              id?: T;
+              blockName?: T;
+            };
+        takeHome?:
+          | T
+          | {
+              title?: T;
+              items?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        howWeKeepAccurate?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  focusKeyword?: T;
+  metaTitle?: T;
+  metaDescription?: T;
+  publishedDate?: T;
+  aeoScore?: T;
+  seoScore?: T;
+  readTime?: T;
+  nextReviewDue?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injuryTypes_select".
+ */
+export interface InjuryTypesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  category?: T;
+  icon?: T;
+  sceneImg?: T;
+  displayOrder?: T;
+  directAnswer?: T;
+  stats?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  keyFacts?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  symptoms?:
+    | T
+    | {
+        immediate?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        delayed?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        emergency?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+      };
+  treatment?:
+    | T
+    | {
+        name?: T;
+        desc?: T;
+        id?: T;
+      };
+  recovery?:
+    | T
+    | {
+        phase?: T;
+        time?: T;
+        desc?: T;
+        id?: T;
+      };
+  settlement?:
+    | T
+    | {
+        factor?: T;
+        desc?: T;
+        id?: T;
+      };
+  blocks?:
+    | T
+    | {
+        injuryTypeDirectAnswer?:
+          | T
+          | {
+              heading?: T;
+              lead?: T;
+              author?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeKeyTakeaways?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeProseSections?:
+          | T
+          | {
+              sections?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeFAQ?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answerText?: T;
+                    id?: T;
+                  };
+              aiCitationSummary?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeExpert?:
+          | T
+          | {
+              author?: T;
+              reviewType?: T;
+              sourceText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeSources?:
+          | T
+          | {
+              citeTitle?: T;
+              citeUrl?: T;
+              sources?:
+                | T
+                | {
+                    name?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeCTA?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              link?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeStatTiles?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeExploreMore?:
+          | T
+          | {
+              pages?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  focusKeyword?: T;
+  metaTitle?: T;
+  metaDescription?: T;
+  publishedDate?: T;
+  aeoScore?: T;
+  seoScore?: T;
+  readTime?: T;
+  nextReviewDue?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "injuryArticles_select".
+ */
+export interface InjuryArticlesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  injuryType?: T;
+  spokeType?: T;
+  blocks?:
+    | T
+    | {
+        injuryArticleSymptoms?:
+          | T
+          | {
+              immediate?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              delayed?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              emergency?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleTreatment?:
+          | T
+          | {
+              steps?:
+                | T
+                | {
+                    name?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleRecovery?:
+          | T
+          | {
+              phases?:
+                | T
+                | {
+                    phase?: T;
+                    time?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleSettlement?:
+          | T
+          | {
+              factors?:
+                | T
+                | {
+                    factor?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleProseSections?:
+          | T
+          | {
+              sections?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleKeyTakeaways?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleFAQ?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answerText?: T;
+                    id?: T;
+                  };
+              aiCitationSummary?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleExpert?:
+          | T
+          | {
+              author?: T;
+              reviewType?: T;
+              sourceText?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleSources?:
+          | T
+          | {
+              citeTitle?: T;
+              citeUrl?: T;
+              sources?:
+                | T
+                | {
+                    name?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryArticleCTA?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              link?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  focusKeyword?: T;
+  metaTitle?: T;
+  metaDescription?: T;
+  publishedDate?: T;
+  aeoScore?: T;
+  seoScore?: T;
+  readTime?: T;
+  nextReviewDue?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

@@ -1,3 +1,5 @@
+'use client'
+
 import { InvisibleInjury } from '@/components/accidents-widgets/InvisibleInjury'
 import { CTABand } from '@/components/AccidentsCTABand'
 import { FAQ } from '@/components/AccidentsFAQ'
@@ -15,7 +17,6 @@ import { ProseSections } from '@/components/article/ProseSections'
 import { Sources } from '@/components/article/Sources'
 import { StatTiles } from '@/components/article/StatTiles'
 import { Icon } from '@/components/Icon'
-import { injuries, injuryOrder, injurySpokes, medReviewer } from '@/data'
 import { dashLabel, readingMinutes, toSections } from '@/lib/accidents-article'
 import { imgPath } from '@/lib/accidents-constants'
 import {
@@ -27,6 +28,21 @@ import {
   speakable,
 } from '@/lib/accidents-schema'
 import Link from 'next/link'
+import type { InjuryType } from '@/payload-types'
+
+const INJURY_SPOKES = [
+  { slug: 'symptoms', label: 'Symptoms' },
+  { slug: 'treatment', label: 'Treatment' },
+  { slug: 'recovery-timeline', label: 'Recovery Timeline' },
+  { slug: 'settlement-factors', label: 'Settlement Factors' },
+]
+
+const SPOKE_DESC: Record<string, (name: string) => string> = {
+  symptoms: () => 'Immediate, delayed, and emergency symptoms to watch for.',
+  treatment: () => 'The standard medical treatment path, step by step.',
+  'recovery-timeline': () => 'How long recovery takes, phase by phase.',
+  'settlement-factors': (name) => `What drives the value of a ${name.toLowerCase()} claim.`,
+}
 
 const INVISIBLE = [
   'whiplash',
@@ -37,102 +53,114 @@ const INVISIBLE = [
   'shoulder-injury',
 ]
 
-const SPOKE_DESC: Record<string, (name: string) => string> = {
-  symptoms: () => 'Immediate, delayed, and emergency symptoms to watch for.',
-  treatment: () => 'The standard medical treatment path, step by step.',
-  'recovery-timeline': () => 'How long recovery takes, phase by phase.',
-  'settlement-factors': (name) => `What drives the value of a ${name.toLowerCase()} claim.`,
+function injuryScene(sceneImg?: string | null) {
+  return imgPath(sceneImg || 'clinical')
 }
 
-function injuryScene(slug: string) {
-  const inj = injuries[slug]
-  return imgPath(inj?.sceneImg || 'clinical')
-}
-
-export function injuryTypeMeta(slug: string) {
-  const inj = injuries[slug]
-  if (!inj) return null
+export function injuryTypeMeta(injuryType: InjuryType) {
   return {
-    title: `${inj.name} — Symptoms, Treatment, Recovery & Claim Value | CasePort`,
-    description: inj.directAnswer.slice(0, 180),
-    canonical: `/injuries/${slug}`,
+    title: `${injuryType.title} — Symptoms, Treatment, Recovery & Claim Value | CasePort`,
+    description: (injuryType.directAnswer || '').slice(0, 180),
+    canonical: `/injuries/${injuryType.slug}`,
   }
 }
 
-export function InjuryTypePage({ slug }: { slug: string }) {
-  const inj = injuries[slug]
-  const sections = toSections(inj.sections)
+export function InjuryTypePage({
+  injuryType,
+  allInjuryTypes = [],
+}: {
+  injuryType: InjuryType
+  allInjuryTypes?: { id: string; slug: string; title: string; icon?: string | null; category?: string | null }[]
+}) {
+  const inj = injuryType as any
+  const blocks = inj.blocks || []
+
+  const daBlock = blocks.find((b: any) => b.blockType === 'injuryTypeDirectAnswer')
+  const proseBlock = blocks.find((b: any) => b.blockType === 'injuryTypeProseSections')
+  const faqBlock = blocks.find((b: any) => b.blockType === 'injuryTypeFAQ')
+  const ktBlock = blocks.find((b: any) => b.blockType === 'injuryTypeKeyTakeaways')
+
+  const sections = proseBlock?.sections || toSections(inj.sections || [])
   const minutes = readingMinutes(
-    inj.directAnswer,
-    inj.sections.flatMap((s) => s.content),
+    inj.directAnswer || '',
+    (inj.sections || []).flatMap((s: any) => s.content || []),
   )
-  const takeaways = inj.keyFacts.slice(0, 4).map(dashLabel)
 
-  const faqs = [
-    {
-      q: `What are the symptoms of ${inj.name.toLowerCase()}?`,
-      a: `Common symptoms include ${inj.symptoms.immediate.join(', ').toLowerCase()}. Some symptoms are delayed, appearing hours to days later: ${inj.symptoms.delayed.slice(0, 3).join(', ').toLowerCase()}.`,
-    },
-    {
-      q: `How is ${inj.name.toLowerCase()} treated?`,
-      a: `${inj.treatment[0].desc} ${inj.treatment[1].desc}`,
-    },
-    {
-      q: `How long does it take to recover from ${inj.name.toLowerCase()}?`,
-      a: `Recovery varies by severity. ${inj.recovery[0].phase} (${inj.recovery[0].time}): ${inj.recovery[0].desc} Most patients progress through ${inj.recovery.length} phases, with the most severe cases involving lasting effects.`,
-    },
-    {
-      q: `How much is a ${inj.name.toLowerCase()} claim worth?`,
-      a:
-        inj.directAnswer.split('. ').filter((s) => /settlement|\$/.test(s))[0] ||
-        `Value depends on severity, treatment, and permanence. ${inj.settlement[0].desc}`,
-    },
-  ]
+  const keyFactsItems = ktBlock?.items || inj.keyFacts || []
+  const takeaways = keyFactsItems.slice(0, 4).map((f: any) => dashLabel(f.item || f))
 
-  const others = injuryOrder.filter((k) => k !== slug).slice(0, 4)
+  const stats = inj.stats || []
+
+  const faqs = faqBlock?.items?.length
+    ? faqBlock.items.slice(0, 4).map((f: any) => ({
+        q: f.question || '',
+        a: f.answerText || '',
+      }))
+    : [
+        {
+          q: `What are the symptoms of ${(inj.title || '').toLowerCase()}?`,
+          a: `Symptoms vary by severity. Seek prompt evaluation for accurate diagnosis.`,
+        },
+        {
+          q: `How is ${(inj.title || '').toLowerCase()} treated?`,
+          a: `Treatment depends on severity and may include conservative care, therapy, or surgery.`,
+        },
+        {
+          q: `How long does recovery take?`,
+          a: `Recovery timelines vary significantly based on injury severity and individual factors.`,
+        },
+        {
+          q: `How much is a claim worth?`,
+          a: `Value depends on severity, treatment, documentation, and permanence. Settlements vary widely.`,
+        },
+      ]
 
   return (
     <>
       <HeroPhoto
         crumbs={
-          <Breadcrumbs items={[{ label: 'Injuries', href: '/injuries' }, { label: inj.name }]} />
+          <Breadcrumbs items={[{ label: 'Injuries', href: '/injuries' }, { label: inj.title }]} />
         }
         eyebrow={inj.category}
-        title={inj.name}
-        sub={inj.directAnswer.split('. ').slice(0, 1)[0] + '.'}
+        title={inj.title}
+        sub={(inj.directAnswer || '').split('. ').slice(0, 1)[0] + '.'}
         scene={inj.category}
-        img={injuryScene(slug)}
-        byline={<Byline reviewerName={medReviewer.name} isMedical minutes={minutes} onDark />}
+        img={injuryScene(inj.sceneImg)}
+        byline={<Byline reviewerName="Dr. Elena Ramos, MD" isMedical minutes={minutes} onDark />}
       />
 
-      <StatTiles category={inj.category} stats={inj.stats} />
+      <StatTiles category={inj.category} stats={stats} />
 
       <KeyTakeaways items={takeaways} />
 
       <Capsule
-        heading={`What ${inj.name} is — and what it means for your claim`}
-        lead={inj.directAnswer}
+        heading={`What ${inj.title} is — and what it means for your claim`}
+        lead={daBlock?.lead || inj.directAnswer}
       />
 
       <InGuideTOC sections={sections} />
 
-      {INVISIBLE.includes(slug) && <InvisibleInjury />}
+      {INVISIBLE.includes(inj.slug) && <InvisibleInjury />}
 
       <ProseSections sections={sections} />
 
       <section className="section bg-cream">
         <div className="container-5">
           <div className="section-head">
-            <h2 className="section-h">Go Deeper on {inj.name}</h2>
+            <h2 className="section-h">Go Deeper on {inj.title}</h2>
           </div>
           <div className="grid grid-4">
-            {injurySpokes.map((sp) => (
-              <Link key={sp.slug} href={`/injuries/${slug}/${sp.slug}`} className="card link r">
+            {INJURY_SPOKES.map((sp) => (
+              <Link
+                key={sp.slug}
+                href={`/injuries/${inj.slug}/${sp.slug}`}
+                className="card link r"
+              >
                 <h3>
-                  {inj.name} {sp.label}
+                  {inj.title} {sp.label}
                 </h3>
                 <p style={{ fontSize: '.92rem', marginTop: '.4rem' }}>
-                  {SPOKE_DESC[sp.slug](inj.name)}
+                  {SPOKE_DESC[sp.slug](inj.title)}
                 </p>
                 <span className="card-link" style={{ marginTop: '.9rem' }}>
                   Open
@@ -146,11 +174,11 @@ export function InjuryTypePage({ slug }: { slug: string }) {
       <section className="section bg-white">
         <div className="container-4">
           <div className="section-head">
-            <h2 className="section-h">{inj.name} Recovery Timeline</h2>
+            <h2 className="section-h">{inj.title} Recovery Timeline</h2>
           </div>
-          <RecoveryViz phases={inj.recovery} />
+          <RecoveryViz phases={inj.recovery || []} />
           <div style={{ marginTop: '1.5rem' }}>
-            <Link href={`/injuries/${slug}/recovery-timeline`} className="card-link">
+            <Link href={`/injuries/${inj.slug}/recovery-timeline`} className="card-link">
               Full recovery timeline
             </Link>
           </div>
@@ -159,38 +187,41 @@ export function InjuryTypePage({ slug }: { slug: string }) {
 
       <Expert bg="bg-cream" reviewType="medical" />
 
-      <FAQ faqs={faqs} bg="bg-white" title={`Frequently Asked Questions — ${inj.name}`} />
+      <FAQ faqs={faqs} bg="bg-white" title={`Frequently Asked Questions — ${inj.title}`} />
 
       <section className="section bg-cream">
         <div className="container-5">
           <div className="section-head">
             <h2 className="section-h">Other Injuries</h2>
           </div>
-          <div className="grid grid-4">
-            {others.map((k) => {
-              const o = injuries[k]
-              return (
-                <Link key={k} href={`/injuries/${k}`} className="card link r">
+          <div className="inj-grid">
+            {allInjuryTypes
+              .filter((i) => i.slug !== injuryType.slug)
+              .slice(0, 4)
+              .map((i) => (
+                <Link key={i.slug} href={`/injuries/${i.slug}`} className="card link r">
                   <div className="card-ic">
-                    <Icon name={o.icon} />
+                    <Icon name={i.icon || 'steth'} />
                   </div>
-                  <h3>{o.name}</h3>
-                  <p style={{ fontSize: '.92rem', marginTop: '.4rem' }}>{o.category}</p>
+                  <h3>{i.title}</h3>
+                  <p style={{ fontSize: '.95rem' }}>{i.category}</p>
+                  <span className="card-link" style={{ marginTop: '1rem' }}>
+                    Symptoms, treatment &amp; value
+                  </span>
                 </Link>
-              )
-            })}
+              ))}
           </div>
         </div>
       </section>
 
       <Sources
         medical
-        citeTitle={`${inj.name} — Symptoms, Treatment, Recovery & Claim Value`}
-        citeUrl={`/injuries/${slug}`}
+        citeTitle={`${inj.title} — Symptoms, Treatment, Recovery & Claim Value`}
+        citeUrl={`/injuries/${inj.slug}`}
       />
 
       <CTABand
-        title={`Living With ${inj.name}?`}
+        title={`Living With ${inj.title}?`}
         sub="Get a free, confidential case review to understand what your injury and your claim may be worth."
         btn="Get Free Case Review"
       />
@@ -199,15 +230,15 @@ export function InjuryTypePage({ slug }: { slug: string }) {
 
       <JsonLd
         data={[
-          medicalWebPage({ headline: inj.name, description: inj.directAnswer.slice(0, 180) }),
+          medicalWebPage({ headline: inj.title, description: (inj.directAnswer || '').slice(0, 180) }),
           faqSchema(faqs),
           breadcrumb([
             { name: 'Home', url: '/' },
             { name: 'Injuries', url: '/injuries' },
-            { name: inj.name, url: `/injuries/${slug}` },
+            { name: inj.title, url: `/injuries/${inj.slug}` },
           ]),
-          speakable(`/injuries/${slug}`),
-          itemList(sections.map((s) => s.title)),
+          speakable(`/injuries/${inj.slug}`),
+          itemList(sections.map((s: { title: string }) => s.title)),
           ...orgGraph(),
         ]}
       />
