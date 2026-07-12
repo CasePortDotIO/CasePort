@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
@@ -28,29 +27,37 @@ export async function generateMetadata({
 
   return {
     title: article?.metaTitle ?? article?.title ?? 'FAQ | CasePort',
-    description: article?.metaDescription ?? article?.excerpt ?? 'Frequently asked questions about personal injury claims.',
+    description:
+      article?.metaDescription ??
+      article?.excerpt ??
+      'Frequently asked questions about personal injury claims.',
     alternates: { canonical: `${siteUrl}/guides/faq/${slug}` },
     openGraph: {
       title: article?.socialHeadline ?? article?.title ?? 'FAQ | CasePort',
-      description: article?.socialDescription ?? article?.excerpt ?? 'Frequently asked questions about personal injury claims.',
+      description:
+        article?.socialDescription ??
+        article?.excerpt ??
+        'Frequently asked questions about personal injury claims.',
       url: `${siteUrl}/guides/faq/${slug}`,
       type: 'website',
     },
   }
 }
 
-export default async function FAQGuidePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function FAQGuidePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const payload = await getPayload({ config: configPromise })
 
   const [{ docs }, navData] = await Promise.all([
     payload.find({
       collection: 'guideArticles',
-      where: { AND: [{ slug: { equals: slug } }, { pageType: { equals: 'faq' } }, { _status: { equals: 'published' } }] },
+      where: {
+        AND: [
+          { slug: { equals: slug } },
+          { pageType: { equals: 'faq' } },
+          { _status: { equals: 'published' } },
+        ],
+      },
       depth: 2,
       limit: 1,
     }),

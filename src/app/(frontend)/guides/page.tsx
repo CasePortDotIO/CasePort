@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'

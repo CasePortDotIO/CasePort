@@ -1,11 +1,10 @@
-export const dynamic = 'force-dynamic'
+import { generateGuideJsonLd } from '@/lib/guides-schema'
 import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import GuideArticleClient from './GuideArticleClient'
-import { generateGuideJsonLd } from '@/lib/guides-schema'
 
 export const revalidate = 3600
 
@@ -66,7 +65,11 @@ export async function generateMetadata({
     alternates: {
       canonical: article.canonicalUrl ?? `${siteUrl}/guides/${categorySlug}/${slug}`,
     },
-    robots: isPreview ? 'noindex,nofollow' : (article.hideFromSearchEngines ? 'noindex,nofollow' : 'index,follow'),
+    robots: isPreview
+      ? 'noindex,nofollow'
+      : article.hideFromSearchEngines
+        ? 'noindex,nofollow'
+        : 'index,follow',
     openGraph: {
       title: article.socialHeadline ?? article.metaTitle ?? article.title,
       description: article.socialDescription ?? article.metaDescription ?? article.excerpt,
@@ -130,38 +133,48 @@ export default async function GuideArticlePage({
   return (
     <>
       {isPreview && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
-          color: 'white',
-          padding: '8px 16px',
-          textAlign: 'center',
-          fontWeight: 'bold',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '16px',
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
+            color: 'white',
+            padding: '8px 16px',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '16px',
+          }}
+        >
           <span>PREVIEW MODE - This guide is not published</span>
-          <a href="/api/exit-preview" style={{
-            background: 'white',
-            color: '#00B4D8',
-            padding: '4px 12px',
-            borderRadius: '4px',
-            textDecoration: 'none',
-            fontSize: '12px',
-            fontWeight: 600,
-          }}>
+          <a
+            href="/api/exit-preview"
+            style={{
+              background: 'white',
+              color: '#00B4D8',
+              padding: '4px 12px',
+              borderRadius: '4px',
+              textDecoration: 'none',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}
+          >
             Exit Preview
           </a>
         </div>
       )}
       <div style={isPreview ? { paddingTop: '48px' } : undefined}>
-        <GuideArticleClient article={article} category={category} {...navData} isPreview={isPreview} />
+        <GuideArticleClient
+          article={article}
+          category={category}
+          {...navData}
+          isPreview={isPreview}
+        />
       </div>
       {/* JSON-LD Structured Data */}
       {(() => {

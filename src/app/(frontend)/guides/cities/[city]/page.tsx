@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
@@ -29,22 +28,21 @@ export async function generateMetadata({
 
   return {
     title: article?.metaTitle ?? `Personal Injury Guide | ${cityName} | CasePort`,
-    description: article?.metaDescription ?? `Learn about personal injury claims, statute of limitations, and settlement ranges in ${cityName}.`,
+    description:
+      article?.metaDescription ??
+      `Learn about personal injury claims, statute of limitations, and settlement ranges in ${cityName}.`,
     alternates: { canonical: `${siteUrl}/guides/cities/${city}` },
     openGraph: {
       title: article?.socialHeadline ?? `Personal Injury Guide | ${cityName} | CasePort`,
-      description: article?.socialDescription ?? `Learn about personal injury claims in ${cityName}.`,
+      description:
+        article?.socialDescription ?? `Learn about personal injury claims in ${cityName}.`,
       url: `${siteUrl}/guides/cities/${city}`,
       type: 'website',
     },
   }
 }
 
-export default async function CityGuidePage({
-  params,
-}: {
-  params: Promise<{ city: string }>
-}) {
+export default async function CityGuidePage({ params }: { params: Promise<{ city: string }> }) {
   const { city } = await params
   const payload = await getPayload({ config: configPromise })
   const cityName = decodeURIComponent(city)

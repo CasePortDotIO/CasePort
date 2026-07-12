@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 import { fetchNavData } from '@/lib/navData'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
@@ -27,19 +26,26 @@ export async function generateMetadata({
   if (!cat) return {}
 
   const title = cat.metaTitle || `${cat.title} Guides | CasePort`
-  const description = cat.metaDescription || cat.description || `Comprehensive ${cat.title} guides for personal injury victims.`
+  const description =
+    cat.metaDescription ||
+    cat.description ||
+    `Comprehensive ${cat.title} guides for personal injury victims.`
   const canonicalUrl = cat.canonicalUrl || `${siteUrl}/guides/${categorySlug}`
 
   const twitterImages: string[] = []
-  if (typeof cat.xCardImage === 'object' && cat.xCardImage?.url) twitterImages.push(cat.xCardImage.url)
-  else if (typeof cat.socialShareImage === 'object' && cat.socialShareImage?.url) twitterImages.push(cat.socialShareImage.url)
-  else if (typeof cat.heroImage === 'object' && cat.heroImage?.url) twitterImages.push(cat.heroImage.url)
+  if (typeof cat.xCardImage === 'object' && cat.xCardImage?.url)
+    twitterImages.push(cat.xCardImage.url)
+  else if (typeof cat.socialShareImage === 'object' && cat.socialShareImage?.url)
+    twitterImages.push(cat.socialShareImage.url)
+  else if (typeof cat.heroImage === 'object' && cat.heroImage?.url)
+    twitterImages.push(cat.heroImage.url)
 
-  const ogImage = typeof cat.socialShareImage === 'object' && cat.socialShareImage?.url
-    ? [{ url: cat.socialShareImage.url, width: 1200, height: 630 }]
-    : typeof cat.heroImage === 'object' && cat.heroImage?.url
-      ? [{ url: cat.heroImage.url, width: 1200, height: 630 }]
-      : []
+  const ogImage =
+    typeof cat.socialShareImage === 'object' && cat.socialShareImage?.url
+      ? [{ url: cat.socialShareImage.url, width: 1200, height: 630 }]
+      : typeof cat.heroImage === 'object' && cat.heroImage?.url
+        ? [{ url: cat.heroImage.url, width: 1200, height: 630 }]
+        : []
 
   return {
     title,
