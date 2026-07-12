@@ -34,6 +34,7 @@
   "exclude": [
     "caseport-insights-complete",
     "caseport-subguide-source",
+    "caseport-nextjs",
     "node_modules",
     "HomePage",
     "ForLawFirm",
@@ -49,6 +50,12 @@
     "injured-complete",
     "_Guide CoNTENT HUB",
     "Injured Updated Version",
-    "files-4"
+    "files-4",
+    "check-*.ts",
+    "fix-*.ts",
+    "verify-*.ts",
+    "seed-accident-pages.ts",
+    "seed-city-types-only.ts",
+    "seed-*.ts"
   ]
 }
