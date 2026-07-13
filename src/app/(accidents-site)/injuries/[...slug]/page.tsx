@@ -2,9 +2,11 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import Link from 'next/link'
 
-import { InjuryTypePage, injuryTypeMeta } from '@/components/accidents-pages/InjuryTypePage'
-import { InjuryArticlePage, injuryArticleMeta } from '@/components/accidents-pages/InjuryArticlePage'
+import { InjuryTypePage } from '@/components/accidents-pages/InjuryTypePage'
+import { InjuryArticlePage } from '@/components/accidents-pages/InjuryArticlePage'
+import { injuryTypeMeta, injuryArticleMeta } from '@/lib/injury-meta'
 import {
   DelayedSymptomsPage,
   delayedSymptomsMeta,
@@ -36,18 +38,18 @@ function resolve(slug: string[]): Resolved | null {
   return null
 }
 
-async function fetchInjuryType(slug: string) {
+async function fetchInjuryType(slug: string, isPreview = false) {
   const payload = await getPayload({ config: configPromise })
   const { docs } = await payload.find({
     collection: 'injuryTypes',
     where: { slug: { equals: slug } },
     depth: 1,
-    draft: false,
+    draft: isPreview,
   })
   return docs[0] ?? null
 }
 
-async function fetchInjuryArticle(injSlug: string, spokeType: string) {
+async function fetchInjuryArticle(injSlug: string, spokeType: string, isPreview = false) {
   const payload = await getPayload({ config: configPromise })
   const { docs } = await payload.find({
     collection: 'injuryArticles',
@@ -56,7 +58,7 @@ async function fetchInjuryArticle(injSlug: string, spokeType: string) {
       spokeType: { equals: spokeType },
     },
     depth: 1,
-    draft: false,
+    draft: isPreview,
   })
   return docs[0] ?? null
 }
@@ -91,10 +93,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string[] }>
+  searchParams: Promise<{ preview?: string; draft?: string }>
 }): Promise<Metadata> {
   const { slug } = await params
+  const sp = await searchParams
+  const isPreview = sp.preview === 'true'
   const r = resolve(slug)
 
   if (r?.kind === 'delayed') {
@@ -104,16 +110,16 @@ export async function generateMetadata({
     return { title: whenToSeeDoctorMeta.title, description: whenToSeeDoctorMeta.description, alternates: { canonical: whenToSeeDoctorMeta.canonical } }
   }
   if (r?.kind === 'type') {
-    const injuryType = await fetchInjuryType(r.slug)
+    const injuryType = await fetchInjuryType(r.slug, isPreview)
     if (!injuryType) return {}
     const meta = injuryTypeMeta(injuryType)
-    return { title: meta?.title, description: meta?.description, alternates: { canonical: meta?.canonical } }
+    return { title: isPreview ? `[PREVIEW] ${meta?.title}` : meta?.title, description: meta?.description, alternates: { canonical: meta?.canonical } }
   }
   if (r?.kind === 'spoke') {
-    const article = await fetchInjuryArticle(r.injSlug, r.spokeType)
+    const article = await fetchInjuryArticle(r.injSlug, r.spokeType, isPreview)
     if (!article) return {}
     const meta = injuryArticleMeta(article)
-    return { title: meta?.title, description: meta?.description, alternates: { canonical: meta?.canonical } }
+    return { title: isPreview ? `[PREVIEW] ${meta?.title}` : meta?.title, description: meta?.description, alternates: { canonical: meta?.canonical } }
   }
 
   return {}
@@ -121,10 +127,14 @@ export async function generateMetadata({
 
 export default async function InjuriesCatchAll({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string[] }>
+  searchParams: Promise<{ preview?: string; draft?: string }>
 }) {
   const { slug } = await params
+  const sp = await searchParams
+  const isPreview = sp.preview === 'true'
   const r = resolve(slug)
 
   if (!r) notFound()
@@ -135,22 +145,70 @@ export default async function InjuriesCatchAll({
     case 'whenToSee':
       return <WhenToSeeDoctorPage />
     case 'type': {
-      const injuryType = await fetchInjuryType(r.slug)
+      const injuryType = await fetchInjuryType(r.slug, isPreview)
       if (!injuryType) notFound()
-      // Fetch all injury types for the "Other Injuries" section
-      const payload = await getPayload({ config: configPromise })
-      const { docs: allInjuryTypes } = await payload.find({
-        collection: 'injuryTypes',
-        limit: 100,
-        depth: 0,
-        select: { id: true, slug: true, title: true, icon: true, category: true },
-      })
-      return <InjuryTypePage injuryType={injuryType} allInjuryTypes={allInjuryTypes} />
+      return (
+        <>
+          {isPreview && (
+            <div style={{
+              background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
+              color: 'white',
+              padding: '8px 16px',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '16px',
+            }}>
+              <span>PREVIEW MODE — This page is not published</span>
+              <Link href="/api/exit-preview" style={{
+                background: 'white',
+                color: '#00B4D8',
+                padding: '4px 12px',
+                borderRadius: '4px',
+                textDecoration: 'none',
+                fontSize: '12px',
+                fontWeight: 600,
+              }}>Exit Preview</Link>
+            </div>
+          )}
+          <InjuryTypePage injuryType={injuryType} />
+        </>
+      )
     }
     case 'spoke': {
-      const article = await fetchInjuryArticle(r.injSlug, r.spokeType)
+      const article = await fetchInjuryArticle(r.injSlug, r.spokeType, isPreview)
       if (!article) notFound()
-      return <InjuryArticlePage article={article} />
+      return (
+        <>
+          {isPreview && (
+            <div style={{
+              background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
+              color: 'white',
+              padding: '8px 16px',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '16px',
+            }}>
+              <span>PREVIEW MODE — This page is not published</span>
+              <Link href="/api/exit-preview" style={{
+                background: 'white',
+                color: '#00B4D8',
+                padding: '4px 12px',
+                borderRadius: '4px',
+                textDecoration: 'none',
+                fontSize: '12px',
+                fontWeight: 600,
+              }}>Exit Preview</Link>
+            </div>
+          )}
+          <InjuryArticlePage article={article} />
+        </>
+      )
     }
   }
 }

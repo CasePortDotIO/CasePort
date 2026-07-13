@@ -104,7 +104,7 @@ export const InjuryTypes: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'category'],
-    listSearchableFields: ['title', 'slug'],
+    listSearchableFields: ['title', 'slug', 'category'],
   },
   versions: {
     drafts: true,
@@ -129,9 +129,22 @@ export const InjuryTypes: CollectionConfig = {
     },
     {
       name: 'category',
-      type: 'text',
+      type: 'select',
       required: true,
-      admin: { description: 'Category label, e.g. "Neck & Soft Tissue"' },
+      options: [
+        { label: 'Neck & Soft Tissue', value: 'Neck & Soft Tissue' },
+        { label: 'Head & Brain', value: 'Head & Brain' },
+        { label: 'Spine & Back', value: 'Spine & Back' },
+        { label: 'Muscles & Ligaments', value: 'Muscles & Ligaments' },
+        { label: 'Fractures', value: 'Fractures' },
+        { label: 'Burns & Disfigurement', value: 'Burns & Disfigurement' },
+        { label: 'Psychological', value: 'Psychological' },
+        { label: 'Internal & Organ', value: 'Internal & Organ' },
+        { label: 'Joints & Extremities', value: 'Joints & Extremities' },
+      ],
+      admin: {
+        description: 'Injury category for filtering and display.',
+      },
     },
     {
       name: 'icon',
@@ -157,65 +170,6 @@ export const InjuryTypes: CollectionConfig = {
       admin: {
         description: 'AEO-optimized overview — shown in featured snippets and voice search. ~2–3 sentences.',
       },
-    },
-
-    // ─── Stats (shown as tiles on injury page) ──────────────────────────────
-    {
-      name: 'stats',
-      type: 'array',
-      admin: { description: '4 stat tiles shown below the hero.' },
-      fields: [
-        { name: 'label', type: 'text', required: true },
-        { name: 'value', type: 'text', required: true },
-      ],
-    },
-
-    // ─── Key Facts ──────────────────────────────────────────────────────────
-    {
-      name: 'keyFacts',
-      type: 'array',
-      admin: { description: 'Key facts shown in the KeyTakeaways block.' },
-      fields: [{ name: 'item', type: 'text', required: true }],
-    },
-
-    // ─── Spoke data (mirrors spoke article content for hub page use) ────────
-    {
-      name: 'symptoms',
-      type: 'group',
-      admin: { description: 'Symptom arrays for hub page / RecoveryViz fallback.' },
-      fields: [
-        { name: 'immediate', type: 'array', fields: [{ name: 'item', type: 'text' }] },
-        { name: 'delayed', type: 'array', fields: [{ name: 'item', type: 'text' }] },
-        { name: 'emergency', type: 'array', fields: [{ name: 'item', type: 'text' }] },
-      ],
-    },
-    {
-      name: 'treatment',
-      type: 'array',
-      admin: { description: 'Treatment steps — referenced by the hub page.' },
-      fields: [
-        { name: 'name', type: 'text' },
-        { name: 'desc', type: 'textarea' },
-      ],
-    },
-    {
-      name: 'recovery',
-      type: 'array',
-      admin: { description: 'Recovery phases for the hub page RecoveryViz section.' },
-      fields: [
-        { name: 'phase', type: 'text' },
-        { name: 'time', type: 'text' },
-        { name: 'desc', type: 'textarea' },
-      ],
-    },
-    {
-      name: 'settlement',
-      type: 'array',
-      admin: { description: 'Settlement factors — referenced by the hub page.' },
-      fields: [
-        { name: 'factor', type: 'text' },
-        { name: 'desc', type: 'textarea' },
-      ],
     },
 
     // ─── CMS Blocks ─────────────────────────────────────────────────────────
@@ -291,8 +245,15 @@ export const InjuryTypes: CollectionConfig = {
       async ({ doc }) => {
         try {
           const { revalidatePath } = await import('next/cache')
+          // Revalidate hub page
           revalidatePath(`/injuries/${doc.slug}`)
+          // Revalidate injuries list
           revalidatePath('/injuries')
+          // Revalidate all 4 spoke pages under this injury type
+          const spokeTypes = ['symptoms', 'treatment', 'recovery-timeline', 'settlement-factors']
+          for (const spoke of spokeTypes) {
+            revalidatePath(`/injuries/${doc.slug}/${spoke}`)
+          }
         } catch {
           // Not in Next.js context
         }

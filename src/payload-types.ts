@@ -2080,9 +2080,18 @@ export interface InjuryType {
    */
   slug: string;
   /**
-   * Category label, e.g. "Neck & Soft Tissue"
+   * Injury category for filtering and display.
    */
-  category: string;
+  category:
+    | 'Neck & Soft Tissue'
+    | 'Head & Brain'
+    | 'Spine & Back'
+    | 'Muscles & Ligaments'
+    | 'Fractures'
+    | 'Burns & Disfigurement'
+    | 'Psychological'
+    | 'Internal & Organ'
+    | 'Joints & Extremities';
   /**
    * Icon name key, e.g. "steth"
    */
@@ -2096,81 +2105,31 @@ export interface InjuryType {
    * AEO-optimized overview — shown in featured snippets and voice search. ~2–3 sentences.
    */
   directAnswer: string;
-  /**
-   * 4 stat tiles shown below the hero.
-   */
-  stats?:
-    | {
-        label: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Key facts shown in the KeyTakeaways block.
-   */
-  keyFacts?:
-    | {
-        item: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Symptom arrays for hub page / RecoveryViz fallback.
-   */
-  symptoms?: {
-    immediate?:
-      | {
-          item?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    delayed?:
-      | {
-          item?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    emergency?:
-      | {
-          item?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * Treatment steps — referenced by the hub page.
-   */
-  treatment?:
-    | {
-        name?: string | null;
-        desc?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Recovery phases for the hub page RecoveryViz section.
-   */
-  recovery?:
-    | {
-        phase?: string | null;
-        time?: string | null;
-        desc?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Settlement factors — referenced by the hub page.
-   */
-  settlement?:
-    | {
-        factor?: string | null;
-        desc?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   blocks?:
     | (
+        | {
+            /**
+             * Category label above the title, e.g. "Neck & Soft Tissue"
+             */
+            eyebrow?: string | null;
+            heroTitle?: string | null;
+            heroSubtitle?: string | null;
+            /**
+             * Scene image key, e.g. "clinical", "scan", "hospital"
+             */
+            scene?: string | null;
+            /**
+             * Optional hero image override.
+             */
+            heroImage?: (string | null) | Media;
+            /**
+             * Medical reviewer.
+             */
+            author?: (string | null) | Author;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeHero';
+          }
         | {
             heading?: string | null;
             /**
@@ -2204,6 +2163,78 @@ export interface InjuryType {
             id?: string | null;
             blockName?: string | null;
             blockType: 'injuryTypeProseSections';
+          }
+        | {
+            immediate?:
+              | {
+                  item?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            delayed?:
+              | {
+                  item?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            emergency?:
+              | {
+                  item?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Title for the "X-ray trap" prose section, e.g. "Why Delayed Symptoms Are a Legal Trap"
+             */
+            trapTitle?: string | null;
+            /**
+             * Prose content explaining why symptoms being delayed creates a legal/insurance trap.
+             */
+            trapContent?: string | null;
+            /**
+             * Optional image to accompany the trap content.
+             */
+            trapImage?: (string | null) | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeSymptoms';
+          }
+        | {
+            steps?:
+              | {
+                  name: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeTreatment';
+          }
+        | {
+            phases?:
+              | {
+                  phase: string;
+                  time: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeRecovery';
+          }
+        | {
+            factors?:
+              | {
+                  factor: string;
+                  desc: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeSettlement';
           }
         | {
             items?:
@@ -2243,7 +2274,10 @@ export interface InjuryType {
         | {
             title?: string | null;
             subtitle?: string | null;
-            link?: string | null;
+            /**
+             * Select which page this CTA button links to
+             */
+            siteLink?: (string | null) | SiteLink;
             id?: string | null;
             blockName?: string | null;
             blockType: 'injuryTypeCTA';
@@ -2261,10 +2295,26 @@ export interface InjuryType {
             blockType: 'injuryTypeStatTiles';
           }
         | {
+            /**
+             * Select injury article pages to show in the Go Deeper section.
+             */
             pages?: (string | InjuryArticle)[] | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'injuryTypeExploreMore';
+          }
+        | {
+            /**
+             * Optional custom title for this section. Defaults to "Other Injuries".
+             */
+            sectionTitle?: string | null;
+            /**
+             * Select which injury types to show in this section.
+             */
+            injuryTypes?: (string | InjuryType)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeRelatedInjuries';
           }
       )[]
     | null;
@@ -2291,6 +2341,23 @@ export interface InjuryType {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteLinks".
+ */
+export interface SiteLink {
+  id: string;
+  /**
+   * Display name for this link, e.g. "Check My Case"
+   */
+  name: string;
+  /**
+   * Full URL or path, e.g. "/request-access" or "tel:+18002273669"
+   */
+  url: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2473,23 +2540,6 @@ export interface InjuryArticle {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "siteLinks".
- */
-export interface SiteLink {
-  id: string;
-  /**
-   * Display name for this link, e.g. "Check My Case"
-   */
-  name: string;
-  /**
-   * Full URL or path, e.g. "/request-access" or "tel:+18002273669"
-   */
-  url: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4690,66 +4740,21 @@ export interface InjuryTypesSelect<T extends boolean = true> {
   sceneImg?: T;
   displayOrder?: T;
   directAnswer?: T;
-  stats?:
-    | T
-    | {
-        label?: T;
-        value?: T;
-        id?: T;
-      };
-  keyFacts?:
-    | T
-    | {
-        item?: T;
-        id?: T;
-      };
-  symptoms?:
-    | T
-    | {
-        immediate?:
-          | T
-          | {
-              item?: T;
-              id?: T;
-            };
-        delayed?:
-          | T
-          | {
-              item?: T;
-              id?: T;
-            };
-        emergency?:
-          | T
-          | {
-              item?: T;
-              id?: T;
-            };
-      };
-  treatment?:
-    | T
-    | {
-        name?: T;
-        desc?: T;
-        id?: T;
-      };
-  recovery?:
-    | T
-    | {
-        phase?: T;
-        time?: T;
-        desc?: T;
-        id?: T;
-      };
-  settlement?:
-    | T
-    | {
-        factor?: T;
-        desc?: T;
-        id?: T;
-      };
   blocks?:
     | T
     | {
+        injuryTypeHero?:
+          | T
+          | {
+              eyebrow?: T;
+              heroTitle?: T;
+              heroSubtitle?: T;
+              scene?: T;
+              heroImage?: T;
+              author?: T;
+              id?: T;
+              blockName?: T;
+            };
         injuryTypeDirectAnswer?:
           | T
           | {
@@ -4779,6 +4784,73 @@ export interface InjuryTypesSelect<T extends boolean = true> {
                 | {
                     title?: T;
                     content?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeSymptoms?:
+          | T
+          | {
+              immediate?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              delayed?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              emergency?:
+                | T
+                | {
+                    item?: T;
+                    id?: T;
+                  };
+              trapTitle?: T;
+              trapContent?: T;
+              trapImage?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeTreatment?:
+          | T
+          | {
+              steps?:
+                | T
+                | {
+                    name?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeRecovery?:
+          | T
+          | {
+              phases?:
+                | T
+                | {
+                    phase?: T;
+                    time?: T;
+                    desc?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeSettlement?:
+          | T
+          | {
+              factors?:
+                | T
+                | {
+                    factor?: T;
+                    desc?: T;
                     id?: T;
                   };
               id?: T;
@@ -4827,7 +4899,7 @@ export interface InjuryTypesSelect<T extends boolean = true> {
           | {
               title?: T;
               subtitle?: T;
-              link?: T;
+              siteLink?: T;
               id?: T;
               blockName?: T;
             };
@@ -4848,6 +4920,14 @@ export interface InjuryTypesSelect<T extends boolean = true> {
           | T
           | {
               pages?: T;
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeRelatedInjuries?:
+          | T
+          | {
+              sectionTitle?: T;
+              injuryTypes?: T;
               id?: T;
               blockName?: T;
             };

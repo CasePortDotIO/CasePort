@@ -4,6 +4,29 @@ import type { Block } from 'payload'
 // Blocks used in InjuryTypes collection — the injury landing/category pages
 // (e.g. /injuries/whiplash)
 
+const InjuryTypeHero: Block = {
+  slug: 'injuryTypeHero',
+  labels: { singular: 'Hero', plural: 'Hero Blocks' },
+  fields: [
+    { name: 'eyebrow', type: 'text', admin: { description: 'Category label above the title, e.g. "Neck & Soft Tissue"' } },
+    { name: 'heroTitle', type: 'text', label: 'Title' },
+    { name: 'heroSubtitle', type: 'textarea', label: 'Subtitle / Lead' },
+    { name: 'scene', type: 'text', admin: { description: 'Scene image key, e.g. "clinical", "scan", "hospital"' } },
+    {
+      name: 'heroImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Optional hero image override.' },
+    },
+    {
+      name: 'author',
+      type: 'relationship',
+      relationTo: 'authors',
+      admin: { description: 'Medical reviewer.' },
+    },
+  ],
+}
+
 const InjuryTypeDirectAnswer: Block = {
   slug: 'injuryTypeDirectAnswer',
   labels: { singular: 'Direct Answer', plural: 'Direct Answers' },
@@ -43,6 +66,93 @@ const InjuryTypeProseSections: Block = {
       fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'content', type: 'textarea', required: true },
+      ],
+    },
+  ],
+}
+
+const InjuryTypeSymptoms: Block = {
+  slug: 'injuryTypeSymptoms',
+  labels: { singular: 'Symptoms', plural: 'Symptoms Blocks' },
+  fields: [
+    {
+      name: 'immediate',
+      type: 'array',
+      label: 'Immediate symptoms',
+      fields: [{ name: 'item', type: 'text' }],
+    },
+    {
+      name: 'delayed',
+      type: 'array',
+      label: 'Delayed symptoms',
+      fields: [{ name: 'item', type: 'text' }],
+    },
+    {
+      name: 'emergency',
+      type: 'array',
+      label: 'Emergency symptoms (call 911)',
+      fields: [{ name: 'item', type: 'text' }],
+    },
+    {
+      name: 'trapTitle',
+      type: 'text',
+      admin: { description: 'Title for the "X-ray trap" prose section, e.g. "Why Delayed Symptoms Are a Legal Trap"' },
+    },
+    {
+      name: 'trapContent',
+      type: 'textarea',
+      admin: { description: 'Prose content explaining why symptoms being delayed creates a legal/insurance trap.' },
+    },
+    {
+      name: 'trapImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Optional image to accompany the trap content.' },
+    },
+  ],
+}
+
+const InjuryTypeTreatment: Block = {
+  slug: 'injuryTypeTreatment',
+  labels: { singular: 'Treatment Steps', plural: 'Treatment Steps Blocks' },
+  fields: [
+    {
+      name: 'steps',
+      type: 'array',
+      fields: [
+        { name: 'name', type: 'text', required: true },
+        { name: 'desc', type: 'textarea', required: true },
+      ],
+    },
+  ],
+}
+
+const InjuryTypeRecovery: Block = {
+  slug: 'injuryTypeRecovery',
+  labels: { singular: 'Recovery Timeline', plural: 'Recovery Timeline Blocks' },
+  fields: [
+    {
+      name: 'phases',
+      type: 'array',
+      fields: [
+        { name: 'phase', type: 'text', required: true },
+        { name: 'time', type: 'text', required: true },
+        { name: 'desc', type: 'textarea', required: true },
+      ],
+    },
+  ],
+}
+
+const InjuryTypeSettlement: Block = {
+  slug: 'injuryTypeSettlement',
+  labels: { singular: 'Settlement Factors', plural: 'Settlement Factors Blocks' },
+  fields: [
+    {
+      name: 'factors',
+      type: 'array',
+      fields: [
+        { name: 'factor', type: 'text', required: true },
+        { name: 'desc', type: 'textarea', required: true },
       ],
     },
   ],
@@ -108,7 +218,12 @@ const InjuryTypeCTA: Block = {
   fields: [
     { name: 'title', type: 'text' },
     { name: 'subtitle', type: 'text' },
-    { name: 'link', type: 'text' },
+    {
+      name: 'siteLink',
+      type: 'relationship',
+      relationTo: 'siteLinks',
+      admin: { description: 'Select which page this CTA button links to' },
+    },
   ],
 }
 
@@ -136,6 +251,26 @@ const InjuryTypeExploreMore: Block = {
       type: 'relationship',
       relationTo: 'injuryArticles',
       hasMany: true,
+      admin: { description: 'Select injury article pages to show in the Go Deeper section.' },
+    },
+  ],
+}
+
+const InjuryTypeRelatedInjuries: Block = {
+  slug: 'injuryTypeRelatedInjuries',
+  labels: { singular: 'Related Injuries', plural: 'Related Injuries' },
+  fields: [
+    {
+      name: 'sectionTitle',
+      type: 'text',
+      admin: { description: 'Optional custom title for this section. Defaults to "Other Injuries".' },
+    },
+    {
+      name: 'injuryTypes',
+      type: 'relationship',
+      relationTo: 'injuryTypes',
+      hasMany: true,
+      admin: { description: 'Select which injury types to show in this section.' },
     },
   ],
 }
@@ -143,13 +278,19 @@ const InjuryTypeExploreMore: Block = {
 // ─── Block Registry ────────────────────────────────────────────────────────────
 
 export const INJURYTYPE_BLOCKS: Block[] = [
+  InjuryTypeHero,
   InjuryTypeDirectAnswer,
   InjuryTypeKeyTakeaways,
   InjuryTypeProseSections,
+  InjuryTypeSymptoms,
+  InjuryTypeTreatment,
+  InjuryTypeRecovery,
+  InjuryTypeSettlement,
   InjuryTypeFAQ,
   InjuryTypeExpert,
   InjuryTypeSources,
   InjuryTypeCTA,
   InjuryTypeStatTiles,
   InjuryTypeExploreMore,
+  InjuryTypeRelatedInjuries,
 ]

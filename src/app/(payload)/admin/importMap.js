@@ -38,7 +38,6 @@ import { InjuredLeadsUnseenBadge as InjuredLeadsUnseenBadge_ae0d41fc200ef1581b81
 import { ApplicationsUnseenBadge as ApplicationsUnseenBadge_6cea0a6342ba3909df419f8a12b4ef0b } from '@/components/admin/ApplicationsUnseenBadge'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
-/** @type import('payload').ImportMap */
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,

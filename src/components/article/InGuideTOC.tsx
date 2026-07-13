@@ -9,12 +9,13 @@ import type { ArticleSection } from "@/lib/accidents-article";
  * with IntersectionObserver scroll-spy + smooth-scroll jump links. Renders only when
  * there are 3+ sections. Mirrors the TOC card built in `enhanceArticle`.
  */
-export function InGuideTOC({ sections }: { sections: ArticleSection[] }) {
-  const [active, setActive] = useState<string>(sections[0]?.id ?? "");
+export function InGuideTOC({ sections }: { sections?: ArticleSection[] | null }) {
+  const safe = sections ?? []
+  const [active, setActive] = useState<string>(safe[0]?.id ?? "");
 
   useEffect(() => {
-    if (sections.length < 3) return;
-    const heads = sections
+    if (safe.length < 3) return;
+    const heads = safe
       .map((s) => document.getElementById(s.id))
       .filter((el): el is HTMLElement => !!el);
     if (!heads.length) return;
@@ -37,9 +38,9 @@ export function InGuideTOC({ sections }: { sections: ArticleSection[] }) {
       obs.disconnect();
       window.removeEventListener("scroll", recompute);
     };
-  }, [sections]);
+  }, [safe]);
 
-  if (sections.length < 3) return null;
+  if (safe.length < 3) return null;
 
   const jump = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -59,7 +60,7 @@ export function InGuideTOC({ sections }: { sections: ArticleSection[] }) {
         In this guide
       </div>
       <ol className="toc-card-list">
-        {sections.map((s, i) => (
+        {safe.map((s, i) => (
           <li key={s.id}>
             <a
               href={"#" + s.id}

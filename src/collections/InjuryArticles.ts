@@ -231,13 +231,17 @@ export const InjuryArticles: CollectionConfig = {
       async ({ doc }) => {
         try {
           const { revalidatePath } = await import('next/cache')
-          // Revalidate the spoke page
           if (doc.injuryType) {
             const parent = typeof doc.injuryType === 'object' ? doc.injuryType : null
             if (parent?.slug) {
+              // Revalidate the spoke page
               revalidatePath(`/injuries/${parent.slug}/${doc.spokeType}`)
+              // Revalidate the hub page (shows links to all spokes)
+              revalidatePath(`/injuries/${parent.slug}`)
             }
           }
+          // Revalidate injuries list
+          revalidatePath('/injuries')
         } catch {
           // Not in Next.js context
         }

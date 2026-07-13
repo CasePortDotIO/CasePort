@@ -7,6 +7,7 @@ import configPromise from '../payload.config'
 
 let injuryTypeSlugMap: Map<string, string> = new Map()
 let injuryTypeSlugMapLoaded = false
+let checkMyCaseLinkId: string | null = null
 
 async function ensureInjuryTypeSlugMap(payload: Awaited<ReturnType<typeof getPayload>>) {
   if (injuryTypeSlugMapLoaded) return
@@ -169,16 +170,47 @@ async function upsertInjuryArticle(
 
 // ─── Block builders ────────────────────────────────────────────────────────────
 
-function buildTypeBlocks(inj: any, injuryName: string) {
+function buildTypeBlocks(inj: any, injuryName: string, ctaLinkId: string | null, relatedTypeIds: string[]) {
   return [
+    {
+      blockType: 'injuryTypeHero',
+      eyebrow: inj.category,
+      heroTitle: injuryName,
+      heroSubtitle: inj.directAnswer.split('. ').slice(0, 2).join('. ') + '.',
+      scene: inj.category,
+    },
+    {
+      blockType: 'injuryTypeStatTiles',
+      items: inj.stats.map((s: any) => ({ label: s.label, value: s.value })),
+    },
+    {
+      blockType: 'injuryTypeKeyTakeaways',
+      items: inj.keyFacts.slice(0, 4).map((f: string) => ({ item: f })),
+    },
     {
       blockType: 'injuryTypeDirectAnswer',
       heading: `What ${injuryName.toLowerCase()} means for your claim`,
       lead: inj.directAnswer,
     },
     {
-      blockType: 'injuryTypeKeyTakeaways',
-      items: inj.keyFacts.slice(0, 4).map((f: string) => ({ item: f })),
+      blockType: 'injuryTypeSymptoms',
+      immediate: inj.symptoms.immediate.map((s: string) => ({ item: s })),
+      delayed: inj.symptoms.delayed.map((s: string) => ({ item: s })),
+      emergency: inj.symptoms.emergency.map((s: string) => ({ item: s })),
+      trapTitle: `Why ${injuryName} Symptoms Are Often Delayed`,
+      trapContent: `After a collision, adrenaline and the body's acute stress response suppress pain — which is why many people genuinely feel "fine" at the scene. As those stress hormones wear off over the following 6 to 72 hours, inflammation builds and symptoms emerge, often peaking the next morning. With ${injuryName.toLowerCase()}, this delay is the rule rather than the exception, and it creates a trap: anything you said at the scene and any gap before you sought care will be used to argue you were never really hurt. The medical reality — delayed onset is normal — is on your side, but only if you document the symptoms promptly when they appear.`,
+    },
+    {
+      blockType: 'injuryTypeTreatment',
+      steps: inj.treatment.map((t: any) => ({ name: t.name, desc: t.desc })),
+    },
+    {
+      blockType: 'injuryTypeRecovery',
+      phases: inj.recovery.map((r: any) => ({ phase: r.phase, time: r.time, desc: r.desc })),
+    },
+    {
+      blockType: 'injuryTypeSettlement',
+      factors: inj.settlement.map((f: any) => ({ factor: f.factor, desc: f.desc })),
     },
     {
       blockType: 'injuryTypeProseSections',
@@ -220,7 +252,7 @@ function buildTypeBlocks(inj: any, injuryName: string) {
       title: `Living With ${injuryName}?`,
       subtitle:
         'Get a free, confidential case review to understand what your injury and your claim may be worth.',
-      link: '/checkmycase',
+      siteLink: ctaLinkId,
     },
     {
       blockType: 'injuryTypeSources',
@@ -232,6 +264,17 @@ function buildTypeBlocks(inj: any, injuryName: string) {
         { name: 'Insurance Research Council', url: '' },
       ],
     },
+    {
+      blockType: 'injuryTypeExploreMore',
+      pages: [],
+    },
+    ...(relatedTypeIds.length > 0
+      ? [{
+          blockType: 'injuryTypeRelatedInjuries',
+          sectionTitle: 'Other Injuries',
+          injuryTypes: relatedTypeIds,
+        }]
+      : []),
   ]
 }
 
@@ -333,8 +376,22 @@ async function main() {
   console.log('🚀 Seeding InjuryTypes + InjuryArticles collections...')
   const payload = await getPayload({ config: configPromise })
 
-  // ── Phase 1: Seed InjuryTypes ──────────────────────────────────────────────
-  console.log('\n📦 Phase 1: Seeding InjuryTypes...')
+  // Look up "Check My Case" site link for CTA blocks
+  const checkMyCase = await payload.find({
+    collection: 'siteLinks',
+    where: { url: { equals: '/checkmycase' } },
+    limit: 1,
+    depth: 0,
+  })
+  checkMyCaseLinkId = checkMyCase.docs[0]?.id ?? null
+  if (checkMyCaseLinkId) {
+    console.log(`   ✅ Found "Check My Case" siteLink: ${checkMyCaseLinkId}`)
+  } else {
+    console.warn('   ⚠️  "Check My Case" siteLink not found — CTA links will be empty')
+  }
+
+  // ── Phase 1: Seed InjuryTypes (first pass — IDs populated in map) ──────────
+  console.log('\n📦 Phase 1: Seeding InjuryTypes (first pass)...')
   let typeCount = 0
 
   for (const slug of injuryOrder) {
@@ -344,7 +401,7 @@ async function main() {
       continue
     }
 
-    const blocks = buildTypeBlocks(inj, inj.name)
+    const blocks = buildTypeBlocks(inj, inj.name, checkMyCaseLinkId, [])
 
     await upsertInjuryType(payload, {
       _isSeeding: true,
@@ -355,18 +412,7 @@ async function main() {
       sceneImg: inj.sceneImg || 'clinical',
       displayOrder: injuryOrder.indexOf(slug),
       directAnswer: inj.directAnswer,
-      stats: inj.stats.map((s: any) => ({ label: s.label, value: s.value })),
-      keyFacts: inj.keyFacts.map((f: string) => ({ item: f })),
       blocks,
-      // Root-level spoke data — used by InjuryTypePage for RecoveryViz and any direct access
-      symptoms: {
-        immediate: inj.symptoms.immediate.map((s: string) => ({ item: s })),
-        delayed: inj.symptoms.delayed.map((s: string) => ({ item: s })),
-        emergency: inj.symptoms.emergency.map((s: string) => ({ item: s })),
-      },
-      treatment: inj.treatment,
-      recovery: inj.recovery.map((r: any) => ({ phase: r.phase, time: r.time, desc: r.desc })),
-      settlement: inj.settlement.map((f: any) => ({ factor: f.factor, desc: f.desc })),
       metaTitle: `${inj.name} — Symptoms, Treatment & Claim Value | CasePort`,
       metaDescription: inj.directAnswer.slice(0, 160),
       focusKeyword: `${inj.name.toLowerCase()} settlement claim`,
@@ -375,6 +421,30 @@ async function main() {
 
     typeCount++
     console.log(`   ✅ Seeded InjuryType: ${inj.name}`)
+  }
+
+  // ── Phase 1b: Add RelatedInjuries blocks (second pass) ─────────────────
+  console.log('\n📦 Phase 1b: Adding RelatedInjuries blocks...')
+  for (const slug of injuryOrder) {
+    const inj = injuries[slug]
+    if (!inj) continue
+    const typeId = injuryTypeSlugMap.get(slug)
+    if (!typeId) continue
+    // Pick up to 4 other injury types (not this one)
+    const relatedIds = injuryOrder
+      .filter(s => s !== slug)
+      .slice(0, 4)
+      .map(s => injuryTypeSlugMap.get(s))
+      .filter(Boolean) as string[]
+    const blocks = buildTypeBlocks(inj, inj.name, checkMyCaseLinkId, relatedIds)
+    await payload.update({
+      collection: 'injuryTypes',
+      id: typeId,
+      data: { blocks: blocks as any },
+      depth: 0,
+      context: { skipVersionConstraint: true },
+    })
+    console.log(`   ✅ Added RelatedInjuries to: ${inj.name}`)
   }
 
   // ── Phase 2: Seed InjuryArticles ───────────────────────────────────────────
