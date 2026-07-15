@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import config from '@payload-config'
 import { getPayload } from 'payload'
 
-type CollectionSlug = 'articles' | 'guideArticles' | 'accidentPages'
+type CollectionSlug = 'articles' | 'guideArticles' | 'accidentPages' | 'injuryTypes' | 'injuryArticles'
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
   const collectionSlug: CollectionSlug =
     collectionParam === 'accidentPages' ? 'accidentPages'
     : collectionParam === 'guideArticles' ? 'guideArticles'
+    : collectionParam === 'injuryTypes' ? 'injuryTypes'
+    : collectionParam === 'injuryArticles' ? 'injuryArticles'
     : 'articles'
 
   try {
@@ -53,6 +55,11 @@ export async function GET(req: NextRequest) {
     } else if (collectionSlug === 'guideArticles') {
       const categorySlug = doc.guideCategory?.slug || doc.guideCategory
       frontendUrl = `${siteUrl}/guides/${categorySlug}/${doc.slug}?preview=true&draft=${doc.id}`
+    } else if (collectionSlug === 'injuryTypes') {
+      frontendUrl = `${siteUrl}/injuries/${doc.slug}?preview=true&draft=${doc.id}`
+    } else if (collectionSlug === 'injuryArticles') {
+      const injuryTypeSlug = doc.injuryType?.slug || (doc.injuryType as string)
+      frontendUrl = `${siteUrl}/injuries/${injuryTypeSlug}/${doc.spokeType}?preview=true&draft=${doc.id}`
     } else {
       frontendUrl = `${siteUrl}/insights/${doc.slug}?preview=true&draft=${doc.id}`
     }

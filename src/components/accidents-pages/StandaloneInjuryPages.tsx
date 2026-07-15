@@ -12,8 +12,9 @@ import { HeroPhoto } from '@/components/article/HeroPhoto'
 import { KeyTakeaways } from '@/components/article/KeyTakeaways'
 import { SectionTOC } from '@/components/article/SectionTOC'
 import { Sources } from '@/components/article/Sources'
-import { medReviewer } from '@/data'
 import { readingMinutes } from '@/lib/accidents-article'
+
+const MED_REVIEWER = 'Dr. Elena Ramos, MD'
 import {
   breadcrumb,
   faqSchema,
@@ -82,7 +83,7 @@ export function DelayedSymptomsPage() {
         img="/accidents/img/clinical.png"
         byline={
           <Byline
-            reviewerName={medReviewer.name}
+            reviewerName={MED_REVIEWER}
             isMedical
             minutes={readingMinutes(DS_LEAD)}
             onDark
@@ -235,7 +236,7 @@ export function WhenToSeeDoctorPage() {
         img="/accidents/img/clinical.png"
         byline={
           <Byline
-            reviewerName={medReviewer.name}
+            reviewerName={MED_REVIEWER}
             isMedical
             minutes={readingMinutes(WD_LEAD)}
             onDark

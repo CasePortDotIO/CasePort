@@ -7,10 +7,12 @@ import { JsonLd } from '@/components/AccidentsJsonLd'
 import { Capsule } from '@/components/article/Capsule'
 import { Expert } from '@/components/article/Expert'
 import { Icon } from '@/components/Icon'
-import { injuries, injuryOrder } from '@/data'
 import { breadcrumb, faqSchema, medicalWebPage, orgGraph, type Faq } from '@/lib/accidents-schema'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
 
 export const metadata: Metadata = {
   title: 'Accident Injuries — Symptoms, Treatment & Claim Value | CasePort',
@@ -62,13 +64,31 @@ const faqs: Faq[] = [
   },
 ]
 
-export default function InjuriesHub() {
+async function fetchInjuries() {
+  const payload = await getPayload({ config: configPromise })
+  const { docs } = await payload.find({
+    collection: 'injuryTypes',
+    limit: 100,
+    sort: 'displayOrder',
+    where: {},
+    depth: 0,
+  })
+  return docs
+}
+
+export default async function InjuriesHub() {
+  const injuries = await fetchInjuries()
+
+  if (!injuries || injuries.length === 0) {
+    return notFound()
+  }
+
   return (
     <>
       <section className="hero">
         <div className="container-5">
           <div className="eyebrow center" style={{ marginBottom: '1rem' }}>
-            Medical &amp; Injury Authority
+            Medical & Injury Authority
           </div>
           <h1 className="hero-h1">
             Accident Injuries,
@@ -158,21 +178,22 @@ export default function InjuriesHub() {
             </p>
           </div>
           <div className="inj-grid">
-            {injuryOrder.map((slug) => {
-              const inj = injuries[slug]
-              return (
-                <Link key={slug} href={`/injuries/${slug}`} className="card link r">
-                  <div className="card-ic">
-                    <Icon name={inj.icon} />
-                  </div>
-                  <h3>{inj.name}</h3>
-                  <p style={{ fontSize: '.95rem' }}>{inj.category}</p>
-                  <span className="card-link" style={{ marginTop: '1rem' }}>
-                    Symptoms, treatment &amp; value
-                  </span>
-                </Link>
-              )
-            })}
+            {injuries.map((inj) => (
+              <Link
+                key={inj.slug}
+                href={`/injuries/${inj.slug}`}
+                className="card link r"
+              >
+                <div className="card-ic">
+                  <Icon name={inj.icon || 'steth'} />
+                </div>
+                <h3>{inj.title}</h3>
+                <p style={{ fontSize: '.95rem' }}>{inj.category}</p>
+                <span className="card-link" style={{ marginTop: '1rem' }}>
+                  Symptoms, treatment &amp; value
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
