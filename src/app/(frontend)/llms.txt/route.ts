@@ -9,8 +9,15 @@ export async function GET() {
     { next: { revalidate: 3600 } },
   )
 
-  const data = await res.json()
-  const articles = data.docs ?? []
+  let articles: any[] = []
+  if (res.ok) {
+    try {
+      const data = await res.json()
+      articles = data.docs ?? []
+    } catch {
+      // non-JSON or malformed response — serve page without article lines
+    }
+  }
 
   const articleLines = articles
     .map((article: any) => {
