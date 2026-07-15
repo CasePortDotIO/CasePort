@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
 import { TakeHome } from '@/components/accidents-widgets/TakeHome'
 import { CTABand } from '@/components/AccidentsCTABand'
 import { FAQ } from '@/components/AccidentsFAQ'
@@ -14,10 +12,8 @@ import { HeroPhoto } from '@/components/article/HeroPhoto'
 import { KeyTakeaways } from '@/components/article/KeyTakeaways'
 import { ProseSections } from '@/components/article/ProseSections'
 import { SectionTOC } from '@/components/article/SectionTOC'
-import { Sources } from '@/components/article/Sources'
 import { StatTiles } from '@/components/article/StatTiles'
 import { Icon } from '@/components/Icon'
-import { guidePillars } from '@/data'
 import { dashLabel, readingMinutes } from '@/lib/accidents-article'
 import { reviewer, SITE_URL } from '@/lib/accidents-constants'
 import {
@@ -28,6 +24,8 @@ import {
   orgGraph,
   speakable,
 } from '@/lib/accidents-schema'
+import Link from 'next/link'
+import { useState } from 'react'
 
 const SPOKE_TITLE: Record<string, (name: string) => string> = {
   'what-to-do': (n) => `What To Do After a ${n}`,
@@ -37,9 +35,21 @@ const SPOKE_TITLE: Record<string, (name: string) => string> = {
 }
 const SPOKE_DEFS = [
   { slug: 'what-to-do', label: 'What To Do', note: 'Step-by-step actions in the first 72 hours.' },
-  { slug: 'settlement-amounts', label: 'Settlement Ranges', note: 'What claims are worth by severity.' },
-  { slug: 'do-i-need-a-lawyer', label: 'Do I Need a Lawyer?', note: 'When representation helps — and when it may not.' },
-  { slug: 'statute-of-limitations', label: 'Filing Deadlines', note: "Your state's statute of limitations." },
+  {
+    slug: 'settlement-amounts',
+    label: 'Settlement Ranges',
+    note: 'What claims are worth by severity.',
+  },
+  {
+    slug: 'do-i-need-a-lawyer',
+    label: 'Do I Need a Lawyer?',
+    note: 'When representation helps — and when it may not.',
+  },
+  {
+    slug: 'statute-of-limitations',
+    label: 'Filing Deadlines',
+    note: "Your state's statute of limitations.",
+  },
 ]
 
 type CategoryBlock = {
@@ -175,7 +185,14 @@ function WhyImportantBlock({ block }: { block: CategoryBlock }) {
           <h2>Why Your Case Is Worth More Than You Think</h2>
           {intro && <p className="lead">{intro}</p>}
           {points?.map((p: any, i: number) => (
-            <div key={i} style={{ borderLeft: '3px solid var(--gold)', paddingLeft: '1rem', marginBottom: '1.5rem' }}>
+            <div
+              key={i}
+              style={{
+                borderLeft: '3px solid var(--gold)',
+                paddingLeft: '1rem',
+                marginBottom: '1.5rem',
+              }}
+            >
               <h3 style={{ color: 'var(--ink)' }}>{p.heading}</h3>
               {p.body && <p>{p.body}</p>}
             </div>
@@ -188,7 +205,13 @@ function WhyImportantBlock({ block }: { block: CategoryBlock }) {
 
 // ─── Article Block Renderers (same slugs as GUIDEARTICLE_BLOCKS) ──────────────
 
-function ArticleDirectAnswerBlock({ block, updatedAt }: { block: CategoryBlock; updatedAt?: string }) {
+function ArticleDirectAnswerBlock({
+  block,
+  updatedAt,
+}: {
+  block: CategoryBlock
+  updatedAt?: string
+}) {
   const heading = block.heading || 'What you need to know'
   const lead = block.text || ''
   const author = block.author as { name?: string; title?: string } | undefined
@@ -225,7 +248,13 @@ function ArticleFAQBlock({ block }: { block: CategoryBlock }) {
   return <FAQ faqs={faqs} bg="bg-white" title="Frequently Asked Questions" />
 }
 
-function ArticleRelatedGuidesBlock({ block, categorySlug }: { block: CategoryBlock; categorySlug?: string }) {
+function ArticleRelatedGuidesBlock({
+  block,
+  categorySlug,
+}: {
+  block: CategoryBlock
+  categorySlug?: string
+}) {
   const articles = (block.articles as any[]) || []
   if (!articles.length) return null
   return (
@@ -236,12 +265,39 @@ function ArticleRelatedGuidesBlock({ block, categorySlug }: { block: CategoryBlo
         </div>
         <div className="grid grid-4">
           {articles.map((article) => (
-            <Link key={article.id} href={`/guides/${categorySlug || article.guideCategory?.slug || 'guide'}/${article.slug}`} className="card link r">
-              <h3 style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{article.title}</h3>
+            <Link
+              key={article.id}
+              href={`/guides/${categorySlug || article.guideCategory?.slug || 'guide'}/${article.slug}`}
+              className="card link r"
+            >
+              <h3
+                style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {article.title}
+              </h3>
               {article.excerpt && (
-                <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.4rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{article.excerpt}</p>
+                <p
+                  style={{
+                    fontSize: '.85rem',
+                    color: 'var(--muted)',
+                    marginTop: '.4rem',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {article.excerpt}
+                </p>
               )}
-              <span className="card-link" style={{ marginTop: '.8rem', fontSize: '.85rem' }}>Read</span>
+              <span className="card-link" style={{ marginTop: '.8rem', fontSize: '.85rem' }}>
+                Read
+              </span>
             </Link>
           ))}
         </div>
@@ -250,7 +306,15 @@ function ArticleRelatedGuidesBlock({ block, categorySlug }: { block: CategoryBlo
   )
 }
 
-function ArticleSourcesBlock({ block, categorySlug, categoryName }: { block: CategoryBlock; categorySlug?: string; categoryName?: string }) {
+function ArticleSourcesBlock({
+  block,
+  categorySlug,
+  categoryName,
+}: {
+  block: CategoryBlock
+  categorySlug?: string
+  categoryName?: string
+}) {
   const blockSources = (block.sources as { name: string; url: string }[]) || []
   if (!blockSources.length) return null
   const citeTitle = block.citeTitle || categoryName || 'Guide'
@@ -258,7 +322,11 @@ function ArticleSourcesBlock({ block, categorySlug, categoryName }: { block: Cat
   const cite = `CasePort. "${citeTitle}." CasePort, 2026.\n${SITE_URL}${citeUrl}`
   const [copied, setCopied] = useState(false)
   const copyCite = () => {
-    if (navigator.clipboard) navigator.clipboard.writeText(cite).then(() => setCopied(true)).catch(() => setCopied(false))
+    if (navigator.clipboard)
+      navigator.clipboard
+        .writeText(cite)
+        .then(() => setCopied(true))
+        .catch(() => setCopied(false))
   }
   return (
     <section className="section bg-white sources-sec">
@@ -300,7 +368,11 @@ function ArticleTimelineStepsBlock({ block }: { block: CategoryBlock }) {
   return (
     <section className="section bg-white">
       <div className="container-4">
-        {heading && <div className="section-head"><h2 className="section-h">{heading}</h2></div>}
+        {heading && (
+          <div className="section-head">
+            <h2 className="section-h">{heading}</h2>
+          </div>
+        )}
         <div className="tl">
           {steps.map((st: any, i: number) => (
             <div className="tl-step r" key={i}>
@@ -331,7 +403,11 @@ function ArticleSettlementTableBlock({ block }: { block: CategoryBlock }) {
   return (
     <section className="section bg-white">
       <div className="container-4">
-        {heading && <div className="section-head"><h2 className="section-h">{heading}</h2></div>}
+        {heading && (
+          <div className="section-head">
+            <h2 className="section-h">{heading}</h2>
+          </div>
+        )}
         <div className="table-wrap">
           <table className="data">
             <thead>
@@ -352,7 +428,11 @@ function ArticleSettlementTableBlock({ block }: { block: CategoryBlock }) {
             </tbody>
           </table>
         </div>
-        {footnote && <p className="sample-label" style={{ marginTop: '1rem' }}>{footnote}</p>}
+        {footnote && (
+          <p className="sample-label" style={{ marginTop: '1rem' }}>
+            {footnote}
+          </p>
+        )}
       </div>
     </section>
   )
@@ -385,20 +465,53 @@ function ArticleStatuteBarsBlock({ block }: { block: CategoryBlock }) {
   return (
     <section className="section bg-white">
       <div className="container-4">
-        {heading && <div className="section-head"><h2 className="section-h">{heading}</h2></div>}
+        {heading && (
+          <div className="section-head">
+            <h2 className="section-h">{heading}</h2>
+          </div>
+        )}
         <div className="card" style={{ maxWidth: '42rem' }}>
           {bars.map((r: any, i: number) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '7rem 1fr', gap: '1rem', alignItems: 'center', marginBottom: '.75rem' }}>
-              <div style={{ fontFamily: 'var(--code)', fontSize: '.8rem', fontWeight: 700, color: 'var(--ink)' }}>{r.deadline}</div>
+            <div
+              key={i}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '7rem 1fr',
+                gap: '1rem',
+                alignItems: 'center',
+                marginBottom: '.75rem',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: 'var(--code)',
+                  fontSize: '.8rem',
+                  fontWeight: 700,
+                  color: 'var(--ink)',
+                }}
+              >
+                {r.deadline}
+              </div>
               <div>
                 <div className="cd-bar" style={{ height: 14 }}>
-                  <div style={{ width: (r.widthPercent || 50) + '%', background: 'linear-gradient(90deg,#1a4a5a,#4a8c7e)' }}></div>
+                  <div
+                    style={{
+                      width: (r.widthPercent || 50) + '%',
+                      background: 'linear-gradient(90deg,#1a4a5a,#4a8c7e)',
+                    }}
+                  ></div>
                 </div>
-                <div style={{ fontSize: '.74rem', color: 'var(--text-4)', marginTop: '.25rem' }}>{r.states}</div>
+                <div style={{ fontSize: '.74rem', color: 'var(--text-4)', marginTop: '.25rem' }}>
+                  {r.states}
+                </div>
               </div>
             </div>
           ))}
-          {footnote && <p className="sample-label" style={{ marginTop: '.5rem' }}>{footnote}</p>}
+          {footnote && (
+            <p className="sample-label" style={{ marginTop: '.5rem' }}>
+              {footnote}
+            </p>
+          )}
         </div>
       </div>
     </section>
@@ -421,7 +534,8 @@ function ArticleExpertBlock({ block }: { block: CategoryBlock }) {
             {quote && <blockquote className="expert-quote">"{quote}"</blockquote>}
             {reviewerName && (
               <p className="expert-lead">
-                Reviewed by <b>{reviewerName}</b>{credentials && `, ${credentials}`}.
+                Reviewed by <b>{reviewerName}</b>
+                {credentials && `, ${credentials}`}.
               </p>
             )}
           </div>
@@ -445,28 +559,70 @@ function ArticleTakeHomeBlock() {
 }
 
 // Master renderer
-function CategoryBlockRenderer({ block, updatedAt, categorySlug, categoryName, isMedical, proseSectionsLen, articleUrl }: { block: CategoryBlock; updatedAt?: string; categorySlug?: string; categoryName?: string; isMedical?: boolean; proseSectionsLen?: number; articleUrl?: string }) {
+function CategoryBlockRenderer({
+  block,
+  updatedAt,
+  categorySlug,
+  categoryName,
+  isMedical,
+  proseSectionsLen,
+  articleUrl,
+}: {
+  block: CategoryBlock
+  updatedAt?: string
+  categorySlug?: string
+  categoryName?: string
+  isMedical?: boolean
+  proseSectionsLen?: number
+  articleUrl?: string
+}) {
   switch (block.blockType) {
-    case 'categoryDirectAnswer': return <DirectAnswerBlock block={block} updatedAt={updatedAt} />
-    case 'categoryQuickAnswerStats': return <QuickAnswerStatsBlock block={block} />
-    case 'categoryKeyTakeaways': return <KeyTakeawaysBlock block={block} />
-    case 'categoryProseSections': return <ProseSectionsBlock block={block} />
-    case 'categoryFAQ': return <FAQBlock block={block} />
-    case 'categoryStatuteDeadlines': return <StatuteDeadlinesBlock block={block} />
-    case 'categoryWhyImportant': return <WhyImportantBlock block={block} />
-    case 'categorySectionTOC': return <SectionTOC />
-    case 'articleDirectAnswer': return <ArticleDirectAnswerBlock block={block} updatedAt={updatedAt} />
-    case 'articleKeyTakeaways': return <ArticleKeyTakeawaysBlock block={block} />
-    case 'articleFAQ': return <ArticleFAQBlock block={block} />
-    case 'articleRelatedGuides': return <ArticleRelatedGuidesBlock block={block} categorySlug={categorySlug} />
-    case 'articleSources': return <ArticleSourcesBlock block={block} categorySlug={categorySlug} categoryName={categoryName} />
-    case 'articleTimelineSteps': return <ArticleTimelineStepsBlock block={block} />
-    case 'articleSettlementTable': return <ArticleSettlementTableBlock block={block} />
-    case 'articleProseContent': return <ArticleProseContentBlock block={block} />
-    case 'articleStatuteBars': return <ArticleStatuteBarsBlock block={block} />
-    case 'articleExpert': return <ArticleExpertBlock block={block} />
-    case 'articleCTA': return <ArticleCTABlock block={block} />
-    case 'articleTakeHome': return <ArticleTakeHomeBlock />
+    case 'categoryDirectAnswer':
+      return <DirectAnswerBlock block={block} updatedAt={updatedAt} />
+    case 'categoryQuickAnswerStats':
+      return <QuickAnswerStatsBlock block={block} />
+    case 'categoryKeyTakeaways':
+      return <KeyTakeawaysBlock block={block} />
+    case 'categoryProseSections':
+      return <ProseSectionsBlock block={block} />
+    case 'categoryFAQ':
+      return <FAQBlock block={block} />
+    case 'categoryStatuteDeadlines':
+      return <StatuteDeadlinesBlock block={block} />
+    case 'categoryWhyImportant':
+      return <WhyImportantBlock block={block} />
+    case 'categorySectionTOC':
+      return <SectionTOC />
+    case 'articleDirectAnswer':
+      return <ArticleDirectAnswerBlock block={block} updatedAt={updatedAt} />
+    case 'articleKeyTakeaways':
+      return <ArticleKeyTakeawaysBlock block={block} />
+    case 'articleFAQ':
+      return <ArticleFAQBlock block={block} />
+    case 'articleRelatedGuides':
+      return <ArticleRelatedGuidesBlock block={block} categorySlug={categorySlug} />
+    case 'articleSources':
+      return (
+        <ArticleSourcesBlock
+          block={block}
+          categorySlug={categorySlug}
+          categoryName={categoryName}
+        />
+      )
+    case 'articleTimelineSteps':
+      return <ArticleTimelineStepsBlock block={block} />
+    case 'articleSettlementTable':
+      return <ArticleSettlementTableBlock block={block} />
+    case 'articleProseContent':
+      return <ArticleProseContentBlock block={block} />
+    case 'articleStatuteBars':
+      return <ArticleStatuteBarsBlock block={block} />
+    case 'articleExpert':
+      return <ArticleExpertBlock block={block} />
+    case 'articleCTA':
+      return <ArticleCTABlock block={block} />
+    case 'articleTakeHome':
+      return <ArticleTakeHomeBlock />
     case 'categoryRelatedGuides': {
       const articles = (block.articles as any[]) || []
       if (!articles.length) return null
@@ -475,16 +631,45 @@ function CategoryBlockRenderer({ block, updatedAt, categorySlug, categoryName, i
           <div className="container-5">
             <div className="section-head">
               <h2 className="section-h">{categoryName} — The Key Questions</h2>
-              <p className="section-sub">The four things people search for most after a {categoryName?.toLowerCase()}.</p>
+              <p className="section-sub">
+                The four things people search for most after a {categoryName?.toLowerCase()}.
+              </p>
             </div>
             <div className="grid grid-4">
               {articles.map((article) => (
-                <Link key={article.id} href={`/guides/${article.guideCategory?.slug || categorySlug}/${article.slug}`} className="card link r">
-                  <h3 style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{article.title}</h3>
+                <Link
+                  key={article.id}
+                  href={`/guides/${article.guideCategory?.slug || categorySlug}/${article.slug}`}
+                  className="card link r"
+                >
+                  <h3
+                    style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {article.title}
+                  </h3>
                   {article.excerpt && (
-                    <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.4rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{article.excerpt}</p>
+                    <p
+                      style={{
+                        fontSize: '.85rem',
+                        color: 'var(--muted)',
+                        marginTop: '.4rem',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {article.excerpt}
+                    </p>
                   )}
-                  <span className="card-link" style={{ marginTop: '.8rem', fontSize: '.85rem' }}>Read</span>
+                  <span className="card-link" style={{ marginTop: '.8rem', fontSize: '.85rem' }}>
+                    Read
+                  </span>
                 </Link>
               ))}
             </div>
@@ -492,9 +677,12 @@ function CategoryBlockRenderer({ block, updatedAt, categorySlug, categoryName, i
         </section>
       )
     }
-    case 'categoryTakeHome': return <TakeHome bg="bg-warm" />
+    case 'categoryTakeHome':
+      return <TakeHome bg="bg-warm" />
     case 'categoryHowWeKeepAccurate': {
-      const authorBlock = block.author as { name?: string; title?: string; creds?: string; avatar?: { url?: string } } | undefined
+      const authorBlock = block.author as
+        | { name?: string; title?: string; creds?: string; avatar?: { url?: string } }
+        | undefined
       const detail = block.detail || ''
       if (!authorBlock && !detail) return null
       return (
@@ -535,10 +723,33 @@ function CategoryBlockRenderer({ block, updatedAt, categorySlug, categoryName, i
                   <div className="card-ic">
                     <Icon name={(cat as any).icon || 'star'} />
                   </div>
-                  <h3 style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{cat.heroTitle || cat.title}</h3>
-                  <p style={{ fontSize: '.92rem', marginTop: '.4rem' }}>{(cat as any).short || ''}</p>
+                  <h3
+                    style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {cat.title || cat.heroTitle}
+                  </h3>
+                  <p style={{ fontSize: '.92rem', marginTop: '.4rem' }}>
+                    {(cat as any).short || ''}
+                  </p>
                   {cat.heroSubtitle && (
-                    <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.25rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{cat.heroSubtitle}</p>
+                    <p
+                      style={{
+                        fontSize: '.85rem',
+                        color: 'var(--muted)',
+                        marginTop: '.25rem',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {cat.heroSubtitle}
+                    </p>
                   )}
                 </Link>
               ))}
@@ -555,7 +766,11 @@ function CategoryBlockRenderer({ block, updatedAt, categorySlug, categoryName, i
       const cite = `CasePort. "${citeTitle}." CasePort, 2026.\n${SITE_URL}${citeUrl}`
       const [copied, setCopied] = useState(false)
       const copyCite = () => {
-        if (navigator.clipboard) navigator.clipboard.writeText(cite).then(() => setCopied(true)).catch(() => setCopied(false))
+        if (navigator.clipboard)
+          navigator.clipboard
+            .writeText(cite)
+            .then(() => setCopied(true))
+            .catch(() => setCopied(false))
       }
       return (
         <section className="section bg-white sources-sec">
@@ -588,7 +803,8 @@ function CategoryBlockRenderer({ block, updatedAt, categorySlug, categoryName, i
         </section>
       )
     }
-    default: return null
+    default:
+      return null
   }
 }
 
@@ -609,7 +825,12 @@ export function GuideCategoryClient({ category }: { category: Category }) {
   const directAnswer = directAnswerBlock?.text || ''
   const proseBlock = blocks.find((b) => b.blockType === 'categoryProseSections')
   const proseSections = proseBlock?.sections || []
-  const minutes = readingMinutes(directAnswer, proseSections.flatMap((s: any) => (s.paras || []).map((p: any) => (typeof p === 'string' ? p : p.text))))
+  const minutes = readingMinutes(
+    directAnswer,
+    proseSections.flatMap((s: any) =>
+      (s.paras || []).map((p: any) => (typeof p === 'string' ? p : p.text)),
+    ),
+  )
 
   // Format updatedAt
   let updatedDate = 'June 2026'
@@ -619,22 +840,45 @@ export function GuideCategoryClient({ category }: { category: Category }) {
   }
 
   // Collect FAQ questions from CMS blocks for JsonLd
-  const faqs = blocks.filter((b) => b.blockType === 'categoryFAQ').flatMap((b) => (b.items || []).map((f: any) => ({ q: f.question, a: f.answer })))
+  const faqs = blocks
+    .filter((b) => b.blockType === 'categoryFAQ')
+    .flatMap((b) => (b.items || []).map((f: any) => ({ q: f.question, a: f.answer })))
 
   return (
     <>
       <HeroPhoto
-        crumbs={<Breadcrumbs items={[{ label: 'Guide', href: '/guides' }, { label: category.title, href: `/guides/${slug}` }]} />}
+        crumbs={
+          <Breadcrumbs
+            items={[
+              { label: 'Guides', href: '/guides' },
+              { label: category.title, href: `/guides/${slug}` },
+              ...(category.articleTitle ? [{ label: category.articleTitle }] : []),
+            ]}
+          />
+        }
         eyebrow="Accident Guide · National"
         title={heroTitle}
         sub={subtitle}
         scene=""
         img={category.heroImage?.url || ''}
-        byline={<Byline reviewerName={reviewer.name} minutes={minutes} onDark updatedDate={updatedDate} />}
+        byline={
+          <Byline reviewerName={reviewer.name} minutes={minutes} onDark updatedDate={updatedDate} />
+        }
       />
 
       {/* All CMS blocks — rendered in the order they appear in Payload */}
-      {blocks.map((b, i) => <CategoryBlockRenderer key={i} block={b} updatedAt={category.updatedAt} categorySlug={slug} categoryName={name} isMedical={isMedical} proseSectionsLen={proseSections.length} articleUrl={articleUrl} />)}
+      {blocks.map((b, i) => (
+        <CategoryBlockRenderer
+          key={i}
+          block={b}
+          updatedAt={category.updatedAt}
+          categorySlug={slug}
+          categoryName={name}
+          isMedical={isMedical}
+          proseSectionsLen={proseSections.length}
+          articleUrl={articleUrl}
+        />
+      ))}
 
       <CTABand
         title={`Questions About Your ${name} Claim?`}
