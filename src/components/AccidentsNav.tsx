@@ -46,9 +46,9 @@ export function Nav() {
           <Link className="nav-link" href="/guides">
             Guides
           </Link>
-          <Link className="nav-link" href="/accidents/car-accident">
+          {/* <Link className="nav-link" href="/accidents/car-accident">
             Accident Types
-          </Link>
+          </Link> */}
         </div>
         <div className="nav-right">
           <Link href="/checkmycase" className="nav-cta">
@@ -94,9 +94,9 @@ export function Nav() {
           <Link href="/guides" onClick={close}>
             Guides Hub
           </Link>
-          <Link href="/accidents/car-accident" onClick={close}>
+          {/* <Link href="/accidents/car-accident" onClick={close}>
             Accident Types
-          </Link>
+          </Link> */}
           <Link href="/accidents/statute-of-limitations" onClick={close}>
             Deadlines &amp; Rules
           </Link>

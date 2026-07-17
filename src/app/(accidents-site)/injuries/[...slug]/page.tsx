@@ -16,14 +16,11 @@ import {
 
 export const dynamicParams = true
 
-// Spoke slugs that correspond to the 4 injury article spoke types
-const INJURY_SPOKE_TYPES = ['symptoms', 'treatment', 'recovery-timeline', 'settlement-factors']
-
 type Resolved =
   | { kind: 'delayed' }
   | { kind: 'whenToSee' }
   | { kind: 'type'; slug: string }
-  | { kind: 'spoke'; injSlug: string; spokeType: string }
+  | { kind: 'article'; articleSlug: string }
 
 function resolve(slug: string[]): Resolved | null {
   if (slug.length === 1) {
@@ -31,9 +28,11 @@ function resolve(slug: string[]): Resolved | null {
     if (a === 'delayed-symptoms-after-car-accident') return { kind: 'delayed' }
     if (a === 'when-to-see-doctor-after-accident') return { kind: 'whenToSee' }
     return { kind: 'type', slug: a }
-  } else if (slug.length === 2) {
-    const [injSlug, spokeType] = slug
-    if (INJURY_SPOKE_TYPES.includes(spokeType)) return { kind: 'spoke', injSlug, spokeType }
+  }
+  if (slug.length === 2) {
+    // /injuries/{injurySlug}/{articleSlug}
+    const [, articleSlug] = slug
+    return { kind: 'article', articleSlug }
   }
   return null
 }
@@ -43,20 +42,17 @@ async function fetchInjuryType(slug: string, isPreview = false) {
   const { docs } = await payload.find({
     collection: 'injuryTypes',
     where: { slug: { equals: slug } },
-    depth: 1,
+    depth: 2,
     draft: isPreview,
   })
   return docs[0] ?? null
 }
 
-async function fetchInjuryArticle(injSlug: string, spokeType: string, isPreview = false) {
+async function fetchInjuryArticleBySlug(slug: string, isPreview = false) {
   const payload = await getPayload({ config: configPromise })
   const { docs } = await payload.find({
     collection: 'injuryArticles',
-    where: {
-      'injuryType.slug': { equals: injSlug },
-      spokeType: { equals: spokeType },
-    },
+    where: { slug: { equals: slug } },
     depth: 1,
     draft: isPreview,
   })
@@ -71,19 +67,34 @@ export async function generateStaticParams() {
     { slug: ['when-to-see-doctor-after-accident'] },
   ]
 
-  // Injury type pages and their spoke pages
+  // Injury type pages
   const { docs: injuryTypes } = await payload.find({
     collection: 'injuryTypes',
     limit: 1000,
     depth: 0,
     select: { slug: true },
   })
-
   for (const doc of injuryTypes) {
+    if (doc.slug) params.push({ slug: [doc.slug] })
+  }
+
+  // Article pages — /injuries/{injurySlug}/{articleSlug}
+  const { docs: articles } = await payload.find({
+    collection: 'injuryArticles',
+    limit: 1000,
+    depth: 0,
+    select: { slug: true },
+  })
+  for (const doc of articles) {
     if (doc.slug) {
-      params.push({ slug: [doc.slug] })
-      for (const spoke of INJURY_SPOKE_TYPES) {
-        params.push({ slug: [doc.slug, spoke] })
+      // Derive injurySlug by stripping spoke suffix from article slug
+      const SPOKE_SUFFIXES = ['symptoms', 'treatment', 'recovery-timeline', 'settlement-factors']
+      const injSlug = SPOKE_SUFFIXES.reduce(
+        (s, suffix) => s.replace(new RegExp(`-${suffix}$`), ''),
+        doc.slug
+      )
+      if (injSlug !== doc.slug) {
+        params.push({ slug: [injSlug, doc.slug] })
       }
     }
   }
@@ -115,8 +126,8 @@ export async function generateMetadata({
     const meta = injuryTypeMeta(injuryType)
     return { title: isPreview ? `[PREVIEW] ${meta?.title}` : meta?.title, description: meta?.description, alternates: { canonical: meta?.canonical } }
   }
-  if (r?.kind === 'spoke') {
-    const article = await fetchInjuryArticle(r.injSlug, r.spokeType, isPreview)
+  if (r?.kind === 'article') {
+    const article = await fetchInjuryArticleBySlug(r.articleSlug, isPreview)
     if (!article) return {}
     const meta = injuryArticleMeta(article)
     return { title: isPreview ? `[PREVIEW] ${meta?.title}` : meta?.title, description: meta?.description, alternates: { canonical: meta?.canonical } }
@@ -139,73 +150,52 @@ export default async function InjuriesCatchAll({
 
   if (!r) notFound()
 
+  const previewBanner = isPreview ? (
+    <div style={{
+      background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
+      color: 'white',
+      padding: '8px 16px',
+      textAlign: 'center',
+      fontWeight: 'bold',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '16px',
+    }}>
+      <span>PREVIEW MODE — This page is not published</span>
+      <Link href="/api/exit-preview" style={{
+        background: 'white',
+        color: '#00B4D8',
+        padding: '4px 12px',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '12px',
+        fontWeight: 600,
+      }}>Exit Preview</Link>
+    </div>
+  ) : null
+
   switch (r.kind) {
     case 'delayed':
-      return <DelayedSymptomsPage />
+      return <><DelayedSymptomsPage /></>
     case 'whenToSee':
-      return <WhenToSeeDoctorPage />
+      return <><WhenToSeeDoctorPage /></>
     case 'type': {
       const injuryType = await fetchInjuryType(r.slug, isPreview)
       if (!injuryType) notFound()
       return (
         <>
-          {isPreview && (
-            <div style={{
-              background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
-              color: 'white',
-              padding: '8px 16px',
-              textAlign: 'center',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '16px',
-            }}>
-              <span>PREVIEW MODE — This page is not published</span>
-              <Link href="/api/exit-preview" style={{
-                background: 'white',
-                color: '#00B4D8',
-                padding: '4px 12px',
-                borderRadius: '4px',
-                textDecoration: 'none',
-                fontSize: '12px',
-                fontWeight: 600,
-              }}>Exit Preview</Link>
-            </div>
-          )}
+          {previewBanner}
           <InjuryTypePage injuryType={injuryType} />
         </>
       )
     }
-    case 'spoke': {
-      const article = await fetchInjuryArticle(r.injSlug, r.spokeType, isPreview)
+    case 'article': {
+      const article = await fetchInjuryArticleBySlug(r.articleSlug, isPreview)
       if (!article) notFound()
       return (
         <>
-          {isPreview && (
-            <div style={{
-              background: 'linear-gradient(to right, #00B4D8, #5BB6C9, #7C5CFF)',
-              color: 'white',
-              padding: '8px 16px',
-              textAlign: 'center',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '16px',
-            }}>
-              <span>PREVIEW MODE — This page is not published</span>
-              <Link href="/api/exit-preview" style={{
-                background: 'white',
-                color: '#00B4D8',
-                padding: '4px 12px',
-                borderRadius: '4px',
-                textDecoration: 'none',
-                fontSize: '12px',
-                fontWeight: 600,
-              }}>Exit Preview</Link>
-            </div>
-          )}
+          {previewBanner}
           <InjuryArticlePage article={article} />
         </>
       )

@@ -4,6 +4,7 @@ export interface ArticleSection {
   id: string;
   title: string;
   paras: string[];
+  images?: string[];
 }
 
 /** Stable heading id, matching the source's `enhanceArticle` slug scheme. */

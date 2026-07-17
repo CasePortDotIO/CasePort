@@ -77,6 +77,26 @@ const InjuryArticleSettlement: Block = {
   ],
 }
 
+// Direct answer / capsule for spoke pages
+const InjuryArticleDirectAnswer: Block = {
+  slug: 'injuryArticleDirectAnswer',
+  labels: { singular: 'Direct Answer', plural: 'Direct Answers' },
+  fields: [
+    { name: 'heading', type: 'text', label: 'Capsule Heading' },
+    {
+      name: 'lead',
+      type: 'textarea',
+      admin: { description: 'Primary AEO answer — shown in featured snippets and voice search.' },
+    },
+    {
+      name: 'author',
+      type: 'relationship',
+      relationTo: 'authors',
+      label: 'Author / Reviewer',
+    },
+  ],
+}
+
 // Prose sections for spoke pages
 const InjuryArticleProseSections: Block = {
   slug: 'injuryArticleProseSections',
@@ -105,23 +125,6 @@ const InjuryArticleKeyTakeaways: Block = {
         { name: 'item', type: 'text', required: true },
       ],
     },
-  ],
-}
-
-// FAQ for spoke pages
-const InjuryArticleFAQ: Block = {
-  slug: 'injuryArticleFAQ',
-  labels: { singular: 'FAQ Accordion', plural: 'FAQ Accordions' },
-  fields: [
-    {
-      name: 'items',
-      type: 'array',
-      fields: [
-        { name: 'question', type: 'text', required: true },
-        { name: 'answerText', type: 'textarea', required: true },
-      ],
-    },
-    { name: 'aiCitationSummary', type: 'textarea' },
   ],
 }
 
@@ -176,6 +179,21 @@ const InjuryArticleCTA: Block = {
   ],
 }
 
+// Explore More — related injury articles
+const InjuryArticleExploreMore: Block = {
+  slug: 'injuryArticleExploreMore',
+  labels: { singular: 'Explore More', plural: 'Explore More' },
+  fields: [
+    {
+      name: 'pages',
+      type: 'relationship',
+      relationTo: 'injuryArticles',
+      hasMany: true,
+      admin: { description: 'Select related injury articles to show in the Go Deeper section.' },
+    },
+  ],
+}
+
 // ─── Block Registry ────────────────────────────────────────────────────────────
 
 export const INJURYARTICLE_BLOCKS: Block[] = [
@@ -183,10 +201,11 @@ export const INJURYARTICLE_BLOCKS: Block[] = [
   InjuryArticleTreatment,
   InjuryArticleRecovery,
   InjuryArticleSettlement,
+  InjuryArticleDirectAnswer,
   InjuryArticleProseSections,
   InjuryArticleKeyTakeaways,
-  InjuryArticleFAQ,
   InjuryArticleExpert,
   InjuryArticleSources,
   InjuryArticleCTA,
+  InjuryArticleExploreMore,
 ]

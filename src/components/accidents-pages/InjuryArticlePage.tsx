@@ -11,44 +11,21 @@ import { ArticleOverlays } from '@/components/article/ArticleOverlays'
 import { RecoveryViz } from '@/components/AccidentsRecoveryViz'
 import { CTABand } from '@/components/AccidentsCTABand'
 import { JsonLd } from '@/components/AccidentsJsonLd'
-import { medicalWebPage, faqSchema, breadcrumb, speakable, orgGraph } from '@/lib/accidents-schema'
+import { medicalWebPage, breadcrumb, speakable, orgGraph } from '@/lib/accidents-schema'
 import { readingMinutes } from '@/lib/accidents-article'
 import { getSpokeLead, getSpokeTitle } from '@/lib/injury-meta'
 import type { InjuryArticle, InjuryType } from '@/payload-types'
 
 const MED_REVIEWER = 'Dr. Elena Ramos, MD'
 
-const INJURY_SPOKES = [
-  { slug: 'symptoms', label: 'Symptoms' },
-  { slug: 'treatment', label: 'Treatment' },
-  { slug: 'recovery-timeline', label: 'Recovery Timeline' },
-  { slug: 'settlement-factors', label: 'Settlement Factors' },
-]
+const SPOKE_SUFFIXES = ['symptoms', 'treatment', 'recovery-timeline', 'settlement-factors']
 
 // ─── Block renderers ───────────────────────────────────────────────────────────
-
-function ProseBlock({ sections }: { sections: { title: string; content: string }[] }) {
-  return (
-    <section className="section bg-cream">
-      <div className="container-4">
-        {sections.map((s, i) => (
-          <div className="prose-sec" key={i}>
-            <div className="prose">
-              <h2>{s.title}</h2>
-              <p>{s.content}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 function SymptomsBlock({ block, injuryName }: { block: any; injuryName: string }) {
   const immediate = block?.immediate?.map((s: any) => s.item) || []
   const delayed = block?.delayed?.map((s: any) => s.item) || []
   const emergency = block?.emergency?.map((s: any) => s.item) || []
-  const lc = injuryName.toLowerCase()
 
   const col = (title: string, ic: string, cls: string, items: string[]) => (
     <div className={'sym-col ' + cls}>
@@ -68,113 +45,69 @@ function SymptomsBlock({ block, injuryName }: { block: any; injuryName: string }
   )
 
   return (
-    <>
-      <section className="section bg-white">
-        <div className="container">
-          <div className="sym-grid">
-            {col('Immediate symptoms', 'clock', '', immediate)}
-            {col('Delayed symptoms (hours–days)', 'steth', '', delayed)}
-            {col('Emergency — call 911', 'alert', 'emergency', emergency)}
-          </div>
-          <p className="note" style={{ marginTop: '1.5rem' }}>
-            <Icon name="alertC" />
-            <span>
-              This is educational information, not a diagnosis. If you have any emergency
-              symptom, call 911 or go to the ER immediately.
-            </span>
-          </p>
+    <section className="section bg-white">
+      <div className="container">
+        <div className="sym-grid">
+          {col('Immediate symptoms', 'clock', '', immediate)}
+          {col('Delayed symptoms (hours–days)', 'steth', '', delayed)}
+          {col('Emergency — call 911', 'alert', 'emergency', emergency)}
         </div>
-      </section>
-      <ProseBlock
-        sections={[
-          {
-            title: `Why ${injuryName} Symptoms Are Often Delayed`,
-            content: `After a collision, adrenaline and the body's acute stress response suppress pain — which is why many people genuinely feel "fine" at the scene of a crash that injured them. As those stress hormones wear off over the following 6 to 72 hours, inflammation builds around the injured tissue and symptoms emerge, often peaking the next morning. With ${lc}, this delay is the rule rather than the exception, and it creates a trap: anything you said at the scene ("I'm okay") and any gap before you sought care will be used to argue you were never really hurt. The medical reality — delayed onset is normal — is on your side, but only if you document the symptoms promptly when they appear.`,
-          },
-          {
-            title: `How ${injuryName} Is Diagnosed`,
-            content: `Diagnosing ${lc} starts with a clinical exam — your physician evaluates pain, range of motion, neurological signs, and the mechanism of the crash. Imaging is ordered based on those findings. The diagnostic record this creates does double duty: it directs your treatment and it becomes the objective evidence that connects your injury to the crash. Keeping every appointment and reporting every symptom — even ones that seem minor — builds the complete picture that both your recovery and any claim depend on.`,
-          },
-        ]}
-      />
-    </>
+        <p className="note" style={{ marginTop: '1.5rem' }}>
+          <Icon name="alertC" />
+          <span>
+            This is educational information, not a diagnosis. If you have any emergency
+            symptom, call 911 or go to the ER immediately.
+          </span>
+        </p>
+      </div>
+    </section>
   )
 }
 
 function TreatmentBlock({ block, injuryName }: { block: any; injuryName: string }) {
   const steps = block?.steps || []
-  const lc = injuryName.toLowerCase()
 
   return (
-    <>
-      <section className="section bg-white">
-        <div className="container-4">
-          <div className="section-head">
-            <h2 className="section-h">The {injuryName} treatment path</h2>
-          </div>
-          <div className="tx-list">
-            {steps.map((t: any, i: number) => (
-              <div className="tx-item r" key={i}>
-                <div className="tx-num">{i + 1}</div>
-                <div>
-                  <h3>{t.name}</h3>
-                  <p>{t.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+    <section className="section bg-white">
+      <div className="container-4">
+        <div className="section-head">
+          <h2 className="section-h">The {injuryName} treatment path</h2>
         </div>
-      </section>
-      <ProseBlock
-        sections={[
-          {
-            title: 'Why Following the Full Treatment Plan Matters',
-            content: `With ${lc}, the single most common mistake is stopping treatment when the acute pain fades rather than when the clinician says recovery is complete. Premature return to full activity can turn a healing injury into a chronic one, and gaps in the treatment record are the leading way insurers argue an injury "resolved" or "wasn't serious." Your treatment plan is both a medical roadmap and the evidence trail of your injury: attending every appointment, completing prescribed therapy, and reporting ongoing symptoms protects your recovery and the integrity of any claim simultaneously.`,
-          },
-          {
-            title: 'When Conservative Care Is Not Enough',
-            content: `Most ${lc} cases respond to conservative treatment, but a subset require escalation. Warning signs include symptoms that fail to improve on the expected timeline, pain that worsens despite therapy, or new neurological signs. When that happens, the next step is usually advanced imaging and a specialist referral. These escalated cases take longer to resolve and carry greater lasting impact — which is precisely why thorough documentation at every stage matters so much.`,
-          },
-        ]}
-      />
-    </>
+        <div className="tx-list">
+          {steps.map((t: any, i: number) => (
+            <div className="tx-item r" key={i}>
+              <div className="tx-num">{i + 1}</div>
+              <div>
+                <h3>{t.name}</h3>
+                <p>{t.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
 function RecoveryBlock({ block, injuryName }: { block: any; injuryName: string }) {
   const phases = block?.phases || []
-  const lc = injuryName.toLowerCase()
 
   return (
-    <>
-      <section className="section bg-white">
-        <div className="container-4">
-          <div className="section-head">
-            <h2 className="section-h">{injuryName} recovery, phase by phase</h2>
-          </div>
-          <RecoveryViz phases={phases} />
-          <p className="note" style={{ marginTop: '1.5rem' }}>
-            <Icon name="alertC" />
-            <span>
-              Recovery timelines are typical ranges, not guarantees. Your course depends on
-              severity and individual factors — follow your clinician's guidance.
-            </span>
-          </p>
+    <section className="section bg-white">
+      <div className="container-4">
+        <div className="section-head">
+          <h2 className="section-h">{injuryName} recovery, phase by phase</h2>
         </div>
-      </section>
-      <ProseBlock
-        sections={[
-          {
-            title: 'What Affects How Fast You Heal',
-            content: `The phases above describe a typical course, but several factors move an individual's ${lc} recovery faster or slower. Severity is the largest. Adherence is decisive too: patients who complete prescribed therapy tend to recover more fully than those who stop early. Because of this variation, treat any timeline as a planning guide, not a promise.`,
-          },
-          {
-            title: `When ${injuryName} Becomes a Long-Term Injury`,
-            content: `Most patients improve substantially, but a meaningful minority develop lasting effects. Lasting effects change everything about a claim: they introduce future medical costs, possible lost earning capacity, and a quantifiable impact on daily life. If your symptoms are not following the expected timeline, that is itself important information for both your care and your claim.`,
-          },
-        ]}
-      />
-    </>
+        <RecoveryViz phases={phases} />
+        <p className="note" style={{ marginTop: '1.5rem' }}>
+          <Icon name="alertC" />
+          <span>
+            Recovery timelines are typical ranges, not guarantees. Your course depends on
+            severity and individual factors — follow your clinician's guidance.
+          </span>
+        </p>
+      </div>
+    </section>
   )
 }
 
@@ -183,50 +116,118 @@ function SettlementBlock({ block, injuryName }: { block: any; injuryName: string
   const lc = injuryName.toLowerCase()
 
   return (
-    <>
-      <section className="section bg-white">
-        <div className="container-4">
-          <div className="section-head">
-            <h2 className="section-h">What drives the value of a {lc} claim</h2>
-          </div>
-          <div className="card r">
-            {factors.map((f: any, i: number) => (
-              <div className="keyfact" style={{ marginBottom: '1rem' }} key={i}>
-                <span className="cap-fact" style={{ display: 'flex', gap: '.7rem', alignItems: 'flex-start' }}>
-                  <Icon name="check2" style={{ color: '#4a8c7e', flexShrink: 0, marginTop: 3 }} />
-                  <span>
-                    <b style={{ color: 'var(--teal)' }}>{f.factor}.</b> {f.desc}
-                  </span>
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="note" style={{ marginTop: '1.25rem' }}>
-            <Icon name="alertC" />
-            <span>
-              These are the factors that influence value — not an estimate of your specific
-              claim. No one can value a claim without reviewing your records.
-            </span>
-          </p>
+    <section className="section bg-white">
+      <div className="container-4">
+        <div className="section-head">
+          <h2 className="section-h">What drives the value of a {lc} claim</h2>
         </div>
-      </section>
-      <ProseBlock
-        sections={[
-          {
-            title: `How Insurers Value (and Undervalue) a ${injuryName} Claim`,
-            content: `Insurance adjusters begin with your documented economic damages — medical bills and lost wages — and apply a multiplier for severity. The adjuster's job is to find reasons to keep it low: a gap in treatment, a pre-existing condition, or any hint of shared fault. Understanding the levers — and having the records to support each one — is what moves a claim from the lowball range toward full value.`,
-          },
-          {
-            title: 'Why No One Can Quote You a Number Online',
-            content: `Be wary of any tool or site that promises a specific dollar figure — your claim's value depends on facts no calculator can see. Two people with the "same" injury can have very different claims. That is why a real valuation requires a review of your medical records and the specifics of your crash.`,
-          },
-        ]}
-      />
-    </>
+        <div className="card r">
+          {factors.map((f: any, i: number) => (
+            <div className="keyfact" style={{ marginBottom: '1rem' }} key={i}>
+              <span className="cap-fact" style={{ display: 'flex', gap: '.7rem', alignItems: 'flex-start' }}>
+                <Icon name="check2" style={{ color: '#4a8c7e', flexShrink: 0, marginTop: 3 }} />
+                <span>
+                  <b style={{ color: 'var(--teal)' }}>{f.factor}.</b> {f.desc}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="note" style={{ marginTop: '1.25rem' }}>
+          <Icon name="alertC" />
+          <span>
+            These are the factors that influence value — not an estimate of your specific
+            claim. No one can value a claim without reviewing your records.
+          </span>
+        </p>
+      </div>
+    </section>
   )
 }
 
-// ─── Spoke meta helpers (used internally by the client component) ───────────
+function DirectAnswerBlock({ block }: { block: any }) {
+  const heading = block?.heading || ''
+  const lead = block?.lead || ''
+  if (!lead) return null
+
+  const author: any = block?.author
+  const authorName = typeof author === 'object' ? author?.name : undefined
+  const authorRole = typeof author === 'object' ? author?.title : undefined
+
+  return <Capsule heading={heading} lead={lead} authorName={authorName} authorRole={authorRole} />
+}
+
+function ProseBlock({ block }: { block: any }) {
+  const sections = block?.sections || []
+  if (!sections.length) return null
+  return (
+    <section className="section bg-cream">
+      <div className="container-4">
+        {sections.map((s: any, i: number) => (
+          <div className="prose-sec" key={i}>
+            <div className="prose">
+              <h2>{s.title}</h2>
+              <p>{s.content}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function KeyTakeawaysBlock({ block }: { block: any }) {
+  const items = block?.items?.slice(0, 4).map((f: any) => f.item) || []
+  if (!items.length) return null
+  return <KeyTakeaways items={items} />
+}
+
+function ExpertBlock({ block }: { block: any }) {
+  return <Expert author={block.author} reviewType={block.reviewType} sourceText={block.sourceText} bg="bg-white" />
+}
+
+function SourcesBlock({ block }: { block: any }) {
+  return <Sources citeTitle={block.citeTitle} citeUrl={block.citeUrl} medical />
+}
+
+function CTABlock({ block }: { block: any }) {
+  if (!block.title && !block.subtitle) return null
+  return <CTABand title={block.title} sub={block.subtitle} btn="Get Free Case Review" />
+}
+
+function ExploreMoreBlock({ block, injuryName }: { block: any; injuryName: string }) {
+  const pages: any[] = block?.pages || []
+  if (!pages.length) return null
+
+  return (
+    <section className="section bg-cream">
+      <div className="container-5">
+        <div className="section-head">
+          <h2 className="section-h">Go Deeper on {injuryName}</h2>
+        </div>
+        <div className="grid grid-4">
+          {pages.map((page: any) => {
+            const articleSlug = page.slug || ''
+            const injSlug = SPOKE_SUFFIXES.reduce(
+              (s, suffix) => s.replace(new RegExp(`-${suffix}$`), ''),
+              articleSlug
+            )
+            const href = `/injuries/${injSlug}/${articleSlug}`
+            const title = page.title || injuryName
+            return (
+              <Link key={page.id || articleSlug} href={href} className="card link r">
+                <h3>{title}</h3>
+                <span className="card-link" style={{ marginTop: '.9rem' }}>Open</span>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Spoke meta helpers ────────────────────────────────────────────────────────
 
 function getSpokeSub(article: InjuryArticle): string {
   const name = ((article.injuryType as any)?.title || '').toLowerCase()
@@ -240,52 +241,44 @@ function getSpokeSub(article: InjuryArticle): string {
 
 export function InjuryArticlePage({ article }: { article: InjuryArticle }) {
   const art = article as any
-  const blocks = art.blocks || []
+  const allBlocks: any[] = art.blocks || []
   const injuryType = art.injuryType as InjuryType
   const spokeType = art.spokeType
   const injName = injuryType?.title || art.title || ''
   const injSlug = injuryType?.slug || ''
 
-  const spoke = INJURY_SPOKES.find((s) => s.slug === spokeType)
+  const spoke = {
+    slug: spokeType,
+    label: spokeType === 'recovery-timeline' ? 'Recovery Timeline' : spokeType.charAt(0).toUpperCase() + spokeType.slice(1),
+  }
   const metaLead = getSpokeLead(art)
   const metaTitle = getSpokeTitle(art)
   const metaSub = getSpokeSub(art)
-
-  // Extract spoke-specific block
-  const spokeBlockMap: Record<string, string> = {
-    'symptoms': 'injuryArticleSymptoms',
-    'treatment': 'injuryArticleTreatment',
-    'recovery-timeline': 'injuryArticleRecovery',
-    'settlement-factors': 'injuryArticleSettlement',
-  }
-  const spokeBlockType = spokeBlockMap[spokeType]
-  const spokeBlock = blocks.find((b: any) => b.blockType === spokeBlockType)
-
-  // Key takeaways from the article blocks
-  const ktBlock = blocks.find((b: any) => b.blockType === 'injuryArticleKeyTakeaways')
-  const ktItems = ktBlock?.items?.slice(0, 4).map((f: any) => f.item) || []
-
-  // FAQ from the article blocks
-  const faqBlock = blocks.find((b: any) => b.blockType === 'injuryArticleFAQ')
-  const faqs = faqBlock?.items?.slice(0, 4).map((f: any) => ({ q: f.question || '', a: f.answerText || '' })) || []
-
-  // Prose sections from the article blocks
-  const proseBlock = blocks.find((b: any) => b.blockType === 'injuryArticleProseSections')
-  const proseSections = proseBlock?.sections || []
-
-  // Render spoke-specific content
-  let spokeContent: React.ReactNode = null
-  if (spokeType === 'symptoms' && spokeBlock) {
-    spokeContent = <SymptomsBlock block={spokeBlock} injuryName={injName} />
-  } else if (spokeType === 'treatment' && spokeBlock) {
-    spokeContent = <TreatmentBlock block={spokeBlock} injuryName={injName} />
-  } else if (spokeType === 'recovery-timeline' && spokeBlock) {
-    spokeContent = <RecoveryBlock block={spokeBlock} injuryName={injName} />
-  } else if (spokeType === 'settlement-factors' && spokeBlock) {
-    spokeContent = <SettlementBlock block={spokeBlock} injuryName={injName} />
-  }
-
   const minutes = readingMinutes(metaLead)
+
+  // Fixed block order: KeyTakeaways → DirectAnswer → spoke block → Prose → Expert → Sources → ExploreMore → CTA
+  const SPOKE_BLOCKS = new Set(['injuryArticleSymptoms', 'injuryArticleTreatment', 'injuryArticleRecovery', 'injuryArticleSettlement'])
+  const BLOCK_ORDER = [
+    'injuryArticleKeyTakeaways',
+    'injuryArticleDirectAnswer',
+    'injuryArticleProseSections',
+    'injuryArticleExpert',
+    'injuryArticleSources',
+    'injuryArticleExploreMore',
+    'injuryArticleCTA',
+  ]
+
+  const orderedBlocks: any[] = []
+
+  // Spoke block first
+  const spokeBlock = allBlocks.find(b => SPOKE_BLOCKS.has(b.blockType))
+  if (spokeBlock) orderedBlocks.push(spokeBlock)
+
+  // Then ordered blocks
+  for (const blockType of BLOCK_ORDER) {
+    const block = allBlocks.find(b => b.blockType === blockType)
+    if (block) orderedBlocks.push(block)
+  }
 
   return (
     <>
@@ -295,11 +288,11 @@ export function InjuryArticlePage({ article }: { article: InjuryArticle }) {
             items={[
               { label: 'Injuries', href: '/injuries' },
               { label: injName, href: `/injuries/${injSlug}` },
-              { label: spoke?.label || '' },
+              { label: spoke.label },
             ]}
           />
           <div className="eyebrow" style={{ marginTop: '1.25rem' }}>
-            {injName} · {spoke?.label}
+            {injName} · {spoke.label}
           </div>
           <h1>{metaTitle}</h1>
           <p className="section-sub" style={{ marginTop: '.9rem' }}>
@@ -309,63 +302,48 @@ export function InjuryArticlePage({ article }: { article: InjuryArticle }) {
         </div>
       </section>
 
-      {ktItems.length > 0 && <KeyTakeaways items={ktItems} />}
-
-      <Capsule lead={metaLead} />
-
-      <SectionTOC />
-
-      {/* Spoke-specific blocks rendered by type */}
-      {spokeContent}
-
-      {/* Prose sections from article blocks */}
-      {proseSections.length > 0 && <ProseBlock sections={proseSections} />}
-
-      <section className="section bg-cream">
-        <div className="container-5">
-          <div className="section-head">
-            <h2 className="section-h">More on {injName}</h2>
-          </div>
-          <div className="grid grid-4">
-            {INJURY_SPOKES
-              .filter((s) => s.slug !== spokeType)
-              .map((s) => (
-                <Link key={s.slug} href={`/injuries/${injSlug}/${s.slug}`} className="card link r">
-                  <h3>
-                    {injName} {s.label}
-                  </h3>
-                </Link>
-              ))}
-            <Link href={`/injuries/${injSlug}`} className="card link r">
-              <h3>{injName} Overview</h3>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <Expert bg="bg-white" reviewType="medical" />
-
-      <Sources medical citeTitle={metaTitle} citeUrl={`/injuries/${injSlug}/${spokeType}`} />
-
-      <CTABand
-        title={`Questions About Your ${injName} Claim?`}
-        sub="A free, confidential case review takes minutes and costs nothing."
-        btn="Get Free Case Review"
-      />
+      {/* All blocks rendered in CMS order */}
+      {allBlocks.map((block: any, i: number) => {
+        switch (block.blockType) {
+          case 'injuryArticleSymptoms':
+            return <SymptomsBlock key={block.id || i} block={block} injuryName={injName} />
+          case 'injuryArticleTreatment':
+            return <TreatmentBlock key={block.id || i} block={block} injuryName={injName} />
+          case 'injuryArticleRecovery':
+            return <RecoveryBlock key={block.id || i} block={block} injuryName={injName} />
+          case 'injuryArticleSettlement':
+            return <SettlementBlock key={block.id || i} block={block} injuryName={injName} />
+          case 'injuryArticleDirectAnswer':
+            return <DirectAnswerBlock key={block.id || i} block={block} />
+          case 'injuryArticleProseSections':
+            return <ProseBlock key={block.id || i} block={block} />
+          case 'injuryArticleKeyTakeaways':
+            return <KeyTakeawaysBlock key={block.id || i} block={block} />
+          case 'injuryArticleExpert':
+            return <ExpertBlock key={block.id || i} block={block} />
+          case 'injuryArticleSources':
+            return <SourcesBlock key={block.id || i} block={block} />
+          case 'injuryArticleCTA':
+            return <CTABlock key={block.id || i} block={block} />
+          case 'injuryArticleExploreMore':
+            return <ExploreMoreBlock key={block.id || i} block={block} injuryName={injName} />
+          default:
+            return null
+        }
+      })}
 
       <ArticleOverlays />
 
       <JsonLd
         data={[
           medicalWebPage({ headline: metaTitle, description: metaLead.slice(0, 180) }),
-          faqSchema(faqs.length ? faqs : [{ q: metaTitle, a: metaLead }]),
           breadcrumb([
             { name: 'Home', url: '/' },
             { name: 'Injuries', url: '/injuries' },
             { name: injName, url: `/injuries/${injSlug}` },
-            { name: spoke?.label || '', url: `/injuries/${injSlug}/${spokeType}` },
+            { name: spoke.label || '', url: `/injuries/${injSlug}/${art.slug}` },
           ]),
-          speakable(`/injuries/${injSlug}/${spokeType}`),
+          speakable(`/injuries/${injSlug}/${art.slug}`),
           ...orgGraph(),
         ]}
       />
