@@ -28,7 +28,6 @@ import { MarkApplicationsSeen as MarkApplicationsSeen_f5de8d2f34876f4286b86e85ac
 import { MarkIntelligenceSeen as MarkIntelligenceSeen_585a13567123a6c801b451d8af611e29 } from '@/components/admin/MarkIntelligenceSeen'
 import { default as default_ba3af612294d2e3004e11de163683c93 } from '@/components/admin/GuidePreviewButton'
 import { default as default_b3ff7363135ae581539a6d6af679901d } from '@/components/admin/AccidentPagePreviewButton'
-import { default as default_913199b622f58437f1fd0fb80afd3797 } from '@/components/admin/InjuryPreviewButton'
 import { default as default_48b133be3312064798fc4241c8149216 } from '@/components/admin/InjuryTypePreviewButton'
 import { default as default_360ed920917d44490abaf54565b9591b } from '@/components/admin/InjuryArticlePreviewButton'
 import { default as default_5f32e6dab79a8c9d0707d0d5893b327a } from '../../../components/admin/PreviewButton'
@@ -69,7 +68,6 @@ export const importMap = {
   "@/components/admin/MarkIntelligenceSeen#MarkIntelligenceSeen": MarkIntelligenceSeen_585a13567123a6c801b451d8af611e29,
   "@/components/admin/GuidePreviewButton#default": default_ba3af612294d2e3004e11de163683c93,
   "@/components/admin/AccidentPagePreviewButton#default": default_b3ff7363135ae581539a6d6af679901d,
-  "@/components/admin/InjuryPreviewButton#default": default_913199b622f58437f1fd0fb80afd3797,
   "@/components/admin/InjuryTypePreviewButton#default": default_48b133be3312064798fc4241c8149216,
   "@/components/admin/InjuryArticlePreviewButton#default": default_360ed920917d44490abaf54565b9591b,
   "/components/admin/PreviewButton#default": default_5f32e6dab79a8c9d0707d0d5893b327a,

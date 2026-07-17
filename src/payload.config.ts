@@ -15,7 +15,6 @@ import { Categories } from './collections/Categories'
 import { AccidentPages } from './collections/AccidentPages'
 import { GuideNew } from './collections/GuideNew'
 import { GuideNewCategories } from './collections/GuideNewCategories'
-import { Injuries } from './collections/Injuries'
 import { InjuryTypes } from './collections/InjuryTypes'
 import { InjuryArticles } from './collections/InjuryArticles'
 import { InjuredLeads } from './collections/InjuredLeads'
@@ -120,7 +119,6 @@ export default buildConfig({
     // AccidentArticles,
     // AccidentCategories,
     AccidentPages,
-    Injuries,
     InjuryTypes,
     InjuryArticles,
     SiteLinks,

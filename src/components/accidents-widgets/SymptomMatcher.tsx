@@ -1,9 +1,21 @@
 'use client'
 
 import { Icon } from '@/components/Icon'
-import { bodyRegions, injuries } from '@/data'
 import Link from 'next/link'
 import { useState } from 'react'
+
+type InjuryType = {
+  slug: string
+  title: string
+  category: string | null
+  icon: string | null
+}
+
+type BodyRegion = {
+  id: string
+  label: string
+  injuries: string[]
+}
 
 const POS: Record<string, [number, number]> = {
   head: [180, 56],
@@ -17,8 +29,15 @@ const POS: Record<string, [number, number]> = {
   burns: [112, 250],
 }
 
-function Panel({ regionId }: { regionId: string | null }) {
-  const region = regionId ? bodyRegions.find((r) => r.id === regionId) : null
+function Panel({
+  regionId,
+  injuriesBySlug,
+}: {
+  regionId: string | null
+  injuriesBySlug: Record<string, InjuryType>
+}) {
+  const region = regionId ? bodyRegionsStatic.find((r) => r.id === regionId) : null
+
   if (!region) {
     return (
       <div className="empty">
@@ -32,35 +51,69 @@ function Panel({ regionId }: { regionId: string | null }) {
       </div>
     )
   }
+
+  const regionInjuries = region.injuries
+    .map((slug) => injuriesBySlug[slug])
+    .filter((inj): inj is InjuryType => !!inj)
+
+  if (regionInjuries.length === 0) {
+    return (
+      <div className="empty">
+        <Icon name="steth" />
+        <p style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-4)' }}>
+          No injuries in this category
+        </p>
+        <p style={{ fontSize: '.9rem', marginTop: '.4rem' }}>
+          Try a different body region or select &quot;All&quot; categories.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="sm-result">
       <div className="sm-region-h">{region.label}</div>
-      {region.injuries.map((slug) => {
-        const inj = injuries[slug]
-        if (!inj) return null
-        return (
-          <Link key={slug} href={`/injuries/${slug}`} className="sm-injury">
-            <div className="sm-inj-top">
-              <span className="sm-inj-ic">
-                <Icon name={inj.icon} />
-              </span>
-              <span className="sm-inj-name">{inj.name}</span>
-            </div>
-            <p className="sm-inj-watch">
-              <b>Watch for:</b> {inj.symptoms.immediate.slice(0, 3).join(', ')}.
-            </p>
-            <span className="card-link" style={{ marginTop: '.6rem', fontSize: '.85rem' }}>
-              See full guide
+      {regionInjuries.map((inj) => (
+        <Link key={inj.slug} href={`/injuries/${inj.slug}`} className="sm-injury">
+          <div className="sm-inj-top">
+            <span className="sm-inj-ic">
+              <Icon name={inj.icon || 'steth'} />
             </span>
-          </Link>
-        )
-      })}
+            <span className="sm-inj-name">{inj.title}</span>
+          </div>
+          <span className="card-link" style={{ marginTop: '.6rem', fontSize: '.85rem' }}>
+            See full guide
+          </span>
+        </Link>
+      ))}
     </div>
   )
 }
 
-export function SymptomMatcher() {
+/* Static body region definitions — used for body map layout only */
+const bodyRegionsStatic: BodyRegion[] = [
+  { id: 'head', label: 'Head & Brain', injuries: ['traumatic-brain-injury'] },
+  { id: 'neck', label: 'Neck', injuries: ['whiplash', 'neck-injury'] },
+  {
+    id: 'spine',
+    label: 'Spine & Back',
+    injuries: ['back-injury', 'herniated-disc', 'spinal-cord-injury'],
+  },
+  { id: 'shoulder', label: 'Shoulders & Joints', injuries: ['shoulder-injury'] },
+  { id: 'soft', label: 'Muscles & Soft Tissue', injuries: ['soft-tissue-injury'] },
+  { id: 'bones', label: 'Bones / Fractures', injuries: ['broken-bones'] },
+  { id: 'internal', label: 'Chest & Abdomen', injuries: ['internal-injuries'] },
+  { id: 'burns', label: 'Skin / Burns', injuries: ['burn-injury'] },
+  { id: 'mind', label: 'Emotional / Mental', injuries: ['ptsd'] },
+]
+
+export function SymptomMatcher({ injuries }: { injuries: InjuryType[] }) {
   const [sel, setSel] = useState<string | null>(null)
+
+  const injuriesBySlug: Record<string, InjuryType> = {}
+  for (const inj of injuries) {
+    injuriesBySlug[inj.slug] = inj
+  }
 
   return (
     <section className="section bg-white" data-widget="symptomMatcher">
@@ -72,6 +125,7 @@ export function SymptomMatcher() {
             match — and exactly what to watch for.
           </p>
         </div>
+
         <div className="sm-layout">
           <div className="sm-picker">
             <div className="sm-bodywrap">
@@ -90,7 +144,7 @@ export function SymptomMatcher() {
                   <rect x="140" y="250" width="34" height="232" rx="17"></rect>
                   <rect x="186" y="250" width="34" height="232" rx="17"></rect>
                 </g>
-                {bodyRegions.map((r, i) => {
+                {bodyRegionsStatic.map((r, i) => {
                   const p = POS[r.id] || [180, 280]
                   return (
                     <g
@@ -119,7 +173,7 @@ export function SymptomMatcher() {
               </svg>
             </div>
             <div className="sm-regions">
-              {bodyRegions.map((r, i) => (
+              {bodyRegionsStatic.map((r, i) => (
                 <button
                   key={r.id}
                   className={'sm-region' + (sel === r.id ? ' sel' : '')}
@@ -133,7 +187,7 @@ export function SymptomMatcher() {
             </div>
           </div>
           <div className="sm-panel" id="smPanel">
-            <Panel regionId={sel} />
+            <Panel regionId={sel} injuriesBySlug={injuriesBySlug} />
           </div>
         </div>
         <p className="note" style={{ justifyContent: 'center', marginTop: '1.5rem' }}>

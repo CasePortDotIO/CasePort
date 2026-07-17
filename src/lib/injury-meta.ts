@@ -52,9 +52,10 @@ export function getSpokeLead(article: InjuryArticle): string {
 }
 
 export function injuryArticleMeta(article: InjuryArticle) {
+  const injSlug = (article.injuryType as any)?.slug || ''
   return {
     title: `${getSpokeTitle(article)} | CasePort`,
     description: getSpokeLead(article).slice(0, 180),
-    canonical: article.slug ? `/injuries/${article.slug}` : '',
+    canonical: article.slug && injSlug ? `/injuries/${injSlug}/${article.slug}` : '',
   }
 }

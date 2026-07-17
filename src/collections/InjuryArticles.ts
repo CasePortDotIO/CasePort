@@ -11,9 +11,6 @@ const extractTextFromBlocks = (blocks: any[]): string => {
     if (block.blockType === 'injuryArticleKeyTakeaways' && Array.isArray(block.items)) {
       for (const item of block.items) text += (item.item || '') + ' '
     }
-    if (block.blockType === 'injuryArticleFAQ' && Array.isArray(block.items)) {
-      for (const item of block.items) text += (item.question || '') + ' ' + (item.answerText || '') + ' '
-    }
     if (block.blockType === 'injuryArticleProseSections' && Array.isArray(block.sections)) {
       for (const s of block.sections) text += (s.title || '') + ' ' + (s.content || '') + ' '
     }
@@ -38,16 +35,6 @@ const extractTextFromBlocks = (blocks: any[]): string => {
 const calculateAeoScore: FieldHook = async ({ data }) => {
   const blocks: any[] = data?.blocks || []
   let score = 0
-
-  const faqBlock = blocks.find((b: any) => b.blockType === 'injuryArticleFAQ')
-  if (faqBlock?.items) {
-    const validFaqs = faqBlock.items.filter(
-      (f: any) => f.question && f.answerText && f.answerText.length >= 40,
-    )
-    if (validFaqs.length >= 5) score += 20
-    else if (validFaqs.length >= 3) score += 15
-    else if (validFaqs.length >= 1) score += 8
-  }
 
   const ktBlock = blocks.find((b: any) => b.blockType === 'injuryArticleKeyTakeaways')
   if (ktBlock?.items?.length >= 4) score += 10

@@ -93,21 +93,42 @@ const InjuryTypeSymptoms: Block = {
       label: 'Emergency symptoms (call 911)',
       fields: [{ name: 'item', type: 'text' }],
     },
+  ],
+}
+
+const InjuryTypeImageComparison: Block = {
+  slug: 'injuryTypeImageComparison',
+  labels: { singular: 'Image Comparison', plural: 'Image Comparisons' },
+  fields: [
     {
       name: 'trapTitle',
       type: 'text',
-      admin: { description: 'Title for the "X-ray trap" prose section, e.g. "Why Delayed Symptoms Are a Legal Trap"' },
+      admin: { description: 'Title shown above the comparison, e.g. "Why X-Rays Can Miss Your Injury"' },
     },
     {
       name: 'trapContent',
       type: 'textarea',
-      admin: { description: 'Prose content explaining why symptoms being delayed creates a legal/insurance trap.' },
+      admin: { description: 'Subtitle or description shown below the title.' },
     },
     {
-      name: 'trapImage',
+      name: 'trapImageA',
       type: 'upload',
       relationTo: 'media',
-      admin: { description: 'Optional image to accompany the trap content.' },
+      admin: { description: 'Image shown in the background (e.g. MRI — the revealing image).' },
+    },
+    {
+      name: 'trapImageB',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Image revealed on drag (e.g. X-ray — the hidden image).' },
+    },
+    {
+      name: 'points',
+      type: 'array',
+      fields: [
+        { name: 'bold', type: 'text', required: true, admin: { description: 'Bold heading text.' } },
+        { name: 'text', type: 'textarea', required: true, admin: { description: 'Description text.' } },
+      ],
     },
   ],
 }
@@ -256,6 +277,21 @@ const InjuryTypeExploreMore: Block = {
   ],
 }
 
+const InjuryTypeTOC: Block = {
+  slug: 'injuryTypeTOC',
+  labels: { singular: 'Table of Contents', plural: 'Table of Contents' },
+  fields: [
+    {
+      name: 'items',
+      type: 'array',
+      admin: { description: 'TOC entries — typically matches the H2 titles from your Prose Sections block.' },
+      fields: [
+        { name: 'label', type: 'text', required: true },
+      ],
+    },
+  ],
+}
+
 const InjuryTypeRelatedInjuries: Block = {
   slug: 'injuryTypeRelatedInjuries',
   labels: { singular: 'Related Injuries', plural: 'Related Injuries' },
@@ -281,8 +317,10 @@ export const INJURYTYPE_BLOCKS: Block[] = [
   InjuryTypeHero,
   InjuryTypeDirectAnswer,
   InjuryTypeKeyTakeaways,
+  InjuryTypeTOC,
   InjuryTypeProseSections,
   InjuryTypeSymptoms,
+  InjuryTypeImageComparison,
   InjuryTypeTreatment,
   InjuryTypeRecovery,
   InjuryTypeSettlement,
