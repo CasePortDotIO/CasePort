@@ -7,6 +7,10 @@
  */
 
 /**
+ * Supported timezones in IANA format.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "supportedTimezones".
  */
 export type SupportedTimezones =
   | 'Pacific/Midway'
@@ -55,13 +59,13 @@ export type SupportedTimezones =
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
-  | 'Pacific/Fiji'
+  | 'Pacific/Fiji';
 
 export interface Config {
   auth: {
-    users: UserAuthOperations
-  }
-  blocks: {}
+    users: UserAuthOperations;
+  };
+  blocks: {};
   collections: {
     users: User;
     media: Media;
@@ -73,7 +77,6 @@ export interface Config {
     guideArticles: GuideArticle;
     guideCategories: GuideCategory;
     accidentPages: AccidentPage;
-    injuries: Injury;
     injuryTypes: InjuryType;
     injuryArticles: InjuryArticle;
     siteLinks: SiteLink;
@@ -97,7 +100,6 @@ export interface Config {
     guideArticles: GuideArticlesSelect<false> | GuideArticlesSelect<true>;
     guideCategories: GuideCategoriesSelect<false> | GuideCategoriesSelect<true>;
     accidentPages: AccidentPagesSelect<false> | AccidentPagesSelect<true>;
-    injuries: InjuriesSelect<false> | InjuriesSelect<true>;
     injuryTypes: InjuryTypesSelect<false> | InjuryTypesSelect<true>;
     injuryArticles: InjuryArticlesSelect<false> | InjuryArticlesSelect<true>;
     siteLinks: SiteLinksSelect<false> | SiteLinksSelect<true>;
@@ -110,202 +112,202 @@ export interface Config {
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string
-  }
-  fallbackLocale: null
+    defaultIDType: string;
+  };
+  fallbackLocale: null;
   globals: {
-    'markets-page': MarketsPage
-    'site-settings': SiteSetting
-    'header-nav': HeaderNav
-    'footer-nav': FooterNav
-  }
+    'markets-page': MarketsPage;
+    'site-settings': SiteSetting;
+    'header-nav': HeaderNav;
+    'footer-nav': FooterNav;
+  };
   globalsSelect: {
-    'markets-page': MarketsPageSelect<false> | MarketsPageSelect<true>
-    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>
-    'header-nav': HeaderNavSelect<false> | HeaderNavSelect<true>
-    'footer-nav': FooterNavSelect<false> | FooterNavSelect<true>
-  }
-  locale: null
+    'markets-page': MarketsPageSelect<false> | MarketsPageSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'header-nav': HeaderNavSelect<false> | HeaderNavSelect<true>;
+    'footer-nav': FooterNavSelect<false> | FooterNavSelect<true>;
+  };
+  locale: null;
   widgets: {
-    collections: CollectionsWidget
-  }
-  user: User
+    collections: CollectionsWidget;
+  };
+  user: User;
   jobs: {
-    tasks: unknown
-    workflows: unknown
-  }
+    tasks: unknown;
+    workflows: unknown;
+  };
 }
 export interface UserAuthOperations {
   forgotPassword: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   login: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   registerFirstUser: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
   unlock: {
-    email: string
-    password: string
-  }
+    email: string;
+    password: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string
-  updatedAt: string
-  createdAt: string
-  email: string
-  resetPasswordToken?: string | null
-  resetPasswordExpiration?: string | null
-  salt?: string | null
-  hash?: string | null
-  loginAttempts?: number | null
-  lockUntil?: string | null
+  id: string;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
   sessions?:
     | {
-        id: string
-        createdAt?: string | null
-        expiresAt: string
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
       }[]
-    | null
-  password?: string | null
-  collection: 'users'
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-  id: string
-  alt: string
-  updatedAt: string
-  createdAt: string
-  url?: string | null
-  thumbnailURL?: string | null
-  filename?: string | null
-  mimeType?: string | null
-  filesize?: number | null
-  width?: number | null
-  height?: number | null
-  focalX?: number | null
-  focalY?: number | null
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "markets".
  */
 export interface Market {
-  id: string
-  metro: string
+  id: string;
+  metro: string;
   /**
    * URL-friendly name. Used in /markets/[slug]
    */
-  slug: string
-  state: string
-  status: 'active' | 'limited' | 'capped' | 'evaluation'
-  mii: number
-  casesAcquiredYearly: number
-  partnersActive: number
-  maxPartners: number
+  slug: string;
+  state: string;
+  status: 'active' | 'limited' | 'capped' | 'evaluation';
+  mii: number;
+  casesAcquiredYearly: number;
+  partnersActive: number;
+  maxPartners: number;
   /**
    * Current number of firms on the waitlist for this market.
    */
-  waitlistPosition?: number | null
-  population: string
-  monthlySearchVolume: string
-  responseTime: string
-  activatedDate: string
-  avgSettlement: string
-  avgCaseValue: string
-  heroHeadline: string
-  heroSubline: string
+  waitlistPosition?: number | null;
+  population: string;
+  monthlySearchVolume: string;
+  responseTime: string;
+  activatedDate: string;
+  avgSettlement: string;
+  avgCaseValue: string;
+  heroHeadline: string;
+  heroSubline: string;
   testimonial?: {
-    quote?: string | null
-    author?: string | null
-  }
+    quote?: string | null;
+    author?: string | null;
+  };
   whyThisMarket?:
     | {
-        title: string
-        desc: string
-        id?: string | null
+        title: string;
+        desc: string;
+        id?: string | null;
       }[]
-    | null
+    | null;
   faqs?:
     | {
-        question: string
-        answer: string
-        id?: string | null
+        question: string;
+        answer: string;
+        id?: string | null;
       }[]
-    | null
+    | null;
   /**
    * Hidden semantic blocks for Answer Engine Optimization. Will be rendered seamlessly.
    */
   aeoContent?: {
     root: {
-      type: string
+      type: string;
       children: {
-        type: any
-        version: number
-        [k: string]: unknown
-      }[]
-      direction: ('ltr' | 'rtl') | null
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
-      indent: number
-      version: number
-    }
-    [k: string]: unknown
-  } | null
-  updatedAt: string
-  createdAt: string
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "applications".
  */
 export interface Application {
-  id: string
-  firmName: string
-  fullName: string
-  title: string
-  workEmail: string
-  phone: string
-  website: string
-  linkedIn?: string | null
-  leadScore: number
-  leadTier: 'platinum' | 'gold' | 'silver' | 'disqualified'
-  status: 'pending' | 'approved' | 'rejected' | 'waitlisted'
+  id: string;
+  firmName: string;
+  fullName: string;
+  title: string;
+  workEmail: string;
+  phone: string;
+  website: string;
+  linkedIn?: string | null;
+  leadScore: number;
+  leadTier: 'platinum' | 'gold' | 'silver' | 'disqualified';
+  status: 'pending' | 'approved' | 'rejected' | 'waitlisted';
   answers:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
-  seen?: boolean | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  seen?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "waitlists".
  */
 export interface Waitlist {
-  id: string
-  email: string
-  firmName?: string | null
-  hardStopReason?: string | null
-  referralEmail?: string | null
-  source?: ('waitlist' | 'intelligence') | null
-  role?: ('owner' | 'partner' | 'intake' | 'ops' | 'other') | null
+  id: string;
+  email: string;
+  firmName?: string | null;
+  hardStopReason?: string | null;
+  referralEmail?: string | null;
+  source?: ('waitlist' | 'intelligence') | null;
+  role?: ('owner' | 'partner' | 'intake' | 'ops' | 'other') | null;
   market?:
     | (
         | 'personal-injury'
@@ -316,9 +318,9 @@ export interface Waitlist {
         | 'auto-accidents'
         | 'other'
       )
-    | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Subscribers to the CasePort Intelligence weekly brief.
@@ -327,12 +329,12 @@ export interface Waitlist {
  * via the `definition` "intelligence-briefs".
  */
 export interface IntelligenceBrief {
-  id: string
+  id: string;
   /**
    * Subscriber work email address.
    */
-  email: string
-  role: 'owner' | 'partner' | 'intake' | 'ops' | 'other'
+  email: string;
+  role: 'owner' | 'partner' | 'intake' | 'ops' | 'other';
   market:
     | 'personal-injury'
     | 'workers-comp'
@@ -340,329 +342,327 @@ export interface IntelligenceBrief {
     | 'product-liability'
     | 'premises-liability'
     | 'auto-accidents'
-    | 'other'
-  status?: ('active' | 'unsubscribed') | null
+    | 'other';
+  status?: ('active' | 'unsubscribed') | null;
   /**
    * Checked once an admin has viewed this subscriber.
    */
-  seen?: boolean | null
-  updatedAt: string
-  createdAt: string
+  seen?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
-  id: string
-  title: string
-  slug: string
-  description?: string | null
-  updatedAt: string
-  createdAt: string
+  id: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "guideArticles".
  */
 export interface GuideArticle {
-  id: string
+  id: string;
   /**
    * 50-80 chars. Auto slug.
    */
-  title?: string | null
-  slug?: string | null
-  author?: (string | null) | Author
+  title?: string | null;
+  slug?: string | null;
+  author?: (string | null) | Author;
   /**
    * Primary category for this guide
    */
-  guideCategory?: (string | null) | GuideCategory
+  guideCategory?: (string | null) | GuideCategory;
   /**
    * Legacy field - prefer using Hero block instead
    */
-  heroImage?: (string | null) | Media
-  excerpt?: string | null
-  subtitle?: string | null
+  heroImage?: (string | null) | Media;
+  excerpt?: string | null;
+  subtitle?: string | null;
   /**
    * Short breadcrumb label shown in hero (e.g. "Do I Need a Lawyer"). Defaults to article title if empty.
    */
-  breadcrumbTitle?: string | null
+  breadcrumbTitle?: string | null;
   /**
    * Add and reorder blocks to structure your article content.
    */
   blocks?:
     | (
         | {
-            heading?: string | null
+            heading?: string | null;
             /**
              * Capsule lead text shown below the heading.
              */
-            text?: string | null
+            text?: string | null;
             /**
              * Select the author shown in the Capsule review line.
              */
-            author?: (string | null) | Author
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleDirectAnswer'
+            author?: (string | null) | Author;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleDirectAnswer';
           }
         | {
             items?:
               | {
-                  fact: string
-                  id?: string | null
+                  fact: string;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleKeyTakeaways'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleKeyTakeaways';
           }
         | {
             items?:
               | {
-                  question: string
-                  answerText: string
-                  id?: string | null
+                  question: string;
+                  answerText: string;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleFAQ'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleFAQ';
           }
         | {
             /**
              * Select the Guide New articles to display.
              */
-            articles?: (string | GuideArticle)[] | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleRelatedGuides'
+            articles?: (string | GuideArticle)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleRelatedGuides';
           }
         | {
             /**
              * Title shown in the citation (e.g. "Car Accident Guide").
              */
-            citeTitle?: string | null
+            citeTitle?: string | null;
             sources?:
               | {
-                  name: string
-                  url: string
-                  id?: string | null
+                  name: string;
+                  url: string;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleSources'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleSources';
           }
         | {
-            heading?: string | null
+            heading?: string | null;
             steps?:
               | {
-                  stepName?: string | null
-                  stepDescription?: string | null
-                  id?: string | null
+                  stepName?: string | null;
+                  stepDescription?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            note?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleTimelineSteps'
+              | null;
+            note?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleTimelineSteps';
           }
         | {
-            heading?: string | null
+            heading?: string | null;
             rows?:
               | {
-                  severity?: string | null
-                  description?: string | null
-                  range?: string | null
-                  id?: string | null
+                  severity?: string | null;
+                  description?: string | null;
+                  range?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            footnote?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleSettlementTable'
+              | null;
+            footnote?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleSettlementTable';
           }
         | {
             sections?:
               | {
-                  heading?: string | null
-                  body?: string | null
-                  id?: string | null
+                  heading?: string | null;
+                  body?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleProseContent'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleProseContent';
           }
         | {
-            heading?: string | null
+            heading?: string | null;
             bars?:
               | {
-                  deadline?: string | null
-                  states?: string | null
-                  widthPercent?: number | null
-                  id?: string | null
+                  deadline?: string | null;
+                  states?: string | null;
+                  widthPercent?: number | null;
+                  id?: string | null;
                 }[]
-              | null
-            footnote?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleStatuteBars'
+              | null;
+            footnote?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleStatuteBars';
           }
         | {
-            quote?: string | null
-            reviewerName?: string | null
-            credentials?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleExpert'
+            quote?: string | null;
+            reviewerName?: string | null;
+            credentials?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleExpert';
           }
         | {
-            title?: string | null
-            subtitle?: string | null
-            buttonLabel?: string | null
+            title?: string | null;
+            subtitle?: string | null;
+            buttonLabel?: string | null;
             /**
              * URL path the button links to (e.g. /checkmycase, /request-access).
              */
-            buttonLink?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleCTA'
+            buttonLink?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleCTA';
           }
         | {
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleTakeHome'
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleTakeHome';
           }
       )[]
-    | null
+    | null;
   /**
    * Reader self-selection
    */
-  difficultyLevel?: ('beginner' | 'intermediate' | 'advanced') | null
+  difficultyLevel?: ('beginner' | 'intermediate' | 'advanced') | null;
   /**
    * Auto-calculated from content length
    */
-  estimatedCompletionTime?: string | null
+  estimatedCompletionTime?: string | null;
   tags?:
     | {
-        tag?: string | null
-        id?: string | null
+        tag?: string | null;
+        id?: string | null;
       }[]
-    | null
-  focusKeyword?: string | null
-  keywordDifficulty?: number | null
-  monthlySearchVolume?: number | null
-  currentRankingPosition?: number | null
+    | null;
+  focusKeyword?: string | null;
+  keywordDifficulty?: number | null;
+  monthlySearchVolume?: number | null;
+  currentRankingPosition?: number | null;
   secondaryKeywords?:
     | {
-        keyword?: string | null
-        id?: string | null
+        keyword?: string | null;
+        id?: string | null;
       }[]
-    | null
-  metaTitle?: string | null
-  metaDescription?: string | null
-  canonicalUrl?: string | null
-  socialHeadline?: string | null
-  socialDescription?: string | null
-  socialShareImage?: (string | null) | Media
-  xCardType?: ('summary_large_image' | 'summary') | null
-  xCardTitle?: string | null
-  xCardDescription?: string | null
-  xCardImage?: (string | null) | Media
-  competingUrl?: string | null
+    | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  canonicalUrl?: string | null;
+  socialHeadline?: string | null;
+  socialDescription?: string | null;
+  socialShareImage?: (string | null) | Media;
+  xCardType?: ('summary_large_image' | 'summary') | null;
+  xCardTitle?: string | null;
+  xCardDescription?: string | null;
+  xCardImage?: (string | null) | Media;
+  competingUrl?: string | null;
   contentGap?:
     | {
-        gap?: string | null
-        id?: string | null
+        gap?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   /**
    * Summary for AI citations and references
    */
-  aiCitationSummary?: string | null
+  aiCitationSummary?: string | null;
   /**
    * Primary AI/voice search query this article answers
    */
-  primaryAiQuery?: string | null
-  voiceAnswer?: string | null
+  primaryAiQuery?: string | null;
+  voiceAnswer?: string | null;
   speakableCssSelectors?:
     | {
-        selector?: string | null
-        id?: string | null
+        selector?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   conversationalQueryVariants?:
     | {
-        query?: string | null
-        id?: string | null
+        query?: string | null;
+        id?: string | null;
       }[]
-    | null
-  targetsSpecificLocation?: boolean | null
+    | null;
+  targetsSpecificLocation?: boolean | null;
   locationTargets?:
     | {
-        state?: string | null
-        city?: string | null
-        id?: string | null
+        state?: string | null;
+        city?: string | null;
+        id?: string | null;
       }[]
-    | null
-  schemaType?:
-    | ('Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle' | 'GuidePage')
-    | null
+    | null;
+  schemaType?: ('Article' | 'FAQPage' | 'HowTo' | 'NewsArticle' | 'LegalScholarlyArticle' | 'GuidePage') | null;
   howToSteps?:
     | {
-        name?: string | null
-        description?: string | null
-        image?: (string | null) | Media
-        id?: string | null
+        name?: string | null;
+        description?: string | null;
+        image?: (string | null) | Media;
+        id?: string | null;
       }[]
-    | null
+    | null;
   sameAsEntityUrls?:
     | {
-        url?: string | null
-        id?: string | null
+        url?: string | null;
+        id?: string | null;
       }[]
-    | null
-  articleSection?: string | null
-  apaCitation?: string | null
-  legalDisclaimer?: ('Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None') | null
-  abaComplianceVerified?: boolean | null
-  expertReviewer?: string | null
-  expertCredentials?: string | null
-  expertQuote?: string | null
+    | null;
+  articleSection?: string | null;
+  apaCitation?: string | null;
+  legalDisclaimer?: ('Standard' | 'No Legal Advice' | 'CasePort Platform' | 'None') | null;
+  abaComplianceVerified?: boolean | null;
+  expertReviewer?: string | null;
+  expertCredentials?: string | null;
+  expertQuote?: string | null;
   externalSources?:
     | {
-        name?: string | null
-        url?: string | null
-        credibilityTier?: ('High' | 'Medium' | 'Low') | null
-        id?: string | null
+        name?: string | null;
+        url?: string | null;
+        credibilityTier?: ('High' | 'Medium' | 'Low') | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   pressMentions?:
     | {
-        source?: string | null
-        url?: string | null
-        date?: string | null
-        id?: string | null
+        source?: string | null;
+        url?: string | null;
+        date?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   ctaOverride?: {
-    heading?: string | null
-    body?: string | null
-    primaryLabel?: string | null
-    primaryUrl?: string | null
-    secondaryLabel?: string | null
-    secondaryUrl?: string | null
-  }
+    heading?: string | null;
+    body?: string | null;
+    primaryLabel?: string | null;
+    primaryUrl?: string | null;
+    secondaryLabel?: string | null;
+    secondaryUrl?: string | null;
+  };
   contentUpdateHistory?:
     | {
-        date?: string | null
-        summary?: string | null
-        updatedBy?: string | null
-        id?: string | null
+        date?: string | null;
+        summary?: string | null;
+        updatedBy?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   targetStates?:
     | (
         | 'AL'
@@ -716,7 +716,7 @@ export interface GuideArticle {
         | 'WI'
         | 'WY'
       )[]
-    | null
+    | null;
   targetCities?:
     | (
         | 'Houston, TX'
@@ -771,521 +771,512 @@ export interface GuideArticle {
         | 'Macon, GA'
         | 'Columbus, GA'
       )[]
-    | null
-  jurisdiction?: string | null
-  serviceAreaDescription?: string | null
-  localSchemaType?: ('LocalBusiness' | 'Attorney' | 'ServiceArea') | null
-  stateSpecificDeadline?: number | null
-  stateSpecificExceptions?: string | null
+    | null;
+  jurisdiction?: string | null;
+  serviceAreaDescription?: string | null;
+  localSchemaType?: ('LocalBusiness' | 'Attorney' | 'ServiceArea') | null;
+  stateSpecificDeadline?: number | null;
+  stateSpecificExceptions?: string | null;
   tollingProvisions?:
     | {
-        state?: string | null
-        tollingRule?: string | null
-        id?: string | null
+        state?: string | null;
+        tollingRule?: string | null;
+        id?: string | null;
       }[]
-    | null
-  sgeAnswerability?: number | null
-  sgeOptimizedAnswer?: string | null
+    | null;
+  sgeAnswerability?: number | null;
+  sgeOptimizedAnswer?: string | null;
   uniqueContentSignals?:
     | {
-        signal?: string | null
-        description?: string | null
-        id?: string | null
+        signal?: string | null;
+        description?: string | null;
+        id?: string | null;
       }[]
-    | null
-  freshnessSignal?: ('breaking' | 'recent' | 'evergreen') | null
-  competitorComparison?: string | null
+    | null;
+  freshnessSignal?: ('breaking' | 'recent' | 'evergreen') | null;
+  competitorComparison?: string | null;
   dominanceScoring?: {
-    seoScore?: number | null
-    aeoScore?: number | null
-    geoScore?: number | null
-    sgeScore?: number | null
-    voiceSearchScore?: number | null
-    overallDominanceScore?: number | null
-    dominanceRank?: ('critical' | 'weak' | 'strong' | 'dominant') | null
-    competitiveAdvantageScore?: number | null
-  }
+    seoScore?: number | null;
+    aeoScore?: number | null;
+    geoScore?: number | null;
+    sgeScore?: number | null;
+    voiceSearchScore?: number | null;
+    overallDominanceScore?: number | null;
+    dominanceRank?: ('critical' | 'weak' | 'strong' | 'dominant') | null;
+    competitiveAdvantageScore?: number | null;
+  };
   topCompetitors?:
     | {
-        url?: string | null
-        estimatedScore?: number | null
-        yourAdvantage?: string | null
-        id?: string | null
+        url?: string | null;
+        estimatedScore?: number | null;
+        yourAdvantage?: string | null;
+        id?: string | null;
       }[]
-    | null
-  competitiveGapAnalysis?: string | null
+    | null;
+  competitiveGapAnalysis?: string | null;
   uniqueAdvantages?:
     | {
-        advantage?: string | null
-        id?: string | null
+        advantage?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   performanceMetrics?: {
-    totalFormSubmissions?: number | null
-    totalEmailCaptures?: number | null
-    averageLeadQualityScore?: number | null
-    leadToCaseConversionRate?: number | null
-    estimatedRevenue?: number | null
-    estimatedProfit?: number | null
-    roi?: number | null
-    performanceStatus?: ('loss' | 'breakeven' | 'profitable' | 'highly_profitable') | null
-    recommendedAction?: ('remove' | 'optimize' | 'maintain' | 'expand') | null
-  }
-  publishedDate?: string | null
-  updatedAt: string
-  aeoScore?: number | null
+    totalFormSubmissions?: number | null;
+    totalEmailCaptures?: number | null;
+    averageLeadQualityScore?: number | null;
+    leadToCaseConversionRate?: number | null;
+    estimatedRevenue?: number | null;
+    estimatedProfit?: number | null;
+    roi?: number | null;
+    performanceStatus?: ('loss' | 'breakeven' | 'profitable' | 'highly_profitable') | null;
+    recommendedAction?: ('remove' | 'optimize' | 'maintain' | 'expand') | null;
+  };
+  publishedDate?: string | null;
+  updatedAt: string;
+  aeoScore?: number | null;
   /**
    * Auto-calculated on every save. 0-100.
    */
-  seoScore?: number | null
-  readTime?: number | null
-  searchIntent?:
-    | ('Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational')
-    | null
-  targetSerpFeature?: string | null
-  contentConfidence?: ('High' | 'Medium' | 'Low') | null
-  hideFromSearchEngines?: boolean | null
-  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null
-  nextReviewDue?: string | null
-  lastFactVerified?: string | null
-  contentQualityScore?: number | null
+  seoScore?: number | null;
+  readTime?: number | null;
+  searchIntent?: ('Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational') | null;
+  targetSerpFeature?: string | null;
+  contentConfidence?: ('High' | 'Medium' | 'Low') | null;
+  hideFromSearchEngines?: boolean | null;
+  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null;
+  nextReviewDue?: string | null;
+  lastFactVerified?: string | null;
+  contentQualityScore?: number | null;
   /**
    * Show Attorney-Reviewed badge on article page
    */
-  showAttorneyReviewedBadge?: boolean | null
+  showAttorneyReviewedBadge?: boolean | null;
   /**
    * Show ABA Compliant badge on article page
    */
-  showABACompliantBadge?: boolean | null
+  showABACompliantBadge?: boolean | null;
   /**
    * Show Last Updated badge on article page
    */
-  showLastUpdatedBadge?: boolean | null
-  createdAt: string
-  _status?: ('draft' | 'published') | null
+  showLastUpdatedBadge?: boolean | null;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "authors".
  */
 export interface Author {
-  id: string
-  name: string
-  title: string
-  avatar?: (string | null) | Media
-  bio?: string | null
-  profileUrl?: string | null
+  id: string;
+  name: string;
+  title: string;
+  avatar?: (string | null) | Media;
+  bio?: string | null;
+  profileUrl?: string | null;
   /**
    * Short labels shown as pills on article pages (e.g. "Expert", "50+ Firms").
    */
   badges?:
     | {
-        label: string
-        id?: string | null
+        label: string;
+        id?: string | null;
       }[]
-    | null
+    | null;
   /**
    * Stats shown in the credential grid (e.g. value "50+" / label "Firms Advised").
    */
   credentials?:
     | {
-        value: string
-        label: string
-        id?: string | null
+        value: string;
+        label: string;
+        id?: string | null;
       }[]
-    | null
+    | null;
   /**
    * Action buttons shown in the author bio section (e.g. "Ask a Question", "View Profile").
    */
   ctaButtons?:
     | {
-        label: string
-        href: string
-        style?: ('primary' | 'secondary') | null
-        id?: string | null
+        label: string;
+        href: string;
+        style?: ('primary' | 'secondary') | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   socialLinks?:
     | {
-        platform?: ('twitter' | 'linkedin' | 'github') | null
-        url?: string | null
-        id?: string | null
+        platform?: ('twitter' | 'linkedin' | 'github') | null;
+        url?: string | null;
+        id?: string | null;
       }[]
-    | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "guideCategories".
  */
 export interface GuideCategory {
-  id: string
-  title: string
-  slug: string
+  id: string;
+  title: string;
+  slug: string;
   /**
    * Key used to pull matching static data from accident-types.ts (e.g. "car-accident" for "car-accidents" category)
    */
-  dataKey?: string | null
-  heroTitle?: string | null
-  heroSubtitle?: string | null
-  heroImage?: (string | null) | Media
+  dataKey?: string | null;
+  heroTitle?: string | null;
+  heroSubtitle?: string | null;
+  heroImage?: (string | null) | Media;
   /**
    * Short description shown in category cards and navigation.
    */
-  short?: string | null
+  short?: string | null;
   /**
    * Lower numbers appear first in the hub grid.
    */
-  displayOrder?: number | null
+  displayOrder?: number | null;
   /**
    * Add, remove, and reorder sections for this category page.
    */
   blocks?:
     | (
         | {
-            heading?: string | null
+            heading?: string | null;
             /**
              * Capsule lead text shown below the heading.
              */
-            text?: string | null
+            text?: string | null;
             /**
              * Select the author shown in the Capsule review line.
              */
-            author?: (string | null) | Author
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryDirectAnswer'
+            author?: (string | null) | Author;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryDirectAnswer';
           }
         | {
-            average?: string | null
-            successRate?: string | null
-            timeline?: string | null
-            upfront?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryQuickAnswerStats'
+            average?: string | null;
+            successRate?: string | null;
+            timeline?: string | null;
+            upfront?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryQuickAnswerStats';
           }
         | {
             items?:
               | {
-                  fact: string
-                  id?: string | null
+                  fact: string;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryKeyTakeaways'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryKeyTakeaways';
           }
         | {
             sections?:
               | {
-                  title: string
+                  title: string;
                   paras?:
                     | {
-                        text: string
-                        id?: string | null
+                        text: string;
+                        id?: string | null;
                       }[]
-                    | null
-                  id?: string | null
+                    | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryProseSections'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryProseSections';
           }
         | {
             items?:
               | {
-                  question: string
-                  answer: string
-                  id?: string | null
+                  question: string;
+                  answer: string;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryFAQ'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryFAQ';
           }
         | {
-            description?: string | null
+            description?: string | null;
             byState?:
               | {
-                  state: string
-                  years?: number | null
-                  notes?: string | null
-                  id?: string | null
+                  state: string;
+                  years?: number | null;
+                  notes?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryStatuteDeadlines'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryStatuteDeadlines';
           }
         | {
             /**
              * [STR] Main body text for the Why This Matters section.
              */
-            intro?: string | null
+            intro?: string | null;
             /**
              * Left-bordered callout boxes below the intro.
              */
             points?:
               | {
-                  heading: string
-                  body?: string | null
-                  id?: string | null
+                  heading: string;
+                  body?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryWhyImportant'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryWhyImportant';
           }
         | {
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categorySectionTOC'
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categorySectionTOC';
           }
         | {
             /**
              * Select the Guide New articles to display.
              */
-            articles?: (string | GuideArticle)[] | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryRelatedGuides'
+            articles?: (string | GuideArticle)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryRelatedGuides';
           }
         | {
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryTakeHome'
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryTakeHome';
           }
         | {
-            author?: (string | null) | Author
+            author?: (string | null) | Author;
             /**
              * Summary or detail text shown with the author.
              */
-            detail?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryHowWeKeepAccurate'
+            detail?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryHowWeKeepAccurate';
           }
         | {
             /**
              * Select which category guides to display in this section.
              */
-            categories?: (string | GuideCategory)[] | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categoryExploreMore'
+            categories?: (string | GuideCategory)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categoryExploreMore';
           }
         | {
             /**
              * Title shown in the citation (e.g. "Car Accident Guide").
              */
-            citeTitle?: string | null
+            citeTitle?: string | null;
             sources?:
               | {
-                  name: string
-                  url: string
-                  id?: string | null
+                  name: string;
+                  url: string;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'categorySources'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'categorySources';
           }
       )[]
-    | null
-  metaTitle?: string | null
-  metaDescription?: string | null
-  canonicalUrl?: string | null
-  schemaType?: ('GuidePage' | 'FAQPage' | 'CollectionPage') | null
-  hideFromSearchEngines?: boolean | null
-  updatedAt: string
-  createdAt: string
+    | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  canonicalUrl?: string | null;
+  schemaType?: ('GuidePage' | 'FAQPage' | 'CollectionPage') | null;
+  hideFromSearchEngines?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "accidentPages".
  */
 export interface AccidentPage {
-  id: string
+  id: string;
   /**
    * Determines which URL pattern this page uses.
    */
-  pageType:
-    | 'accidentType'
-    | 'state'
-    | 'stateTopic'
-    | 'city'
-    | 'cityType'
-    | 'quickAnswer'
-    | 'resources'
+  pageType: 'accidentType' | 'state' | 'stateTopic' | 'city' | 'cityType' | 'quickAnswer' | 'resources';
   /**
    * Canonical URL path. Auto-derived from pageType + state + city + type.
    */
-  fullSlug: string
+  fullSlug: string;
   /**
    * Used in hero heading and browser tab.
    */
-  title: string
+  title: string;
   /**
    * 2-letter state abbreviation (e.g. CA, TX). Required for state, city pages.
    */
-  state?: string | null
+  state?: string | null;
   /**
    * City key matching data.cityData (e.g. "ca" for California cities).
    */
-  cityKey?: string | null
+  cityKey?: string | null;
   /**
    * City slug (e.g. "los-angeles").
    */
-  citySlug?: string | null
+  citySlug?: string | null;
   /**
    * Accident type slug (e.g. "car-accident").
    */
-  accidentType?: string | null
+  accidentType?: string | null;
   /**
    * State law topic slug (e.g. "statute-of-limitations").
    */
-  stateTopic?: string | null
+  stateTopic?: string | null;
   /**
    * Quick answer page slug (e.g. "what-to-do-after-accident").
    */
-  quickAnswerSlug?: string | null
+  quickAnswerSlug?: string | null;
   /**
    * Page sections. Mix and match as needed.
    */
   blocks?:
     | (
         | {
-            heroTitle?: string | null
-            heroSubtitle?: string | null
-            eyebrow?: string | null
-            scene?: string | null
-            heroImage?: (string | null) | Media
-            reviewerName?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'hero'
+            heroTitle?: string | null;
+            heroSubtitle?: string | null;
+            eyebrow?: string | null;
+            scene?: string | null;
+            heroImage?: (string | null) | Media;
+            reviewerName?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
           }
         | {
-            eyebrow?: string | null
-            heroTitle?: string | null
-            heroSubtitle?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'topSection'
+            eyebrow?: string | null;
+            heroTitle?: string | null;
+            heroSubtitle?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'topSection';
           }
         | {
-            average?: string | null
-            successRate?: string | null
-            timeline?: string | null
-            upfront?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'quickAnswerStats'
+            average?: string | null;
+            successRate?: string | null;
+            timeline?: string | null;
+            upfront?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'quickAnswerStats';
           }
         | {
-            kind?: ('contributory' | 'statute' | 'evidence' | 'settlement') | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'qaVisual'
+            kind?: ('contributory' | 'statute' | 'evidence' | 'settlement') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'qaVisual';
           }
         | {
-            heading?: string | null
+            heading?: string | null;
             /**
              * Primary AEO answer — shown in featured snippets and voice search results.
              */
-            lead?: string | null
-            text?: string | null
+            lead?: string | null;
+            text?: string | null;
             /**
              * Concise answer for voice assistants (Alexa/Siri). Keep under 35 words.
              */
-            voiceAnswer?: string | null
+            voiceAnswer?: string | null;
             /**
              * CSS selectors marked as speakable for voice search. E.g. ".direct-answer" or ".hero h1".
              */
             speakableCssSelectors?:
               | {
-                  selector?: string | null
-                  id?: string | null
+                  selector?: string | null;
+                  id?: string | null;
                 }[]
-              | null
+              | null;
             /**
              * Steps for HowTo schema. Only used when schemaType is set to HowTo.
              */
             howToSteps?:
               | {
-                  name: string
-                  description: string
-                  image?: (string | null) | Media
-                  id?: string | null
+                  name: string;
+                  description: string;
+                  image?: (string | null) | Media;
+                  id?: string | null;
                 }[]
-              | null
+              | null;
             table?: {
-              label?: string | null
+              label?: string | null;
               head?:
                 | {
-                    cell?: string | null
-                    id?: string | null
+                    cell?: string | null;
+                    id?: string | null;
                   }[]
-                | null
+                | null;
               rows?:
                 | {
                     cells?:
                       | {
-                          cell?: string | null
-                          id?: string | null
+                          cell?: string | null;
+                          id?: string | null;
                         }[]
-                      | null
-                    id?: string | null
+                      | null;
+                    id?: string | null;
                   }[]
-                | null
-            }
+                | null;
+            };
             rows?:
               | {
                   cells?:
                     | {
-                        cell?: string | null
-                        id?: string | null
+                        cell?: string | null;
+                        id?: string | null;
                       }[]
-                    | null
-                  id?: string | null
+                    | null;
+                  id?: string | null;
                 }[]
-              | null
+              | null;
             head?:
               | {
-                  cell?: string | null
-                  id?: string | null
+                  cell?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            label?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'directAnswer'
+              | null;
+            label?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'directAnswer';
           }
         | {
             items?:
               | {
-                  item?: string | null
-                  id?: string | null
+                  item?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'keyTakeaways'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'keyTakeaways';
           }
         | {
             sections?:
               | {
-                  title?: string | null
-                  content?: string | null
-                  id?: string | null
+                  title?: string | null;
+                  content?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'proseSections'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'proseSections';
           }
         | {
             items?:
@@ -1293,227 +1284,227 @@ export interface AccidentPage {
                   /**
                    * The question users ask — be specific and conversational.
                    */
-                  question?: string | null
+                  question?: string | null;
                   /**
                    * The answer — be concise and factual. Used in featured snippets.
                    */
-                  answerText?: string | null
+                  answerText?: string | null;
                   /**
                    * How a user would ask this aloud (e.g. "what settlement am I entitled to"). Used for voice search.
                    */
-                  voiceQuestion?: string | null
+                  voiceQuestion?: string | null;
                   /**
                    * Optional link to a quick answer or accident type page.
                    */
-                  slug?: string | null
-                  id?: string | null
+                  slug?: string | null;
+                  id?: string | null;
                 }[]
-              | null
+              | null;
             /**
              * Short paragraph AI systems use for citations. Summarize the key finding in 1-2 sentences.
              */
-            aiCitationSummary?: string | null
+            aiCitationSummary?: string | null;
             /**
              * Alternative ways users phrase this question conversationally.
              */
             conversationalQueryVariants?:
               | {
-                  query?: string | null
-                  id?: string | null
+                  query?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'faq'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
           }
         | {
-            deadline?: string | null
-            fromDate?: string | null
+            deadline?: string | null;
+            fromDate?: string | null;
             bars?:
               | {
-                  deadline?: string | null
-                  states?: string | null
-                  note?: string | null
-                  id?: string | null
+                  deadline?: string | null;
+                  states?: string | null;
+                  note?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'statuteDeadlines'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statuteDeadlines';
           }
         | {
-            title?: string | null
+            title?: string | null;
             faqs?:
               | {
-                  question?: string | null
-                  answer?: string | null
-                  id?: string | null
+                  question?: string | null;
+                  answer?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'stateFaqBlock'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'stateFaqBlock';
           }
         | {
-            title?: string | null
-            text?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'whyImportant'
+            title?: string | null;
+            text?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'whyImportant';
           }
         | {
-            id?: string | null
-            blockName?: string | null
-            blockType: 'sectionTOC'
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'sectionTOC';
           }
         | {
             items?:
               | {
-                  label?: string | null
-                  value?: string | null
-                  id?: string | null
+                  label?: string | null;
+                  value?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'localizedStats'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'localizedStats';
           }
         | {
             topics?:
               | {
-                  slug?: string | null
-                  label?: string | null
-                  tags?: string | null
-                  id?: string | null
+                  slug?: string | null;
+                  label?: string | null;
+                  tags?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'stateTopicsGrid'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'stateTopicsGrid';
           }
         | {
             cities?:
               | {
-                  name?: string | null
-                  slug?: string | null
-                  accidentRate?: string | null
-                  id?: string | null
+                  name?: string | null;
+                  slug?: string | null;
+                  accidentRate?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'citiesGrid'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'citiesGrid';
           }
         | {
             guides?:
               | {
-                  title?: string | null
-                  slug?: string | null
-                  category?: string | null
-                  id?: string | null
+                  title?: string | null;
+                  slug?: string | null;
+                  category?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'relatedGuides'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'relatedGuides';
           }
         | {
-            title?: string | null
+            title?: string | null;
             items?:
               | {
-                  item?: string | null
-                  id?: string | null
+                  item?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'takeHome'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'takeHome';
           }
         | {
-            text?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'howWeKeepAccurate'
+            text?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'howWeKeepAccurate';
           }
         | {
             items?:
               | {
-                  label?: string | null
-                  value?: string | null
-                  id?: string | null
+                  label?: string | null;
+                  value?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'statTiles'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'statTiles';
           }
         | {
-            category?: string | null
+            category?: string | null;
             /**
              * Search and select related accident pages by title or fullSlug.
              */
-            pages?: (string | AccidentPage)[] | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'exploreMore'
+            pages?: (string | AccidentPage)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'exploreMore';
           }
         | {
             /**
              * Page title used in the citation string.
              */
-            citeTitle?: string | null
+            citeTitle?: string | null;
             /**
              * URL path used in the citation string (e.g. "georgia").
              */
-            citeUrl?: string | null
+            citeUrl?: string | null;
             sources?:
               | {
-                  name?: string | null
-                  url?: string | null
-                  id?: string | null
+                  name?: string | null;
+                  url?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'sources'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'sources';
           }
         | {
             steps?:
               | {
-                  stepName?: string | null
-                  stepDescription?: string | null
-                  stepDays?: string | null
-                  id?: string | null
+                  stepName?: string | null;
+                  stepDescription?: string | null;
+                  stepDays?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'articleTimelineSteps'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'articleTimelineSteps';
           }
         | {
-            description?: string | null
+            description?: string | null;
             keyFacts?:
               | {
-                  fact?: string | null
-                  id?: string | null
+                  fact?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'cityOverview'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cityOverview';
           }
         | {
             steps?:
               | {
-                  stepName?: string | null
-                  stepDescription?: string | null
-                  stepDays?: string | null
-                  id?: string | null
+                  stepName?: string | null;
+                  stepDescription?: string | null;
+                  stepDays?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'firstHourSteps'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'firstHourSteps';
           }
         | {
             items?:
@@ -1521,48 +1512,48 @@ export interface AccidentPage {
                   /**
                    * Icon name (e.g. doc, file, pin, camera, shield).
                    */
-                  icon?: string | null
-                  title?: string | null
-                  description?: string | null
+                  icon?: string | null;
+                  title?: string | null;
+                  description?: string | null;
                   /**
                    * Full URL or path (e.g. /accidents/az/scotsdale/police-report).
                    */
-                  url?: string | null
-                  id?: string | null
+                  url?: string | null;
+                  id?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'cityResources'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cityResources';
           }
         | {
-            title?: string | null
-            subtitle?: string | null
+            title?: string | null;
+            subtitle?: string | null;
             /**
              * URL for the CTA button (e.g. /request-access or https://...).
              */
-            link?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'cta'
+            link?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
           }
         | {
-            title?: string | null
-            intro?: string | null
+            title?: string | null;
+            intro?: string | null;
             scripts?:
               | {
-                  id?: string | null
-                  icon?: string | null
-                  title?: string | null
-                  why?: string | null
-                  to?: string | null
-                  subject?: string | null
-                  body?: string | null
+                  id?: string | null;
+                  icon?: string | null;
+                  title?: string | null;
+                  why?: string | null;
+                  to?: string | null;
+                  subject?: string | null;
+                  body?: string | null;
                 }[]
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'actionKit'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'actionKit';
           }
         | {
             /**
@@ -1622,452 +1613,90 @@ export interface AccidentPage {
                   | 'WY'
                   | 'DC'
                 )
-              | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'stateComparison'
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'stateComparison';
           }
         | {
             /**
              * State name, e.g. Georgia.
              */
-            stateName?: string | null
+            stateName?: string | null;
             /**
              * Where to request the crash report, e.g. Georgia DMV — Form FR-50.
              */
-            requestFrom?: string | null
+            requestFrom?: string | null;
             /**
              * How to request — steps, portal link info, etc.
              */
-            requestHow?: string | null
+            requestHow?: string | null;
             /**
              * Custom when-to-act text.
              */
-            whenToAct?: string | null
-            statuteYears?: number | null
+            whenToAct?: string | null;
+            statuteYears?: number | null;
             /**
              * Disclaimer text.
              */
-            note?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'reportBlock'
+            note?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'reportBlock';
           }
         | {
-            stateName?: string | null
-            cityName?: string | null
-            label?: string | null
-            faultThreshold?: string | null
-            statuteYears?: number | null
-            topicSlug?: string | null
-            statuteTopicSlug?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'stateLawBlock'
+            stateName?: string | null;
+            cityName?: string | null;
+            label?: string | null;
+            faultThreshold?: string | null;
+            statuteYears?: number | null;
+            topicSlug?: string | null;
+            statuteTopicSlug?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'stateLawBlock';
           }
         | {
             /**
              * Pulls name, title, credentials, and badges from the selected author.
              */
-            author?: (string | null) | Author
-            reviewType?: ('legal' | 'medical') | null
+            author?: (string | null) | Author;
+            reviewType?: ('legal' | 'medical') | null;
             /**
              * Paragraph explaining how content is reviewed.
              */
-            sourceText?: string | null
-            id?: string | null
-            blockName?: string | null
-            blockType: 'expert'
-          }
-      )[]
-    | null
-  /**
-   * Primary keyword to optimize for (e.g. "car accident settlement Arizona").
-   */
-  focusKeyword?: string | null
-  metaTitle?: string | null
-  metaDescription?: string | null
-  publishedDate?: string | null
-  hideFromSearchEngines?: boolean | null
-  /**
-   * Auto-calculated 0-100 AEO score based on directAnswer, FAQ, voiceAnswer, keyTakeaways, expert, and sources blocks.
-   */
-  aeoScore?: number | null
-  /**
-   * Auto-calculated 0-100 SEO score based on metaTitle, metaDescription, focusKeyword, and schemaType.
-   */
-  seoScore?: number | null
-  /**
-   * Auto-calculated read time in minutes based on block content.
-   */
-  readTime?: number | null
-  /**
-   * Auto-set to 90 days from last save. Marks when content should be reviewed for accuracy.
-   */
-  nextReviewDue?: string | null
-  displayOrder?: number | null
-  updatedAt: string
-  createdAt: string
-  _status?: ('draft' | 'published') | null
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "injuries".
- */
-export interface Injury {
-  id: string;
-  /**
-   * Injury name, e.g. "Whiplash"
-   */
-  title: string;
-  /**
-   * URL slug, e.g. "whiplash"
-   */
-  slug: string;
-  /**
-   * Category label, e.g. "Neck & Soft Tissue"
-   */
-  category: string;
-  /**
-   * Icon name key, e.g. "steth"
-   */
-  icon?: string | null;
-  /**
-   * Scene image key, e.g. "clinical" or "scan"
-   */
-  sceneImg?: string | null;
-  displayOrder?: number | null;
-  /**
-   * AEO-optimized overview — shown in featured snippets and voice search. ~2–3 sentences.
-   */
-  directAnswer: string;
-  /**
-   * 4 stat tiles shown below the hero.
-   */
-  stats?:
-    | {
-        label: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Key facts shown in the KeyTakeaways block.
-   */
-  keyFacts?:
-    | {
-        item: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Top-level prose sections (fallback for ProseSections).
-   */
-  sections?:
-    | {
-        title?: string | null;
-        content?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Symptom arrays for spoke pages.
-   */
-  symptoms?: {
-    immediate?:
-      | {
-          item?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    delayed?:
-      | {
-          item?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    emergency?:
-      | {
-          item?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-  };
-  /**
-   * Treatment steps for spoke pages.
-   */
-  treatment?:
-    | {
-        name?: string | null;
-        desc?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Recovery phases for spoke pages.
-   */
-  recovery?:
-    | {
-        phase?: string | null;
-        time?: string | null;
-        desc?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Settlement factors for spoke pages.
-   */
-  settlement?:
-    | {
-        factor?: string | null;
-        desc?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  blocks?:
-    | (
-        | {
-            heroTitle?: string | null;
-            heroSubtitle?: string | null;
-            eyebrow?: string | null;
-            scene?: string | null;
-            heroImage?: (string | null) | Media;
-            reviewerName?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'hero';
-          }
-        | {
-            sections?:
-              | {
-                  title?: string | null;
-                  content?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'proseSections';
-          }
-        | {
-            /**
-             * Symptoms that appear right away.
-             */
-            immediate?:
-              | {
-                  item: string;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Delayed symptoms — hours to days later.
-             */
-            delayed?:
-              | {
-                  item: string;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Emergency symptoms — call 911.
-             */
-            emergency?:
-              | {
-                  item: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'symptomsBlock';
-          }
-        | {
-            steps?:
-              | {
-                  name: string;
-                  desc: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'treatmentStep';
-          }
-        | {
-            phases?:
-              | {
-                  phase: string;
-                  time: string;
-                  desc: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'recoveryPhase';
-          }
-        | {
-            factors?:
-              | {
-                  factor: string;
-                  desc: string;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'settlementFactor';
-          }
-        | {
-            heading?: string | null;
-            /**
-             * Primary AEO answer for featured snippets.
-             */
-            lead?: string | null;
-            text?: string | null;
-            /**
-             * Voice search answer — keep under 35 words.
-             */
-            voiceAnswer?: string | null;
-            speakableCssSelectors?:
-              | {
-                  selector?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            table?: {
-              label?: string | null;
-              head?:
-                | {
-                    cell?: string | null;
-                    id?: string | null;
-                  }[]
-                | null;
-              rows?:
-                | {
-                    cells?:
-                      | {
-                          cell?: string | null;
-                          id?: string | null;
-                        }[]
-                      | null;
-                    id?: string | null;
-                  }[]
-                | null;
-            };
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'directAnswer';
-          }
-        | {
-            items?:
-              | {
-                  question?: string | null;
-                  answerText?: string | null;
-                  voiceQuestion?: string | null;
-                  slug?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            aiCitationSummary?: string | null;
-            conversationalQueryVariants?:
-              | {
-                  query?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'faq';
-          }
-        | {
-            items?:
-              | {
-                  item?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'keyTakeaways';
-          }
-        | {
-            author?: (string | null) | Author;
-            reviewType?: ('legal' | 'medical') | null;
             sourceText?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'expert';
           }
-        | {
-            citeTitle?: string | null;
-            citeUrl?: string | null;
-            sources?:
-              | {
-                  name?: string | null;
-                  url?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'sources';
-          }
-        | {
-            title?: string | null;
-            subtitle?: string | null;
-            link?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'cta';
-          }
-        | {
-            category?: string | null;
-            pages?: (string | Injury)[] | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'exploreMore';
-          }
-        | {
-            title?: string | null;
-            items?:
-              | {
-                  item?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'takeHome';
-          }
-        | {
-            text?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'howWeKeepAccurate';
-          }
       )[]
     | null;
+  /**
+   * Primary keyword to optimize for (e.g. "car accident settlement Arizona").
+   */
   focusKeyword?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
   publishedDate?: string | null;
+  hideFromSearchEngines?: boolean | null;
   /**
-   * Auto-calculated 0–100 AEO score.
+   * Auto-calculated 0-100 AEO score based on directAnswer, FAQ, voiceAnswer, keyTakeaways, expert, and sources blocks.
    */
   aeoScore?: number | null;
   /**
-   * Auto-calculated 0–100 SEO score.
+   * Auto-calculated 0-100 SEO score based on metaTitle, metaDescription, focusKeyword, and schemaType.
    */
   seoScore?: number | null;
   /**
-   * Auto-calculated read time in minutes.
+   * Auto-calculated read time in minutes based on block content.
    */
   readTime?: number | null;
   /**
-   * Auto-set to 90 days from last save.
+   * Auto-set to 90 days from last save. Marks when content should be reviewed for accuracy.
    */
   nextReviewDue?: string | null;
+  displayOrder?: number | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -2090,15 +1719,15 @@ export interface InjuryType {
    * Injury category for filtering and display.
    */
   category:
-    | 'Neck & Soft Tissue'
     | 'Head & Brain'
+    | 'Neck'
     | 'Spine & Back'
-    | 'Muscles & Ligaments'
-    | 'Fractures'
-    | 'Burns & Disfigurement'
-    | 'Psychological'
-    | 'Internal & Organ'
-    | 'Joints & Extremities';
+    | 'Shoulders & Joints'
+    | 'Muscles & Soft Tissue'
+    | 'Bones / Fractures'
+    | 'Chest & Abdomen'
+    | 'Skin / Burns'
+    | 'Emotional / Mental';
   /**
    * Icon name key, e.g. "steth"
    */
@@ -2160,6 +1789,20 @@ export interface InjuryType {
             blockType: 'injuryTypeKeyTakeaways';
           }
         | {
+            /**
+             * TOC entries — typically matches the H2 titles from your Prose Sections block.
+             */
+            items?:
+              | {
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeTOC';
+          }
+        | {
             sections?:
               | {
                   title: string;
@@ -2190,21 +1833,43 @@ export interface InjuryType {
                   id?: string | null;
                 }[]
               | null;
-            /**
-             * Title for the "X-ray trap" prose section, e.g. "Why Delayed Symptoms Are a Legal Trap"
-             */
-            trapTitle?: string | null;
-            /**
-             * Prose content explaining why symptoms being delayed creates a legal/insurance trap.
-             */
-            trapContent?: string | null;
-            /**
-             * Optional image to accompany the trap content.
-             */
-            trapImage?: (string | null) | Media;
             id?: string | null;
             blockName?: string | null;
             blockType: 'injuryTypeSymptoms';
+          }
+        | {
+            /**
+             * Title shown above the comparison, e.g. "Why X-Rays Can Miss Your Injury"
+             */
+            trapTitle?: string | null;
+            /**
+             * Subtitle or description shown below the title.
+             */
+            trapContent?: string | null;
+            /**
+             * Image shown in the background (e.g. MRI — the revealing image).
+             */
+            trapImageA?: (string | null) | Media;
+            /**
+             * Image revealed on drag (e.g. X-ray — the hidden image).
+             */
+            trapImageB?: (string | null) | Media;
+            points?:
+              | {
+                  /**
+                   * Bold heading text.
+                   */
+                  bold: string;
+                  /**
+                   * Description text.
+                   */
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryTypeImageComparison';
           }
         | {
             steps?:
@@ -2457,6 +2122,17 @@ export interface InjuryArticle {
             blockType: 'injuryArticleSettlement';
           }
         | {
+            heading?: string | null;
+            /**
+             * Primary AEO answer — shown in featured snippets and voice search.
+             */
+            lead?: string | null;
+            author?: (string | null) | Author;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleDirectAnswer';
+          }
+        | {
             sections?:
               | {
                   title: string;
@@ -2478,19 +2154,6 @@ export interface InjuryArticle {
             id?: string | null;
             blockName?: string | null;
             blockType: 'injuryArticleKeyTakeaways';
-          }
-        | {
-            items?:
-              | {
-                  question: string;
-                  answerText: string;
-                  id?: string | null;
-                }[]
-              | null;
-            aiCitationSummary?: string | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'injuryArticleFAQ';
           }
         | {
             author?: (string | null) | Author;
@@ -2521,6 +2184,15 @@ export interface InjuryArticle {
             id?: string | null;
             blockName?: string | null;
             blockType: 'injuryArticleCTA';
+          }
+        | {
+            /**
+             * Select related injury articles to show in the Go Deeper section.
+             */
+            pages?: (string | InjuryArticle)[] | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'injuryArticleExploreMore';
           }
       )[]
     | null;
@@ -2833,7 +2505,7 @@ export interface Article {
         | 'WI'
         | 'WY'
       )[]
-    | null
+    | null;
   /**
    * Select all target cities for this article
    */
@@ -2891,346 +2563,340 @@ export interface Article {
         | 'Macon, GA'
         | 'Columbus, GA'
       )[]
-    | null
-  jurisdiction?: string | null
-  serviceAreaDescription?: string | null
-  localSchemaType?: ('LocalBusiness' | 'Attorney' | 'ServiceArea') | null
-  stateSpecificDeadline?: number | null
-  stateSpecificExceptions?: string | null
+    | null;
+  jurisdiction?: string | null;
+  serviceAreaDescription?: string | null;
+  localSchemaType?: ('LocalBusiness' | 'Attorney' | 'ServiceArea') | null;
+  stateSpecificDeadline?: number | null;
+  stateSpecificExceptions?: string | null;
   tollingProvisions?:
     | {
-        state?: string | null
-        tollingRule?: string | null
-        id?: string | null
+        state?: string | null;
+        tollingRule?: string | null;
+        id?: string | null;
       }[]
-    | null
-  sgeAnswerability?: number | null
+    | null;
+  sgeAnswerability?: number | null;
   /**
    * Direct, extractable answer for Google SGE
    */
-  sgeOptimizedAnswer?: string | null
+  sgeOptimizedAnswer?: string | null;
   uniqueContentSignals?:
     | {
-        signal?: string | null
-        description?: string | null
-        id?: string | null
+        signal?: string | null;
+        description?: string | null;
+        id?: string | null;
       }[]
-    | null
-  freshnessSignal?: ('breaking' | 'recent' | 'evergreen') | null
-  competitorComparison?: string | null
+    | null;
+  freshnessSignal?: ('breaking' | 'recent' | 'evergreen') | null;
+  competitorComparison?: string | null;
   dominanceScoring?: {
-    seoScore?: number | null
-    aeoScore?: number | null
-    geoScore?: number | null
-    sgeScore?: number | null
-    voiceSearchScore?: number | null
-    overallDominanceScore?: number | null
-    dominanceRank?: ('critical' | 'weak' | 'strong' | 'dominant') | null
-    competitiveAdvantageScore?: number | null
-  }
+    seoScore?: number | null;
+    aeoScore?: number | null;
+    geoScore?: number | null;
+    sgeScore?: number | null;
+    voiceSearchScore?: number | null;
+    overallDominanceScore?: number | null;
+    dominanceRank?: ('critical' | 'weak' | 'strong' | 'dominant') | null;
+    competitiveAdvantageScore?: number | null;
+  };
   topCompetitors?:
     | {
-        url?: string | null
-        estimatedScore?: number | null
-        yourAdvantage?: string | null
-        id?: string | null
+        url?: string | null;
+        estimatedScore?: number | null;
+        yourAdvantage?: string | null;
+        id?: string | null;
       }[]
-    | null
-  competitiveGapAnalysis?: string | null
+    | null;
+  competitiveGapAnalysis?: string | null;
   uniqueAdvantages?:
     | {
-        advantage?: string | null
-        id?: string | null
+        advantage?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   performanceMetrics?: {
-    totalFormSubmissions?: number | null
-    totalEmailCaptures?: number | null
-    averageLeadQualityScore?: number | null
-    leadToCaseConversionRate?: number | null
-    estimatedRevenue?: number | null
-    estimatedProfit?: number | null
-    roi?: number | null
-    performanceStatus?: ('loss' | 'breakeven' | 'profitable' | 'highly_profitable') | null
-    recommendedAction?: ('remove' | 'optimize' | 'maintain' | 'expand') | null
-  }
+    totalFormSubmissions?: number | null;
+    totalEmailCaptures?: number | null;
+    averageLeadQualityScore?: number | null;
+    leadToCaseConversionRate?: number | null;
+    estimatedRevenue?: number | null;
+    estimatedProfit?: number | null;
+    roi?: number | null;
+    performanceStatus?: ('loss' | 'breakeven' | 'profitable' | 'highly_profitable') | null;
+    recommendedAction?: ('remove' | 'optimize' | 'maintain' | 'expand') | null;
+  };
   searchEngineSubmission?: {
-    googleSubmitted?: boolean | null
-    googleSubmissionTime?: string | null
-    googleSubmissionMessage?: string | null
-    bingSubmitted?: boolean | null
-    bingSubmissionTime?: string | null
-    bingSubmissionMessage?: string | null
-  }
-  primaryEntity?: string | null
-  entityDefinition?: string | null
+    googleSubmitted?: boolean | null;
+    googleSubmissionTime?: string | null;
+    googleSubmissionMessage?: string | null;
+    bingSubmitted?: boolean | null;
+    bingSubmissionTime?: string | null;
+    bingSubmissionMessage?: string | null;
+  };
+  primaryEntity?: string | null;
+  entityDefinition?: string | null;
   relatedEntities?:
     | {
-        entity?: string | null
-        id?: string | null
+        entity?: string | null;
+        id?: string | null;
       }[]
-    | null
-  entityImportance?: ('critical' | 'important' | 'supporting') | null
+    | null;
+  entityImportance?: ('critical' | 'important' | 'supporting') | null;
   contentValidation?: {
-    contentLength?: number | null
-    h2Count?: number | null
-    h3Count?: number | null
-    faqCount?: number | null
-    validationStatus?: ('pass' | 'warning' | 'fail') | null
+    contentLength?: number | null;
+    h2Count?: number | null;
+    h3Count?: number | null;
+    faqCount?: number | null;
+    validationStatus?: ('pass' | 'warning' | 'fail') | null;
     validationErrors?:
       | {
-          error?: string | null
-          id?: string | null
+          error?: string | null;
+          id?: string | null;
         }[]
-      | null
-  }
+      | null;
+  };
   internalLinks?:
     | {
-        linkedArticleId?: (string | null) | Article
-        anchorText?: string | null
-        relevanceScore?: number | null
-        id?: string | null
+        linkedArticleId?: (string | null) | Article;
+        anchorText?: string | null;
+        relevanceScore?: number | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   contentFreshness?: {
-    lastReviewDate?: string | null
-    nextReviewDue?: string | null
-    daysOld?: number | null
-    freshnessStatus?: ('fresh' | 'current' | 'aging' | 'stale') | null
-  }
+    lastReviewDate?: string | null;
+    nextReviewDue?: string | null;
+    daysOld?: number | null;
+    freshnessStatus?: ('fresh' | 'current' | 'aging' | 'stale') | null;
+  };
   featuredSnippetOptimization?: {
-    targetSnippetType?: ('paragraph' | 'list' | 'table' | 'definition') | null
+    targetSnippetType?: ('paragraph' | 'list' | 'table' | 'definition') | null;
     /**
      * Content optimized for featured snippet
      */
-    snippetContent?: string | null
+    snippetContent?: string | null;
     /**
      * Position in Google featured snippets (if ranked)
      */
-    currentSnippetRank?: number | null
-    snippetOptimizationScore?: number | null
-  }
+    currentSnippetRank?: number | null;
+    snippetOptimizationScore?: number | null;
+  };
   backlinkTracking?: {
-    totalBacklinks?: number | null
-    highQualityBacklinks?: number | null
-    referringDomains?: number | null
-    backlinkGrowth?: number | null
-    backlinkLastUpdated?: string | null
-  }
+    totalBacklinks?: number | null;
+    highQualityBacklinks?: number | null;
+    referringDomains?: number | null;
+    backlinkGrowth?: number | null;
+    backlinkLastUpdated?: string | null;
+  };
   keywordRankings?:
     | {
-        keyword?: string | null
-        currentRank?: number | null
-        previousRank?: number | null
-        rankChange?: number | null
-        searchVolume?: number | null
-        lastUpdated?: string | null
-        id?: string | null
+        keyword?: string | null;
+        currentRank?: number | null;
+        previousRank?: number | null;
+        rankChange?: number | null;
+        searchVolume?: number | null;
+        lastUpdated?: string | null;
+        id?: string | null;
       }[]
-    | null
+    | null;
   trafficMetrics?: {
-    monthlyVisitors?: number | null
-    bounceRate?: number | null
-    averageTimeOnPage?: number | null
-    scrollDepth?: number | null
+    monthlyVisitors?: number | null;
+    bounceRate?: number | null;
+    averageTimeOnPage?: number | null;
+    scrollDepth?: number | null;
     trafficSources?:
       | {
-          source?: string | null
-          visitors?: number | null
-          percentage?: number | null
-          id?: string | null
+          source?: string | null;
+          visitors?: number | null;
+          percentage?: number | null;
+          id?: string | null;
         }[]
-      | null
-  }
+      | null;
+  };
   aiCitationTracking?: {
-    claudeCitations?: number | null
-    chatgptCitations?: number | null
-    perplexityCitations?: number | null
-    totalAiCitations?: number | null
-    shareOfVoice?: number | null
-    lastUpdated?: string | null
-  }
+    claudeCitations?: number | null;
+    chatgptCitations?: number | null;
+    perplexityCitations?: number | null;
+    totalAiCitations?: number | null;
+    shareOfVoice?: number | null;
+    lastUpdated?: string | null;
+  };
   conversionFunnel?: {
-    uniqueVisitors?: number | null
-    formViews?: number | null
-    formSubmissions?: number | null
-    emailCaptures?: number | null
-    confirmedLeads?: number | null
-    confirmedCases?: number | null
-    visitorToFormRate?: number | null
-    formToLeadRate?: number | null
-    leadToCaseRate?: number | null
-  }
+    uniqueVisitors?: number | null;
+    formViews?: number | null;
+    formSubmissions?: number | null;
+    emailCaptures?: number | null;
+    confirmedLeads?: number | null;
+    confirmedCases?: number | null;
+    visitorToFormRate?: number | null;
+    formToLeadRate?: number | null;
+    leadToCaseRate?: number | null;
+  };
   /**
    * Date the article was published
    */
-  publishedDate?: string | null
+  publishedDate?: string | null;
   /**
    * Last time this article was saved
    */
-  updatedAt: string
-  aeoScore?: number | null
+  updatedAt: string;
+  aeoScore?: number | null;
   /**
    * Auto-calculated on every save. 0-100. Target 80+ before publishing.
    */
-  seoScore?: number | null
-  readTime?: number | null
-  searchIntent?:
-    | ('Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational')
-    | null
-  targetSerpFeature?: string | null
-  contentConfidence?: ('High' | 'Medium' | 'Low') | null
-  hideFromSearchEngines?: boolean | null
-  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null
-  nextReviewDue?: string | null
-  lastFactVerified?: string | null
-  contentQualityScore?: number | null
-  createdAt: string
-  _status?: ('draft' | 'published') | null
+  seoScore?: number | null;
+  readTime?: number | null;
+  searchIntent?: ('Informational' | 'Commercial Investigation' | 'Transactional' | 'Navigational') | null;
+  targetSerpFeature?: string | null;
+  contentConfidence?: ('High' | 'Medium' | 'Low') | null;
+  hideFromSearchEngines?: boolean | null;
+  reviewCycle?: ('3months' | '6months' | '12months' | 'evergreen') | null;
+  nextReviewDue?: string | null;
+  lastFactVerified?: string | null;
+  contentQualityScore?: number | null;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "injured-leads".
  */
 export interface InjuredLead {
-  id: string
-  submissionId?: string | null
-  caseScore?: number | null
-  routingStatus?: string | null
-  urgencyLevel?: ('urgent' | 'soon' | 'standard') | null
-  incidentType: string
-  incidentDate?: string | null
-  incidentDaysSince?: number | null
-  solFlag?: boolean | null
-  solExpired?: boolean | null
-  incidentState: string
-  incidentCity?: string | null
-  inMarket?: boolean | null
-  outOfMarket?: boolean | null
-  liabilityStatus?: string | null
-  liabilityFlag?: ('confirmed' | 'disputed' | 'unsure') | null
-  compNegFlag?: boolean | null
-  medicalTreatment?: string | null
-  treatmentLevel?: ('er' | 'urgentCare' | 'specialist' | 'primaryCare' | 'none') | null
+  id: string;
+  submissionId?: string | null;
+  caseScore?: number | null;
+  routingStatus?: string | null;
+  urgencyLevel?: ('urgent' | 'soon' | 'standard') | null;
+  incidentType: string;
+  incidentDate?: string | null;
+  incidentDaysSince?: number | null;
+  solFlag?: boolean | null;
+  solExpired?: boolean | null;
+  incidentState: string;
+  incidentCity?: string | null;
+  inMarket?: boolean | null;
+  outOfMarket?: boolean | null;
+  liabilityStatus?: string | null;
+  liabilityFlag?: ('confirmed' | 'disputed' | 'unsure') | null;
+  compNegFlag?: boolean | null;
+  medicalTreatment?: string | null;
+  treatmentLevel?: ('er' | 'urgentCare' | 'specialist' | 'primaryCare' | 'none') | null;
   treatmentTypes?:
     | {
-        type?: string | null
-        id?: string | null
+        type?: string | null;
+        id?: string | null;
       }[]
-    | null
-  treatmentSeveritySignal?: ('high' | 'moderate' | 'low') | null
-  providerName?: string | null
-  providerType?: string | null
-  providerCity?: string | null
-  providerUnknown?: boolean | null
-  treatmentOngoing?: boolean | null
-  awaitingTreatment?: boolean | null
-  treatmentRecency?: string | null
+    | null;
+  treatmentSeveritySignal?: ('high' | 'moderate' | 'low') | null;
+  providerName?: string | null;
+  providerType?: string | null;
+  providerCity?: string | null;
+  providerUnknown?: boolean | null;
+  treatmentOngoing?: boolean | null;
+  awaitingTreatment?: boolean | null;
+  treatmentRecency?: string | null;
   injuryTypes?:
     | {
-        type?: string | null
-        id?: string | null
+        type?: string | null;
+        id?: string | null;
       }[]
-    | null
-  injurySeverityIndex?: number | null
-  lifeImpact?: string | null
-  impactLevel?: ('serious' | 'moderate' | 'minimal') | null
-  atFaultInsurance?: string | null
-  ownUMCoverage?: string | null
-  reportFiled?: boolean | null
-  priorAttorney?: boolean | null
-  priorSettlement?: boolean | null
-  firstName: string
-  phone: string
-  phoneVerified?: boolean | null
-  email?: string | null
+    | null;
+  injurySeverityIndex?: number | null;
+  lifeImpact?: string | null;
+  impactLevel?: ('serious' | 'moderate' | 'minimal') | null;
+  atFaultInsurance?: string | null;
+  ownUMCoverage?: string | null;
+  reportFiled?: boolean | null;
+  priorAttorney?: boolean | null;
+  priorSettlement?: boolean | null;
+  firstName: string;
+  phone: string;
+  phoneVerified?: boolean | null;
+  email?: string | null;
   preferredContactTime?:
     | {
-        time?: string | null
-        id?: string | null
+        time?: string | null;
+        id?: string | null;
       }[]
-    | null
-  consentGiven?: boolean | null
-  consentTimestamp?: string | null
-  hipaaSignature?: string | null
-  hipaaSignatureMode?: ('draw' | 'type') | null
-  hipaaSignedAt?: string | null
-  submittedAt?: string | null
-  seen?: boolean | null
+    | null;
+  consentGiven?: boolean | null;
+  consentTimestamp?: string | null;
+  hipaaSignature?: string | null;
+  hipaaSignatureMode?: ('draw' | 'type') | null;
+  hipaaSignedAt?: string | null;
+  submittedAt?: string | null;
+  seen?: boolean | null;
   /**
    * Documents uploaded by the user during form submission.
    */
-  uploadedDocuments?: (string | Media)[] | null
-  updatedAt: string
-  createdAt: string
+  uploadedDocuments?: (string | Media)[] | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string
-  key: string
+  id: string;
+  key: string;
   data:
     | {
-        [k: string]: unknown
+        [k: string]: unknown;
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string
+  id: string;
   document?:
     | ({
-        relationTo: 'users'
-        value: string | User
+        relationTo: 'users';
+        value: string | User;
       } | null)
     | ({
-        relationTo: 'media'
-        value: string | Media
+        relationTo: 'media';
+        value: string | Media;
       } | null)
     | ({
-        relationTo: 'markets'
-        value: string | Market
+        relationTo: 'markets';
+        value: string | Market;
       } | null)
     | ({
-        relationTo: 'applications'
-        value: string | Application
+        relationTo: 'applications';
+        value: string | Application;
       } | null)
     | ({
-        relationTo: 'waitlists'
-        value: string | Waitlist
+        relationTo: 'waitlists';
+        value: string | Waitlist;
       } | null)
     | ({
-        relationTo: 'intelligence-briefs'
-        value: string | IntelligenceBrief
+        relationTo: 'intelligence-briefs';
+        value: string | IntelligenceBrief;
       } | null)
     | ({
-        relationTo: 'categories'
-        value: string | Category
+        relationTo: 'categories';
+        value: string | Category;
       } | null)
     | ({
-        relationTo: 'guideArticles'
-        value: string | GuideArticle
+        relationTo: 'guideArticles';
+        value: string | GuideArticle;
       } | null)
     | ({
-        relationTo: 'guideCategories'
-        value: string | GuideCategory
+        relationTo: 'guideCategories';
+        value: string | GuideCategory;
       } | null)
     | ({
-        relationTo: 'accidentPages'
-        value: string | AccidentPage
-      } | null)
-    | ({
-        relationTo: 'injuries';
-        value: string | Injury;
+        relationTo: 'accidentPages';
+        value: string | AccidentPage;
       } | null)
     | ({
         relationTo: 'injuryTypes';
@@ -3245,24 +2911,24 @@ export interface PayloadLockedDocument {
         value: string | SiteLink;
       } | null)
     | ({
-        relationTo: 'authors'
-        value: string | Author
+        relationTo: 'authors';
+        value: string | Author;
       } | null)
     | ({
-        relationTo: 'articles'
-        value: string | Article
+        relationTo: 'articles';
+        value: string | Article;
       } | null)
     | ({
-        relationTo: 'injured-leads'
-        value: string | InjuredLead
-      } | null)
-  globalSlug?: string | null
+        relationTo: 'injured-leads';
+        value: string | InjuredLead;
+      } | null);
+  globalSlug?: string | null;
   user: {
-    relationTo: 'users'
-    value: string | User
-  }
-  updatedAt: string
-  createdAt: string
+    relationTo: 'users';
+    value: string | User;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4276,13 +3942,13 @@ export interface AccidentPagesSelect<T extends boolean = true> {
               sources?:
                 | T
                 | {
-                    name?: T
-                    url?: T
-                    id?: T
-                  }
-              id?: T
-              blockName?: T
-            }
+                    name?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         articleTimelineSteps?:
           | T
           | {
@@ -4425,320 +4091,6 @@ export interface AccidentPagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "injuries_select".
- */
-export interface InjuriesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  category?: T;
-  icon?: T;
-  sceneImg?: T;
-  displayOrder?: T;
-  directAnswer?: T;
-  stats?:
-    | T
-    | {
-        label?: T;
-        value?: T;
-        id?: T;
-      };
-  keyFacts?:
-    | T
-    | {
-        item?: T;
-        id?: T;
-      };
-  sections?:
-    | T
-    | {
-        title?: T;
-        content?: T;
-        id?: T;
-      };
-  symptoms?:
-    | T
-    | {
-        immediate?:
-          | T
-          | {
-              item?: T;
-              id?: T;
-            };
-        delayed?:
-          | T
-          | {
-              item?: T;
-              id?: T;
-            };
-        emergency?:
-          | T
-          | {
-              item?: T;
-              id?: T;
-            };
-      };
-  treatment?:
-    | T
-    | {
-        name?: T;
-        desc?: T;
-        id?: T;
-      };
-  recovery?:
-    | T
-    | {
-        phase?: T;
-        time?: T;
-        desc?: T;
-        id?: T;
-      };
-  settlement?:
-    | T
-    | {
-        factor?: T;
-        desc?: T;
-        id?: T;
-      };
-  blocks?:
-    | T
-    | {
-        hero?:
-          | T
-          | {
-              heroTitle?: T;
-              heroSubtitle?: T;
-              eyebrow?: T;
-              scene?: T;
-              heroImage?: T;
-              reviewerName?: T;
-              id?: T;
-              blockName?: T;
-            };
-        proseSections?:
-          | T
-          | {
-              sections?:
-                | T
-                | {
-                    title?: T;
-                    content?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        symptomsBlock?:
-          | T
-          | {
-              immediate?:
-                | T
-                | {
-                    item?: T;
-                    id?: T;
-                  };
-              delayed?:
-                | T
-                | {
-                    item?: T;
-                    id?: T;
-                  };
-              emergency?:
-                | T
-                | {
-                    item?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        treatmentStep?:
-          | T
-          | {
-              steps?:
-                | T
-                | {
-                    name?: T;
-                    desc?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        recoveryPhase?:
-          | T
-          | {
-              phases?:
-                | T
-                | {
-                    phase?: T;
-                    time?: T;
-                    desc?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        settlementFactor?:
-          | T
-          | {
-              factors?:
-                | T
-                | {
-                    factor?: T;
-                    desc?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        directAnswer?:
-          | T
-          | {
-              heading?: T;
-              lead?: T;
-              text?: T;
-              voiceAnswer?: T;
-              speakableCssSelectors?:
-                | T
-                | {
-                    selector?: T;
-                    id?: T;
-                  };
-              table?:
-                | T
-                | {
-                    label?: T;
-                    head?:
-                      | T
-                      | {
-                          cell?: T;
-                          id?: T;
-                        };
-                    rows?:
-                      | T
-                      | {
-                          cells?:
-                            | T
-                            | {
-                                cell?: T;
-                                id?: T;
-                              };
-                          id?: T;
-                        };
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        faq?:
-          | T
-          | {
-              items?:
-                | T
-                | {
-                    question?: T;
-                    answerText?: T;
-                    voiceQuestion?: T;
-                    slug?: T;
-                    id?: T;
-                  };
-              aiCitationSummary?: T;
-              conversationalQueryVariants?:
-                | T
-                | {
-                    query?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        keyTakeaways?:
-          | T
-          | {
-              items?:
-                | T
-                | {
-                    item?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        expert?:
-          | T
-          | {
-              author?: T;
-              reviewType?: T;
-              sourceText?: T;
-              id?: T;
-              blockName?: T;
-            };
-        sources?:
-          | T
-          | {
-              citeTitle?: T;
-              citeUrl?: T;
-              sources?:
-                | T
-                | {
-                    name?: T;
-                    url?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        cta?:
-          | T
-          | {
-              title?: T;
-              subtitle?: T;
-              link?: T;
-              id?: T;
-              blockName?: T;
-            };
-        exploreMore?:
-          | T
-          | {
-              category?: T;
-              pages?: T;
-              id?: T;
-              blockName?: T;
-            };
-        takeHome?:
-          | T
-          | {
-              title?: T;
-              items?:
-                | T
-                | {
-                    item?: T;
-                    id?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
-        howWeKeepAccurate?:
-          | T
-          | {
-              text?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  focusKeyword?: T;
-  metaTitle?: T;
-  metaDescription?: T;
-  publishedDate?: T;
-  aeoScore?: T;
-  seoScore?: T;
-  readTime?: T;
-  nextReviewDue?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "injuryTypes_select".
  */
 export interface InjuryTypesSelect<T extends boolean = true> {
@@ -4785,6 +4137,18 @@ export interface InjuryTypesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        injuryTypeTOC?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    label?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         injuryTypeProseSections?:
           | T
           | {
@@ -4819,9 +4183,23 @@ export interface InjuryTypesSelect<T extends boolean = true> {
                     item?: T;
                     id?: T;
                   };
+              id?: T;
+              blockName?: T;
+            };
+        injuryTypeImageComparison?:
+          | T
+          | {
               trapTitle?: T;
               trapContent?: T;
-              trapImage?: T;
+              trapImageA?: T;
+              trapImageB?: T;
+              points?:
+                | T
+                | {
+                    bold?: T;
+                    text?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -5029,6 +4407,15 @@ export interface InjuryArticlesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        injuryArticleDirectAnswer?:
+          | T
+          | {
+              heading?: T;
+              lead?: T;
+              author?: T;
+              id?: T;
+              blockName?: T;
+            };
         injuryArticleProseSections?:
           | T
           | {
@@ -5051,20 +4438,6 @@ export interface InjuryArticlesSelect<T extends boolean = true> {
                     item?: T;
                     id?: T;
                   };
-              id?: T;
-              blockName?: T;
-            };
-        injuryArticleFAQ?:
-          | T
-          | {
-              items?:
-                | T
-                | {
-                    question?: T;
-                    answerText?: T;
-                    id?: T;
-                  };
-              aiCitationSummary?: T;
               id?: T;
               blockName?: T;
             };
@@ -5101,6 +4474,13 @@ export interface InjuryArticlesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        injuryArticleExploreMore?:
+          | T
+          | {
+              pages?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   focusKeyword?: T;
   metaTitle?: T;
@@ -5119,573 +4499,573 @@ export interface InjuryArticlesSelect<T extends boolean = true> {
  * via the `definition` "siteLinks_select".
  */
 export interface SiteLinksSelect<T extends boolean = true> {
-  name?: T
-  url?: T
-  updatedAt?: T
-  createdAt?: T
+  name?: T;
+  url?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "authors_select".
  */
 export interface AuthorsSelect<T extends boolean = true> {
-  name?: T
-  title?: T
-  avatar?: T
-  bio?: T
-  profileUrl?: T
+  name?: T;
+  title?: T;
+  avatar?: T;
+  bio?: T;
+  profileUrl?: T;
   badges?:
     | T
     | {
-        label?: T
-        id?: T
-      }
+        label?: T;
+        id?: T;
+      };
   credentials?:
     | T
     | {
-        value?: T
-        label?: T
-        id?: T
-      }
+        value?: T;
+        label?: T;
+        id?: T;
+      };
   ctaButtons?:
     | T
     | {
-        label?: T
-        href?: T
-        style?: T
-        id?: T
-      }
+        label?: T;
+        href?: T;
+        style?: T;
+        id?: T;
+      };
   socialLinks?:
     | T
     | {
-        platform?: T
-        url?: T
-        id?: T
-      }
-  updatedAt?: T
-  createdAt?: T
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "articles_select".
  */
 export interface ArticlesSelect<T extends boolean = true> {
-  title?: T
-  currentReaders?: T
-  citationCount?: T
-  signalStrength?: T
-  slug?: T
-  author?: T
-  category?: T
-  contentFormat?: T
-  heroImage?: T
-  excerpt?: T
-  subtitle?: T
-  executiveSummary?: T
+  title?: T;
+  currentReaders?: T;
+  citationCount?: T;
+  signalStrength?: T;
+  slug?: T;
+  author?: T;
+  category?: T;
+  contentFormat?: T;
+  heroImage?: T;
+  excerpt?: T;
+  subtitle?: T;
+  executiveSummary?: T;
   keyTakeaways?:
     | T
     | {
-        point?: T
-        id?: T
-      }
+        point?: T;
+        id?: T;
+      };
   roiTable?:
     | T
     | {
-        enableTable?: T
-        tableName?: T
+        enableTable?: T;
+        tableName?: T;
         headers?:
           | T
           | {
-              col1?: T
-              col2?: T
-              col3?: T
-              col4?: T
-              col5?: T
-            }
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+            };
         rows?:
           | T
           | {
-              col1?: T
-              col2?: T
-              col3?: T
-              col4?: T
-              col5?: T
-              id?: T
-            }
-      }
-  content?: T
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              col4?: T;
+              col5?: T;
+              id?: T;
+            };
+      };
+  content?: T;
   tags?:
     | T
     | {
-        tag?: T
-        id?: T
-      }
-  relatedArticles?: T
-  focusKeyword?: T
-  keywordDifficulty?: T
-  monthlySearchVolume?: T
-  currentRankingPosition?: T
+        tag?: T;
+        id?: T;
+      };
+  relatedArticles?: T;
+  focusKeyword?: T;
+  keywordDifficulty?: T;
+  monthlySearchVolume?: T;
+  currentRankingPosition?: T;
   secondaryKeywords?:
     | T
     | {
-        keyword?: T
-        id?: T
-      }
-  metaTitle?: T
-  metaDescription?: T
-  canonicalUrl?: T
-  socialHeadline?: T
-  socialDescription?: T
-  socialShareImage?: T
-  xCardType?: T
-  xCardTitle?: T
-  xCardDescription?: T
-  xCardImage?: T
-  competingUrl?: T
+        keyword?: T;
+        id?: T;
+      };
+  metaTitle?: T;
+  metaDescription?: T;
+  canonicalUrl?: T;
+  socialHeadline?: T;
+  socialDescription?: T;
+  socialShareImage?: T;
+  xCardType?: T;
+  xCardTitle?: T;
+  xCardDescription?: T;
+  xCardImage?: T;
+  competingUrl?: T;
   contentGap?:
     | T
     | {
-        gap?: T
-        id?: T
-      }
-  directAnswer?: T
-  aiCitationSummary?: T
-  primaryAiQuery?: T
+        gap?: T;
+        id?: T;
+      };
+  directAnswer?: T;
+  aiCitationSummary?: T;
+  primaryAiQuery?: T;
   keyStatistics?:
     | T
     | {
-        text?: T
-        sourceName?: T
-        sourceUrl?: T
-        year?: T
-        id?: T
-      }
+        text?: T;
+        sourceName?: T;
+        sourceUrl?: T;
+        year?: T;
+        id?: T;
+      };
   faqSection?:
     | T
     | {
-        question?: T
-        answer?: T
-        id?: T
-      }
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
   termDefinitions?:
     | T
     | {
-        term?: T
-        definition?: T
-        isProprietary?: T
-        id?: T
-      }
+        term?: T;
+        definition?: T;
+        isProprietary?: T;
+        id?: T;
+      };
   expertQuotes?:
     | T
     | {
-        quote?: T
-        speakerName?: T
-        credentials?: T
-        id?: T
-      }
-  voiceAnswer?: T
+        quote?: T;
+        speakerName?: T;
+        credentials?: T;
+        id?: T;
+      };
+  voiceAnswer?: T;
   speakableCssSelectors?:
     | T
     | {
-        selector?: T
-        id?: T
-      }
+        selector?: T;
+        id?: T;
+      };
   conversationalQueryVariants?:
     | T
     | {
-        query?: T
-        id?: T
-      }
-  targetsSpecificLocation?: T
+        query?: T;
+        id?: T;
+      };
+  targetsSpecificLocation?: T;
   locationTargets?:
     | T
     | {
-        state?: T
-        city?: T
-        id?: T
-      }
-  schemaType?: T
+        state?: T;
+        city?: T;
+        id?: T;
+      };
+  schemaType?: T;
   howToSteps?:
     | T
     | {
-        name?: T
-        description?: T
-        image?: T
-        id?: T
-      }
+        name?: T;
+        description?: T;
+        image?: T;
+        id?: T;
+      };
   sameAsEntityUrls?:
     | T
     | {
-        url?: T
-        id?: T
-      }
-  articleSection?: T
-  apaCitation?: T
-  legalDisclaimer?: T
-  abaComplianceVerified?: T
-  expertReviewer?: T
+        url?: T;
+        id?: T;
+      };
+  articleSection?: T;
+  apaCitation?: T;
+  legalDisclaimer?: T;
+  abaComplianceVerified?: T;
+  expertReviewer?: T;
   externalSources?:
     | T
     | {
-        name?: T
-        url?: T
-        credibilityTier?: T
-        id?: T
-      }
+        name?: T;
+        url?: T;
+        credibilityTier?: T;
+        id?: T;
+      };
   pressMentions?:
     | T
     | {
-        source?: T
-        url?: T
-        date?: T
-        id?: T
-      }
+        source?: T;
+        url?: T;
+        date?: T;
+        id?: T;
+      };
   ctaOverride?:
     | T
     | {
-        heading?: T
-        body?: T
-        primaryLabel?: T
-        primaryUrl?: T
-        secondaryLabel?: T
-        secondaryUrl?: T
-      }
+        heading?: T;
+        body?: T;
+        primaryLabel?: T;
+        primaryUrl?: T;
+        secondaryLabel?: T;
+        secondaryUrl?: T;
+      };
   contentUpdateHistory?:
     | T
     | {
-        date?: T
-        summary?: T
-        updatedBy?: T
-        id?: T
-      }
-  targetStates?: T
-  targetCities?: T
-  jurisdiction?: T
-  serviceAreaDescription?: T
-  localSchemaType?: T
-  stateSpecificDeadline?: T
-  stateSpecificExceptions?: T
+        date?: T;
+        summary?: T;
+        updatedBy?: T;
+        id?: T;
+      };
+  targetStates?: T;
+  targetCities?: T;
+  jurisdiction?: T;
+  serviceAreaDescription?: T;
+  localSchemaType?: T;
+  stateSpecificDeadline?: T;
+  stateSpecificExceptions?: T;
   tollingProvisions?:
     | T
     | {
-        state?: T
-        tollingRule?: T
-        id?: T
-      }
-  sgeAnswerability?: T
-  sgeOptimizedAnswer?: T
+        state?: T;
+        tollingRule?: T;
+        id?: T;
+      };
+  sgeAnswerability?: T;
+  sgeOptimizedAnswer?: T;
   uniqueContentSignals?:
     | T
     | {
-        signal?: T
-        description?: T
-        id?: T
-      }
-  freshnessSignal?: T
-  competitorComparison?: T
+        signal?: T;
+        description?: T;
+        id?: T;
+      };
+  freshnessSignal?: T;
+  competitorComparison?: T;
   dominanceScoring?:
     | T
     | {
-        seoScore?: T
-        aeoScore?: T
-        geoScore?: T
-        sgeScore?: T
-        voiceSearchScore?: T
-        overallDominanceScore?: T
-        dominanceRank?: T
-        competitiveAdvantageScore?: T
-      }
+        seoScore?: T;
+        aeoScore?: T;
+        geoScore?: T;
+        sgeScore?: T;
+        voiceSearchScore?: T;
+        overallDominanceScore?: T;
+        dominanceRank?: T;
+        competitiveAdvantageScore?: T;
+      };
   topCompetitors?:
     | T
     | {
-        url?: T
-        estimatedScore?: T
-        yourAdvantage?: T
-        id?: T
-      }
-  competitiveGapAnalysis?: T
+        url?: T;
+        estimatedScore?: T;
+        yourAdvantage?: T;
+        id?: T;
+      };
+  competitiveGapAnalysis?: T;
   uniqueAdvantages?:
     | T
     | {
-        advantage?: T
-        id?: T
-      }
+        advantage?: T;
+        id?: T;
+      };
   performanceMetrics?:
     | T
     | {
-        totalFormSubmissions?: T
-        totalEmailCaptures?: T
-        averageLeadQualityScore?: T
-        leadToCaseConversionRate?: T
-        estimatedRevenue?: T
-        estimatedProfit?: T
-        roi?: T
-        performanceStatus?: T
-        recommendedAction?: T
-      }
+        totalFormSubmissions?: T;
+        totalEmailCaptures?: T;
+        averageLeadQualityScore?: T;
+        leadToCaseConversionRate?: T;
+        estimatedRevenue?: T;
+        estimatedProfit?: T;
+        roi?: T;
+        performanceStatus?: T;
+        recommendedAction?: T;
+      };
   searchEngineSubmission?:
     | T
     | {
-        googleSubmitted?: T
-        googleSubmissionTime?: T
-        googleSubmissionMessage?: T
-        bingSubmitted?: T
-        bingSubmissionTime?: T
-        bingSubmissionMessage?: T
-      }
-  primaryEntity?: T
-  entityDefinition?: T
+        googleSubmitted?: T;
+        googleSubmissionTime?: T;
+        googleSubmissionMessage?: T;
+        bingSubmitted?: T;
+        bingSubmissionTime?: T;
+        bingSubmissionMessage?: T;
+      };
+  primaryEntity?: T;
+  entityDefinition?: T;
   relatedEntities?:
     | T
     | {
-        entity?: T
-        id?: T
-      }
-  entityImportance?: T
+        entity?: T;
+        id?: T;
+      };
+  entityImportance?: T;
   contentValidation?:
     | T
     | {
-        contentLength?: T
-        h2Count?: T
-        h3Count?: T
-        faqCount?: T
-        validationStatus?: T
+        contentLength?: T;
+        h2Count?: T;
+        h3Count?: T;
+        faqCount?: T;
+        validationStatus?: T;
         validationErrors?:
           | T
           | {
-              error?: T
-              id?: T
-            }
-      }
+              error?: T;
+              id?: T;
+            };
+      };
   internalLinks?:
     | T
     | {
-        linkedArticleId?: T
-        anchorText?: T
-        relevanceScore?: T
-        id?: T
-      }
+        linkedArticleId?: T;
+        anchorText?: T;
+        relevanceScore?: T;
+        id?: T;
+      };
   contentFreshness?:
     | T
     | {
-        lastReviewDate?: T
-        nextReviewDue?: T
-        daysOld?: T
-        freshnessStatus?: T
-      }
+        lastReviewDate?: T;
+        nextReviewDue?: T;
+        daysOld?: T;
+        freshnessStatus?: T;
+      };
   featuredSnippetOptimization?:
     | T
     | {
-        targetSnippetType?: T
-        snippetContent?: T
-        currentSnippetRank?: T
-        snippetOptimizationScore?: T
-      }
+        targetSnippetType?: T;
+        snippetContent?: T;
+        currentSnippetRank?: T;
+        snippetOptimizationScore?: T;
+      };
   backlinkTracking?:
     | T
     | {
-        totalBacklinks?: T
-        highQualityBacklinks?: T
-        referringDomains?: T
-        backlinkGrowth?: T
-        backlinkLastUpdated?: T
-      }
+        totalBacklinks?: T;
+        highQualityBacklinks?: T;
+        referringDomains?: T;
+        backlinkGrowth?: T;
+        backlinkLastUpdated?: T;
+      };
   keywordRankings?:
     | T
     | {
-        keyword?: T
-        currentRank?: T
-        previousRank?: T
-        rankChange?: T
-        searchVolume?: T
-        lastUpdated?: T
-        id?: T
-      }
+        keyword?: T;
+        currentRank?: T;
+        previousRank?: T;
+        rankChange?: T;
+        searchVolume?: T;
+        lastUpdated?: T;
+        id?: T;
+      };
   trafficMetrics?:
     | T
     | {
-        monthlyVisitors?: T
-        bounceRate?: T
-        averageTimeOnPage?: T
-        scrollDepth?: T
+        monthlyVisitors?: T;
+        bounceRate?: T;
+        averageTimeOnPage?: T;
+        scrollDepth?: T;
         trafficSources?:
           | T
           | {
-              source?: T
-              visitors?: T
-              percentage?: T
-              id?: T
-            }
-      }
+              source?: T;
+              visitors?: T;
+              percentage?: T;
+              id?: T;
+            };
+      };
   aiCitationTracking?:
     | T
     | {
-        claudeCitations?: T
-        chatgptCitations?: T
-        perplexityCitations?: T
-        totalAiCitations?: T
-        shareOfVoice?: T
-        lastUpdated?: T
-      }
+        claudeCitations?: T;
+        chatgptCitations?: T;
+        perplexityCitations?: T;
+        totalAiCitations?: T;
+        shareOfVoice?: T;
+        lastUpdated?: T;
+      };
   conversionFunnel?:
     | T
     | {
-        uniqueVisitors?: T
-        formViews?: T
-        formSubmissions?: T
-        emailCaptures?: T
-        confirmedLeads?: T
-        confirmedCases?: T
-        visitorToFormRate?: T
-        formToLeadRate?: T
-        leadToCaseRate?: T
-      }
-  publishedDate?: T
-  updatedAt?: T
-  aeoScore?: T
-  seoScore?: T
-  readTime?: T
-  searchIntent?: T
-  targetSerpFeature?: T
-  contentConfidence?: T
-  hideFromSearchEngines?: T
-  reviewCycle?: T
-  nextReviewDue?: T
-  lastFactVerified?: T
-  contentQualityScore?: T
-  createdAt?: T
-  _status?: T
+        uniqueVisitors?: T;
+        formViews?: T;
+        formSubmissions?: T;
+        emailCaptures?: T;
+        confirmedLeads?: T;
+        confirmedCases?: T;
+        visitorToFormRate?: T;
+        formToLeadRate?: T;
+        leadToCaseRate?: T;
+      };
+  publishedDate?: T;
+  updatedAt?: T;
+  aeoScore?: T;
+  seoScore?: T;
+  readTime?: T;
+  searchIntent?: T;
+  targetSerpFeature?: T;
+  contentConfidence?: T;
+  hideFromSearchEngines?: T;
+  reviewCycle?: T;
+  nextReviewDue?: T;
+  lastFactVerified?: T;
+  contentQualityScore?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "injured-leads_select".
  */
 export interface InjuredLeadsSelect<T extends boolean = true> {
-  submissionId?: T
-  caseScore?: T
-  routingStatus?: T
-  urgencyLevel?: T
-  incidentType?: T
-  incidentDate?: T
-  incidentDaysSince?: T
-  solFlag?: T
-  solExpired?: T
-  incidentState?: T
-  incidentCity?: T
-  inMarket?: T
-  outOfMarket?: T
-  liabilityStatus?: T
-  liabilityFlag?: T
-  compNegFlag?: T
-  medicalTreatment?: T
-  treatmentLevel?: T
+  submissionId?: T;
+  caseScore?: T;
+  routingStatus?: T;
+  urgencyLevel?: T;
+  incidentType?: T;
+  incidentDate?: T;
+  incidentDaysSince?: T;
+  solFlag?: T;
+  solExpired?: T;
+  incidentState?: T;
+  incidentCity?: T;
+  inMarket?: T;
+  outOfMarket?: T;
+  liabilityStatus?: T;
+  liabilityFlag?: T;
+  compNegFlag?: T;
+  medicalTreatment?: T;
+  treatmentLevel?: T;
   treatmentTypes?:
     | T
     | {
-        type?: T
-        id?: T
-      }
-  treatmentSeveritySignal?: T
-  providerName?: T
-  providerType?: T
-  providerCity?: T
-  providerUnknown?: T
-  treatmentOngoing?: T
-  awaitingTreatment?: T
-  treatmentRecency?: T
+        type?: T;
+        id?: T;
+      };
+  treatmentSeveritySignal?: T;
+  providerName?: T;
+  providerType?: T;
+  providerCity?: T;
+  providerUnknown?: T;
+  treatmentOngoing?: T;
+  awaitingTreatment?: T;
+  treatmentRecency?: T;
   injuryTypes?:
     | T
     | {
-        type?: T
-        id?: T
-      }
-  injurySeverityIndex?: T
-  lifeImpact?: T
-  impactLevel?: T
-  atFaultInsurance?: T
-  ownUMCoverage?: T
-  reportFiled?: T
-  priorAttorney?: T
-  priorSettlement?: T
-  firstName?: T
-  phone?: T
-  phoneVerified?: T
-  email?: T
+        type?: T;
+        id?: T;
+      };
+  injurySeverityIndex?: T;
+  lifeImpact?: T;
+  impactLevel?: T;
+  atFaultInsurance?: T;
+  ownUMCoverage?: T;
+  reportFiled?: T;
+  priorAttorney?: T;
+  priorSettlement?: T;
+  firstName?: T;
+  phone?: T;
+  phoneVerified?: T;
+  email?: T;
   preferredContactTime?:
     | T
     | {
-        time?: T
-        id?: T
-      }
-  consentGiven?: T
-  consentTimestamp?: T
-  hipaaSignature?: T
-  hipaaSignatureMode?: T
-  hipaaSignedAt?: T
-  submittedAt?: T
-  seen?: T
-  uploadedDocuments?: T
-  updatedAt?: T
-  createdAt?: T
+        time?: T;
+        id?: T;
+      };
+  consentGiven?: T;
+  consentTimestamp?: T;
+  hipaaSignature?: T;
+  hipaaSignatureMode?: T;
+  hipaaSignedAt?: T;
+  submittedAt?: T;
+  seen?: T;
+  uploadedDocuments?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
-  key?: T
-  data?: T
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-  document?: T
-  globalSlug?: T
-  user?: T
-  updatedAt?: T
-  createdAt?: T
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-  user?: T
-  key?: T
-  value?: T
-  updatedAt?: T
-  createdAt?: T
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-  name?: T
-  batch?: T
-  updatedAt?: T
-  createdAt?: T
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "markets-page".
  */
 export interface MarketsPage {
-  id: string
+  id: string;
   /**
    * These FAQs will appear at the bottom of the main Markets hub page.
    */
   faqs?:
     | {
-        question: string
-        answer: string
-        id?: string | null
+        question: string;
+        answer: string;
+        id?: string | null;
       }[]
-    | null
-  updatedAt?: string | null
-  createdAt?: string | null
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * Site-wide defaults: SEO, CTAs, contact info, legal, and organization schema.
@@ -5694,35 +5074,35 @@ export interface MarketsPage {
  * via the `definition` "site-settings".
  */
 export interface SiteSetting {
-  id: string
-  seoTitle?: string | null
-  seoDescription?: string | null
-  ogImage?: (string | null) | Media
+  id: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: (string | null) | Media;
   /**
    * Relative paths to prevent indexing (e.g. /thank-you)
    */
   noindexPages?:
     | {
-        path: string
-        id?: string | null
+        path: string;
+        id?: string | null;
       }[]
-    | null
-  primaryCtaLabel?: string | null
-  primaryCtaHref?: string | null
-  injuredCtaLabel?: string | null
-  injuredCtaHref?: string | null
-  contactEmail?: string | null
-  brandName?: string | null
-  brandTagline?: string | null
-  brandSummary?: string | null
-  legalDisclaimer?: string | null
-  privacyPolicyUrl?: string | null
-  termsUrl?: string | null
-  orgName?: string | null
-  orgUrl?: string | null
-  orgDescription?: string | null
-  updatedAt?: string | null
-  createdAt?: string | null
+    | null;
+  primaryCtaLabel?: string | null;
+  primaryCtaHref?: string | null;
+  injuredCtaLabel?: string | null;
+  injuredCtaHref?: string | null;
+  contactEmail?: string | null;
+  brandName?: string | null;
+  brandTagline?: string | null;
+  brandSummary?: string | null;
+  legalDisclaimer?: string | null;
+  privacyPolicyUrl?: string | null;
+  termsUrl?: string | null;
+  orgName?: string | null;
+  orgUrl?: string | null;
+  orgDescription?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * Controls the top navigation links and the primary CTA button.
@@ -5731,22 +5111,22 @@ export interface SiteSetting {
  * via the `definition` "header-nav".
  */
 export interface HeaderNav {
-  id: string
+  id: string;
   /**
    * Order determines display order in the navigation.
    */
   navLinks?:
     | {
-        label: string
-        href: string
-        openInNewTab?: boolean | null
-        id?: string | null
+        label: string;
+        href: string;
+        openInNewTab?: boolean | null;
+        id?: string | null;
       }[]
-    | null
-  ctaLabel?: string | null
-  ctaHref?: string | null
-  updatedAt?: string | null
-  createdAt?: string | null
+    | null;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * Controls footer nav groups, social links, and utility links.
@@ -5755,30 +5135,30 @@ export interface HeaderNav {
  * via the `definition` "footer-nav".
  */
 export interface FooterNav {
-  id: string
+  id: string;
   platformLinks?:
     | {
-        label: string
-        href: string
-        id?: string | null
+        label: string;
+        href: string;
+        id?: string | null;
       }[]
-    | null
+    | null;
   resourceLinks?:
     | {
-        label: string
-        href: string
-        id?: string | null
+        label: string;
+        href: string;
+        id?: string | null;
       }[]
-    | null
+    | null;
   legalLinks?:
     | {
-        label: string
-        href: string
-        id?: string | null
+        label: string;
+        href: string;
+        id?: string | null;
       }[]
-    | null
-  updatedAt?: string | null
-  createdAt?: string | null
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5788,45 +5168,45 @@ export interface MarketsPageSelect<T extends boolean = true> {
   faqs?:
     | T
     | {
-        question?: T
-        answer?: T
-        id?: T
-      }
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
-  seoTitle?: T
-  seoDescription?: T
-  ogImage?: T
+  seoTitle?: T;
+  seoDescription?: T;
+  ogImage?: T;
   noindexPages?:
     | T
     | {
-        path?: T
-        id?: T
-      }
-  primaryCtaLabel?: T
-  primaryCtaHref?: T
-  injuredCtaLabel?: T
-  injuredCtaHref?: T
-  contactEmail?: T
-  brandName?: T
-  brandTagline?: T
-  brandSummary?: T
-  legalDisclaimer?: T
-  privacyPolicyUrl?: T
-  termsUrl?: T
-  orgName?: T
-  orgUrl?: T
-  orgDescription?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+        path?: T;
+        id?: T;
+      };
+  primaryCtaLabel?: T;
+  primaryCtaHref?: T;
+  injuredCtaLabel?: T;
+  injuredCtaHref?: T;
+  contactEmail?: T;
+  brandName?: T;
+  brandTagline?: T;
+  brandSummary?: T;
+  legalDisclaimer?: T;
+  privacyPolicyUrl?: T;
+  termsUrl?: T;
+  orgName?: T;
+  orgUrl?: T;
+  orgDescription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5836,16 +5216,16 @@ export interface HeaderNavSelect<T extends boolean = true> {
   navLinks?:
     | T
     | {
-        label?: T
-        href?: T
-        openInNewTab?: T
-        id?: T
-      }
-  ctaLabel?: T
-  ctaHref?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+        label?: T;
+        href?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  ctaLabel?: T;
+  ctaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5855,27 +5235,27 @@ export interface FooterNavSelect<T extends boolean = true> {
   platformLinks?:
     | T
     | {
-        label?: T
-        href?: T
-        id?: T
-      }
+        label?: T;
+        href?: T;
+        id?: T;
+      };
   resourceLinks?:
     | T
     | {
-        label?: T
-        href?: T
-        id?: T
-      }
+        label?: T;
+        href?: T;
+        id?: T;
+      };
   legalLinks?:
     | T
     | {
-        label?: T
-        href?: T
-        id?: T
-      }
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5883,17 +5263,18 @@ export interface FooterNavSelect<T extends boolean = true> {
  */
 export interface CollectionsWidget {
   data?: {
-    [k: string]: unknown
-  }
-  width: 'full'
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown
+  [k: string]: unknown;
 }
+
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

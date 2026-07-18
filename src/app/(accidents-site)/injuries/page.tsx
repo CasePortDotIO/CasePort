@@ -1,3 +1,4 @@
+import { InjuryTypeBrowseGrid } from '@/components/accidents-pages/InjuryTypeGrid'
 import { EmergencyTriage } from '@/components/accidents-widgets/EmergencyTriage'
 import { InvisibleInjury } from '@/components/accidents-widgets/InvisibleInjury'
 import { SymptomMatcher } from '@/components/accidents-widgets/SymptomMatcher'
@@ -8,11 +9,11 @@ import { Capsule } from '@/components/article/Capsule'
 import { Expert } from '@/components/article/Expert'
 import { Icon } from '@/components/Icon'
 import { breadcrumb, faqSchema, medicalWebPage, orgGraph, type Faq } from '@/lib/accidents-schema'
+import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
-import configPromise from '@payload-config'
 
 export const metadata: Metadata = {
   title: 'Accident Injuries — Symptoms, Treatment & Claim Value | CasePort',
@@ -66,20 +67,20 @@ const faqs: Faq[] = [
 
 async function fetchInjuries() {
   const payload = await getPayload({ config: configPromise })
-  const { docs } = await payload.find({
+  const { docs: injuryTypes } = await payload.find({
     collection: 'injuryTypes',
     limit: 100,
     sort: 'displayOrder',
     where: {},
     depth: 0,
   })
-  return docs
+  return { injuryTypes }
 }
 
 export default async function InjuriesHub() {
-  const injuries = await fetchInjuries()
+  const { injuryTypes } = await fetchInjuries()
 
-  if (!injuries || injuries.length === 0) {
+  if (!injuryTypes || injuryTypes.length === 0) {
     return notFound()
   }
 
@@ -164,39 +165,11 @@ export default async function InjuriesHub() {
         </div>
       </section>
 
-      <SymptomMatcher />
+      <SymptomMatcher injuries={injuryTypes as any} />
 
       <EmergencyTriage />
 
-      <section className="section bg-cream">
-        <div className="container-5">
-          <div className="section-head">
-            <h2 className="section-h">Browse by Injury Type</h2>
-            <p className="section-sub">
-              Twelve medically-reviewed injury guides — each with symptoms, treatment, a recovery
-              timeline, and the factors that drive claim value.
-            </p>
-          </div>
-          <div className="inj-grid">
-            {injuries.map((inj) => (
-              <Link
-                key={inj.slug}
-                href={`/injuries/${inj.slug}`}
-                className="card link r"
-              >
-                <div className="card-ic">
-                  <Icon name={inj.icon || 'steth'} />
-                </div>
-                <h3>{inj.title}</h3>
-                <p style={{ fontSize: '.95rem' }}>{inj.category}</p>
-                <span className="card-link" style={{ marginTop: '1rem' }}>
-                  Symptoms, treatment &amp; value
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <InjuryTypeBrowseGrid injuryTypes={injuryTypes as any} />
 
       <InvisibleInjury />
 

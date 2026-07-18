@@ -13,7 +13,7 @@ import { CTABand } from '@/components/AccidentsCTABand'
 import { JsonLd } from '@/components/AccidentsJsonLd'
 import { medicalWebPage, faqSchema, breadcrumb, speakable, orgGraph } from '@/lib/accidents-schema'
 import { readingMinutes } from '@/lib/accidents-article'
-import type { Injury } from '@/payload-types'
+import type { InjuryType } from '@/payload-types'
 
 const MED_REVIEWER = 'Dr. Elena Ramos, MD'
 
@@ -289,7 +289,7 @@ function spokeContent(inj: any, spokeSlug: string): { meta: SpokeMeta; body: Rea
   }
 }
 
-export function injurySpokeMeta(injury: Injury, spokeSlug: string) {
+export function injurySpokeMeta(injury: InjuryType, spokeSlug: string) {
   const inj = injury as any
   const spoke = INJURY_SPOKES.find((s) => s.slug === spokeSlug)
   if (!inj || !spoke) return null
@@ -305,7 +305,7 @@ export function InjurySpokePage({
   injury,
   spokeSlug,
 }: {
-  injury: Injury
+  injury: InjuryType
   spokeSlug: string
 }) {
   const inj = injury as any

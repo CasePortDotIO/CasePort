@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       frontendUrl = `${siteUrl}/injuries/${doc.slug}?preview=true&draft=${doc.id}`
     } else if (collectionSlug === 'injuryArticles') {
       const injuryTypeSlug = doc.injuryType?.slug || (doc.injuryType as string)
-      frontendUrl = `${siteUrl}/injuries/${injuryTypeSlug}/${doc.spokeType}?preview=true&draft=${doc.id}`
+      frontendUrl = `${siteUrl}/injuries/${injuryTypeSlug}/${doc.slug}?preview=true&draft=${doc.id}`
     } else {
       frontendUrl = `${siteUrl}/insights/${doc.slug}?preview=true&draft=${doc.id}`
     }

@@ -1,7 +1,7 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { InvisibleInjury } from '@/components/accidents-widgets/InvisibleInjury'
 import { CTABand } from '@/components/AccidentsCTABand'
 import { FAQ } from '@/components/AccidentsFAQ'
 import { JsonLd } from '@/components/AccidentsJsonLd'
@@ -35,14 +35,6 @@ const INJURY_SPOKES = [
   { slug: 'settlement-factors', label: 'Settlement Factors' },
 ]
 
-const INVISIBLE = [
-  'whiplash',
-  'herniated-disc',
-  'soft-tissue-injury',
-  'neck-injury',
-  'back-injury',
-  'shoulder-injury',
-]
 
 // ─── Block Renderers ───────────────────────────────────────────────────────────
 
@@ -101,79 +93,128 @@ function ProseBlock({ block }: { block: Block }) {
   const raw = block?.sections || []
   if (!raw.length) return null
   const sections = toSections(raw as { title: string; content: string | string[] }[])
+  return <ProseSections sections={sections} />
+}
+
+function TOCBlock({ block }: { block: Block }) {
+  const items = block?.items || []
+  if (!items.length) return null
+  return <InGuideTOC sections={items.map((it: any) => ({ title: it.label }))} />
+}
+
+function ImageComparisonBlock({ block }: { block: Block }) {
+  const [v, setV] = useState(55)
+  const trapTitle = block?.trapTitle
+  const trapContent = block?.trapContent
+  const trapImageA = block?.trapImageA
+  const trapImageB = block?.trapImageB
+  const points = block?.points || []
+
+  const imgAUrl = trapImageA
+    ? typeof trapImageA === 'object'
+      ? (trapImageA as any)?.url
+      : trapImageA
+    : undefined
+  const imgBUrl = trapImageB
+    ? typeof trapImageB === 'object'
+      ? (trapImageB as any)?.url
+      : trapImageB
+    : undefined
+
+  if (!imgAUrl && !imgBUrl) return null
+
   return (
-    <>
-      <InGuideTOC sections={sections} />
-      <ProseSections sections={sections} />
-    </>
+    <section className="section bg-white" data-widget="invisible">
+      <div className="container-4">
+        <div className="section-head center">
+          {trapTitle && <h2 className="section-h">{trapTitle}</h2>}
+          {trapContent && <p className="section-sub center">{trapContent}</p>}
+        </div>
+        <div className="ii-stage" id="iiStage">
+          {imgBUrl && (
+            <div className="ii-img ii-mri">
+              <img src={imgBUrl} alt="MRI" />
+            </div>
+          )}
+          {imgAUrl && (
+            <div className="ii-img ii-xray" id="iiXray" style={{ clipPath: `inset(0 0 0 ${v}%)` }}>
+              <img src={imgAUrl} alt="X-ray" />
+            </div>
+          )}
+          <div className="ii-handle" id="iiHandle" style={{ left: `${v}%` }}>
+            <span className="ii-handle-grip">
+              <Icon name="chev" />
+              <Icon name="back" />
+            </span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={v}
+            className="ii-range"
+            id="iiRange"
+            aria-label="Reveal image comparison"
+            onChange={(e) => setV(Number(e.target.value))}
+          />
+        </div>
+        {points.length > 0 && (
+          <div className="ii-points">
+            {points.map((p: any, i: number) => (
+              <div className="ii-point" key={i}>
+                <Icon name={i === 0 ? 'alert' : 'check2'} style={{ color: i === 0 ? '#c4714a' : '#4a8c7e' }} />
+                <span>
+                  <b>{p.bold}</b> {p.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   )
 }
 
-function SymptomsBlock({ block, injuryName }: { block: Block; injuryName: string }) {
+function SymptomsBlock({ block }: { block: Block }) {
   const immediate = block?.immediate?.map((s: any) => s.item) || []
   const delayed = block?.delayed?.map((s: any) => s.item) || []
   const emergency = block?.emergency?.map((s: any) => s.item) || []
-  const trapTitle = block?.trapTitle
-  const trapContent = block?.trapContent
-  const trapImage = block?.trapImage
-  const trapImageUrl = trapImage
-    ? typeof trapImage === 'object'
-      ? (trapImage as any)?.url
-      : trapImage
-    : undefined
 
   return (
-    <>
-      <section className="section bg-white">
-        <div className="container">
-          <div className="sym-grid">
-            <div className="sym-col">
-              <div className="sym-col-h"><Icon name="clock" />Immediate symptoms</div>
-              <ul>
-                {immediate.map((s: string, i: number) => (
-                  <li key={i}><Icon name="check2" /><span>{s}</span></li>
-                ))}
-              </ul>
-            </div>
-            <div className="sym-col">
-              <div className="sym-col-h"><Icon name="steth" />Delayed symptoms (hours–days)</div>
-              <ul>
-                {delayed.map((s: string, i: number) => (
-                  <li key={i}><Icon name="check2" /><span>{s}</span></li>
-                ))}
-              </ul>
-            </div>
-            <div className="sym-col emergency">
-              <div className="sym-col-h"><Icon name="alert" />Emergency — call 911</div>
-              <ul>
-                {emergency.map((s: string, i: number) => (
-                  <li key={i}><Icon name="check2" /><span>{s}</span></li>
-                ))}
-              </ul>
-            </div>
+    <section className="section bg-white">
+      <div className="container">
+        <div className="sym-grid">
+          <div className="sym-col">
+            <div className="sym-col-h"><Icon name="clock" />Immediate symptoms</div>
+            <ul>
+              {immediate.map((s: string, i: number) => (
+                <li key={i}><Icon name="check2" /><span>{s}</span></li>
+              ))}
+            </ul>
           </div>
-          <p className="note" style={{ marginTop: '1.5rem' }}>
-            <Icon name="alertC" />
-            <span>This is educational information, not a diagnosis. If you have any emergency symptom, call 911 or go to the ER immediately.</span>
-          </p>
+          <div className="sym-col">
+            <div className="sym-col-h"><Icon name="steth" />Delayed symptoms (hours–days)</div>
+            <ul>
+              {delayed.map((s: string, i: number) => (
+                <li key={i}><Icon name="check2" /><span>{s}</span></li>
+              ))}
+            </ul>
+          </div>
+          <div className="sym-col emergency">
+            <div className="sym-col-h"><Icon name="alert" />Emergency — call 911</div>
+            <ul>
+              {emergency.map((s: string, i: number) => (
+                <li key={i}><Icon name="check2" /><span>{s}</span></li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </section>
-      {trapTitle && trapContent ? (
-        <ProseBlock
-          block={
-            {
-              sections: [
-                {
-                  title: trapTitle,
-                  content: trapContent,
-                  ...(trapImageUrl ? { image: trapImageUrl } : {}),
-                },
-              ],
-            } as unknown as Block
-          }
-        />
-      ) : null}
-    </>
+        <p className="note" style={{ marginTop: '1.5rem' }}>
+          <Icon name="alertC" />
+          <span>This is educational information, not a diagnosis. If you have any emergency symptom, call 911 or go to the ER immediately.</span>
+        </p>
+      </div>
+    </section>
   )
 }
 
@@ -278,9 +319,11 @@ function CTABlock({ block }: { block: Block }) {
   return <CTABand title={block.title} sub={block.subtitle} link={resolvedHref} />
 }
 
-function ExploreMoreBlock({ block, injuryName, injurySlug }: { block: Block; injuryName: string; injurySlug: string }) {
+function ExploreMoreBlock({ block, injuryName }: { block: Block; injuryName: string }) {
   const pages: any[] = block.pages || []
-  const hasPages = pages.length > 0
+  if (!pages.length) return null
+
+  const SPOKE_SUFFIXES = ['symptoms', 'treatment', 'recovery-timeline', 'settlement-factors']
 
   return (
     <section className="section bg-cream">
@@ -289,35 +332,21 @@ function ExploreMoreBlock({ block, injuryName, injurySlug }: { block: Block; inj
           <h2 className="section-h">Go Deeper on {injuryName}</h2>
         </div>
         <div className="grid grid-4">
-          {hasPages ? (
-            pages.map((page: any) => {
-              const articleSlug = typeof page === 'object' ? page.slug : page
-              const articleTitle = typeof page === 'object' ? page.title : injuryName
-              const articleSpokeType = typeof page === 'object' ? page.spokeType : ''
-              const href = articleSpokeType
-                ? `/injuries/${injurySlug}/${articleSpokeType}`
-                : `/injuries/${injurySlug}`
-              return (
-                <Link key={articleSlug} href={href} className="card link r">
-                  <h3>{articleTitle}</h3>
-                  <span className="card-link" style={{ marginTop: '.9rem' }}>Open</span>
-                </Link>
-              )
-            })
-          ) : (
-            <>
-              {INJURY_SPOKES.map((sp) => (
-                <Link key={sp.slug} href={`/injuries/${injurySlug}/${sp.slug}`} className="card link r">
-                  <h3>{injuryName} {sp.label}</h3>
-                  <span className="card-link" style={{ marginTop: '.9rem' }}>Open</span>
-                </Link>
-              ))}
-              <Link href={`/injuries/${injurySlug}`} className="card link r">
-                <h3>{injuryName} Overview</h3>
+          {pages.map((page: any) => {
+            const articleSlug = page.slug || ''
+            const injSlug = SPOKE_SUFFIXES.reduce(
+              (s, suffix) => s.replace(new RegExp(`-${suffix}$`), ''),
+              articleSlug
+            )
+            const href = `/injuries/${injSlug}/${articleSlug}`
+            const title = page.title || injuryName
+            return (
+              <Link key={page.id || articleSlug} href={href} className="card link r">
+                <h3>{title}</h3>
                 <span className="card-link" style={{ marginTop: '.9rem' }}>Open</span>
               </Link>
-            </>
-          )}
+            )
+          })}
         </div>
       </div>
     </section>
@@ -362,11 +391,10 @@ function RelatedInjuriesBlock({ block }: { block: Block }) {
 
 // ─── Block Renderer ───────────────────────────────────────────────────────────
 
-function BlockRenderer({ blocks, injuryName, injurySlug, invisible }: {
+function BlockRenderer({ blocks, injuryName, injurySlug }: {
   blocks: Block[]
   injuryName: string
   injurySlug: string
-  invisible: boolean
 }) {
   return (
     <>
@@ -380,10 +408,14 @@ function BlockRenderer({ blocks, injuryName, injurySlug, invisible }: {
             return <KeyTakeawaysBlock key={block.id || i} block={block} />
           case 'injuryTypeDirectAnswer':
             return <DirectAnswerBlock key={block.id || i} block={block} injuryName={injuryName} />
+          case 'injuryTypeTOC':
+            return <TOCBlock key={block.id || i} block={block} />
           case 'injuryTypeProseSections':
             return <ProseBlock key={block.id || i} block={block} />
           case 'injuryTypeSymptoms':
-            return <SymptomsBlock key={block.id || i} block={block} injuryName={injuryName} />
+            return <SymptomsBlock key={block.id || i} block={block} />
+          case 'injuryTypeImageComparison':
+            return <ImageComparisonBlock key={block.id || i} block={block} />
           case 'injuryTypeTreatment':
             return <TreatmentBlock key={block.id || i} block={block} injuryName={injuryName} />
           case 'injuryTypeRecovery':
@@ -399,14 +431,13 @@ function BlockRenderer({ blocks, injuryName, injurySlug, invisible }: {
           case 'injuryTypeCTA':
             return <CTABlock key={block.id || i} block={block} />
           case 'injuryTypeExploreMore':
-            return <ExploreMoreBlock key={block.id || i} block={block} injuryName={injuryName} injurySlug={injurySlug} />
+            return <ExploreMoreBlock key={block.id || i} block={block} injuryName={injuryName} />
           case 'injuryTypeRelatedInjuries':
             return <RelatedInjuriesBlock key={block.id || i} block={block} />
           default:
             return null
         }
       })}
-      {invisible && <InvisibleInjury />}
     </>
   )
 }
@@ -422,7 +453,6 @@ export function InjuryTypePage({
   const blocks: Block[] = inj.blocks || []
   const injName = inj.title || ''
   const injSlug = inj.slug || ''
-  const invisible = INVISIBLE.includes(injSlug)
 
   return (
     <>
@@ -430,7 +460,6 @@ export function InjuryTypePage({
         blocks={blocks}
         injuryName={injName}
         injurySlug={injSlug}
-        invisible={invisible}
       />
 
       <ArticleOverlays />
